@@ -19,6 +19,7 @@ import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { IMAGES } from '../../constants/images';
 import GGAssistant from '../../components/GGAssistant';
+import GuestBanner from '../../components/GuestBanner';
 import { clearStorage } from '../../utils/storage';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
@@ -32,10 +33,14 @@ interface Props {
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState, updateUserState, isNightMode, setNightMode } = useApp();
+    const { userState, exitGuestMode, isNightMode, setNightMode } = useApp();
 
     const handleStartSession = () => {
         navigation.navigate(Screen.TRANSITION_TUNNEL);
+    };
+
+    const handleRegisterClick = () => {
+        exitGuestMode();
     };
 
     const handleClearStorage = async () => {
@@ -66,6 +71,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         <View style={[styles.container, isNightMode && { backgroundColor: '#070A15' }, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" translucent={true} />
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+                {userState.isGuest && (
+                    <GuestBanner onPressRegister={handleRegisterClick} />
+                )}
 
                 {/* Header */}
                 <View style={styles.header}>

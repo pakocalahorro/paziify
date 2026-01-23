@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, UserState, Session } from '../types';
+import { supabase } from '../services/supabaseClient';
+import { User } from '@supabase/supabase-js';
 
 interface AppContextType {
     currentScreen: Screen;
@@ -11,6 +13,13 @@ interface AppContextType {
     setNightMode: (isNight: boolean) => void;
     selectedSession: Session | null;
     setSelectedSession: (session: Session | null) => void;
+    user: User | null;
+    isLoading: boolean;
+    isGuest: boolean;
+    continueAsGuest: () => void;
+    exitGuestMode: () => void;
+    signOut: () => Promise<void>;
+    signInWithGoogle: () => Promise<void>;
 }
 
 const defaultUserState: UserState = {
@@ -21,6 +30,7 @@ const defaultUserState: UserState = {
     streak: 0,
     resilienceScore: 50,
     isPlusMember: false,
+    isGuest: false,
     settings: {
         notificationMorning: true,
         notificationNight: true,
@@ -43,31 +53,62 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.REGISTER);
     const [userState, setUserState] = useState<UserState>(defaultUserState);
     const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isNightMode, setIsNightMode] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Load user state from AsyncStorage on app start
+    // Initial session and auth listener
     useEffect(() => {
-        const loadUserState = async () => {
-            try {
-                const savedState = await AsyncStorage.getItem(STORAGE_KEY);
-                if (savedState) {
-                    const parsedState = JSON.parse(savedState);
-                    setUserState({ ...defaultUserState, ...parsedState });
+        // Check current session
+        const initAuth = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
+            setIsLoading(false);
+        };
+
+        initAuth();
+
+        // Listen for changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            if (!session) {
+                // Clear state on sign out
+                setUserState(defaultUserState);
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    // Load profile from Supabase when user changes
+    useEffect(() => {
+        const loadProfile = async () => {
+            if (user) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (!error && data) {
+                    setUserState(prev => ({
+                        ...prev,
+                        name: data.full_name || prev.name,
+                        streak: data.streak || 0,
+                        resilienceScore: data.resilience_score || 50,
+                        isPlusMember: data.is_plus_member || false,
+                        isRegistered: true,
+                    }));
                 }
-            } catch (error) {
-                console.error('Error loading user state:', error);
-            } finally {
-                setIsLoading(false);
             }
         };
 
-        loadUserState();
-    }, []);
+        loadProfile();
+    }, [user]);
 
     // Save user state to AsyncStorage whenever it changes
     useEffect(() => {
-        if (!isLoading) {
+        if (!isLoading && !userState.isGuest) {
             const saveUserState = async () => {
                 try {
                     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userState));
@@ -86,8 +127,37 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setIsNightMode(hour >= 21 || hour < 6);
     }, []);
 
+    const signOut = async () => {
+        await supabase.auth.signOut();
+    };
+
+    const continueAsGuest = () => {
+        setUserState(prev => ({ ...prev, isGuest: true }));
+    };
+
+    const exitGuestMode = () => {
+        setUserState(prev => ({ ...prev, isGuest: false }));
+    };
+
     const navigate = (screen: Screen) => {
         setCurrentScreen(screen);
+    };
+
+    const signInWithGoogle = async () => {
+        setIsLoading(true);
+        try {
+            const { signInWithGoogle: authSignIn } = await import('../services/AuthService');
+            const result = await authSignIn();
+
+            if (result.success) {
+                // The onAuthStateChange listener will handle the user state update
+                setUserState(prev => ({ ...prev, isGuest: false }));
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const updateUserState = (updates: Partial<UserState>) => {
@@ -105,6 +175,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 setNightMode: setIsNightMode,
                 selectedSession,
                 setSelectedSession,
+                user,
+                isLoading,
+                isGuest: userState.isGuest,
+                continueAsGuest,
+                exitGuestMode,
+                signOut,
+                signInWithGoogle,
             }}
         >
             {children}

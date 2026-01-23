@@ -1,5 +1,7 @@
 export enum Screen {
     REGISTER = 'REGISTER',
+    WELCOME = 'WELCOME',
+    LOGIN = 'LOGIN',
     NOTIFICATION_SETTINGS = 'NOTIFICATION_SETTINGS',
     HOME = 'HOME',
     LIBRARY = 'LIBRARY',
@@ -19,6 +21,7 @@ export interface UserState {
     name: string;
     email?: string;
     isRegistered: boolean;
+    isGuest: boolean;
     hasMissedDay: boolean;
     isDailySessionDone: boolean;
     streak: number;
@@ -61,6 +64,8 @@ export interface UserSession {
 
 export type RootStackParamList = {
     [Screen.REGISTER]: undefined;
+    [Screen.WELCOME]: undefined;
+    [Screen.LOGIN]: undefined;
     [Screen.NOTIFICATION_SETTINGS]: undefined;
     [Screen.HOME]: undefined;
     [Screen.LIBRARY]: undefined;

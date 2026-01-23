@@ -13,7 +13,7 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
    - Identificar logros principales
    - Detectar problemas pendientes
 
-2. **Crear nota de sesión**
+2. **Crear nota de sesión** si ya existe una nota en el mismo dia se crea otra nueva con otro nombre indicando los nuevos cambios.
    - Archivo: `docs/sessions/YYYY-MM-DD_descripcion.md`
    - Formato:
      ```markdown
@@ -34,18 +34,15 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
      ## Progreso
      [Estado del milestone actual]
      ```
+3. **Supabase - Base de datos y Login** 
+   - Si en la nota de sesion hay cambios en login o base de datos leer y actualizar `docs/guides/database.md`
 
-3. **Actualizar plan de implementación**
-   - Marcar tareas completadas en `docs/plans/implementation_plan.md`
-   - Actualizar porcentaje de progreso
-   - Ajustar estimaciones si es necesario
-
-4. **Commit de cambios** (opcional)
+4. **Commit de cambios** Preguntar si hacemos commit
    - Crear commit con mensaje descriptivo
    - Incluir todos los archivos relevantes
 
 ## Ubicaciones de Documentos:
 
-- **Planes:** `docs/plans/`
 - **Sesiones:** `docs/sessions/`
 - **Workflows:** `.agent/workflows/`
+- **Guias:** `docs/guides/`

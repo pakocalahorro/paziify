@@ -4,7 +4,6 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
     StatusBar,
     Image,
     Animated,
@@ -13,6 +12,7 @@ import {
     Switch,
     ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -70,18 +70,6 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
         { icon: 'happy', label: 'Genial', color: '#2DD4BF' },
         { icon: 'leaf', label: 'Excelente', color: '#2DD4BF' },
     ];
-
-    // Map custom indices to mockup emojis/icons
-    const getMoodIcon = (indexValue: number) => {
-        switch (indexValue) {
-            case 0: return 'sad';
-            case 1: return 'body';
-            case 2: return 'remove-circle';
-            case 3: return 'happy';
-            case 4: return 'leaf';
-            default: return 'happy';
-        }
-    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -224,12 +212,6 @@ const styles = StyleSheet.create({
         paddingTop: 40,
         paddingBottom: 20,
     },
-    content: {
-        flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: 30,
-        paddingTop: 40,
-    },
     badge: {
         backgroundColor: 'rgba(74, 103, 65, 0.15)',
         paddingHorizontal: 16,
@@ -279,12 +261,6 @@ const styles = StyleSheet.create({
         shadowRadius: 15,
         elevation: 10,
     },
-    moodLabels: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: 60,
-    },
     moodLabel: {
         fontSize: 12,
         fontWeight: '700',
@@ -304,17 +280,6 @@ const styles = StyleSheet.create({
     assistantAvatar: {
         position: 'relative',
         marginRight: 15,
-    },
-    assistantStatus: {
-        position: 'absolute',
-        bottom: 2,
-        right: 2,
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: theme.colors.primary,
-        borderWidth: 2,
-        borderColor: '#1A1A1A',
     },
     assistantContent: {
         flex: 1,

@@ -5,7 +5,9 @@ import { Screen, RootStackParamList } from '../types';
 import { useApp } from '../context/AppContext';
 
 // Screens
+import WelcomeScreen from '../screens/Onboarding/WelcomeScreen';
 import RegisterScreen from '../screens/Onboarding/RegisterScreen';
+import LoginScreen from '../screens/Onboarding/LoginScreen';
 import { TabNavigator } from './TabNavigator';
 import TransitionTunnel from '../screens/Meditation/TransitionTunnel';
 import BreathingTimer from '../screens/Meditation/BreathingTimer';
@@ -17,10 +19,20 @@ import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
 import CommunityScreen from '../screens/Social/CommunityScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
 
+import { View, ActivityIndicator } from 'react-native';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const AppNavigator = () => {
-    const { userState } = useApp();
+    const { user, isLoading, isGuest } = useApp();
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, backgroundColor: '#0A0E1A', justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#646CFF" />
+            </View>
+        );
+    }
 
     return (
         <NavigationContainer>
@@ -31,8 +43,12 @@ export const AppNavigator = () => {
                     animation: 'fade',
                 }}
             >
-                {!userState.isRegistered ? (
-                    <Stack.Screen name={Screen.REGISTER} component={RegisterScreen} />
+                {!user && !isGuest ? (
+                    <>
+                        <Stack.Screen name={Screen.WELCOME} component={WelcomeScreen} />
+                        <Stack.Screen name={Screen.REGISTER} component={RegisterScreen} />
+                        <Stack.Screen name={Screen.LOGIN} component={LoginScreen} />
+                    </>
                 ) : (
                     <>
                         <Stack.Screen name="MainTabs" component={TabNavigator} />
