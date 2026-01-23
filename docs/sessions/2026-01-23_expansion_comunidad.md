@@ -9,6 +9,11 @@ Se ha completado la Fase 5 del proyecto, centrada en escalar el contenido de la 
 - **Voz Ultra-Zen:** Refinamiento de locuciones a términos minimalistas ("Inhala", "Mantén el aire") con un tempo ultra-lento de 0.30 para máxima relajación.
 - **Bug Fix del Temporizador:** Corrección definitiva de la sincronización en el `TransitionTunnel`, eliminando el error persistente de los 5 minutos.
 - **Estabilidad JSX:** Resolución de errores de anidamiento en `SessionEndScreen` y optimización de tipos en la navegación.
+- **Refinamientos UI Premium:** 
+    - Implementación de **Aura de Latido (Heartbeat Aura)** en el temporizador para relajación visual.
+    - **Countdown Visual (3-2-1):** Nueva transición antes de iniciar sesiones con cuenta atrás integrada.
+    - **Feedback Háptico:** Integración de `expo-haptics` en el temporizador, botones de inicio y transiciones de fase.
+    - **Búsqueda Inteligente:** El catálogo ahora permite filtrar sesiones por estado de ánimo y etiquetas contextuales.
 
 ## Problemas
 - Depreciación de `expo-av`: El sistema muestra un aviso de que será eliminado en SDK 54. Se recomienda planificar la migración a `expo-audio` en el futuro.

@@ -4,11 +4,20 @@ Bienvenido a la guía oficial de **Paziify Native**. Esta versión migrada a Rea
 
 ---
 
-## 1. Onboarding y "Wellness OS"
-**Pantalla:** `RegisterScreen` -> `NotificationSettings`
-- **Registro Inteligente**: Introduce tu nombre para que **G.G. Assistant** personalice tu experiencia.
-- **Configuración de Notificaciones**: Diseño intuitivo para gestionar tus recordatorios de mañana y noche.
-- **Zona de Calma**: Configura tus horas de silencio para proteger tu descanso.
+## 1. Onboarding Zen (Acceso Flexible) 🚪
+**Pantalla:** `WelcomeScreen` -> `RegisterScreen` / `LoginScreen`
+Paziify prioriza tu entrada al bienestar. Ahora tienes dos caminos:
+- **Continuar con Google**: Acceso instantáneo y seguro. Tu progreso se sincronizará automáticamente con la nube desde el primer segundo.
+- **Explorar como Invitado**: Acceso directo sin registros. Ideal para probar la experiencia antes de comprometerte. Solo necesitas introducir tu nombre para que **G.G. Assistant** te salude.
+
+---
+
+## 2. Modo Invitado (Ghost Mode) 👻
+**Estado:** Activo si eliges "Explorar como invitado"
+Para una privacidad total y cero fricción:
+- **Sin Huella**: No se guarda ningún dato en la memoria permanente del teléfono (`AsyncStorage`).
+- **Efímero**: Si cierras la aplicación, tu racha y progreso de ese día desaparecerán.
+- **Persuasión Amable**: Verás un **GuestBanner** en la parte superior que te recordará el beneficio de registrarte para asegurar tu progreso. Puedes convertir tu cuenta a Google en cualquier momento desde el Home o el Perfil.
 
 ---
 
@@ -28,14 +37,18 @@ La pantalla principal ya no es estática; es un reflejo de tu estado:
 **Pantalla:** `BreathingTimer` -> `LibraryScreen`
 Hemos rediseñado el núcleo de la meditación para una máxima inmersión:
 - **Biblioteca de Élite (+25 Sesiones)**: 
-    - **S.O.S. Pánico**: Intervención de 2 min para crisis.
-    - **NSDR & Yoga Nidra**: Recuperación profunda sin sueño R.E.M.
-    - **Espresso Mental**: Activación rápida para la jornada.
-- **Voz Ultra-Zen (0.30 Rate)**: Locuciones minimalistas ("Inhala", "Mantén el aire") con un tempo ultra-lento diseñado para estados de relajación profunda.
+    - **S.O.S. Pánico**: Intervención de 2-3 min para crisis de ansiedad.
+    - **Sueño Profundo**: Yoga Nidra, NSDR Extendido y Escaneo Corporal para insomnio.
+    - **Enfoque y Mañana**: Alerta Stanford y Espresso Mental para activar el foco.
+    - **Resiliencia**: Coherencia Cardíaca Avanzada para regular el sistema nervioso.
+- **Voz Ultra-Zen (0.30 Rate)**: Locuciones en plural rítmico ("Inhalamos", "Mantenemos") con un tempo ultra-lento diseñado para estados de relajación theta y delta.
 - **Mezclador de Sonido (Mixer)**:
     - **Ondas Binaurales (Plus)**: Sincronización cerebral para foco o relax.
     - **Lluvia (Plus)**: Ambiente natural relajante.
     - **Campanas Tibetanas (Plus)**: Enfoque meditativo tradicional.
+- **Feedback Sensorial**:
+    - **Aura de Latido**: Animación pulsante sincronizada con el estado de ánimo.
+    - **Háptica Paziify**: Siente una vibración sutil al cambiar de fase (inhala/exhala) o al completar objetivos.
 - **Precisión Total**: Temporizador sincronizado al segundo con la duración real de cada técnica (4-7-8, Respire 4s, etc.).
 
 ---
@@ -65,14 +78,12 @@ Hemos rediseñado el núcleo de la meditación para una máxima inmersión:
 
 ---
 
-- [ ] ¿El temporizador marca el tiempo exacto de la sesión elegida (ej. 4 min para Respiración Cuadrada)?
-- [ ] ¿La voz suena con el nuevo ritmo ultra-pausado (0.30)?
-- [ ] ¿Aparece la opción "¿Compartimos la experiencia?" tras completar una sesión con cara feliz?
-- [ ] ¿El Home cambia de estado al pulsar los botones de simulación?
-- [ ] ¿Aparece el candado en los sonidos del Mezclador si eres usuario gratuito?
-- [ ] ¿La pantalla de Paywall muestra la tabla comparativa correctamente?
-- [ ] ¿Se actualiza el gráfico de barras tras completar una sesión?
-- [ ] ¿Las lecciones de la Academia aparecen con check ✅ tras marcarlas como leídas?
+- [x] ¿El temporizador marca el tiempo exacto de la sesión elegida?
+- [x] ¿La voz suena con el nuevo ritmo rítmico plural ("Inhalamos...") y tempo 0.30?
+- [x] ¿Aparece la opción "¿Compartimos la experiencia?" tras completar una sesión?
+- [x] ¿Funciona el acceso como Invitado sin pedir registro?
+- [x] ¿El Home muestra el banner de advertencia si eres invitado?
+- [ ] ¿Se guardan los datos en Supabase tras loguearse con Google? (Pendiente configuración final).
 
 ---
-*Última actualización de la guía: 23 de Enero de 2026 - Fase: Comunidad y Contenido Masivo*
+*Última actualización de la guía: 23 de Enero de 2026 - Fase: Infraestructura y Onboarding Híbrido*
