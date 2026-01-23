@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "paziify-native",
-    "slug": "paziify-native",
+    "name": "Paziify",
+    "slug": "paziify",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

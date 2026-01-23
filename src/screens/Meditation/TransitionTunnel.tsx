@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
+import { RouteProp } from '@react-navigation/native';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 
@@ -18,11 +19,14 @@ type TransitionTunnelScreenNavigationProp = NativeStackNavigationProp<
     Screen.TRANSITION_TUNNEL
 >;
 
+type TransitionTunnelScreenRouteProp = RouteProp<RootStackParamList, Screen.TRANSITION_TUNNEL>;
+
 interface Props {
     navigation: TransitionTunnelScreenNavigationProp;
+    route: TransitionTunnelScreenRouteProp;
 }
 
-const TransitionTunnel: React.FC<Props> = ({ navigation }) => {
+const TransitionTunnel: React.FC<Props> = ({ navigation, route }) => {
     const fadeAnim = new Animated.Value(0);
     const scaleAnim = new Animated.Value(0.8);
 
@@ -41,7 +45,9 @@ const TransitionTunnel: React.FC<Props> = ({ navigation }) => {
         ]).start();
 
         const timer = setTimeout(() => {
-            navigation.replace(Screen.BREATHING_TIMER);
+            navigation.replace(Screen.BREATHING_TIMER, {
+                sessionId: route.params?.sessionId
+            } as any);
         }, 4500);
 
         return () => clearTimeout(timer);

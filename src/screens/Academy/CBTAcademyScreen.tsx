@@ -4,10 +4,9 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
     ScrollView,
-    FlatList,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, RootStackParamList } from '../../types';
@@ -25,6 +24,7 @@ interface Props {
 }
 
 const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const { userState } = useApp();
     const completedLessons = userState.completedLessons || [];
 
@@ -86,7 +86,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Academia TCC</Text>
                 <Text style={styles.headerSubtitle}>Herramientas para tu bienestar mental</Text>
@@ -108,7 +108,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
 
                 {ACADEMY_MODULES.map(renderModule)}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 

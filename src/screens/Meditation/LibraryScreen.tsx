@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     View,
     Text,
     TextInput,
     TouchableOpacity,
     StyleSheet,
-    SafeAreaView,
     FlatList,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList, Session } from '../../types';
 import { theme } from '../../constants/theme';
 import SessionCard from '../../components/SessionCard';
+import SessionPreviewModal from '../../components/SessionPreviewModal';
+import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData';
 
 type LibraryScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -24,24 +26,62 @@ interface Props {
     navigation: LibraryScreenNavigationProp;
 }
 
-const categories = ['Todo', '10-20 min', 'Sueño', 'Ansiedad', 'Foco'];
-
-const sessions: Session[] = [
-    { id: '1', title: 'Respiración Resonante', duration: 10, category: 'Ansiedad', isPlus: true, image: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=400' },
-    { id: '2', title: 'Escaneo Corporal', duration: 20, category: 'Sueño', isPlus: false, image: 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?q=80&w=400' },
-    { id: '3', title: 'Compasión', duration: 15, category: 'Conexión', isPlus: false, image: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=400' },
-    { id: '4', title: 'Sonidos Binaurales', duration: 30, category: 'Foco', isPlus: true, image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=400' },
-    { id: '5', title: 'Meditación Guiada', duration: 15, category: 'Foco', isPlus: false, image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400' },
-    { id: '6', title: 'Relajación Profunda', duration: 25, category: 'Sueño', isPlus: true, image: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=400' },
-];
+const categories = ['Todo', 'Ansiedad', 'Despertar', 'Sueño', 'Mindfulness', 'Resiliencia'];
 
 const LibraryScreen: React.FC<Props> = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const { userState } = useApp();
     const [selectedCategory, setSelectedCategory] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
+    const [previewVisible, setPreviewVisible] = useState(false);
+
+    const convertToSession = (medSession: MeditationSession): Session => ({
+        id: medSession.id,
+        title: medSession.title,
+        duration: medSession.durationMinutes,
+        category: medSession.category.charAt(0).toUpperCase() + medSession.category.slice(1),
+        isPlus: medSession.isPremium,
+        image: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=400',
+    });
+
+    const filteredSessions = useMemo(() => {
+        let filtered = MEDITATION_SESSIONS;
+        if (selectedCategory > 0) {
+            const categoryName = categories[selectedCategory].toLowerCase();
+            filtered = filtered.filter(s => s.category === categoryName);
+        }
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter(s =>
+                s.title.toLowerCase().includes(query) ||
+                s.description.toLowerCase().includes(query) ||
+                s.moodTags.some(tag => tag.toLowerCase().includes(query))
+            );
+        }
+        return filtered.map(convertToSession);
+    }, [selectedCategory, searchQuery]);
 
     const handleSessionClick = (session: Session) => {
-        navigation.navigate(Screen.TRANSITION_TUNNEL);
+        // Find the original meditation session
+        const medSession = MEDITATION_SESSIONS.find(s => s.id === session.id);
+
+        if (medSession) {
+            setSelectedSession(medSession);
+            setPreviewVisible(true);
+        }
+    };
+
+    const handleStartSession = (session: MeditationSession) => {
+        setPreviewVisible(false);
+        // Check if premium and user is not premium
+        if (session.isPremium && !userState.isPlusMember) {
+            navigation.navigate(Screen.PAYWALL);
+            return;
+        }
+
+        // Navigate to breathing timer with session ID
+        navigation.navigate(Screen.TRANSITION_TUNNEL, { sessionId: session.id } as any);
     };
 
     const renderSessionCard = ({ item }: { item: Session }) => (
@@ -55,7 +95,7 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Biblioteca</Text>
@@ -111,7 +151,7 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
 
             {/* Sessions Grid */}
             <FlatList
-                data={sessions}
+                data={filteredSessions}
                 keyExtractor={(item) => item.id}
                 numColumns={2}
                 columnWrapperStyle={styles.sessionRow}
@@ -119,7 +159,14 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                 renderItem={renderSessionCard}
                 showsVerticalScrollIndicator={false}
             />
-        </SafeAreaView>
+
+            <SessionPreviewModal
+                isVisible={previewVisible}
+                session={selectedSession}
+                onClose={() => setPreviewVisible(false)}
+                onStart={handleStartSession}
+            />
+        </View>
     );
 };
 

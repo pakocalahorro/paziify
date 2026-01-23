@@ -4,15 +4,15 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
-    ScrollView,
     FlatList,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../constants/theme';
 import { COMMUNITY_POSTS, Post } from '../../data/socialData';
 
 const CommunityScreen: React.FC = () => {
+    const insets = useSafeAreaInsets();
     const [posts, setPosts] = useState<Post[]>(COMMUNITY_POSTS);
 
     const handleSupport = (postId: string) => {
@@ -69,7 +69,7 @@ const CommunityScreen: React.FC = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Comunidad</Text>
                 <Text style={styles.headerSubtitle}>No estás solo en esto. Nos apoyamos.</Text>
@@ -95,7 +95,7 @@ const CommunityScreen: React.FC = () => {
             <TouchableOpacity style={styles.fab}>
                 <Ionicons name="add" size={30} color="#FFFFFF" />
             </TouchableOpacity>
-        </SafeAreaView>
+        </View>
     );
 };
 

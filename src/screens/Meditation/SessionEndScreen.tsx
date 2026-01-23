@@ -9,6 +9,9 @@ import {
     Image,
     Animated,
     Platform,
+    TextInput,
+    Switch,
+    ScrollView,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,6 +32,8 @@ interface Props {
 const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
     const { userState, updateUserState } = useApp();
     const [selectedMood, setSelectedMood] = useState<number>(3); // Default to middle/calm
+    const [isSharing, setIsSharing] = useState(false);
+    const [comment, setComment] = useState('');
 
     useEffect(() => {
         if (Platform.OS !== 'web') {
@@ -59,11 +64,11 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     const moods = [
-        { icon: 'sad-outline', label: 'Tenso' },
-        { icon: 'alert-circle-outline', label: '' },
-        { icon: 'remove-circle-outline', label: '' },
-        { icon: 'happy-outline', label: '' },
-        { icon: 'leaf-outline', label: 'Calmado' },
+        { icon: 'sad', label: 'Peor', color: '#FF6B6B' },
+        { icon: 'body', label: 'Igual', color: '#FFD933' },
+        { icon: 'remove-circle', label: 'Bien', color: '#4CAF50' },
+        { icon: 'happy', label: 'Genial', color: '#2DD4BF' },
+        { icon: 'leaf', label: 'Excelente', color: '#2DD4BF' },
     ];
 
     // Map custom indices to mockup emojis/icons
@@ -88,7 +93,7 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.content}>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 <View style={styles.badge}>
                     <Text style={styles.badgeText}>SESIÓN COMPLETADA</Text>
                 </View>
@@ -96,52 +101,100 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                 <Text style={styles.title}>¿Cómo te sientes ahora?</Text>
 
                 <View style={styles.moodSelector}>
-                    {moods.map((_, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={[
-                                styles.moodItem,
-                                selectedMood === index && styles.moodItemActive
-                            ]}
-                            onPress={() => {
-                                setSelectedMood(index);
-                                if (Platform.OS !== 'web') {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                }
-                            }}
-                        >
-                            <Ionicons
-                                name={getMoodIcon(index) as any}
-                                size={28}
-                                color={selectedMood === index ? '#FFF' : 'rgba(255,255,255,0.3)'}
-                            />
-                        </TouchableOpacity>
+                    {moods.map((mood, index) => (
+                        <View key={index} style={styles.moodItemContainer}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.moodItem,
+                                    selectedMood === index && styles.moodItemActive
+                                ]}
+                                onPress={() => {
+                                    setSelectedMood(index);
+                                    if (Platform.OS !== 'web') {
+                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    }
+                                }}
+                            >
+                                <Ionicons
+                                    name={mood.icon as any}
+                                    size={28}
+                                    color={selectedMood === index ? '#FFF' : 'rgba(255,255,255,0.3)'}
+                                />
+                            </TouchableOpacity>
+                            <Text style={[
+                                styles.moodLabel,
+                                { color: selectedMood === index ? theme.colors.primary : 'rgba(255,255,255,0.4)' }
+                            ]}>
+                                {mood.label}
+                            </Text>
+                        </View>
                     ))}
                 </View>
 
-                <View style={styles.moodLabels}>
-                    <Text style={styles.moodLabel}>TENSO</Text>
-                    <Text style={styles.moodLabel}>CALMADO</Text>
-                </View>
+                {/* G.G. Assistant or Expert Tip */}
+                {selectedMood <= 1 ? (
+                    <View style={[styles.assistantBox, styles.negativeAlert]}>
+                        <View style={styles.assistantAvatar}>
+                            <Ionicons name="fitness-outline" size={32} color={theme.colors.accent} />
+                        </View>
+                        <View style={styles.assistantContent}>
+                            <Text style={styles.assistantTitle}>CONSEJO DE G.G.</Text>
+                            <Text style={styles.assistantText}>
+                                Si no sientes relajación, intenta dar un paseo o hacer 5 minutos de estiramientos físicos. ¡A veces el cuerpo necesita soltar antes que la mente!
+                            </Text>
+                        </View>
+                    </View>
+                ) : (
+                    <View style={styles.assistantBox}>
+                        <View style={styles.assistantAvatar}>
+                            <Ionicons name="sunny-outline" size={32} color={theme.colors.primary} />
+                        </View>
+                        <View style={styles.assistantContent}>
+                            <Text style={styles.assistantTitle}>PALABRA DE EXPERTO</Text>
+                            <Text style={styles.assistantText}>
+                                {new Date().getHours() < 19
+                                    ? "Un momento de calma ahora protege tu paz durante todo el día. Mantén esta presencia en tus próximas tareas."
+                                    : "Cierra el día con gratitud. Lo que has hecho es suficiente, el descanso es tu prioridad ahora."}
+                            </Text>
+                        </View>
+                    </View>
+                )}
 
-                {/* G.G. Assistant Box */}
-                <View style={styles.assistantBox}>
-                    <View style={styles.assistantAvatar}>
-                        <Ionicons name="person-circle-outline" size={40} color={theme.colors.primary} />
-                        <View style={styles.assistantStatus} />
-                    </View>
-                    <View style={styles.assistantContent}>
-                        <Text style={styles.assistantTitle}>G.G. ASSISTANT</Text>
-                        <Text style={styles.assistantText}>
-                            Este dato nos ayuda a medir tu resiliencia semanal.
+
+                {/* Social Section: Compartimos la experiencia?? */}
+                {selectedMood >= 3 && (
+                    <View style={styles.shareSection}>
+                        <View style={styles.shareRow}>
+                            <Text style={styles.shareText}>¿Compartimos la experiencia?</Text>
+                            <Switch
+                                value={isSharing}
+                                onValueChange={setIsSharing}
+                                trackColor={{ false: '#333', true: theme.colors.primary }}
+                                thumbColor={isSharing ? '#FFF' : '#666'}
+                            />
+                        </View>
+                        <Text style={styles.shareSubtext}>
+                            Tu opinión ayudará a otros usuarios de la comunidad.
                         </Text>
+
+                        {isSharing && (
+                            <TextInput
+                                style={styles.commentInput}
+                                placeholder="Escribe tu reflexión aquí..."
+                                placeholderTextColor="rgba(255,255,255,0.3)"
+                                multiline
+                                value={comment}
+                                onChangeText={setComment}
+                                maxLength={200}
+                            />
+                        )}
                     </View>
-                </View>
-            </View>
+                )}
+            </ScrollView>
 
             <View style={styles.footer}>
                 <TouchableOpacity style={styles.button} onPress={handleFinish}>
-                    <Text style={styles.buttonText}>Guardar y Continuar</Text>
+                    <Text style={styles.buttonText}>{(isSharing && comment) ? 'Publicar y Continuar' : 'Guardar y Continuar'}</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -161,6 +214,15 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         padding: 5,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        alignItems: 'center',
+        paddingHorizontal: 30,
+        paddingTop: 40,
+        paddingBottom: 20,
     },
     content: {
         flex: 1,
@@ -192,7 +254,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        marginBottom: 12,
+        marginBottom: 40,
+    },
+    moodItemContainer: {
+        alignItems: 'center',
+        gap: 8,
     },
     moodItem: {
         width: 54,
@@ -266,20 +332,67 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         opacity: 0.8,
     },
+    negativeAlert: {
+        borderColor: theme.colors.accent,
+        backgroundColor: 'rgba(212, 175, 55, 0.05)',
+    },
+    shareSection: {
+        paddingHorizontal: 25,
+        paddingBottom: 20,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        marginHorizontal: 20,
+        borderRadius: 24,
+        paddingTop: 15,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+    },
+    shareRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    shareText: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    shareSubtext: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    commentInput: {
+        marginTop: 15,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        borderRadius: 12,
+        padding: 15,
+        color: '#FFF',
+        fontSize: 14,
+        minHeight: 100,
+        textAlignVertical: 'top',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
     footer: {
-        padding: 30,
+        paddingHorizontal: 20,
         paddingBottom: Platform.OS === 'ios' ? 40 : 30,
+        paddingTop: 10,
     },
     button: {
         backgroundColor: theme.colors.primary,
         paddingVertical: 18,
         borderRadius: 16,
         alignItems: 'center',
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
     },
     buttonText: {
-        color: '#FFFFFF',
+        color: '#FFF',
         fontSize: 18,
-        fontWeight: '700',
+        fontWeight: '800',
     },
 });
 

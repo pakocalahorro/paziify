@@ -4,9 +4,9 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
-    SafeAreaView,
     ScrollView,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
@@ -23,13 +23,14 @@ interface Props {
 }
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const { userState } = useApp();
 
     const chartData = [20, 35, 45, 30, 50, 65, 55, 70, 85];
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <View style={styles.header}>
                     <View style={styles.headerSpacer} />
@@ -81,9 +82,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
                     {/* Simple Bar Chart */}
                     <View style={styles.chart}>
-                        {chartData.map((height, index) => (
+                        {chartData.map((heightVal, index) => (
                             <View key={index} style={styles.barContainer}>
-                                <View style={[styles.bar, { height: `${height}%` }]} />
+                                <View style={[styles.bar, { height: `${heightVal}%` }]} />
                             </View>
                         ))}
                     </View>
@@ -145,7 +146,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     </Text>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: theme.spacing.lg,
-        paddingBottom: 100,
+        paddingBottom: 40,
     },
     header: {
         flexDirection: 'row',
