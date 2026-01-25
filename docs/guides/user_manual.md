@@ -1,18 +1,28 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.0.0 Native) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.1.0 Stable) 💎
 
-Bienvenido a la guía oficial de **Paziify Native**. Esta versión migrada a React Native (Expo) ofrece una experiencia premium de bienestar mental.
+Bienvenido a la guía oficial de **Paziify Stable**. Esta versión ofrece una experiencia visual premium y cinemática optimizada para máxima estabilidad.
 
 ---
 
 ## 1. Onboarding Zen (Acceso Flexible) 🚪
 **Pantalla:** `WelcomeScreen` -> `RegisterScreen` / `LoginScreen`
 Paziify prioriza tu entrada al bienestar. Ahora tienes dos caminos:
-- **Continuar con Google**: Acceso instantáneo y seguro. Tu progreso se sincronizará automáticamente con la nube desde el primer segundo.
-- **Explorar como Invitado**: Acceso directo sin registros. Ideal para probar la experiencia antes de comprometerte. Solo necesitas introducir tu nombre para que **G.G. Assistant** te salude.
+- **Continuar con Google**: Acceso instantáneo y seguro. Tu progreso se sincronizará automáticamente con la nube.
+- **Explorar como Invitado**: Acceso directo sin registros. Ideal para probar la experiencia. Solo necesitas introducir tu nombre para que **G.G. Assistant** te salude.
 
 ---
 
-## 2. Modo Invitado (Ghost Mode) 👻
+## 2. El Santuario Empático (Experiencia Inicial) ✨
+**Pantalla:** `CompassScreen` -> `ManifestoScreen`
+Antes de entrar al panel principal, Paziify te invita a un momento de introspección:
+- **La Brújula**: Elige entre dos orbes de energía viva.
+    - **Sanar**: Enfocado en la paz, la calma y la liberación de estrés.
+    - **Crecer**: Enfocado en la energía, el foco y el potencial personal.
+- **El Manifiesto**: Una revelación cinemática de texto sobre una nebulosa cósmica que te sumerge en el estado mental adecuado para tu sesión.
+
+---
+
+## 3. Modo Invitado (Ghost Mode) 👻
 **Estado:** Activo si eliges "Explorar como invitado"
 Para una privacidad total y cero fricción:
 - **Sin Huella**: No se guarda ningún dato en la memoria permanente del teléfono (`AsyncStorage`).
@@ -21,15 +31,14 @@ Para una privacidad total y cero fricción:
 
 ---
 
-## 2. El Panel de Control Adaptativo (Home)
+## 4. El Panel de Control Adaptativo (Home)
 **Pantalla:** `HomeScreen`
-La pantalla principal ya no es estática; es un reflejo de tu estado:
+La pantalla principal es un reflejo de tu estado y tu intención elegida:
+- **Flotabilidad Visual**: Toda la interfaz flota sobre una **nebulosa inmersiva** que respira contigo.
+- **Efecto Cristal (Glassmorphism)**: Las tarjetas y menús tienen un acabado de cristal esmerilado nativo para una lectura clara y elegante.
 - **Estados Contextuales**: 
-    - **Día**: Enfoque solar y energía.
-    - **Noche Proactiva**: Colores índigo y sugerencias de sueño (se activa tras las 21:00).
-    - **Recuperación**: Si pierdes un día, G.G. Assistant te ofrecerá una sesión corta para retomar el hábito.
-    - **Día Cumplido**: Celebración visual tras completar tu dosis diaria de resiliencia.
-- **Simuladores (Dev Only)**: Al final de la pantalla verás botones para alternar estos estados y probar la respuesta del sistema.
+    - **Día/Noche**: Adaptación de colores y sugerencias según la hora.
+    - **Intención (Sanar/Crecer)**: El fondo y la atmósfera cambian según tu elección en la Brújula.
 
 ---
 
