@@ -85,14 +85,12 @@ Hemos rediseñado el núcleo de la meditación para una máxima inmersión:
 - **Muro Social**: Visualiza el apoyo de otros usuarios y sus reflexiones en tiempo real.
 - **"Dar Paz" 🍃**: Refuerzo positivo recíproco para mantener la motivación comunitaria.
 
----
-
-- [x] ¿El temporizador marca el tiempo exacto de la sesión elegida?
-- [x] ¿La voz suena con el nuevo ritmo rítmico plural ("Inhalamos...") y tempo 0.30?
-- [x] ¿Aparece la opción "¿Compartimos la experiencia?" tras completar una sesión?
-- [x] ¿Funciona el acceso como Invitado sin pedir registro?
-- [x] ¿El Home muestra el banner de advertencia si eres invitado?
-- [ ] ¿Se guardan los datos en Supabase tras loguearse con Google? (Pendiente configuración final).
+## Checklist de Verificación de Usuario ✅
+- [x] ¿Los orbes de la Brújula respiran con un núcleo brillante y visible?
+- [x] ¿La nebulosa del fondo cubre la pantalla completa sin cortes?
+- [x] ¿El texto del Manifiesto aparece de forma fluida y cinemática?
+- [x] ¿Las tarjetas de la Home tienen el efecto de cristal (Blur) activo?
+- [x] ¿El Santuario funciona sin errores de "Worklets" o pantallas rojas?
 
 ---
-*Última actualización de la guía: 23 de Enero de 2026 - Fase: Infraestructura y Onboarding Híbrido*
+*Última actualización de la guía: 25 de Enero de 2026 - Fase: Santuario Empático Estable (v5.1)*
