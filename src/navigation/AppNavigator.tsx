@@ -18,6 +18,8 @@ import CBTAcademyScreen from '../screens/Academy/CBTAcademyScreen';
 import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
 import CommunityScreen from '../screens/Social/CommunityScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
+import CompassScreen from '../screens/Sanctuary/CompassScreen';
+import ManifestoScreen from '../screens/Sanctuary/ManifestoScreen';
 
 import { View, ActivityIndicator } from 'react-native';
 
@@ -51,6 +53,8 @@ export const AppNavigator = () => {
                     </>
                 ) : (
                     <>
+                        <Stack.Screen name={Screen.COMPASS} component={CompassScreen} />
+                        <Stack.Screen name={Screen.MANIFESTO} component={ManifestoScreen} />
                         <Stack.Screen name="MainTabs" component={TabNavigator} />
                         <Stack.Screen name={Screen.NOTIFICATION_SETTINGS} component={NotificationSettings} />
                         <Stack.Screen name={Screen.TRANSITION_TUNNEL} component={TransitionTunnel} />

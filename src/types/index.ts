@@ -14,6 +14,8 @@ export enum Screen {
     CBT_DETAIL = 'CBT_DETAIL',
     COMMUNITY = 'COMMUNITY',
     PAYWALL = 'PAYWALL',
+    COMPASS = 'COMPASS',
+    MANIFESTO = 'MANIFESTO',
 }
 
 export interface UserState {
@@ -67,7 +69,7 @@ export type RootStackParamList = {
     [Screen.WELCOME]: undefined;
     [Screen.LOGIN]: undefined;
     [Screen.NOTIFICATION_SETTINGS]: undefined;
-    [Screen.HOME]: undefined;
+    [Screen.HOME]: { mode?: 'healing' | 'growth' };
     [Screen.LIBRARY]: undefined;
     [Screen.TRANSITION_TUNNEL]: undefined;
     [Screen.BREATHING_TIMER]: undefined;
@@ -78,5 +80,7 @@ export type RootStackParamList = {
     [Screen.CBT_DETAIL]: { lessonId: string };
     [Screen.COMMUNITY]: undefined;
     [Screen.PAYWALL]: undefined;
-    MainTabs: undefined;
+    [Screen.COMPASS]: undefined;
+    [Screen.MANIFESTO]: { mode: 'healing' | 'growth' };
+    MainTabs: { mode?: 'healing' | 'growth' } | undefined;
 };

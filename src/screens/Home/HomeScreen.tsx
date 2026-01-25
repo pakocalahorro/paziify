@@ -12,14 +12,17 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { IMAGES } from '../../constants/images';
 import GGAssistant from '../../components/GGAssistant';
 import GuestBanner from '../../components/GuestBanner';
+import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
 import { clearStorage } from '../../utils/storage';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
@@ -33,7 +36,11 @@ interface Props {
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
+    const route = useRoute<RouteProp<RootStackParamList, Screen.HOME>>();
     const { userState, exitGuestMode, isNightMode, setNightMode } = useApp();
+
+    // Determine visual mode from route or default to healing/night context
+    const visualMode = route.params?.mode || (isNightMode ? 'healing' : 'healing');
 
     const handleStartSession = () => {
         navigation.navigate(Screen.TRANSITION_TUNNEL);
@@ -68,9 +75,13 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     }, [isDone, isRecovery, isNightMode, userState.streak]);
 
     return (
-        <View style={[styles.container, isNightMode && { backgroundColor: '#070A15' }, { paddingTop: insets.top }]}>
+        <View style={styles.container}>
+            <View style={StyleSheet.absoluteFill}>
+                <NebulaBackground mode={visualMode as 'healing' | 'growth'} />
+            </View>
             <StatusBar barStyle="light-content" translucent={true} />
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+            <ScrollView style={styles.scrollView} contentContainerStyle={[styles.content, { paddingTop: insets.top }]} showsVerticalScrollIndicator={false}>
 
                 {userState.isGuest && (
                     <GuestBanner onPressRegister={handleRegisterClick} />
@@ -102,13 +113,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
                 </View>
 
-                {/* Night State, Done State, recovery... logic remains same */}
-                {/* (Truncated for brevity in tool call but keeping logic) */}
-
                 {isNightMode && !isDone && !isRecovery ? (
                     <View style={styles.nightView}>
                         <Text style={styles.nightSubtitle}>Tu sistema nervioso está listo para desconectar.</Text>
-                        <View style={styles.nightMainCard}>
+                        <BlurView intensity={30} tint="dark" style={styles.nightMainCard}>
                             <View style={styles.nightAsssitantHeader}>
                                 <View style={styles.assistantAvatar}><Ionicons name="desktop-outline" size={16} color="#FFF" /></View>
                                 <View style={styles.assistantTitleBlock}>
@@ -123,7 +131,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                             <TouchableOpacity style={styles.nightActionBtn} onPress={handleStartSession}>
                                 <Ionicons name="play-circle" size={24} color="#FFF" /><Text style={styles.nightActionBtnText}>¿Empezamos?</Text>
                             </TouchableOpacity>
-                        </View>
+                        </BlurView>
                     </View>
                 ) : isDone ? (
                     <View style={styles.doneView}>
@@ -181,7 +189,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.background },
+    container: { flex: 1, backgroundColor: '#000' },
     scrollView: { flex: 1 },
     content: { padding: 20, paddingBottom: 120 },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 25 },
@@ -196,7 +204,7 @@ const styles = StyleSheet.create({
 
     nightView: {},
     nightSubtitle: { fontSize: 15, color: 'rgba(255,255,255,0.6)', marginBottom: 25, fontWeight: '500' },
-    nightMainCard: { backgroundColor: 'rgba(129, 140, 248, 0.05)', borderRadius: 32, padding: 24, borderWidth: 1, borderColor: 'rgba(129, 140, 248, 0.12)', marginBottom: 25 },
+    nightMainCard: { borderRadius: 32, padding: 24, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)', marginBottom: 25, overflow: 'hidden' },
     nightAsssitantHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
     assistantAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#5850EC', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
     assistantTitleBlock: { flex: 1 },
