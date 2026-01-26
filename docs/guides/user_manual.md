@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.2.0 Stable) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.3.0 Stable) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.2**. Esta versión marca un hito en el proyecto al introducir una biblioteca masiva de contenido y una interfaz interactiva mágica de última generación.
+Bienvenido a la guía oficial de **Paziify v1.3**. Esta versión revoluciona la meditación con un sistema de audio profesional, guía háptica sensorial y briefings científicos.
 
 ---
 
@@ -27,9 +27,13 @@ Hemos transformado la Brújula Interior en una experiencia inmersiva única:
 **Pantalla:** `LibraryScreen` -> Hubs de Contenido
 La Biblioteca es ahora un portal unificado con tres pilares fundamentales:
 
-### 🧘 Sesiones de Meditación
-- **Catálogo Visual**: Rejilla optimizada con portadas artísticas exclusivas.
-- **Mood Recommendation**: Secciones destacadas ("Recomendado para hoy") basadas en tu intención actual.
+### 🧘 Sesiones de Meditación (Experiencia v2.0)
+- **Catálogo de 18 Técnicas**: Desde respiración Square hasta técnicas avanzadas de coherencia cardíaca.
+- **Briefing Científico Pre-Sesión**: Al pulsar play, una tarjeta te informa sobre el objetivo neurológico de la sesión y te da instrucciones precisas (ojos abiertos/cerrados).
+- **Guía Háptica (Sentir la Respiración)**: No necesitas mirar la pantalla. Paziify usa vibraciones inteligentes:
+    - **Inhalar**: Doble pulso (Éxito).
+    - **Exhalar**: Vibración profunda y pesada (Relajación).
+    - **Mantener**: Toque rítmico constante.
 
 ### 🎧 Audiolibros (Clásicos del Bienestar)
 - **Escucha Clásica**: Acceso a libros de dominio público (LibriVox) con narración humana.
@@ -66,10 +70,10 @@ La Biblioteca es ahora un portal unificado con tres pilares fundamentales:
 
 ## checklist de Verificación de Usuario ✅
 - [x] ¿Sientes la vibración al cargar energía en la Brújula?
-- [x] ¿La explosión de luz llena toda la pantalla al elegir tu modo?
+- [x] ¿Diferencias los haptics de inhalación y exhalación sin mirar el móvil?
+- [x] ¿El modal de preparación (briefing) te ayuda a entender el objetivo de la sesión?
 - [x] ¿Las portadas de los audiolibros se ven nítidas y artísticas?
 - [x] ¿El reproductor recuerda el minuto exacto donde paraste el audiolibro?
-- [x] ¿Las partículas de fondo se mueven suavemente sin saltos?
 
 ---
-*Última actualización de la guía: 26 de Enero de 2026 - Versión: 1.2.0 Stable Content Hub*
+*Última revisión: 26 de Enero de 2026 - Sprint v1.3 Sensory Experience (Fase 2)*

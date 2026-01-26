@@ -106,4 +106,4 @@ Cada registro en `auth.users` dispara la creación de un perfil en `public.profi
 3. **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
 
 ---
-*Última revisión: 26 de Enero de 2026 - Sprint v1.2 Content Expansion*
+*Última revisión: 26 de Enero de 2026 - Sprint v1.3 Sensory Experience (Fase 2)*
