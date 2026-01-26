@@ -1,96 +1,75 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.1.0 Stable) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.2.0 Stable) 💎
 
-Bienvenido a la guía oficial de **Paziify Stable**. Esta versión ofrece una experiencia visual premium y cinemática optimizada para máxima estabilidad.
+Bienvenido a la guía oficial de **Paziify v1.2**. Esta versión marca un hito en el proyecto al introducir una biblioteca masiva de contenido y una interfaz interactiva mágica de última generación.
 
 ---
 
 ## 1. Onboarding Zen (Acceso Flexible) 🚪
 **Pantalla:** `WelcomeScreen` -> `RegisterScreen` / `LoginScreen`
-Paziify prioriza tu entrada al bienestar. Ahora tienes dos caminos:
-- **Continuar con Google**: Acceso instantáneo y seguro. Tu progreso se sincronizará automáticamente con la nube.
-- **Explorar como Invitado**: Acceso directo sin registros. Ideal para probar la experiencia. Solo necesitas introducir tu nombre para que **G.G. Assistant** te salude.
+Paziify prioriza tu entrada al bienestar:
+- **Continuar con Google**: Acceso instantáneo y seguro. Tu progreso (minutos, favoritos, historial) se sincroniza automáticamente.
+- **Explorar como Invitado**: Acceso directo sin registros. Tu progreso es efímero y se borrará al cerrar la app a menos que vincules tu cuenta.
 
 ---
 
-## 2. El Santuario Empático (Experiencia Inicial) ✨
+## 2. El Santuario Mágico (Experiencia Inicial) ✨
 **Pantalla:** `CompassScreen` -> `ManifestoScreen`
-Antes de entrar al panel principal, Paziify te invita a un momento de introspección:
-- **La Brújula**: Elige entre dos orbes de energía viva.
-    - **Sanar**: Enfocado en la paz, la calma y la liberación de estrés.
-    - **Crecer**: Enfocado en la energía, el foco y el potencial personal.
-- **El Manifiesto**: Una revelación cinemática de texto sobre una nebulosa cósmica que te sumerge en el estado mental adecuado para tu sesión.
+Hemos transformado la Brújula Interior en una experiencia inmersiva única:
+- **Orbes de Energía Hiperrealista**: Elige entre dos fuentes de poder vivo.
+    - **Sanar (Crystalline Soul)**: Un orbe de cristal con una nebulosa azul en su interior para calmar el sistema nervioso.
+    - **Crecer (Solar Plasma)**: Un orbe de energía solar dorada para vitalidad y foco.
+- **Interacción Explosiva**: Al tocar un orbe, este carga energía (vibración háptica) y al soltar, genera una **explosión espiritual** de luz que despeja tu camino.
+- **Polvo Estelar**: El fondo cuenta con un sistema de partículas dinámicas que crean una profundidad espacial real.
 
 ---
 
-## 3. Modo Invitado (Ghost Mode) 👻
-**Estado:** Activo si eliges "Explorar como invitado"
-Para una privacidad total y cero fricción:
-- **Sin Huella**: No se guarda ningún dato en la memoria permanente del teléfono (`AsyncStorage`).
-- **Efímero**: Si cierras la aplicación, tu racha y progreso de ese día desaparecerán.
-- **Persuasión Amable**: Verás un **GuestBanner** en la parte superior que te recordará el beneficio de registrarte para asegurar tu progreso. Puedes convertir tu cuenta a Google en cualquier momento desde el Home o el Perfil.
+## 3. La Nueva Biblioteca Expandida 📚
+**Pantalla:** `LibraryScreen` -> Hubs de Contenido
+La Biblioteca es ahora un portal unificado con tres pilares fundamentales:
+
+### 🧘 Sesiones de Meditación
+- **Catálogo Visual**: Rejilla optimizada con portadas artísticas exclusivas.
+- **Mood Recommendation**: Secciones destacadas ("Recomendado para hoy") basadas en tu intención actual.
+
+### 🎧 Audiolibros (Clásicos del Bienestar)
+- **Escucha Clásica**: Acceso a libros de dominio público (LibriVox) con narración humana.
+- **Reproductor Avanzado**:
+    - **Velocidad Variable**: Ajusta desde 0.5x hasta 2.0x.
+    - **Sleep Timer**: Configura un apagado automático (15min a 1h).
+    - **Persistencia Directa**: La app recuerda exactamente dónde dejaste cada libro.
+
+### 🌟 Historias Reales
+- **Lectura Inspiradora**: Testimonios de superación en formato texto.
+- **Categorización Inteligente**: Filtra historias de Ansiedad, Resiliencia o Crecimiento según lo que necesites leer hoy.
 
 ---
 
-## 4. El Panel de Control Adaptativo (Home)
-**Pantalla:** `HomeScreen`
-La pantalla principal es un reflejo de tu estado y tu intención elegida:
-- **Flotabilidad Visual**: Toda la interfaz flota sobre una **nebulosa inmersiva** que respira contigo.
-- **Efecto Cristal (Glassmorphism)**: Las tarjetas y menús tienen un acabado de cristal esmerilado nativo para una lectura clara y elegante.
-- **Estados Contextuales**: 
-    - **Día/Noche**: Adaptación de colores y sugerencias según la hora.
-    - **Intención (Sanar/Crecer)**: El fondo y la atmósfera cambian según tu elección en la Brújula.
+## 4. El Reproductor Premium 💎
+**Componente:** `AudiobookPlayer` / `MeditationPlayer`
+- **Glassmorphism**: Controles transparentes que flotan sobre portadas artísticas.
+- **Retroiluminación Dinámica**: El fondo del reproductor se adapta a los colores de la sesión.
+- **Favoritos**: Guarda cualquier audiolibro o historia para acceder instantáneamente desde tu biblioteca personal.
 
 ---
 
-## 3. Temporizador Inmersivo y Biblioteca Expandida
-**Pantalla:** `BreathingTimer` -> `LibraryScreen`
-Hemos rediseñado el núcleo de la meditación para una máxima inmersión:
-- **Biblioteca de Élite (+25 Sesiones)**: 
-    - **S.O.S. Pánico**: Intervención de 2-3 min para crisis de ansiedad.
-    - **Sueño Profundo**: Yoga Nidra, NSDR Extendido y Escaneo Corporal para insomnio.
-    - **Enfoque y Mañana**: Alerta Stanford y Espresso Mental para activar el foco.
-    - **Resiliencia**: Coherencia Cardíaca Avanzada para regular el sistema nervioso.
-- **Voz Ultra-Zen (0.30 Rate)**: Locuciones en plural rítmico ("Inhalamos", "Mantenemos") con un tempo ultra-lento diseñado para estados de relajación theta y delta.
-- **Mezclador de Sonido (Mixer)**:
-    - **Ondas Binaurales (Plus)**: Sincronización cerebral para foco o relax.
-    - **Lluvia (Plus)**: Ambiente natural relajante.
-    - **Campanas Tibetanas (Plus)**: Enfoque meditativo tradicional.
-- **Feedback Sensorial**:
-    - **Aura de Latido**: Animación pulsante sincronizada con el estado de ánimo.
-    - **Háptica Paziify**: Siente una vibración sutil al cambiar de fase (inhala/exhala) o al completar objetivos.
-- **Precisión Total**: Temporizador sincronizado al segundo con la duración real de cada técnica (4-7-8, Respire 4s, etc.).
-
----
-
-## 4. Academia TCC e Interactividad
-**Pantalla:** `CBTAcademyScreen` -> `CBTDetailScreen`
-- **Lectura Markdown**: Contenido educativo con formato rico (negritas, citas, listas) perfectamente legible.
-- **Progreso Real**: Al completar una lección, tu barra de progreso se actualiza y ganas **+5 puntos de resiliencia**.
-
----
-
-## 5. Perfil, Analítica y Paziify Plus
-**Pantalla:** `ProfileScreen` -> `WeeklyReportScreen` / `PaywallScreen`
-- **Dashboards de Datos**:
-    - **Línea de Bienestar**: Gráfico de tendencia mensual.
-    - **Minutos por Día**: Histograma de actividad semanal.
-- **Insignias**: Logros visuales que se desbloquean con tu progreso.
-- **Suscripción Plus**: Accede a la comparativa de planes desde el botón dorado en el Perfil para desbloquear el mezclador y las métricas avanzadas.
+## 5. El Panel de Control Adaptativo (Home)
+- **Atmósfera Respiratoria**: La nebulosa de fondo pulsa rítmicamente.
+- **Efecto Cristal**: Toda la interfaz utiliza un diseño esmerilado nativo para máxima elegancia y legibilidad.
 
 ---
 
 ## 6. Comunidad y Feedback Social
-**Pantalla:** `CommunityScreen` -> `SessionEndScreen`
-- **¿Compartimos la experiencia?**: Al finalizar una sesión con ánimo positivo, podrás activar un check para publicar tu reflexión en la comunidad.
-- **Muro Social**: Visualiza el apoyo de otros usuarios y sus reflexiones en tiempo real.
-- **"Dar Paz" 🍃**: Refuerzo positivo recíproco para mantener la motivación comunitaria.
-
-## Checklist de Verificación de Usuario ✅
-- [x] ¿Los orbes de la Brújula respiran con un núcleo brillante y visible?
-- [x] ¿La nebulosa del fondo cubre la pantalla completa sin cortes?
-- [x] ¿El texto del Manifiesto aparece de forma fluida y cinemática?
-- [x] ¿Las tarjetas de la Home tienen el efecto de cristal (Blur) activo?
-- [x] ¿El Santuario funciona sin errores de "Worklets" o pantallas rojas?
+- **Dar Paz 🍃**: Envía apoyo a otros usuarios de la comunidad.
+- **Reflexiones**: Comparte tu estado de ánimo al finalizar cada sesión para inspirar a otros.
 
 ---
-*Última actualización de la guía: 25 de Enero de 2026 - Fase: Santuario Empático Estable (v5.1)*
+
+## checklist de Verificación de Usuario ✅
+- [x] ¿Sientes la vibración al cargar energía en la Brújula?
+- [x] ¿La explosión de luz llena toda la pantalla al elegir tu modo?
+- [x] ¿Las portadas de los audiolibros se ven nítidas y artísticas?
+- [x] ¿El reproductor recuerda el minuto exacto donde paraste el audiolibro?
+- [x] ¿Las partículas de fondo se mueven suavemente sin saltos?
+
+---
+*Última actualización de la guía: 26 de Enero de 2026 - Versión: 1.2.0 Stable Content Hub*

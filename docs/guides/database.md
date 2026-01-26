@@ -1,15 +1,15 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v1.0)
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v1.2) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La seguridad y la escalabilidad son los pilares de este diseño.
+Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La seguridad y la escalabilidad son los pilares de este diseño, con un enfoque centrado en la privacidad mediante **Row Level Security (RLS)**.
 
 ---
 
 ## 1. Principio de Seguridad: Row Level Security (RLS) 🛡️
 
-En Paziify, la privacidad es una característica, no una opción. Todas las tablas tienen RLS activado.
+En Paziify, la privacidad es una característica innegociable. Todas las tablas tienen RLS activado.
 
-- **Aislamiento Total**: Cada registro está vinculado a un `user_id` (UUID de `auth.users`).
-- **Validación en Servidor**: Las políticas de PostgreSQL impiden que un usuario realice operaciones sobre datos que no le pertenecen, incluso si intentara manipular las peticiones desde el cliente.
+- **Aislamiento Total**: Cada registro está vinculado a un `user_id` (o ID de perfil) que referencia a `auth.users`.
+- **Validación en Servidor**: Las políticas de PostgreSQL impiden que un usuario acceda o manipule datos que no le pertenecen.
 
 ---
 
@@ -25,7 +25,6 @@ Extensión del perfil de usuario para gamificación y personalización.
 | `streak` | INTEGER | Racha actual de días consecutivos |
 | `resilience_score` | INTEGER | Puntuación acumulada de bienestar (0-100) |
 | `is_plus_member` | BOOLEAN | Estado de suscripción premium |
-| `created_at` | TIMESTAMPTZ | Fecha de registro |
 
 ### `meditation_logs`
 Histórico de sesiones completadas.
@@ -35,19 +34,9 @@ Histórico de sesiones completadas.
 | `user_id` | UUID (FK) | Relación con el usuario |
 | `session_id` | TEXT | ID de la sesión (ej: `anx_box`) |
 | `duration_minutes` | INTEGER | Minutos meditados en esa sesión |
-| `mood_score` | INTEGER | Estado de ánimo reportado (1-5) |
-
-### `academy_progress`
-Registro de lecciones de la Academia TCC.
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `user_id` | UUID (FK) | Relación con el usuario |
-| `lesson_id` | TEXT | ID de la lección completada |
-| `completed` | BOOLEAN | True si se ha finalizado |
-| *Restricción* | `UNIQUE` | Un usuario solo tiene un registro por lección |
 
 ### `community_posts`
-Espacio social para reflexiones.
+Espacio social para reflexiones y apoyo.
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `user_id` | UUID (FK) | Creador del post |
@@ -55,91 +44,66 @@ Espacio social para reflexiones.
 | `mood_index` | INTEGER | Estado de ánimo asociado |
 | `likes_count`| INTEGER | Apoyo recibido ("Paz") |
 
-### `audiobooks`
-Catálogo de audiolibros de dominio público (LibriVox).
+### `audiobooks` 📚
+Catálogo de audiolibros de dominio público.
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `id` | UUID (PK) | Identificador único |
-| `title` | TEXT | Título del libro |
-| `author` | TEXT | Autor de la obra |
-| `category` | TEXT | Categoría de bienestar |
-| `audio_url` | TEXT | URL del archivo MP3 |
-| `is_premium` | BOOLEAN | Acceso limitado por suscripción |
+| `title` | TEXT | Título de la obra |
+| `author` | TEXT | Autor |
+| `audio_url` | TEXT | URL del archivo MP3 en Storage |
+| `category` | TEXT | Categoría (anxiety, growth, etc.) |
+| `is_premium` | BOOLEAN | Control de acceso Plus |
 
-### `real_stories`
-Testimonios y artículos de superación personal.
+### `real_stories` 🌟
+Testimonios reales y artículos de inspiración.
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `id` | UUID (PK) | Identificador único |
 | `title` | TEXT | Título de la historia |
-| `content` | TEXT | Cuerpo del texto (Markdown) |
-| `category` | TEXT | Filtro temático |
+| `content` | TEXT | Cuerpo del texto (soporta Markdown) |
 | `image_url` | TEXT | Portada representativa |
 
-### `user_favorites_content`
-Marcadores personales para bibliotecas externas.
+### `user_favorites_content` ⭐
+Sistema unificado de marcadores para la biblioteca.
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `user_id` | UUID (FK) | Dueño del favorito |
-| `content_id` | UUID | ID del recurso (Audiobook/Story) |
-| `content_type`| TEXT | Tipo de recurso ('audiobook', 'story') |
+| `content_id` | UUID (FK) | ID del audiolibro o historia |
+| `content_type`| TEXT | 'audiobook' o 'story' |
 
 ---
 
-## 3. Políticas de Seguridad Aplicadas 🔐
-
-A continuación, la lógica de las políticas RLS implementadas:
+## 3. Políticas de Seguridad (RLS) 🔐
 
 ```sql
--- Perfiles
-CREATE POLICY "Dueño puede gestionar su perfil" ON profiles 
-  FOR ALL USING (auth.uid() = id);
+-- Contenido Público (Lectura para todos)
+CREATE POLICY "Lectura pública" ON audiobooks FOR SELECT USING (true);
+CREATE POLICY "Lectura pública" ON real_stories FOR SELECT USING (true);
 
--- Logs y Progreso
-CREATE POLICY "Datos privados de usuario" ON meditation_logs 
+-- Favoritos (Privacidad total por usuario)
+CREATE POLICY "Solo dueño gestiona favoritos" ON user_favorites_content
   FOR ALL USING (auth.uid() = user_id);
 
--- Comunidad
-CREATE POLICY "Lectura global" ON community_posts FOR SELECT USING (true);
-CREATE POLICY "Solo dueño edita su post" ON community_posts FOR ALL USING (auth.uid() = user_id);
+-- Perfiles y Logs
+CREATE POLICY "Dueño gestiona sus datos" ON profiles FOR ALL USING (auth.uid() = id);
+CREATE POLICY "Dueño gestiona sus logs" ON meditation_logs FOR ALL USING (auth.uid() = user_id);
 ```
 
 ---
 
-## 4. Automatizaciones de Base de Datos (Triggers) ⚡
-
-Para asegurar una experiencia de "un solo clic" y mantener la integridad de los datos, hemos implementado disparadores en el servidor:
+## 4. Automatizaciones y Triggers ⚡
 
 ### Creación Automática de Perfil
-Cada vez que un usuario se registra (vía Google u otro método), Supabase ejecuta una función que inserta sus datos básicos en `public.profiles`.
-
-```sql
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
-BEGIN
-  INSERT INTO public.profiles (id, full_name, avatar_url)
-  VALUES (
-    new.id,
-    new.raw_user_meta_data->>'full_name',
-    new.raw_user_meta_data->>'avatar_url'
-  );
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
-```
+Cada registro en `auth.users` dispara la creación de un perfil en `public.profiles` con los metadatos de Google o el registro manual. Esto garantiza que el `AppContext` siempre tenga un perfil disponible al iniciar sesión.
 
 ---
 
-## 5. Buenas Prácticas para Desarrolladores 🚀
+## 5. Buenas Prácticas 🚀
 
-1. **Uso del UID del Servidor**: Nunca confíes en un `user_id` pasado manualmente desde el frontend para filtros críticos. Deja que las políticas RLS hagan el trabajo pesado usando `auth.uid()`.
-2. **Sincronización de Contexto**: Al actualizar datos en Supabase, asegúrate de refrescar el `userState` en `AppContext` para mantener la UI coherente.
-3. **Migraciones**: Cada cambio estructural debe ir precedido de un archivo SQL documentado.
-4. **Relaciones**: Usa siempre `ON DELETE CASCADE` para asegurar que si un usuario borra su cuenta, todos sus datos personales se eliminen por completo (derecho al olvido).
+1. **Derecho al Olvido**: Todas las claves foráneas hacia `user_id` utilizan `ON DELETE CASCADE`.
+2. **Consultas Seguras**: Utilizar siempre el servicio `contentService` para interactuar con estas tablas, asegurando el manejo correcto de errores y estados de carga.
+3. **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
 
 ---
-*Última revisión: 23 de Enero de 2026 - Sprint Infraestructura*
+*Última revisión: 26 de Enero de 2026 - Sprint v1.2 Content Expansion*
