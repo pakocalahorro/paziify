@@ -5,8 +5,11 @@ import {
     TouchableOpacity,
     StyleSheet,
     Image,
+    Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Session } from '../types';
 import { theme } from '../constants/theme';
 
@@ -16,6 +19,18 @@ interface SessionCardProps {
     isPlusMember: boolean;
 }
 
+const { width } = Dimensions.get('window');
+
+const SESSION_ASSETS: Record<string, any> = {
+    'Ansiedad': require('../assets/covers/med_anxiety.png'),
+    'Sueño': require('../assets/covers/med_sleep.png'),
+    'Mindfulness': require('../assets/covers/med_focus.png'),
+    'Resiliencia': require('../assets/covers/med_compassion.png'),
+    'Despertar': require('../assets/covers/med_focus.png'),
+    // Default fallback
+    'default': require('../assets/covers/med_focus.png'),
+};
+
 const SessionCard: React.FC<SessionCardProps> = ({
     session,
     onPress,
@@ -23,130 +38,165 @@ const SessionCard: React.FC<SessionCardProps> = ({
 }) => {
     const isLocked = session.isPlus && !isPlusMember;
 
+    // Get asset based on category
+    const imageSource = SESSION_ASSETS[session.category] || SESSION_ASSETS['default'];
+
+    const getCategoryStyles = (category: string) => {
+        switch (category) {
+            case 'Ansiedad': return { color: '#66DEFF', icon: 'water-outline' };
+            case 'Sueño': return { color: '#9575CD', icon: 'moon-outline' };
+            case 'Mindfulness': return { color: '#FFA726', icon: 'sunny-outline' };
+            case 'Resiliencia': return { color: '#FF6B9D', icon: 'heart-outline' };
+            default: return { color: '#646CFF', icon: 'leaf-outline' };
+        }
+    };
+
+    const { color, icon } = getCategoryStyles(session.category);
+
     return (
         <TouchableOpacity
-            style={styles.card}
+            style={styles.container}
             onPress={() => onPress(session)}
-            activeOpacity={0.8}
+            activeOpacity={0.9}
         >
-            <View style={styles.imageContainer}>
-                <Image
-                    source={{ uri: session.image }}
-                    style={styles.image}
-                    resizeMode="cover"
-                />
+            <View style={styles.cardInner}>
+                {/* Session Image */}
+                <View style={styles.imageWrapper}>
+                    <Image source={imageSource} style={styles.image} />
+                    <LinearGradient
+                        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)']}
+                        style={StyleSheet.absoluteFill}
+                    />
 
-                {/* PLUS Badge */}
-                {session.isPlus && !isPlusMember && (
-                    <View style={styles.plusBadge}>
-                        <Ionicons name="star" size={10} color={theme.colors.accent} />
-                        <Text style={styles.plusBadgeText}>PLUS</Text>
-                    </View>
-                )}
-
-                {/* Play Overlay */}
-                {!isLocked && (
-                    <View style={styles.playOverlay}>
-                        <View style={styles.playButton}>
-                            <Ionicons name="play" size={20} color="#FFFFFF" />
+                    {/* Floating Info */}
+                    <View style={styles.floatingHeader}>
+                        <View style={[styles.durationBadge, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+                            <Ionicons name="time-outline" size={10} color="#FFFFFF" />
+                            <Text style={styles.durationText}>{session.duration}m</Text>
                         </View>
+                        {isLocked && (
+                            <View style={styles.lockBadge}>
+                                <Ionicons name="lock-closed" size={10} color="#FFD700" />
+                            </View>
+                        )}
                     </View>
-                )}
+                </View>
 
-                {/* Lock Overlay */}
-                {isLocked && (
-                    <View style={styles.lockOverlay}>
-                        <Ionicons name="lock-closed" size={24} color="rgba(255,255,255,0.8)" />
+                {/* Content Glass */}
+                <BlurView intensity={25} tint="dark" style={styles.infoGlass}>
+                    <View style={styles.headerRow}>
+                        <View style={[styles.categoryIndicator, { backgroundColor: color }]} />
+                        <Text style={[styles.categoryText, { color }]}>{session.category.toUpperCase()}</Text>
                     </View>
-                )}
-            </View>
 
-            <View style={styles.info}>
-                <Text style={styles.title} numberOfLines={2}>
-                    {session.title}
-                </Text>
-                <Text style={styles.meta}>
-                    {session.duration} min • {session.category}
-                </Text>
+                    <Text style={styles.title} numberOfLines={1}>{session.title}</Text>
+
+                    <View style={styles.footerRow}>
+                        <View style={styles.stars}>
+                            {[1, 2, 3, 4, 5].map((s) => (
+                                <Ionicons key={s} name="star" size={8} color="#FFD700" style={{ opacity: 0.8 }} />
+                            ))}
+                        </View>
+                        <TouchableOpacity style={[styles.miniPlay, { backgroundColor: `${color}40` }]}>
+                            <Ionicons name="play" size={12} color={color} />
+                        </TouchableOpacity>
+                    </View>
+                </BlurView>
             </View>
         </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.xl,
-        padding: theme.spacing.sm,
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    imageContainer: {
-        position: 'relative',
+    container: {
         width: '100%',
-        aspectRatio: 1,
-        borderRadius: theme.borderRadius.lg,
+        marginBottom: theme.spacing.md,
+        borderRadius: 20,
         overflow: 'hidden',
-        marginBottom: theme.spacing.sm,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    },
+    cardInner: {
+        flex: 1,
+    },
+    imageWrapper: {
+        width: '100%',
+        height: 120,
+        backgroundColor: '#111',
     },
     image: {
         width: '100%',
         height: '100%',
-        opacity: 0.8,
+        resizeMode: 'cover',
     },
-    plusBadge: {
+    floatingHeader: {
         position: 'absolute',
-        top: theme.spacing.sm,
-        right: theme.spacing.sm,
+        top: 8,
+        left: 8,
+        right: 8,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    durationBadge: {
         flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
         gap: 4,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        paddingHorizontal: theme.spacing.sm,
-        paddingVertical: 4,
-        borderRadius: theme.borderRadius.sm,
-        borderWidth: 1,
-        borderColor: `${theme.colors.accent}20`,
     },
-    plusBadgeText: {
+    durationText: {
+        color: '#FFFFFF',
         fontSize: 10,
-        fontWeight: '700',
-        color: theme.colors.accent,
+        fontWeight: '800',
     },
-    playOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        justifyContent: 'center',
+    lockBadge: {
+        padding: 4,
+        borderRadius: 10,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    infoGlass: {
+        padding: 12,
+    },
+    headerRow: {
+        flexDirection: 'row',
         alignItems: 'center',
+        marginBottom: 4,
     },
-    playButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        justifyContent: 'center',
-        alignItems: 'center',
+    categoryIndicator: {
+        width: 3,
+        height: 8,
+        borderRadius: 2,
+        marginRight: 6,
     },
-    lockOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    info: {
-        paddingHorizontal: theme.spacing.xs,
-        paddingBottom: theme.spacing.xs,
+    categoryText: {
+        fontSize: 9,
+        fontWeight: '900',
+        letterSpacing: 0.5,
     },
     title: {
         fontSize: 14,
-        fontWeight: '700',
-        color: theme.colors.textMain,
-        marginBottom: 4,
-        lineHeight: 18,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        marginBottom: 8,
     },
-    meta: {
-        fontSize: 12,
-        color: theme.colors.textMuted,
+    footerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    stars: {
+        flexDirection: 'row',
+        gap: 2,
+    },
+    miniPlay: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

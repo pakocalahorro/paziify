@@ -5,6 +5,11 @@ export enum Screen {
     NOTIFICATION_SETTINGS = 'NOTIFICATION_SETTINGS',
     HOME = 'HOME',
     LIBRARY = 'LIBRARY',
+    MEDITATION_CATALOG = 'MEDITATION_CATALOG',
+    AUDIOBOOKS = 'AUDIOBOOKS',
+    AUDIOBOOK_PLAYER = 'AUDIOBOOK_PLAYER',
+    STORIES = 'STORIES',
+    STORY_DETAIL = 'STORY_DETAIL',
     TRANSITION_TUNNEL = 'TRANSITION_TUNNEL',
     BREATHING_TIMER = 'BREATHING_TIMER',
     SESSION_END = 'SESSION_END',
@@ -64,6 +69,42 @@ export interface UserSession {
     moodAfter?: number;
 }
 
+export interface Audiobook {
+    id: string;
+    title: string;
+    author: string;
+    narrator: string;
+    description?: string;
+    category: string;
+    tags: string[];
+    audio_url: string;
+    duration_minutes: number;
+    source: string;
+    language: string;
+    is_premium: boolean;
+    is_featured: boolean;
+}
+
+export interface RealStory {
+    id: string;
+    title: string;
+    subtitle?: string;
+    story_text: string;
+    character_name?: string;
+    character_age?: number;
+    character_role?: string;
+    category: string;
+    subcategory?: string;
+    tags: string[];
+    reading_time_minutes: number;
+    transformation_theme?: string;
+    related_meditation_id?: string;
+    is_featured: boolean;
+    is_premium: boolean;
+    source_platform?: string;
+    source_attribution?: string;
+}
+
 export type RootStackParamList = {
     [Screen.REGISTER]: undefined;
     [Screen.WELCOME]: undefined;
@@ -71,6 +112,11 @@ export type RootStackParamList = {
     [Screen.NOTIFICATION_SETTINGS]: undefined;
     [Screen.HOME]: { mode?: 'healing' | 'growth' };
     [Screen.LIBRARY]: undefined;
+    [Screen.MEDITATION_CATALOG]: undefined;
+    [Screen.AUDIOBOOKS]: undefined;
+    [Screen.AUDIOBOOK_PLAYER]: { audiobookId: string };
+    [Screen.STORIES]: undefined;
+    [Screen.STORY_DETAIL]: { storyId: string };
     [Screen.TRANSITION_TUNNEL]: undefined;
     [Screen.BREATHING_TIMER]: undefined;
     [Screen.SESSION_END]: undefined;
@@ -84,3 +130,4 @@ export type RootStackParamList = {
     [Screen.MANIFESTO]: { mode: 'healing' | 'growth' };
     MainTabs: { mode?: 'healing' | 'growth' } | undefined;
 };
+

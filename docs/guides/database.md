@@ -55,6 +55,35 @@ Espacio social para reflexiones.
 | `mood_index` | INTEGER | Estado de ánimo asociado |
 | `likes_count`| INTEGER | Apoyo recibido ("Paz") |
 
+### `audiobooks`
+Catálogo de audiolibros de dominio público (LibriVox).
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | UUID (PK) | Identificador único |
+| `title` | TEXT | Título del libro |
+| `author` | TEXT | Autor de la obra |
+| `category` | TEXT | Categoría de bienestar |
+| `audio_url` | TEXT | URL del archivo MP3 |
+| `is_premium` | BOOLEAN | Acceso limitado por suscripción |
+
+### `real_stories`
+Testimonios y artículos de superación personal.
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | UUID (PK) | Identificador único |
+| `title` | TEXT | Título de la historia |
+| `content` | TEXT | Cuerpo del texto (Markdown) |
+| `category` | TEXT | Filtro temático |
+| `image_url` | TEXT | Portada representativa |
+
+### `user_favorites_content`
+Marcadores personales para bibliotecas externas.
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `user_id` | UUID (FK) | Dueño del favorito |
+| `content_id` | UUID | ID del recurso (Audiobook/Story) |
+| `content_type`| TEXT | Tipo de recurso ('audiobook', 'story') |
+
 ---
 
 ## 3. Políticas de Seguridad Aplicadas 🔐
