@@ -89,6 +89,73 @@ const SelectionModal = ({ visible, onClose, title, data, onSelect, currentId }: 
     );
 };
 
+const SessionBriefingModal = ({ visible, session, onConfirm, onCancel }: any) => {
+    if (!visible || !session) return null;
+    return (
+        <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={onCancel}>
+                <View style={styles.modalBackdrop} />
+            </TouchableWithoutFeedback>
+            <View style={[styles.modalContent, { height: height * 0.82 }]}>
+                <LinearGradient
+                    colors={[session.color + '40', '#111420']}
+                    style={styles.briefingGradient}
+                >
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>Preparación de Sesión</Text>
+                        <TouchableOpacity onPress={onCancel} style={styles.closeBtn}>
+                            <Ionicons name="close" size={24} color="#FFF" />
+                        </TouchableOpacity>
+                    </View>
+
+                    <ScrollView
+                        style={styles.briefingScroll}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.briefingScrollContent}
+                    >
+                        <View style={styles.briefingTop}>
+                            <View style={[styles.briefingBadge, { backgroundColor: session.color }]}>
+                                <Text style={styles.briefingBadgeText}>{session.category.toUpperCase()}</Text>
+                            </View>
+                            <Text style={styles.briefingTitle}>{session.title}</Text>
+                            <Text style={styles.briefingDesc}>{session.description}</Text>
+                        </View>
+
+                        <View style={styles.briefingSection}>
+                            <Text style={styles.sectionLabel}>OBJETIVO CIENTÍFICO</Text>
+                            <Text style={styles.sectionText}>{session.scientificBenefits}</Text>
+                        </View>
+
+                        <View style={styles.briefingSectionText}>
+                            <Ionicons name="information-circle-outline" size={20} color={theme.colors.accent} />
+                            <Text style={[styles.sectionText, { color: theme.colors.accent, marginLeft: 8, fontWeight: '700', flex: 1 }]}>
+                                {session.practiceInstruction}
+                            </Text>
+                        </View>
+                    </ScrollView>
+
+                    <View style={styles.briefingFooter}>
+                        <View style={styles.rhythmPreview}>
+                            <Text style={styles.sectionLabel}>RITMO DE RESPIRACIÓN</Text>
+                            <View style={styles.rhythmRow}>
+                                <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.inhale}s</Text><Text style={styles.rhythmSub}>Inhala</Text></View>
+                                {session.breathingPattern.hold > 0 && <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.hold}s</Text><Text style={styles.rhythmSub}>Mantén</Text></View>}
+                                <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.exhale}s</Text><Text style={styles.rhythmSub}>Exhala</Text></View>
+                                {session.breathingPattern.holdPost > 0 && <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.holdPost}s</Text><Text style={styles.rhythmSub}>Pausa</Text></View>}
+                            </View>
+                        </View>
+
+                        <TouchableOpacity style={styles.startBtn} onPress={onConfirm}>
+                            <Text style={styles.startBtnText}>EMPEZAR PRÁCTICA</Text>
+                            <Ionicons name="arrow-forward" size={20} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+                </LinearGradient>
+            </View>
+        </View>
+    );
+};
+
 const SoundSelectorControl = ({ label, icon, value, isLocked, onValueChange, onPressSelector, color }: any) => {
     const handlePanGesture = (event: any) => {
         if (isLocked) return;
@@ -143,6 +210,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     const [currentSession, setCurrentSession] = useState<any>(null);
 
     // Countdown and Interaction State
+    const [showBriefingModal, setShowBriefingModal] = useState(false);
     const [isCountingStart, setIsCountingStart] = useState(false);
     const [isCountingEnd, setIsCountingEnd] = useState(false);
     const [countdownValue, setCountdownValue] = useState(3);
@@ -205,6 +273,13 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                 if (session) {
                     setCurrentSession(session);
 
+                    const messages: Record<string, string> = {
+                        inhale: 'Inhala suavemente',
+                        hold: 'Mantén el aire',
+                        exhale: 'Exhala liberando tensión',
+                        holdPost: 'Pausa y descansa'
+                    };
+
                     // Auto-select based on session defaults
                     const ssId = session.audioLayers.defaultSoundscape;
                     const bwId = session.audioLayers.defaultBinaural;
@@ -218,16 +293,17 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     // Force the actual session duration
                     setTimeLeft(session.durationMinutes * 60);
 
-                    // Load audio layers
-                    await AudioEngineService.loadSession({
-                        voice: session.audioLayers.voice,
-                        soundscape: ss.id,
-                        binaural: bw.id,
-                        elements: session.audioLayers.defaultElements,
-                    });
+                    // Load audio layers + Preload Voice Cues
+                    await Promise.all([
+                        AudioEngineService.loadSession({
+                            soundscape: ss.id,
+                            binaural: bw.id,
+                            elements: session.audioLayers.defaultElements,
+                        }),
+                        AudioEngineService.preloadCues(messages)
+                    ]);
 
                     // Set initial volumes from session defaults 
-                    // (Assuming standard defaults for now, but could be in data)
                     await AudioEngineService.setLayerVolume('soundscape', 0.6);
                     await AudioEngineService.setLayerVolume('binaural', 0.4);
 
@@ -284,10 +360,92 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         return () => clearInterval(phaseInterval);
     }, [isActive, currentSession]);
 
-    // Voice Cues Effect
+    // Unified Guiding Logic (Smart Guiding)
+    const cycleRef = React.useRef(0);
+    const lastPlayedPhase = React.useRef<string | null>(null);
+
     useEffect(() => {
         if (isActive && currentSession) {
-            AudioEngineService.playVoiceCue(phase, currentSession.voiceStyle);
+            const pattern = currentSession.breathingPattern;
+            const totalCycleTime = pattern.inhale + pattern.hold + pattern.exhale + pattern.holdPost;
+
+            // Smart Guiding Rules (Pacing logic):
+            let guideFrequency = 1;
+            let showAllPhases = true;
+
+            if (totalCycleTime < 4.0) {
+                guideFrequency = 8;
+                showAllPhases = false;
+            } else if (totalCycleTime < 6.0) {
+                guideFrequency = 4;
+                showAllPhases = false;
+            }
+
+            const isLeadCycle = (cycleRef.current % guideFrequency) === 0;
+
+            if (phase !== lastPlayedPhase.current) {
+                // Determine if we should speak in this phase
+                let shouldSpeak = false;
+                if (isLeadCycle) {
+                    if (showAllPhases) shouldSpeak = true;
+                    else if (phase === 'inhale' || (phase === 'exhale' && totalCycleTime >= 4.0)) {
+                        shouldSpeak = true;
+                    }
+                }
+
+                if (shouldSpeak) {
+                    const messages: Record<string, string> = {
+                        inhale: 'Inhala',
+                        hold: 'Mantén',
+                        exhale: 'Exhala',
+                        holdPost: 'Pausa'
+                    };
+
+                    if (totalCycleTime < 6.0) {
+                        AudioEngineService.playVoiceCue(phase, currentSession.voiceStyle, messages[phase]);
+                    } else {
+                        const longMessages: Record<string, string> = {
+                            inhale: 'Inhala suavemente',
+                            hold: 'Mantén el aire',
+                            exhale: 'Exhala liberando tensión',
+                            holdPost: 'Pausa y descansa'
+                        };
+                        AudioEngineService.playVoiceCue(phase, currentSession.voiceStyle, longMessages[phase]);
+                    }
+                }
+
+                // Haptic Feedback for physical guidance (Eyes-closed support)
+                try {
+                    switch (phase) {
+                        case 'inhale':
+                            // Double impact for Inhale (Stronger signal)
+                            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                            break;
+                        case 'hold':
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            break;
+                        case 'exhale':
+                            // Deep vibration for Exhale
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                            break;
+                        case 'holdPost':
+                            Haptics.selectionAsync();
+                            break;
+                    }
+                } catch (e) {
+                    // Silently ignore if haptics fail
+                }
+
+                // Increment cycle counter when we start a new inhale
+                if (phase === 'inhale' && lastPlayedPhase.current !== 'inhale') {
+                    cycleRef.current += 1;
+                }
+
+                lastPlayedPhase.current = phase;
+            }
+        } else {
+            cycleRef.current = 0;
+            lastPlayedPhase.current = null;
         }
     }, [phase, isActive]);
 
@@ -306,7 +464,12 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     }, [isActive, timeLeft]);
 
     const startPreSessionCountdown = () => {
-        if (!isAudioLoaded || isActive) return;
+        if (!currentSession) return;
+        setShowBriefingModal(true);
+    };
+
+    const confirmBriefing = () => {
+        setShowBriefingModal(false);
         setIsCountingStart(true);
         setCountdownValue(3);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -316,7 +479,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
             val -= 1;
             if (val > 0) {
                 setCountdownValue(val);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
             } else {
                 clearInterval(countInt);
                 setIsCountingStart(false);
@@ -531,6 +694,13 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                 currentId={selectedBinaural?.id}
                 onSelect={handleBinauralChange}
             />
+
+            <SessionBriefingModal
+                visible={showBriefingModal}
+                session={currentSession}
+                onCancel={() => setShowBriefingModal(false)}
+                onConfirm={confirmBriefing}
+            />
         </View >
     );
 };
@@ -639,6 +809,28 @@ const styles = StyleSheet.create({
     optionInfo: { flex: 1 },
     optionName: { color: '#FFF', fontSize: 15, fontWeight: '600', marginBottom: 2 },
     optionDesc: { color: 'rgba(255,255,255,0.4)', fontSize: 12 },
+
+    // Briefing Modal Styles
+    briefingGradient: { flex: 1 },
+    briefingTop: { padding: 24, paddingBottom: 12 },
+    briefingBadge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginBottom: 12 },
+    briefingBadgeText: { color: '#000', fontSize: 10, fontWeight: '900' },
+    briefingTitle: { color: '#FFF', fontSize: 28, fontWeight: '800', marginBottom: 12 },
+    briefingDesc: { color: 'rgba(255,255,255,0.7)', fontSize: 16, lineHeight: 24 },
+    briefingSection: { marginTop: 24 },
+    briefingSectionText: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)', marginTop: 20, padding: 16, borderRadius: 20 },
+    sectionLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: '800', letterSpacing: 2, marginBottom: 8 },
+    sectionText: { color: '#FFF', fontSize: 15, lineHeight: 22 },
+    rhythmPreview: { marginTop: 10 },
+    rhythmRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.03)', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    rhythmItem: { alignItems: 'center' },
+    rhythmVal: { color: '#FFF', fontSize: 24, fontWeight: '700' },
+    rhythmSub: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '700', marginTop: 4 },
+    briefingScroll: { flex: 1 },
+    briefingScrollContent: { paddingHorizontal: 24, paddingBottom: 20 },
+    briefingFooter: { padding: 24, paddingTop: 12, backgroundColor: '#111420', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
+    startBtn: { backgroundColor: theme.colors.accent, height: 60, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12, shadowColor: theme.colors.accent, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8, marginTop: 20 },
+    startBtnText: { color: '#000', fontSize: 16, fontWeight: '800' },
 });
 
 export default BreathingTimer;

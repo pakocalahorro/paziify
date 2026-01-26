@@ -1,5 +1,5 @@
 import { Audio } from 'expo-av';
-import * as Speech from 'expo-speech';
+import { supabase } from './supabaseClient';
 import { SOUNDSCAPES, BINAURAL_WAVES, ELEMENTS } from '../data/soundscapesData';
 
 export interface AudioConfig {
@@ -17,7 +17,7 @@ export interface VolumeConfig {
 }
 
 class AudioEngineService {
-    private voiceSound: Audio.Sound | null = null;
+    private cueCache: Map<string, Audio.Sound> = new Map();
     private soundscapeSound: Audio.Sound | null = null;
     private binauralSound: Audio.Sound | null = null;
     private elementsSound: Audio.Sound | null = null;
@@ -59,15 +59,6 @@ class AudioEngineService {
         await this.unloadAll();
 
         try {
-            // Capa 1: Voz guiada
-            if (config.voice) {
-                const { sound } = await Audio.Sound.createAsync(
-                    config.voice,
-                    { shouldPlay: false, volume: this.volumes.voice }
-                );
-                this.voiceSound = sound;
-            }
-
             // Capa 2: Soundscape
             if (config.soundscape) {
                 const soundscape = SOUNDSCAPES.find(s => s.id === config.soundscape);
@@ -115,7 +106,6 @@ class AudioEngineService {
     async playAll() {
         try {
             const promises = [];
-            if (this.voiceSound) promises.push(this.voiceSound.playAsync());
             if (this.soundscapeSound) promises.push(this.soundscapeSound.playAsync());
             if (this.binauralSound) promises.push(this.binauralSound.playAsync());
             if (this.elementsSound) promises.push(this.elementsSound.playAsync());
@@ -127,12 +117,14 @@ class AudioEngineService {
     }
 
     /**
-     * Pausa todas las capas de audio
+     * Pausa todas las capas de audio (incluyendo voces activas)
      */
     async pauseAll() {
         try {
             const promises = [];
-            if (this.voiceSound) promises.push(this.voiceSound.pauseAsync());
+            for (const sound of this.cueCache.values()) {
+                promises.push(sound.pauseAsync());
+            }
             if (this.soundscapeSound) promises.push(this.soundscapeSound.pauseAsync());
             if (this.binauralSound) promises.push(this.binauralSound.pauseAsync());
             if (this.elementsSound) promises.push(this.elementsSound.pauseAsync());
@@ -148,8 +140,14 @@ class AudioEngineService {
      */
     async setLayerVolume(layer: keyof VolumeConfig, volume: number) {
         this.volumes[layer] = volume;
-        const soundMap = {
-            voice: this.voiceSound,
+        if (layer === 'voice') {
+            for (const sound of this.cueCache.values()) {
+                await sound.setVolumeAsync(volume);
+            }
+            return;
+        }
+
+        const soundMap: Record<string, Audio.Sound | null> = {
             soundscape: this.soundscapeSound,
             binaural: this.binauralSound,
             elements: this.elementsSound,
@@ -181,12 +179,16 @@ class AudioEngineService {
         try {
             for (let i = steps; i >= 0; i--) {
                 const factor = i / steps;
-                await Promise.all([
-                    this.voiceSound?.setVolumeAsync(this.volumes.voice * factor),
-                    this.soundscapeSound?.setVolumeAsync(this.volumes.soundscape * factor),
-                    this.binauralSound?.setVolumeAsync(this.volumes.binaural * factor),
-                    this.elementsSound?.setVolumeAsync(this.volumes.elements * factor),
-                ]);
+                const promises = [];
+                if (this.soundscapeSound) promises.push(this.soundscapeSound.setVolumeAsync(this.volumes.soundscape * factor));
+                if (this.binauralSound) promises.push(this.binauralSound.setVolumeAsync(this.volumes.binaural * factor));
+                if (this.elementsSound) promises.push(this.elementsSound.setVolumeAsync(this.volumes.elements * factor));
+
+                for (const sound of this.cueCache.values()) {
+                    promises.push(sound.setVolumeAsync(this.volumes.voice * factor));
+                }
+
+                await Promise.all(promises);
                 await new Promise(resolve => setTimeout(resolve, interval));
             }
         } catch (error) {
@@ -200,13 +202,15 @@ class AudioEngineService {
     async unloadAll() {
         try {
             const promises = [];
-            if (this.voiceSound) promises.push(this.voiceSound.unloadAsync());
+            for (const sound of this.cueCache.values()) {
+                promises.push(sound.unloadAsync());
+            }
             if (this.soundscapeSound) promises.push(this.soundscapeSound.unloadAsync());
             if (this.binauralSound) promises.push(this.binauralSound.unloadAsync());
             if (this.elementsSound) promises.push(this.elementsSound.unloadAsync());
             await Promise.all(promises);
 
-            this.voiceSound = null;
+            this.cueCache.clear();
             this.soundscapeSound = null;
             this.binauralSound = null;
             this.elementsSound = null;
@@ -222,13 +226,11 @@ class AudioEngineService {
         if (!soundscapeId) return;
 
         try {
-            // 1. Unload current if exists
             if (this.soundscapeSound) {
                 await this.soundscapeSound.unloadAsync();
                 this.soundscapeSound = null;
             }
 
-            // 2. Load new
             const soundscape = SOUNDSCAPES.find(s => s.id === soundscapeId);
             if (soundscape && soundscape.audioFile) {
                 const { sound } = await Audio.Sound.createAsync(
@@ -236,11 +238,7 @@ class AudioEngineService {
                     { shouldPlay: false, volume: this.volumes.soundscape, isLooping: true }
                 );
                 this.soundscapeSound = sound;
-
-                // 3. Play if active
-                if (shouldPlay) {
-                    await this.soundscapeSound.playAsync();
-                }
+                if (shouldPlay) await this.soundscapeSound.playAsync();
             }
         } catch (error) {
             console.error('Error swapping soundscape:', error);
@@ -254,13 +252,11 @@ class AudioEngineService {
         if (!binauralId) return;
 
         try {
-            // 1. Unload current
             if (this.binauralSound) {
                 await this.binauralSound.unloadAsync();
                 this.binauralSound = null;
             }
 
-            // 2. Load new
             const binaural = BINAURAL_WAVES.find(b => b.id === binauralId);
             if (binaural && binaural.audioFile) {
                 const { sound } = await Audio.Sound.createAsync(
@@ -268,11 +264,7 @@ class AudioEngineService {
                     { shouldPlay: false, volume: this.volumes.binaural, isLooping: true }
                 );
                 this.binauralSound = sound;
-
-                // 3. Play if active
-                if (shouldPlay) {
-                    await this.binauralSound.playAsync();
-                }
+                if (shouldPlay) await this.binauralSound.playAsync();
             }
         } catch (error) {
             console.error('Error swapping binaural:', error);
@@ -280,44 +272,83 @@ class AudioEngineService {
     }
 
     /**
-     * Obtiene el estado de reproducción de la voz
+     * Carga y almacena en caché todas las instrucciones de una sesión
      */
-    async getVoiceStatus() {
-        if (!this.voiceSound) return null;
+    async preloadCues(messages: Record<string, string>) {
+        console.log('Preloading voice cues...');
+        const promises = Object.entries(messages).map(([key, text]) => this.loadProVoice(text, key));
+        await Promise.all(promises);
+        console.log('Voice cues preloaded.');
+    }
+
+    /**
+     * Genera y carga la voz profesional mediante Vertex AI (Edge Function)
+     */
+    async loadProVoice(text: string, cacheKey: string, voiceName: string = 'es-ES-Wavenet-C') {
         try {
-            return await this.voiceSound.getStatusAsync();
+            if (this.cueCache.has(cacheKey)) return;
+
+            const { data, error } = await supabase.functions.invoke('meditation-tts', {
+                body: {
+                    text,
+                    voice: voiceName,
+                    speed: 0.70, // Super espiritual y lento
+                    pitch: -2.5  // Resonante y profundo
+                },
+            });
+
+            if (error || !data.audioContent) throw new Error(error?.message || 'No audio content received');
+
+            const uri = `data:audio/mp3;base64,${data.audioContent}`;
+            const { sound } = await Audio.Sound.createAsync(
+                { uri },
+                { shouldPlay: false, volume: this.volumes.voice }
+            );
+            this.cueCache.set(cacheKey, sound);
         } catch (error) {
-            console.error('Error getting voice status:', error);
-            return null;
+            console.error(`Error loading cue (${cacheKey}):`, error);
         }
     }
 
     /**
-     * Reproduce una instrucción de voz para la fase de respiración
+     * Reproduce una instrucción de voz con Ducking
      */
-    async playVoiceCue(type: 'inhale' | 'exhale' | 'hold' | 'holdPost', style: string = 'calm') {
-        const messages: Record<string, string> = {
-            inhale: 'Inhala',
-            exhale: 'Exhala tranquilamente',
-            hold: 'Mantén el aire',
-            holdPost: 'Descansa'
-        };
+    async playVoiceCue(type: string, style: string = 'calm', text?: string) {
+        const sound = this.cueCache.get(type);
 
-        const message = messages[type];
-        if (!message) return;
+        if (sound) {
+            try {
+                // Ducking suave
+                await Promise.all([
+                    this.soundscapeSound?.setVolumeAsync(this.volumes.soundscape * 0.2),
+                    this.binauralSound?.setVolumeAsync(this.volumes.binaural * 0.2),
+                ]);
 
+                await sound.replayAsync();
+
+                sound.setOnPlaybackStatusUpdate((status: any) => {
+                    if (status.didJustFinish) {
+                        // Restauración suave
+                        this.soundscapeSound?.setVolumeAsync(this.volumes.soundscape);
+                        this.binauralSound?.setVolumeAsync(this.volumes.binaural);
+                    }
+                });
+            } catch (error) {
+                console.error('Error playing voice cue:', error);
+            }
+        } else if (text) {
+            await this.loadProVoice(text, type);
+            this.playVoiceCue(type, style, text);
+        }
+    }
+
+    async getVoiceStatus(type: string) {
+        const sound = this.cueCache.get(type);
+        if (!sound) return null;
         try {
-            await Speech.stop();
-
-            const options = {
-                language: 'es-ES',
-                pitch: 0.75, // Deep and resonant
-                rate: 0.30,  // Ultra-slow for maximum relaxation
-            };
-
-            await Speech.speak(message, options);
+            return await sound.getStatusAsync();
         } catch (error) {
-            console.error('Error in Speech:', error);
+            return null;
         }
     }
 }
