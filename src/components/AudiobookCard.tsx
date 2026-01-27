@@ -23,14 +23,14 @@ const { width } = Dimensions.get('window');
 
 // Mapping for specific book covers or generic category covers
 const BOOK_COVERS: Record<string, any> = {
-    'Meditations': require('../assets/covers/meditations.png'),
-    'The Conquest of Fear': require('../assets/covers/conquest_fear.png'),
-    'Little Women': require('../assets/covers/little_women.png'),
-    'As a Man Thinketh': require('../assets/covers/mind_power.png'),
-    'anxiety': require('../assets/covers/anxiety.png'),
-    'health': require('../assets/covers/health.png'),
-    'growth': require('../assets/covers/growth.png'),
-    'professional': require('../assets/covers/professional.png'),
+    'Meditations': 'https://images.unsplash.com/photo-1506126613408-eca67ad4844a?w=400&q=80',
+    'The Conquest of Fear': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80',
+    'Little Women': 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&q=80',
+    'As a Man Thinketh': 'https://images.unsplash.com/photo-1454165833744-96e6cf582bb1?w=400&q=80',
+    'anxiety': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
+    'health': 'https://images.unsplash.com/photo-1506126613408-eca67ad4844a?w=400&q=80',
+    'growth': 'https://images.unsplash.com/photo-1499728603263-137cb7ab3e1f?w=400&q=80',
+    'professional': 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&q=80',
 };
 
 const AudiobookCard: React.FC<AudiobookCardProps> = ({
@@ -73,7 +73,10 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                 <View style={styles.content}>
                     {/* Book Cover */}
                     <View style={styles.coverWrapper}>
-                        <Image source={coverSource} style={styles.coverImage} />
+                        <Image
+                            source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
+                            style={styles.coverImage}
+                        />
                         {isLocked && (
                             <View style={styles.lockOverlay}>
                                 <Ionicons name="lock-closed" size={20} color="#FFFFFF" />

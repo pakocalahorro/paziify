@@ -11,6 +11,18 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { RealStory } from '../types';
 import { theme } from '../constants/theme';
+import { ImageBackground } from 'react-native';
+
+const CATEGORY_ASSETS: Record<string, any> = {
+    anxiety: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
+    health: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=400&q=80',
+    growth: 'https://images.unsplash.com/photo-1499728603263-137cb7ab3e1f?w=400&q=80',
+    relationships: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&q=80',
+    professional: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&q=80',
+    sleep: 'https://images.unsplash.com/photo-1511295742364-9119556d7395?w=400&q=80',
+    family: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=400&q=80',
+    children: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=400&q=80',
+};
 
 interface StoryCardProps {
     story: RealStory;
@@ -55,7 +67,11 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember }) =
             activeOpacity={0.9}
         >
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
-                <View style={styles.mainContent}>
+                <ImageBackground
+                    source={{ uri: CATEGORY_ASSETS[story.category] || CATEGORY_ASSETS['growth'] }}
+                    style={styles.mainContent}
+                    imageStyle={{ opacity: 0.15 }} // Sutil imagen de fondo para personalidad
+                >
                     {/* Category indicator line */}
                     <LinearGradient
                         colors={gradient as any}
@@ -112,7 +128,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember }) =
                     <View style={styles.chevronContainer}>
                         <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </View>
-                </View>
+                </ImageBackground>
             </BlurView>
         </TouchableOpacity>
     );

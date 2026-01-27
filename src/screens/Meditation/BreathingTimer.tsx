@@ -25,6 +25,7 @@ import { useApp } from '../../context/AppContext';
 import AudioEngineService from '../../services/AudioEngineService';
 import { MEDITATION_SESSIONS } from '../../data/sessionsData';
 import { SOUNDSCAPES, BINAURAL_WAVES, Soundscape, BinauralWave } from '../../data/soundscapesData';
+import ProBreathingOrb from '../../components/Meditation/ProBreathingOrb';
 
 const { width, height } = Dimensions.get('window');
 
@@ -573,22 +574,20 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
                         {/* Visual Timer */}
                         <View style={styles.mainContent}>
-                            <Animated.View style={[styles.auraCircle, {
-                                transform: [{ scale: pulseAnim }],
-                                opacity: isActive ? 0 : 0.4
-                            }]} />
 
                             <TouchableOpacity
                                 activeOpacity={0.9}
                                 style={styles.orbContainer}
                                 onPress={(!isActive && !isCountingStart && !isCountingEnd) ? startPreSessionCountdown : toggleTimer}
                             >
-                                <LinearGradient
-                                    colors={['rgba(212, 175, 55, 0.15)', 'transparent']}
-                                    style={[styles.orbOuter, {
-                                        transform: [{ scale: (isActive && !isCountingEnd) ? (1 + phaseProgress * 0.4) : 1 }]
-                                    }]}
-                                >
+                                <ProBreathingOrb
+                                    size={width * 0.75}
+                                    active={isActive && !isCountingEnd && !isCountingStart}
+                                    phase={phase === 'holdPost' ? 'hold' : phase}
+                                    progress={phaseProgress}
+                                />
+
+                                <View style={styles.orbContentOverlay}>
                                     <View style={styles.orbInner}>
                                         {(isCountingStart || isCountingEnd) ? (
                                             <View style={styles.countdownBox}>
@@ -632,7 +631,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                             </>
                                         )}
                                     </View>
-                                </LinearGradient>
+                                </View>
                             </TouchableOpacity>
                             <Text style={styles.instructionText}>
                                 {isActive ? (
@@ -730,9 +729,15 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 20,
     },
-    orbContainer: { width: width * 0.75, height: width * 0.75, borderRadius: width, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', backgroundColor: 'transparent' },
-    orbOuter: { width: '90%', height: '90%', borderRadius: width, justifyContent: 'center', alignItems: 'center' },
-    orbInner: { width: '85%', height: '85%', borderRadius: width, backgroundColor: 'rgba(255,255,255,0.02)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    orbContainer: {
+        width: width * 0.75,
+        height: width * 0.75,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent',
+    },
+    orbContentOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
+    orbInner: { width: '85%', height: '85%', justifyContent: 'center', alignItems: 'center' },
     timerText: { color: '#FFF', fontSize: 64, fontWeight: '200', letterSpacing: 2 },
     phaseLabel: { color: theme.colors.accent, fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 2, marginTop: 4 },
     instructionText: { color: 'rgba(255,255,255,0.4)', fontSize: 16, marginTop: 40, fontWeight: '400', textAlign: 'center' },

@@ -17,6 +17,12 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import {
+    Canvas,
+    Circle,
+    Group,
+    Blur,
+} from '@shopify/react-native-skia';
 import { Screen, RootStackParamList, Audiobook } from '../../types';
 import { theme } from '../../constants/theme';
 import { audiobooksService } from '../../services/contentService';
@@ -32,7 +38,7 @@ interface Props {
     navigation: AudiobooksScreenNavigationProp;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const CATEGORIES = [
     { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
@@ -158,25 +164,51 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
+            {/* NEW UNIFIED HEADER AT THE TOP */}
+            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+                <View style={styles.headerTop}>
+                    <TouchableOpacity
+                        style={styles.backBtn}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#FFF" />
+                    </TouchableOpacity>
+
+                    <View style={styles.headerTitleContainer}>
+                        <Text style={styles.headerLabel}>BIBLIOTECA DE</Text>
+                        <Text style={styles.headerTitle}>Sabiduría</Text>
+                    </View>
+
+                    <View style={styles.silhouetteContainer}>
+                        <Canvas style={styles.silhouetteCanvas}>
+                            <Group>
+                                <Circle cx={50} cy={50} r={40} color="rgba(251, 113, 133, 0.2)">
+                                    <Blur blur={15} />
+                                </Circle>
+                            </Group>
+                        </Canvas>
+                        <Ionicons name="book-outline" size={32} color="rgba(251, 113, 133, 0.6)" />
+                    </View>
+                </View>
+
+                <View style={styles.searchWrapper}>
+                    <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Buscar audiolibros..."
+                        placeholderTextColor="rgba(255,255,255,0.3)"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                </View>
+            </View>
+
             {renderHero()}
 
             <View style={styles.filterSection}>
                 <Text style={styles.sectionTitle}>
-                    {selectedCategory === 'all' ? 'Biblioteca de Audio' : `Categoría: ${selectedCategory}`}
+                    {selectedCategory === 'all' ? 'Todo el Contenido' : `Categoría: ${selectedCategory}`}
                 </Text>
-
-                <View style={styles.searchWrapper}>
-                    <BlurView intensity={30} tint="dark" style={styles.searchBlur}>
-                        <Ionicons name="search-outline" size={20} color="rgba(255,255,255,0.4)" />
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Títulos, autores..."
-                            placeholderTextColor="rgba(255,255,255,0.3)"
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                        />
-                    </BlurView>
-                </View>
 
                 <FlatList
                     horizontal
@@ -225,24 +257,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     colors={['#050810', '#101222', '#050810']}
                     style={StyleSheet.absoluteFill}
                 />
-                <View style={[
-                    styles.backgroundGlow,
-                    {
-                        backgroundColor: CATEGORIES.find(c => c.id === selectedCategory)?.color || theme.colors.primary,
-                        opacity: 0.1,
-                    }
-                ]} />
             </View>
-
-            <BlurView intensity={80} tint="dark" style={[styles.navHeader, { paddingTop: insets.top }]}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-                    <Ionicons name="chevron-down" size={28} color="#FFFFFF" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Audiolibros</Text>
-                <TouchableOpacity onPress={handleRefresh} style={styles.iconButton}>
-                    <Ionicons name="refresh-outline" size={22} color="#FFFFFF" />
-                </TouchableOpacity>
-            </BlurView>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.FlatList
@@ -282,47 +297,65 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#050810',
     },
-    backgroundGlow: {
-        position: 'absolute',
-        bottom: -150,
-        left: -100,
-        width: 450,
-        height: 450,
-        borderRadius: 225,
+    header: {
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        backgroundColor: '#050810',
     },
-    navHeader: {
+    headerTop: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: theme.spacing.lg,
-        paddingBottom: theme.spacing.md,
-        zIndex: 100,
+        justifyContent: 'space-between',
+        marginBottom: 20,
     },
-    iconButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+    backBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: 'rgba(255,255,255,0.06)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    headerTitle: {
-        fontSize: 18,
+    headerTitleContainer: {
+        flex: 1,
+        marginLeft: 15,
+    },
+    headerLabel: {
+        fontSize: 10,
         fontWeight: '900',
-        color: '#FFFFFF',
+        color: '#FB7185',
+        letterSpacing: 2,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: '900',
+        color: '#FFF',
+        letterSpacing: -0.5,
+    },
+    silhouetteContainer: {
+        width: 60,
+        height: 60,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    silhouetteCanvas: {
+        width: 100,
+        height: 100,
+        position: 'absolute',
     },
     listContent: {
-        paddingHorizontal: theme.spacing.lg,
+        paddingHorizontal: 20,
     },
     headerContent: {
         // Wrapper
     },
     heroContainer: {
-        marginTop: 20,
+        marginTop: 10,
         marginBottom: 30,
     },
     heroList: {
         paddingRight: 40,
+        paddingLeft: 20,
     },
     heroCard: {
         width: width * 0.65,
@@ -379,29 +412,28 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '900',
         color: '#FFFFFF',
+        marginLeft: 20,
         marginBottom: 16,
     },
     searchWrapper: {
-        marginBottom: 16,
-    },
-    searchBlur: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 54,
+        backgroundColor: 'rgba(255,255,255,0.05)',
         borderRadius: 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: 15,
+        height: 48,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
-        overflow: 'hidden',
     },
     searchInput: {
         flex: 1,
-        marginLeft: 12,
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        marginLeft: 10,
+        color: '#FFF',
+        fontSize: 15,
+        fontWeight: '500',
     },
     categoryList: {
+        paddingLeft: 20,
         paddingBottom: 4,
     },
     categoryChip: {

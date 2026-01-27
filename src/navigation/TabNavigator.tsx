@@ -11,8 +11,22 @@ import LibraryScreen from '../screens/Meditation/LibraryScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import CBTAcademyScreen from '../screens/Academy/CBTAcademyScreen';
 import CommunityScreen from '../screens/Social/CommunityScreen';
+import MeditationCatalogScreen from '../screens/Meditation/MeditationCatalogScreen';
+import AudiobooksScreen from '../screens/Content/AudiobooksScreen';
+import StoriesScreen from '../screens/Content/StoriesScreen';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Tab = createBottomTabNavigator();
+const LibStack = createNativeStackNavigator();
+
+const LibraryStack = () => (
+    <LibStack.Navigator screenOptions={{ headerShown: false }}>
+        <LibStack.Screen name={Screen.LIBRARY} component={LibraryScreen} />
+        <LibStack.Screen name={Screen.MEDITATION_CATALOG} component={MeditationCatalogScreen} />
+        <LibStack.Screen name={Screen.AUDIOBOOKS} component={AudiobooksScreen} />
+        <LibStack.Screen name={Screen.STORIES} component={StoriesScreen} />
+    </LibStack.Navigator>
+);
 
 export const TabNavigator = () => {
     const insets = useSafeAreaInsets();
@@ -48,8 +62,8 @@ export const TabNavigator = () => {
                 }}
             />
             <Tab.Screen
-                name={Screen.LIBRARY}
-                component={LibraryScreen}
+                name="LibraryTab"
+                component={LibraryStack}
                 options={{
                     tabBarLabel: 'Biblioteca',
                     tabBarIcon: ({ color, size }) => (

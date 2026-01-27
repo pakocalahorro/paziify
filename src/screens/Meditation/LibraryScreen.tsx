@@ -15,8 +15,25 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import {
+    Canvas,
+    Circle,
+    Blur,
+    Group,
+    RadialGradient,
+    vec
+} from '@shopify/react-native-skia';
+import {
+    useSharedValue,
+    withRepeat,
+    withTiming,
+    Easing,
+    useDerivedValue
+} from 'react-native-reanimated';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
+import { IMAGES } from '../../constants/images';
+import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
 
 type LibraryScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -28,6 +45,41 @@ interface Props {
 }
 
 const { width } = Dimensions.get('window');
+
+const BacklitSilhouette: React.FC = () => {
+    const pulse = useSharedValue(0.4);
+
+    useEffect(() => {
+        pulse.value = withRepeat(
+            withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+            -1,
+            true
+        );
+    }, []);
+
+    const glowOpacity = useDerivedValue(() => pulse.value * 0.6);
+    const glowRadiusVal = useDerivedValue(() => 60 + pulse.value * 40);
+
+    return (
+        <View style={styles.silhouetteContainer}>
+            <Canvas style={styles.silhouetteCanvas}>
+                <Group>
+                    <Circle cx={80} cy={80} r={glowRadiusVal}>
+                        <RadialGradient
+                            c={vec(80, 80)}
+                            r={glowRadiusVal}
+                            colors={['rgba(45, 212, 191, 0.5)', 'transparent']}
+                        />
+                        <Blur blur={25} />
+                    </Circle>
+                </Group>
+            </Canvas>
+            <View style={styles.silhouetteIconWrapper}>
+                <Ionicons name="body-outline" size={60} color="rgba(45, 212, 191, 0.4)" style={styles.silhouetteIcon} />
+            </View>
+        </View>
+    );
+};
 
 interface LibrarySectionProps {
     icon: keyof typeof Ionicons.glyphMap;
@@ -55,35 +107,43 @@ const LibrarySection: React.FC<LibrarySectionProps> = ({
     useEffect(() => {
         Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 600,
-            delay: index * 150,
+            duration: 800,
+            delay: index * 100,
             useNativeDriver: true,
         }).start();
     }, []);
 
     return (
-        <Animated.View style={[styles.sectionWrapper, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.sectionWrapper, {
+            opacity: fadeAnim,
+            transform: [{
+                translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [30, 0]
+                })
+            }]
+        }]}>
             <TouchableOpacity style={styles.sectionCard} onPress={onPress} activeOpacity={0.9}>
-                <ImageBackground source={image} style={styles.sectionImage}>
+                <ImageBackground
+                    source={typeof image === 'string' ? { uri: image } : image}
+                    style={styles.sectionImage}
+                    resizeMode="cover"
+                >
                     <LinearGradient
-                        colors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.85)']}
+                        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.75)']}
                         style={StyleSheet.absoluteFill}
                     />
                     <View style={styles.sectionContent}>
-                        <BlurView intensity={30} tint="light" style={styles.iconCircle}>
-                            <Ionicons name={icon} size={24} color="#FFFFFF" />
-                        </BlurView>
+                        <View style={styles.topInfo}>
+                            <BlurView intensity={20} tint="dark" style={styles.categoryBadge}>
+                                <Ionicons name={icon} size={14} color={color} />
+                                <Text style={[styles.categoryText, { color }]}>{count}</Text>
+                            </BlurView>
+                        </View>
 
                         <View style={styles.sectionInfo}>
                             <Text style={styles.sectionTitle}>{title}</Text>
                             <Text style={styles.sectionDescription}>{description}</Text>
-
-                            <View style={styles.sectionFooter}>
-                                <View style={[styles.countBadge, { backgroundColor: `${color}40` }]}>
-                                    <Text style={[styles.sectionCount, { color }]}>{count}</Text>
-                                </View>
-                                <Ionicons name="arrow-forward" size={18} color="rgba(255,255,255,0.5)" />
-                            </View>
                         </View>
                     </View>
                 </ImageBackground>
@@ -99,13 +159,12 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            {/* Ambient Background */}
-            <View style={StyleSheet.absoluteFill}>
-                <LinearGradient
-                    colors={['#050810', '#0D1117', '#050810']}
-                    style={StyleSheet.absoluteFill}
-                />
-            </View>
+            {/* Premium Background */}
+            <NoiseBackground />
+            <LinearGradient
+                colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
+                style={StyleSheet.absoluteFill}
+            />
 
             <ScrollView
                 style={styles.scrollView}
@@ -114,14 +173,17 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
             >
                 {/* Header */}
                 <View style={styles.header}>
-                    <View style={styles.headerTop}>
-                        <Text style={styles.headerTitle}>Inspiración Hub</Text>
-                        <TouchableOpacity style={styles.searchBtn}>
-                            <Ionicons name="search-outline" size={22} color="#FFFFFF" />
-                        </TouchableOpacity>
+                    <View style={styles.headerRow}>
+                        <View style={styles.headerTextContainer}>
+                            <Text style={styles.headerLabel}>CENTRO DE</Text>
+                            <View style={styles.headerTop}>
+                                <Text style={styles.headerTitle}>Inspiración</Text>
+                            </View>
+                        </View>
+                        <BacklitSilhouette />
                     </View>
                     <Text style={styles.headerSubtitle}>
-                        Tu santuario personal de conocimiento y paz.
+                        Tu santuario personal para la calma y el crecimiento consciente.
                     </Text>
                 </View>
 
@@ -130,10 +192,10 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                     index={0}
                     icon="flower-outline"
                     title="Meditación"
-                    description="Guías de presencia y mindfulness"
+                    description="Guías de presencia y mindfulness para el día a día."
                     count="SESIONES"
-                    image={require('../../assets/covers/med_anxiety.png')}
-                    color="#66DEFF"
+                    image={IMAGES.LIB_MEDITATION}
+                    color="#2DD4BF"
                     onPress={() => navigation.navigate(Screen.MEDITATION_CATALOG)}
                 />
 
@@ -141,10 +203,10 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                     index={1}
                     icon="book-outline"
                     title="Audiolibros"
-                    description="Sabiduría de los clásicos en tu voz"
-                    count="LIBROS"
-                    image={require('../../assets/covers/professional.png')}
-                    color="#FF6B9D"
+                    description="Clásicos de la sabiduría para expandir tu conciencia."
+                    count="BIBLIOTECA"
+                    image={IMAGES.LIB_BOOKS}
+                    color="#FB7185"
                     onPress={() => navigation.navigate(Screen.AUDIOBOOKS)}
                 />
 
@@ -152,10 +214,10 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                     index={2}
                     icon="sparkles-outline"
                     title="Historias Reales"
-                    description="Testimonios de superación diaria"
+                    description="Relatos de superación y resiliencia humana."
                     count="LECTURAS"
-                    image={require('../../assets/covers/growth.png')}
-                    color="#FFA726"
+                    image={IMAGES.LIB_STORIES}
+                    color="#FBBF24"
                     onPress={() => navigation.navigate(Screen.STORIES)}
                 />
 
@@ -165,18 +227,20 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                     onPress={() => navigation.navigate(Screen.CBT_ACADEMY)}
                     activeOpacity={0.8}
                 >
-                    <BlurView intensity={20} tint="dark" style={styles.academyBlur}>
-                        <View style={styles.academyIcon}>
-                            <Ionicons name="school" size={24} color={theme.colors.primary} />
-                        </View>
-                        <View style={styles.academyText}>
-                            <Text style={styles.academyTitle}>Academia TCC</Text>
-                            <Text style={styles.academyDescription}>
-                                Domina tu mente con técnicas científicas.
-                            </Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.3)" />
-                    </BlurView>
+                    <ImageBackground source={{ uri: IMAGES.LIB_ACADEMY }} style={styles.academyImg}>
+                        <BlurView intensity={40} tint="dark" style={styles.academyBlur}>
+                            <View style={styles.academyIcon}>
+                                <Ionicons name="school" size={20} color="#FFF" />
+                            </View>
+                            <View style={styles.academyText}>
+                                <Text style={styles.academyTitle}>Academia TCC</Text>
+                                <Text style={styles.academyDescription}>
+                                    Domina tu mente con técnicas científicas avanzadas.
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.5)" />
+                        </BlurView>
+                    </ImageBackground>
                 </TouchableOpacity>
             </ScrollView>
         </View>
@@ -186,37 +250,77 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#050810',
+        backgroundColor: '#020617',
     },
     header: {
-        marginBottom: 30,
+        marginBottom: 35,
         paddingHorizontal: 10,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    headerTextContainer: {
+        flex: 1,
+    },
+    silhouetteContainer: {
+        width: 140,
+        height: 140,
+        marginTop: -20,
+        marginRight: -20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    silhouetteCanvas: {
+        width: 160,
+        height: 160,
+        position: 'absolute',
+    },
+    silhouetteIconWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    silhouetteIcon: {
+        zIndex: 2,
+    },
+    silhouetteInner: {
+        display: 'none',
+    },
+    headerLabel: {
+        fontSize: 11,
+        fontWeight: '800',
+        color: '#2DD4BF',
+        letterSpacing: 3,
+        marginBottom: 4,
     },
     headerTop: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 10,
     },
     headerTitle: {
-        fontSize: 32,
+        fontSize: 36,
         fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: -0.5,
+        letterSpacing: -1,
     },
     searchBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(255,255,255,0.06)',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.04)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     headerSubtitle: {
-        fontSize: 15,
-        color: 'rgba(255,255,255,0.5)',
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.45)',
         fontWeight: '500',
-        lineHeight: 22,
+        lineHeight: 24,
     },
     scrollView: {
         flex: 1,
@@ -225,17 +329,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     sectionWrapper: {
-        marginBottom: 20,
+        marginBottom: 24,
     },
     sectionCard: {
-        borderRadius: 24,
+        borderRadius: 32,
         overflow: 'hidden',
-        height: 180,
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 15,
+        height: 220,
+        backgroundColor: '#111',
     },
     sectionImage: {
         flex: 1,
@@ -245,77 +345,81 @@ const styles = StyleSheet.create({
         padding: 24,
         justifyContent: 'space-between',
     },
-    iconCircle: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
-    },
-    sectionInfo: {
-        gap: 4,
-    },
-    sectionTitle: {
-        fontSize: 24,
-        fontWeight: '900',
-        color: '#FFFFFF',
-    },
-    sectionDescription: {
-        fontSize: 13,
-        color: 'rgba(255,255,255,0.6)',
-        fontWeight: '600',
-        marginBottom: 10,
-    },
-    sectionFooter: {
+    topInfo: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+    },
+    categoryBadge: {
+        flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        overflow: 'hidden',
+        gap: 6,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
-    countBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    sectionCount: {
+    categoryText: {
         fontSize: 10,
         fontWeight: '900',
-        letterSpacing: 1,
+        letterSpacing: 1.5,
+    },
+    sectionInfo: {
+        gap: 6,
+    },
+    sectionTitle: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: -0.5,
+    },
+    sectionDescription: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.6)',
+        fontWeight: '500',
+        lineHeight: 20,
     },
     academyCard: {
         marginTop: 10,
-        borderRadius: 24,
+        borderRadius: 32,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.1)',
+        height: 120,
+    },
+    academyImg: {
+        flex: 1,
     },
     academyBlur: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         padding: 20,
+        backgroundColor: 'rgba(0,0,0,0.3)',
     },
     academyIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 14,
-        backgroundColor: 'rgba(100, 108, 255, 0.1)',
+        width: 50,
+        height: 50,
+        borderRadius: 16,
+        backgroundColor: 'rgba(45, 212, 191, 0.2)',
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(45, 212, 191, 0.3)',
     },
     academyText: {
         flex: 1,
         marginLeft: 16,
     },
     academyTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '800',
         color: '#FFFFFF',
-        marginBottom: 2,
+        marginBottom: 4,
     },
     academyDescription: {
-        fontSize: 12,
+        fontSize: 13,
         color: 'rgba(255,255,255,0.5)',
         fontWeight: '500',
     },

@@ -10,7 +10,6 @@ import {
     Animated,
     Dimensions,
     ImageBackground,
-    Image,
     StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +17,12 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import {
+    Canvas,
+    Circle,
+    Group,
+    Blur,
+} from '@shopify/react-native-skia';
 import { Screen, RootStackParamList, RealStory } from '../../types';
 import { theme } from '../../constants/theme';
 import { storiesService } from '../../services/contentService';
@@ -33,7 +38,7 @@ interface Props {
     navigation: StoriesScreenNavigationProp;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const CATEGORIES = [
     { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
@@ -45,17 +50,16 @@ const CATEGORIES = [
     { id: 'sleep', label: 'Sueño', icon: 'moon-outline', color: '#9575CD' },
 ];
 
-// Mapping purely for UI assets
 const CATEGORY_ASSETS: Record<string, any> = {
-    anxiety: require('../../assets/covers/anxiety.png'),
-    health: require('../../assets/covers/health.png'),
-    growth: require('../../assets/covers/growth.png'),
-    relationships: require('../../assets/covers/relationships.png'),
-    professional: require('../../assets/covers/professional.png'),
-    sleep: require('../../assets/covers/sleep.png'),
-    family: require('../../assets/covers/family.png'),
-    children: require('../../assets/covers/children.png'),
-    all: require('../../assets/covers/growth.png'), // Default
+    anxiety: { uri: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80' },
+    health: { uri: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&q=80' },
+    growth: { uri: 'https://images.unsplash.com/photo-1499728603263-137cb7ab3e1f?w=800&q=80' },
+    relationships: { uri: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80' },
+    professional: { uri: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&q=80' },
+    sleep: { uri: 'https://images.unsplash.com/photo-1511295742364-9119556d7395?w=800&q=80' },
+    family: { uri: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=800&q=80' },
+    children: { uri: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=800&q=80' },
+    all: { uri: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80' },
 };
 
 const StoriesScreen: React.FC<Props> = ({ navigation }) => {
@@ -73,23 +77,14 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
     // Animations
     const scrollY = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const listScale = useRef(new Animated.Value(0.95)).current;
 
     useEffect(() => {
         loadStories();
-        Animated.parallel([
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 800,
-                useNativeDriver: true,
-            }),
-            Animated.spring(listScale, {
-                toValue: 1,
-                friction: 8,
-                tension: 40,
-                useNativeDriver: true,
-            })
-        ]).start();
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+        }).start();
     }, []);
 
     const loadStories = async () => {
@@ -122,8 +117,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
     const filteredStories = stories.filter(story => {
         const matchesCategory = selectedCategory === 'all' || story.category === selectedCategory;
         const matchesSearch = story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            story.subtitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            story.story_text.toLowerCase().includes(searchQuery.toLowerCase());
+            story.subtitle?.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
 
@@ -148,7 +142,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                             activeOpacity={0.9}
                         >
                             <ImageBackground
-                                source={CATEGORY_ASSETS[item.category]}
+                                source={CATEGORY_ASSETS[item.category.toLowerCase()] || CATEGORY_ASSETS['all']}
                                 style={styles.heroImage}
                                 imageStyle={{ borderRadius: 24 }}
                             >
@@ -174,25 +168,51 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
+            {/* NEW UNIFIED HEADER AT THE TOP */}
+            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+                <View style={styles.headerTop}>
+                    <TouchableOpacity
+                        style={styles.backBtn}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#FFF" />
+                    </TouchableOpacity>
+
+                    <View style={styles.headerTitleContainer}>
+                        <Text style={styles.headerLabel}>RELATOS DE</Text>
+                        <Text style={styles.headerTitle}>Superación</Text>
+                    </View>
+
+                    <View style={styles.silhouetteContainer}>
+                        <Canvas style={styles.silhouetteCanvas}>
+                            <Group>
+                                <Circle cx={50} cy={50} r={40} color="rgba(251, 191, 36, 0.2)">
+                                    <Blur blur={15} />
+                                </Circle>
+                            </Group>
+                        </Canvas>
+                        <Ionicons name="sparkles-outline" size={32} color="rgba(251, 191, 36, 0.6)" />
+                    </View>
+                </View>
+
+                <View style={styles.searchWrapper}>
+                    <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Buscar historias..."
+                        placeholderTextColor="rgba(255,255,255,0.3)"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                </View>
+            </View>
+
             {renderHero()}
 
             <View style={styles.filterSection}>
                 <Text style={styles.sectionTitle}>
                     {selectedCategory === 'all' ? 'Todas las Historias' : `Superando: ${selectedCategory}`}
                 </Text>
-
-                <View style={styles.searchWrapper}>
-                    <BlurView intensity={30} tint="dark" style={styles.searchBlur}>
-                        <Ionicons name="search-outline" size={20} color="rgba(255,255,255,0.5)" />
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Buscar en la biblioteca..."
-                            placeholderTextColor="rgba(255,255,255,0.4)"
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                        />
-                    </BlurView>
-                </View>
 
                 <FlatList
                     horizontal
@@ -232,60 +252,23 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
         </View>
     );
 
-    const renderEmpty = () => (
-        <View style={styles.emptyContainer}>
-            <BlurView intensity={20} tint="dark" style={styles.emptyBlur}>
-                <Ionicons name="sparkles-outline" size={64} color={theme.colors.primary} />
-                <Text style={styles.emptyTitle}>Sin resultados</Text>
-                <Text style={styles.emptySubtitle}>Intenta con otra palabra clave</Text>
-                <TouchableOpacity
-                    style={styles.resetButton}
-                    onPress={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                >
-                    <Text style={styles.resetButtonText}>Limpiar filtros</Text>
-                </TouchableOpacity>
-            </BlurView>
-        </View>
-    );
-
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            {/* Ambient Background */}
             <View style={StyleSheet.absoluteFill}>
                 <LinearGradient
                     colors={['#0A0E1A', '#1A1B2E', '#0A0E1A']}
                     style={StyleSheet.absoluteFill}
                 />
-                <Animated.View
-                    style={[
-                        styles.backgroundGlow,
-                        {
-                            backgroundColor: CATEGORIES.find(c => c.id === selectedCategory)?.color || theme.colors.primary,
-                            opacity: 0.08,
-                        }
-                    ]}
-                />
             </View>
 
-            {/* Sticky Header */}
-            <BlurView intensity={80} tint="dark" style={[styles.navHeader, { paddingTop: insets.top }]}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-                    <Ionicons name="chevron-down" size={28} color="#FFFFFF" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Inspiración Hub</Text>
-                <TouchableOpacity onPress={handleRefresh} style={styles.iconButton}>
-                    <Ionicons name="refresh-outline" size={24} color="#FFFFFF" />
-                </TouchableOpacity>
-            </BlurView>
-
-            <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ scale: listScale }] }}>
+            <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.FlatList
                     data={filteredStories}
                     keyExtractor={(item) => item.id}
                     ListHeaderComponent={renderHeader}
-                    renderItem={({ item, index }) => (
+                    renderItem={({ item }) => (
                         <StoryCard
                             story={item}
                             onPress={handleStoryPress}
@@ -296,7 +279,6 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     showsVerticalScrollIndicator={false}
                     onRefresh={handleRefresh}
                     refreshing={refreshing}
-                    ListEmptyComponent={loading ? null : renderEmpty}
                     onScroll={Animated.event(
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: true }
@@ -319,53 +301,70 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#0A0E1A',
     },
-    backgroundGlow: {
-        position: 'absolute',
-        top: -100,
-        right: -100,
-        width: 400,
-        height: 400,
-        borderRadius: 200,
+    header: {
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        backgroundColor: '#0A0E1A',
     },
-    navHeader: {
+    headerTop: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: theme.spacing.lg,
-        paddingBottom: theme.spacing.md,
-        zIndex: 100,
+        justifyContent: 'space-between',
+        marginBottom: 20,
     },
-    iconButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+    backBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,255,255,0.06)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    headerTitle: {
-        fontSize: 18,
+    headerTitleContainer: {
+        flex: 1,
+        marginLeft: 15,
+    },
+    headerLabel: {
+        fontSize: 10,
         fontWeight: '900',
-        color: '#FFFFFF',
-        letterSpacing: 0.5,
+        color: '#FBBF24',
+        letterSpacing: 2,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: '900',
+        color: '#FFF',
+        letterSpacing: -0.5,
+    },
+    silhouetteContainer: {
+        width: 60,
+        height: 60,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    silhouetteCanvas: {
+        width: 100,
+        height: 100,
+        position: 'absolute',
     },
     listContent: {
-        paddingHorizontal: theme.spacing.lg,
+        paddingHorizontal: 20,
     },
     headerContent: {
-        // Wrapper for hero and filters
+        // Wrapper
     },
     heroContainer: {
-        marginTop: theme.spacing.lg,
-        marginBottom: theme.spacing.xl,
+        marginTop: 10,
+        marginBottom: 30,
     },
     heroList: {
-        paddingRight: theme.spacing.xl,
+        paddingRight: 20,
+        paddingLeft: 20,
     },
     heroCard: {
         width: width * 0.78,
         height: 180,
-        marginRight: theme.spacing.md,
+        marginRight: 16,
         borderRadius: 24,
         overflow: 'hidden',
         elevation: 10,
@@ -381,7 +380,7 @@ const styles = StyleSheet.create({
     heroGradient: {
         flex: 1,
         justifyContent: 'flex-end',
-        padding: theme.spacing.lg,
+        padding: 20,
     },
     heroContent: {
         gap: 4,
@@ -410,37 +409,35 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     filterSection: {
-        marginBottom: theme.spacing.lg,
+        marginBottom: 20,
     },
     sectionTitle: {
-        fontSize: 17,
-        fontWeight: '800',
+        fontSize: 18,
+        fontWeight: '900',
         color: '#FFFFFF',
-        marginBottom: theme.spacing.md,
-        opacity: 0.9,
+        marginLeft: 20,
+        marginBottom: 16,
     },
     searchWrapper: {
-        marginBottom: theme.spacing.md,
-    },
-    searchBlur: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 50,
-        borderRadius: 15,
-        paddingHorizontal: theme.spacing.md,
-        overflow: 'hidden',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        height: 48,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
     searchInput: {
         flex: 1,
-        marginLeft: theme.spacing.sm,
-        color: '#FFFFFF',
+        marginLeft: 10,
+        color: '#FFF',
         fontSize: 15,
         fontWeight: '500',
     },
     categoryList: {
-        paddingBottom: theme.spacing.sm,
+        paddingLeft: 20,
+        paddingBottom: 8,
     },
     categoryChip: {
         flexDirection: 'row',
@@ -448,7 +445,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 15,
-        marginRight: theme.spacing.sm,
+        marginRight: 10,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.05)',
         gap: 8,
@@ -460,43 +457,6 @@ const styles = StyleSheet.create({
     },
     categoryLabelActive: {
         color: '#FFFFFF',
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 60,
-    },
-    emptyBlur: {
-        padding: 40,
-        borderRadius: 30,
-        alignItems: 'center',
-        width: width * 0.8,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    emptyTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#FFFFFF',
-        marginTop: 20,
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: 'rgba(255,255,255,0.5)',
-        textAlign: 'center',
-        marginTop: 8,
-        marginBottom: 24,
-    },
-    resetButton: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 12,
-    },
-    resetButtonText: {
-        color: '#FFFFFF',
-        fontWeight: '700',
     },
     loadingOverlay: {
         ...StyleSheet.absoluteFillObject,

@@ -15,6 +15,16 @@ En Paziify, la privacidad es una característica innegociable. Todas las tablas 
 
 ## 2. Diccionario de Datos (Esquema Public)
 
+### `meditation_sessions_content` 🧘
+Nueva tabla para gestionar la lógica de las sesiones de meditación (v1.4).
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | UUID (PK) | Identificador único |
+| `slug` | TEXT | Identificador corto (ej: `box_breathing`) |
+| `audio_layers` | JSONB | Configuración de capas (Voces, Paisajes, Ondas) |
+| `breathing_config` | JSONB | Tiempos de inhalación, exhalación y retención |
+| `is_plus` | BOOLEAN | Acceso premium |
+
 ### `profiles`
 Extensión del perfil de usuario para gamificación y personalización.
 | Campo | Tipo | Descripción |
@@ -106,4 +116,4 @@ Cada registro en `auth.users` dispara la creación de un perfil en `public.profi
 3. **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
 
 ---
-*Última revisión: 26 de Enero de 2026 - Sprint v1.3 Sensory Experience (Fase 2)*
+*Última revisión: 27 de Enero de 2026 - Milestone 3: Oasis Hub (v1.4)*

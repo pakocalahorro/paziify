@@ -18,13 +18,14 @@ Contiene los planes maestros que han guiado el desarrollo del proyecto:
 
 Historial de progreso diario y decisiones clave:
 
-**Última Sesión:** `2026-01-26_finalizacion_fase_2.md` (Audio Pro, Haptics Sensoriales y Briefing Científico).
+**Última Sesión:** `2026-01-27_milestone_3_summary.md` (Consolidación Milestone 3: Orbe Emerald, Oasis y Guía Maestra).
 
 ---
 
 ## 🛠️ Guías Técnicas y Manuales
 
 - **[Manual de Usuario](guides/user_manual.md)**: Guía detallada de todas las funcionalidades actuales (v1.2).
+- **[Diseño y Audio](guides/designs_audio.md)**: Arquitectura del motor de audio multi-capa y sistema visual Skia (v1.4).
 - **[Base de Datos](guides/database.md)**: Esquema de Supabase, políticas RLS y diccionarios de datos actualizados.
 
 ---
@@ -38,4 +39,4 @@ Automatizaciones disponibles en `.agent/workflows/`:
 
 ---
 
-**Última actualización:** 26 de Enero de 2026 - **Versión v1.3 Sensory Magic** 🚀
+**Última actualización:** 27 de Enero de 2026 - **Versión v1.4 Oasis Hub** 🚀

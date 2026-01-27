@@ -9,21 +9,17 @@ import WelcomeScreen from '../screens/Onboarding/WelcomeScreen';
 import RegisterScreen from '../screens/Onboarding/RegisterScreen';
 import LoginScreen from '../screens/Onboarding/LoginScreen';
 import { TabNavigator } from './TabNavigator';
+// Immersive / Shared Screens
 import TransitionTunnel from '../screens/Meditation/TransitionTunnel';
 import BreathingTimer from '../screens/Meditation/BreathingTimer';
 import SessionEndScreen from '../screens/Meditation/SessionEndScreen';
-import MeditationCatalogScreen from '../screens/Meditation/MeditationCatalogScreen';
 import NotificationSettings from '../screens/Onboarding/NotificationSettings';
 import WeeklyReportScreen from '../screens/Profile/WeeklyReportScreen';
-import CBTAcademyScreen from '../screens/Academy/CBTAcademyScreen';
 import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
-import CommunityScreen from '../screens/Social/CommunityScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
 import CompassScreen from '../screens/Sanctuary/CompassScreen';
 import ManifestoScreen from '../screens/Sanctuary/ManifestoScreen';
-import AudiobooksScreen from '../screens/Content/AudiobooksScreen';
 import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
-import StoriesScreen from '../screens/Content/StoriesScreen';
 import StoryDetailScreen from '../screens/Content/StoryDetailScreen';
 
 import { View, ActivityIndicator } from 'react-native';
@@ -62,18 +58,13 @@ export const AppNavigator = () => {
                         <Stack.Screen name={Screen.MANIFESTO} component={ManifestoScreen} />
                         <Stack.Screen name="MainTabs" component={TabNavigator} />
                         <Stack.Screen name={Screen.NOTIFICATION_SETTINGS} component={NotificationSettings} />
-                        <Stack.Screen name={Screen.MEDITATION_CATALOG} component={MeditationCatalogScreen} />
-                        <Stack.Screen name={Screen.AUDIOBOOKS} component={AudiobooksScreen} />
                         <Stack.Screen name={Screen.AUDIOBOOK_PLAYER} component={AudiobookPlayerScreen} />
-                        <Stack.Screen name={Screen.STORIES} component={StoriesScreen} />
                         <Stack.Screen name={Screen.STORY_DETAIL} component={StoryDetailScreen} />
                         <Stack.Screen name={Screen.TRANSITION_TUNNEL} component={TransitionTunnel} />
                         <Stack.Screen name={Screen.BREATHING_TIMER} component={BreathingTimer} />
                         <Stack.Screen name={Screen.SESSION_END} component={SessionEndScreen} />
                         <Stack.Screen name={Screen.WEEKLY_REPORT} component={WeeklyReportScreen} />
-                        <Stack.Screen name={Screen.CBT_ACADEMY} component={CBTAcademyScreen} />
                         <Stack.Screen name={Screen.CBT_DETAIL} component={CBTDetailScreen} />
-                        <Stack.Screen name={Screen.COMMUNITY} component={CommunityScreen} />
                         <Stack.Screen
                             name={Screen.PAYWALL}
                             component={PaywallScreen}

@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.3.0 Stable) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.4.0 Oasis) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.3**. Esta versión revoluciona la meditación con un sistema de audio profesional, guía háptica sensorial y briefings científicos.
+Bienvenido a la guía oficial de **Paziify v1.4**. Esta versión introduce el **Oasis Hub**, visuales Skia de alta gama y un motor de audio multi-capa inmersivo.
 
 ---
 
@@ -16,7 +16,7 @@ Paziify prioriza tu entrada al bienestar:
 **Pantalla:** `CompassScreen` -> `ManifestoScreen`
 Hemos transformado la Brújula Interior en una experiencia inmersiva única:
 - **Orbes de Energía Hiperrealista**: Elige entre dos fuentes de poder vivo.
-    - **Sanar (Crystalline Soul)**: Un orbe de cristal con una nebulosa azul en su interior para calmar el sistema nervioso.
+    - **Sanar (Emerald Heart)**: Un orbe de cristal esmeralda con energía bio-luminiscente que late al ritmo de tu respiración.
     - **Crecer (Solar Plasma)**: Un orbe de energía solar dorada para vitalidad y foco.
 - **Interacción Explosiva**: Al tocar un orbe, este carga energía (vibración háptica) y al soltar, genera una **explosión espiritual** de luz que despeja tu camino.
 - **Polvo Estelar**: El fondo cuenta con un sistema de partículas dinámicas que crean una profundidad espacial real.
@@ -34,6 +34,11 @@ La Biblioteca es ahora un portal unificado con tres pilares fundamentales:
     - **Inhalar**: Doble pulso (Éxito).
     - **Exhalar**: Vibración profunda y pesada (Relajación).
     - **Mantener**: Toque rítmico constante.
+
+- **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando:
+    - **Voz Guía**: Instrucciones claras de meditación.
+    - **Paisaje Sonoro**: Lluvia, bosque, o aves.
+    - **Ondas Binaurales**: Frecuencias Theta/Alpha para mayor profundidad.
 
 ### 🎧 Audiolibros (Clásicos del Bienestar)
 - **Escucha Clásica**: Acceso a libros de dominio público (LibriVox) con narración humana.
@@ -76,4 +81,4 @@ La Biblioteca es ahora un portal unificado con tres pilares fundamentales:
 - [x] ¿El reproductor recuerda el minuto exacto donde paraste el audiolibro?
 
 ---
-*Última revisión: 26 de Enero de 2026 - Sprint v1.3 Sensory Experience (Fase 2)*
+*Última revisión: 27 de Enero de 2026 - Milestone 3: Oasis Hub (v1.4)*
