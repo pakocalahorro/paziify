@@ -75,13 +75,13 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     }, [isDone, isRecovery, isNightMode, userState.streak]);
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={StyleSheet.absoluteFill}>
                 <NebulaBackground mode={visualMode as 'healing' | 'growth'} />
             </View>
             <StatusBar barStyle="light-content" translucent={true} />
 
-            <ScrollView style={styles.scrollView} contentContainerStyle={[styles.content, { paddingTop: insets.top }]} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                 {userState.isGuest && (
                     <GuestBanner onPressRegister={handleRegisterClick} />

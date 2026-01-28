@@ -6,7 +6,6 @@ import {
     StyleSheet,
     ActivityIndicator,
     Dimensions,
-    Alert,
     ImageBackground,
     Image,
     StatusBar,
@@ -14,19 +13,19 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Slider from '@react-native-community/slider';
 import { Screen, RootStackParamList, Audiobook } from '../../types';
 import { theme } from '../../constants/theme';
 import { audiobooksService, favoritesService } from '../../services/contentService';
-import { savePlaybackPosition, getPlaybackPosition, savePlaybackSpeed, getPlaybackSpeed } from '../../services/playbackStorage';
+import { getPlaybackPosition, savePlaybackSpeed, getPlaybackSpeed } from '../../services/playbackStorage';
 import SpeedControlModal from '../../components/SpeedControlModal';
 import SleepTimerModal from '../../components/SleepTimerModal';
 import { useApp } from '../../context/AppContext';
+import { useAudioPlayer } from '../../context/AudioPlayerContext';
 
 type AudiobookPlayerScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -43,7 +42,7 @@ interface Props {
     route: AudiobookPlayerScreenRouteProp;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const BOOK_COVERS: Record<string, any> = {
     'Meditations': require('../../assets/covers/meditations.png'),
@@ -61,15 +60,25 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
     const { audiobookId } = route.params as { audiobookId: string };
     const { userState } = useApp();
 
+    // Global Audio Context
+    const {
+        sound,
+        isPlaying,
+        currentTrack,
+        position,
+        duration,
+        isBuffering,
+        loadTrack,
+        play,
+        pause,
+        seekTo,
+        skipForward,
+        skipBackward
+    } = useAudioPlayer();
+
     const [audiobook, setAudiobook] = useState<Audiobook | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    const [sound, setSound] = useState<Audio.Sound | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [position, setPosition] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [isBuffering, setIsBuffering] = useState(false);
 
     // New features state
     const [isFavorite, setIsFavorite] = useState(false);
@@ -78,122 +87,74 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
     const [showSleepTimerModal, setShowSleepTimerModal] = useState(false);
     const [sleepTimerSeconds, setSleepTimerSeconds] = useState<number | null>(null);
 
-    const playbackStatusRef = useRef<any>(null);
-    const isMountedRef = useRef(true);
     const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const positionSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-    // Refs for synchronization in cleanup
-    const isPlayingRef = useRef(false);
-    const positionRef = useRef(0);
-    const durationRef = useRef(0);
-    const soundRef = useRef<Audio.Sound | null>(null);
-
-    // Fade animation
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    // Keep refs in sync with state for cleanup functions
-    useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
-    useEffect(() => { positionRef.current = position; }, [position]);
-    useEffect(() => { durationRef.current = duration; }, [duration]);
-    useEffect(() => { soundRef.current = sound; }, [sound]);
-
-    // Load audiobook
+    // Load audiobook metadata
     useEffect(() => {
-        loadAudiobook();
+        const fetchAudiobook = async () => {
+            try {
+                setLoading(true);
+                const data = await audiobooksService.getById(audiobookId);
+                if (!data) {
+                    setError('Audiolibro no encontrado');
+                    return;
+                }
+                setAudiobook(data);
+
+                // Get saved position for initial load
+                const savedPos = await getPlaybackPosition(data.id);
+                const initialPos = savedPos ? savedPos.position : 0;
+
+                // Removed auto-load. Track will be loaded on user interaction (Play button).
+                // Just ensuring we have the correct cover source for potential loading later.
+
+            } catch (err) {
+                console.error('Error loading audiobook:', err);
+                setError('Error al cargar el audiolibro');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (audiobookId) {
+            // If we are already playing THIS track, just use current state, otherwise fetch and load
+            if (currentTrack?.id === audiobookId && audiobook === null) {
+                // We might need to fetch metadata just for UI labels/favorite status if not passed fully in context
+                // But for now let's re-fetch safely to ensure robust UI
+                fetchAudiobook();
+            } else {
+                fetchAudiobook();
+            }
+        }
     }, [audiobookId]);
 
-    // Setup audio when audiobook is loaded
+    // Animation when loaded
     useEffect(() => {
-        if (audiobook) {
-            setupAudio();
+        if (!loading) {
             Animated.timing(fadeAnim, {
                 toValue: 1,
                 duration: 600,
                 useNativeDriver: true,
             }).start();
         }
-    }, [audiobook]);
-
-    // Track component mount status
-    useEffect(() => {
-        isMountedRef.current = true;
-        return () => {
-            isMountedRef.current = false;
-        };
-    }, []);
-
-    // Cleanup sound on unmount or change
-    useEffect(() => {
-        return () => {
-            if (sound) {
-                sound.unloadAsync();
-            }
-        };
-    }, [sound]);
-
-    // Handle screen focus - pause and save position when leaving
-    useFocusEffect(
-        React.useCallback(() => {
-            return () => {
-                const currentSound = soundRef.current;
-                const currentIsPlaying = isPlayingRef.current;
-                const currentPosition = positionRef.current;
-                const currentDuration = durationRef.current;
-
-                if (currentSound && audiobook) {
-                    if (currentIsPlaying) {
-                        currentSound.pauseAsync();
-                    }
-                    if (currentPosition > 0 && currentDuration > 0) {
-                        savePlaybackPosition(audiobook.id, currentPosition, currentDuration);
-                    }
-                }
-            };
-        }, [audiobook])
-    );
+    }, [loading]);
 
     // Load favorite status
     useEffect(() => {
         if (audiobook && userState.id) {
-            loadFavoriteStatus();
+            favoritesService.isFavorited(userState.id, 'audiobook', audiobook.id)
+                .then(setIsFavorite)
+                .catch(console.error);
         }
     }, [audiobook, userState.id]);
 
     // Load saved playback speed
     useEffect(() => {
-        loadSavedSpeed();
+        getPlaybackSpeed().then(setPlaybackSpeed).catch(console.error);
     }, []);
 
-    // Load saved position when audio is ready
-    useEffect(() => {
-        if (sound && audiobook) {
-            loadSavedPosition();
-        }
-    }, [sound, audiobook]);
-
-    // Auto-save position every 5 seconds while playing
-    useEffect(() => {
-        if (isPlaying && audiobook) {
-            positionSaveIntervalRef.current = setInterval(() => {
-                if (position > 0 && duration > 0) {
-                    savePlaybackPosition(audiobook.id, position, duration);
-                }
-            }, 5000);
-        } else {
-            if (positionSaveIntervalRef.current) {
-                clearInterval(positionSaveIntervalRef.current);
-            }
-        }
-
-        return () => {
-            if (positionSaveIntervalRef.current) {
-                clearInterval(positionSaveIntervalRef.current);
-            }
-        };
-    }, [isPlaying, position, duration, audiobook]);
-
-    // Sleep timer countdown
+    // Helper: Sleep Timer
     useEffect(() => {
         if (sleepTimerSeconds !== null && sleepTimerSeconds > 0) {
             sleepTimerRef.current = setTimeout(() => {
@@ -201,7 +162,7 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                     if (prev === null) return null;
                     const newValue = prev - 1;
                     if (newValue <= 0) {
-                        if (sound) sound.pauseAsync();
+                        pause(); // Pause global player
                         return null;
                     }
                     return newValue;
@@ -213,103 +174,48 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         };
     }, [sleepTimerSeconds]);
 
-    const loadAudiobook = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const data = await audiobooksService.getById(audiobookId);
-            if (!data) {
-                setError('Audiolibro no encontrado');
-                return;
-            }
-            setAudiobook(data);
-        } catch (err) {
-            console.error('Error loading audiobook:', err);
-            setError('Error al cargar el audiolibro');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const setupAudio = async () => {
-        try {
-            await Audio.setAudioModeAsync({
-                playsInSilentModeIOS: true,
-                staysActiveInBackground: true,
-                shouldDuckAndroid: true,
-            });
-
-            const { sound: newSound } = await Audio.Sound.createAsync(
-                { uri: audiobook!.audio_url },
-                { shouldPlay: false },
-                onPlaybackStatusUpdate
-            );
-
-            setSound(newSound);
-        } catch (err) {
-            console.error('Error setting up audio:', err);
-            setError('Error al cargar el audio');
-        }
-    };
-
-    const onPlaybackStatusUpdate = (status: any) => {
-        if (!isMountedRef.current) return;
-        playbackStatusRef.current = status;
-        if (status.isLoaded) {
-            setPosition(status.positionMillis);
-            setDuration(status.durationMillis || 0);
-            setIsPlaying(status.isPlaying);
-            setIsBuffering(status.isBuffering);
-            positionRef.current = status.positionMillis;
-            durationRef.current = status.durationMillis || 0;
-            isPlayingRef.current = status.isPlaying;
-        }
-        if (status.didJustFinish) {
-            setIsPlaying(false);
-            setPosition(0);
-            isPlayingRef.current = false;
-            positionRef.current = 0;
-            if (audiobook) savePlaybackPosition(audiobook.id, 0, status.durationMillis || 0);
-        }
-    };
-
-    const togglePlayPause = async () => {
+    const handleSpeedChange = async (speed: number) => {
         if (!sound) return;
         try {
-            if (isPlaying) await sound.pauseAsync(); else await sound.playAsync();
-        } catch (err) {
-            console.error('Error toggling play/pause:', err);
-        }
-    };
-
-    const seekTo = async (value: number) => {
-        if (!sound) return;
-        try {
-            await sound.setPositionAsync(value);
-        } catch (err) {
-            console.error('Error seeking:', err);
-        }
-    };
-
-    const skipForward = async () => {
-        if (!sound || !playbackStatusRef.current) return;
-        const newPosition = Math.min(playbackStatusRef.current.positionMillis + 15000, duration);
-        await seekTo(newPosition);
-    };
-
-    const skipBackward = async () => {
-        if (!sound || !playbackStatusRef.current) return;
-        const newPosition = Math.max(playbackStatusRef.current.positionMillis - 15000, 0);
-        await seekTo(newPosition);
-    };
-
-    const loadFavoriteStatus = async () => {
-        if (!userState.id || !audiobook) return;
-        try {
-            const isFav = await favoritesService.isFavorited(userState.id, 'audiobook', audiobook.id);
-            setIsFavorite(isFav);
+            await sound.setRateAsync(speed, true);
+            setPlaybackSpeed(speed);
+            await savePlaybackSpeed(speed);
         } catch (error) {
-            console.error('Error loading favorite status:', error);
+            console.error('Error changing speed:', error);
+        }
+    };
+
+    // New logic: Only load/play when USER presses play
+    const togglePlayback = async () => {
+        if (!audiobook) return;
+
+        // Case 1: This track is already loaded in the global player
+        if (currentTrack?.id === audiobook.id) {
+            if (isPlaying) {
+                await pause();
+            } else {
+                await play();
+            }
+        }
+        // Case 2: Different track (or no track) is loaded. Load this one now.
+        else {
+            const coverSource = BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../../assets/covers/growth.png');
+
+            // Get saved position
+            const savedPos = await getPlaybackPosition(audiobook.id);
+            const initialPos = savedPos ? savedPos.position : 0;
+
+            await loadTrack({
+                id: audiobook.id,
+                title: audiobook.title,
+                author: audiobook.author,
+                cover: coverSource,
+                audioUrl: audiobook.audioUrl || audiobook.audio_url || '', // handling potential property name diffs
+                duration: 0
+            }, initialPos);
+
+            // Wait a tiny bit for state update if needed, but loadTrack is async so should be good
+            await play();
         }
     };
 
@@ -325,50 +231,6 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
             }
         } catch (error) {
             console.error('Error toggling favorite:', error);
-            Alert.alert('Error', 'No se pudo actualizar favoritos');
-        }
-    };
-
-    const loadSavedSpeed = async () => {
-        try {
-            const savedSpeed = await getPlaybackSpeed();
-            setPlaybackSpeed(savedSpeed);
-        } catch (error) {
-            console.error('Error loading saved speed:', error);
-        }
-    };
-
-    const handleSpeedChange = async (speed: number) => {
-        if (!sound) return;
-        try {
-            await sound.setRateAsync(speed, true);
-            setPlaybackSpeed(speed);
-            await savePlaybackSpeed(speed);
-        } catch (error) {
-            console.error('Error changing speed:', error);
-        }
-    };
-
-    const handleSleepTimer = (minutes: number) => {
-        setSleepTimerSeconds(minutes * 60);
-    };
-
-    const cancelSleepTimer = () => {
-        setSleepTimerSeconds(null);
-        if (sleepTimerRef.current) clearTimeout(sleepTimerRef.current);
-    };
-
-    const loadSavedPosition = async () => {
-        if (!audiobook || !sound) return;
-        try {
-            const savedPosition = await getPlaybackPosition(audiobook.id);
-            if (savedPosition && savedPosition.position > 0) {
-                if (savedPosition.position < savedPosition.duration * 0.95) {
-                    await sound.setPositionAsync(savedPosition.position);
-                }
-            }
-        } catch (error) {
-            console.error('Error loading saved position:', error);
         }
     };
 
@@ -473,9 +335,9 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            onPress={togglePlayPause}
+                            onPress={togglePlayback}
                             style={styles.playBtn}
-                            disabled={isBuffering}
+                            disabled={loading} // Only disable if fetching metadata
                         >
                             <LinearGradient colors={['#646CFF', '#4F56D9']} style={styles.playGradient}>
                                 {isBuffering ? (
@@ -501,7 +363,7 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
 
                         <TouchableOpacity style={styles.actionBtn} onPress={() => setShowSleepTimerModal(true)}>
                             <Ionicons name="moon-outline" size={20} color={sleepTimerSeconds ? '#FFA726' : 'rgba(255,255,255,0.6)'} />
-                            <Text style={[styles.actionLabel, sleepTimerSeconds && { color: '#FFA726' }]}>
+                            <Text style={[styles.actionLabel, sleepTimerSeconds ? { color: '#FFA726' } : undefined]}>
                                 {sleepTimerSeconds ? formatTime(sleepTimerSeconds * 1000) : 'Temporizador'}
                             </Text>
                         </TouchableOpacity>
@@ -519,9 +381,9 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
             <SleepTimerModal
                 visible={showSleepTimerModal}
                 onClose={() => setShowSleepTimerModal(false)}
-                onSetTimer={handleSleepTimer}
+                onSetTimer={(minutes) => setSleepTimerSeconds(minutes * 60)}
                 activeTimer={sleepTimerSeconds}
-                onCancelTimer={cancelSleepTimer}
+                onCancelTimer={() => setSleepTimerSeconds(null)}
             />
         </View>
     );
@@ -566,20 +428,20 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         paddingHorizontal: 30,
-        justifyContent: 'space-between',
-        paddingBottom: 40,
+        justifyContent: 'flex-start',
+        paddingBottom: 20,
     },
     artworkWrapper: {
-        width: width * 0.72,
-        height: width * 0.95,
-        borderRadius: 24,
+        width: width * 0.5,
+        height: width * 0.5,
+        borderRadius: 20,
         overflow: 'hidden',
-        elevation: 20,
+        elevation: 15,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 15 },
-        shadowOpacity: 0.5,
-        shadowRadius: 20,
-        marginTop: 20,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        marginTop: 5,
     },
     artworkImage: {
         width: '100%',
@@ -591,43 +453,45 @@ const styles = StyleSheet.create({
     },
     infoWrapper: {
         alignItems: 'center',
-        marginTop: 30,
-        gap: 8,
+        marginTop: 10,
+        gap: 4,
+        marginBottom: 5,
     },
     titleRow: {
         alignItems: 'center',
     },
     title: {
-        fontSize: 26,
+        fontSize: 22,
         fontWeight: '900',
         color: '#FFFFFF',
         textAlign: 'center',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     author: {
-        fontSize: 16,
+        fontSize: 14,
         color: 'rgba(255,255,255,0.6)',
         fontWeight: '700',
     },
     narratorRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginTop: 4,
+        gap: 4,
+        marginTop: 2,
     },
     narrator: {
-        fontSize: 13,
+        fontSize: 12,
         color: 'rgba(255,255,255,0.4)',
         fontWeight: '600',
     },
     controlsGlass: {
         width: '100%',
-        borderRadius: 32,
-        padding: 24,
+        borderRadius: 28,
+        padding: 16,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
-        marginTop: 40,
+        marginTop: 15,
+        marginBottom: 10,
     },
     sliderSection: {
         width: '100%',

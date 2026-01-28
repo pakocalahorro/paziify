@@ -21,7 +21,16 @@ import {
     Circle,
     Group,
     Blur,
+    RadialGradient,
+    vec
 } from '@shopify/react-native-skia';
+import {
+    useSharedValue,
+    withRepeat,
+    withTiming,
+    Easing,
+    useDerivedValue
+} from 'react-native-reanimated';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList, Session } from '../../types';
 import { theme } from '../../constants/theme';
@@ -29,6 +38,8 @@ import SessionCard from '../../components/SessionCard';
 import SessionPreviewModal from '../../components/SessionPreviewModal';
 import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData';
 import { IMAGES } from '../../constants/images';
+import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
+import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
 
 type MeditationCatalogScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -40,6 +51,41 @@ interface Props {
 }
 
 const { width } = Dimensions.get('window');
+
+const BacklitSilhouette: React.FC = () => {
+    const pulse = useSharedValue(0.4);
+
+    useEffect(() => {
+        pulse.value = withRepeat(
+            withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+            -1,
+            true
+        );
+    }, []);
+
+    const glowOpacity = useDerivedValue(() => pulse.value * 0.6);
+    const glowRadiusVal = useDerivedValue(() => 60 + pulse.value * 40);
+
+    return (
+        <View style={styles.silhouetteContainer}>
+            <Canvas style={styles.silhouetteCanvas}>
+                <Group>
+                    <Circle cx={80} cy={80} r={glowRadiusVal}>
+                        <RadialGradient
+                            c={vec(80, 80)}
+                            r={glowRadiusVal}
+                            colors={['rgba(45, 212, 191, 0.5)', 'transparent']}
+                        />
+                        <Blur blur={25} />
+                    </Circle>
+                </Group>
+            </Canvas>
+            <View style={styles.silhouetteIconWrapper}>
+                <Ionicons name="leaf-outline" size={60} color="rgba(45, 212, 191, 0.4)" style={styles.silhouetteIcon} />
+            </View>
+        </View>
+    );
+};
 
 const CATEGORIES = [
     { label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
@@ -61,10 +107,10 @@ const SESSION_ASSETS: Record<string, string> = {
 
 const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState } = useApp();
+    const { userState, isNightMode } = useApp();
     const [selectedCategory, setSelectedCategory] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+    const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scrollY = useRef(new Animated.Value(0)).current;
@@ -99,7 +145,10 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     }, [searchQuery, selectedCategory]);
 
     const handleSessionClick = (session: Session) => {
-        setSelectedSession(session);
+        const fullSession = MEDITATION_SESSIONS.find(s => s.id === session.id);
+        if (fullSession) {
+            setSelectedSession(fullSession);
+        }
     };
 
     const renderHero = () => {
@@ -155,33 +204,31 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
-            {/* 1. Header with Back and Title stays at the VERY TOP */}
-            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity
-                        style={styles.backBtn}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#FFF" />
-                    </TouchableOpacity>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity
+                    style={styles.backBtnAbsolute}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                </TouchableOpacity>
 
-                    <View style={styles.headerTitleContainer}>
+                <View style={styles.headerRow}>
+                    <View style={styles.headerTextContainer}>
                         <Text style={styles.headerLabel}>OASIS DE</Text>
-                        <Text style={styles.headerTitle}>Calma</Text>
+                        <View style={styles.headerTop}>
+                            <Text style={styles.headerTitle}>Calma</Text>
+                        </View>
                     </View>
-
-                    <View style={styles.silhouetteContainer}>
-                        <Canvas style={styles.silhouetteCanvas}>
-                            <Group>
-                                <Circle cx={50} cy={50} r={40} color="rgba(45, 212, 191, 0.2)">
-                                    <Blur blur={15} />
-                                </Circle>
-                            </Group>
-                        </Canvas>
-                        <Ionicons name="leaf-outline" size={32} color="rgba(45, 212, 191, 0.6)" />
-                    </View>
+                    <BacklitSilhouette />
                 </View>
+                <Text style={styles.headerSubtitle}>
+                    Tu espacio para reconectar y encontrar la calma interior.
+                </Text>
+            </View>
 
+            {/* Search */}
+            <View style={styles.searchContainer}>
                 <View style={styles.searchWrapper}>
                     <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
                     <TextInput
@@ -240,16 +287,23 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
 
-            {/* Ambient Background */}
-            <View style={StyleSheet.absoluteFill}>
-                <LinearGradient
-                    colors={['#050810', '#12142B', '#050810']}
-                    style={StyleSheet.absoluteFill}
-                />
-            </View>
+            {/* Premium Background */}
+            {isNightMode ? (
+                <View style={StyleSheet.absoluteFill}>
+                    <NebulaBackground mode="healing" />
+                </View>
+            ) : (
+                <>
+                    <NoiseBackground />
+                    <LinearGradient
+                        colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </>
+            )}
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.FlatList
@@ -303,50 +357,75 @@ const styles = StyleSheet.create({
         // No specific wrapper style needed
     },
     header: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        backgroundColor: '#020617',
-    },
-    headerTop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         marginBottom: 20,
+        paddingHorizontal: 20,
     },
-    backBtn: {
+    backBtnAbsolute: {
         width: 44,
         height: 44,
         borderRadius: 22,
         backgroundColor: 'rgba(255,255,255,0.06)',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 16,
+        alignSelf: 'flex-start',
     },
-    headerTitleContainer: {
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    headerTextContainer: {
         flex: 1,
-        marginLeft: 15,
     },
     headerLabel: {
-        fontSize: 10,
-        fontWeight: '900',
+        fontSize: 11,
+        fontWeight: '800',
         color: '#2DD4BF',
-        letterSpacing: 2,
+        letterSpacing: 3,
+        marginBottom: 4,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        marginBottom: 10,
     },
     headerTitle: {
-        fontSize: 28,
+        fontSize: 36,
         fontWeight: '900',
-        color: '#FFF',
-        letterSpacing: -0.5,
+        color: '#FFFFFF',
+        letterSpacing: -1,
+    },
+    headerSubtitle: {
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.45)',
+        fontWeight: '500',
+        lineHeight: 24,
     },
     silhouetteContainer: {
-        width: 60,
-        height: 60,
+        width: 140,
+        height: 140,
+        marginTop: -40,
+        marginRight: -20,
         justifyContent: 'center',
         alignItems: 'center',
     },
     silhouetteCanvas: {
-        width: 100,
-        height: 100,
+        width: 160,
+        height: 160,
         position: 'absolute',
+    },
+    silhouetteIconWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    silhouetteIcon: {
+        zIndex: 2,
+    },
+    searchContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 20,
     },
     searchWrapper: {
         flexDirection: 'row',

@@ -152,23 +152,35 @@ const LibrarySection: React.FC<LibrarySectionProps> = ({
     );
 };
 
+import { useApp } from '../../context/AppContext';
+import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
+
 const LibraryScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
+    const { isNightMode } = useApp();
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
 
             {/* Premium Background */}
-            <NoiseBackground />
-            <LinearGradient
-                colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
-                style={StyleSheet.absoluteFill}
-            />
+            {isNightMode ? (
+                <View style={StyleSheet.absoluteFill}>
+                    <NebulaBackground mode="healing" />
+                </View>
+            ) : (
+                <>
+                    <NoiseBackground />
+                    <LinearGradient
+                        colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </>
+            )}
 
             <ScrollView
                 style={styles.scrollView}
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 100 }]}
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Header */}

@@ -15,13 +15,21 @@ import { ImageBackground } from 'react-native';
 
 const CATEGORY_ASSETS: Record<string, any> = {
     anxiety: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
+    ansiedad: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
     health: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=400&q=80',
-    growth: 'https://images.unsplash.com/photo-1499728603263-137cb7ab3e1f?w=400&q=80',
+    bienestar: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=400&q=80',
+    growth: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&q=80',
+    crecimiento: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&q=80',
     relationships: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&q=80',
+    relaciones: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&q=80',
     professional: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&q=80',
-    sleep: 'https://images.unsplash.com/photo-1511295742364-9119556d7395?w=400&q=80',
+    carrera: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&q=80',
+    sleep: 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=400&q=80',
+    sueño: 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=400&q=80',
     family: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=400&q=80',
+    familia: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=400&q=80',
     children: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=400&q=80',
+    hijos: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=400&q=80',
 };
 
 interface StoryCardProps {

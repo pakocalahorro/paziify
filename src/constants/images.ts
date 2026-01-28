@@ -8,7 +8,7 @@ export const IMAGES = {
     // Session images (Motivational & Joyful Nature)
     SESSION_MOTIVATION: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80', // Sunrise forest
     SESSION_JOY: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80', // Mountain meadow
-    SESSION_PEACE: 'https://images.unsplash.com/photo-1494500664877-981f47855633?w=800&q=80', // Calm lake
+    SESSION_PEACE: 'https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=800&q=80', // Calm blue nature
     SESSION_ENERGY: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80', // Golden hour nature
 
     // Legacy support (to avoid crashes)

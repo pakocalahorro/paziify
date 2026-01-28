@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Screen, RootStackParamList } from '../types';
 import { useApp } from '../context/AppContext';
+import { AudioPlayerProvider } from '../context/AudioPlayerContext';
 
 // Screens
 import WelcomeScreen from '../screens/Onboarding/WelcomeScreen';
@@ -19,14 +20,13 @@ import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
 import CompassScreen from '../screens/Sanctuary/CompassScreen';
 import ManifestoScreen from '../screens/Sanctuary/ManifestoScreen';
-import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
 import StoryDetailScreen from '../screens/Content/StoryDetailScreen';
 
 import { View, ActivityIndicator } from 'react-native';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export const AppNavigator = () => {
+const AppNavigatorContent = () => {
     const { user, isLoading, isGuest } = useApp();
 
     if (isLoading) {
@@ -58,7 +58,6 @@ export const AppNavigator = () => {
                         <Stack.Screen name={Screen.MANIFESTO} component={ManifestoScreen} />
                         <Stack.Screen name="MainTabs" component={TabNavigator} />
                         <Stack.Screen name={Screen.NOTIFICATION_SETTINGS} component={NotificationSettings} />
-                        <Stack.Screen name={Screen.AUDIOBOOK_PLAYER} component={AudiobookPlayerScreen} />
                         <Stack.Screen name={Screen.STORY_DETAIL} component={StoryDetailScreen} />
                         <Stack.Screen name={Screen.TRANSITION_TUNNEL} component={TransitionTunnel} />
                         <Stack.Screen name={Screen.BREATHING_TIMER} component={BreathingTimer} />
@@ -77,5 +76,13 @@ export const AppNavigator = () => {
                 )}
             </Stack.Navigator>
         </NavigationContainer>
+    );
+};
+
+export const AppNavigator = () => {
+    return (
+        <AudioPlayerProvider>
+            <AppNavigatorContent />
+        </AudioPlayerProvider>
     );
 };

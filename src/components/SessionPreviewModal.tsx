@@ -21,7 +21,11 @@ interface Props {
     onStart: (session: MeditationSession) => void;
 }
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onStart }) => {
+    const insets = useSafeAreaInsets();
+
     if (!session) return null;
 
     return (
@@ -32,16 +36,16 @@ const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onS
             onRequestClose={onClose}
         >
             <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
+                <View style={[styles.modalContent, { paddingBottom: Math.max(20, insets.bottom + 20) }]}>
                     {/* Header with Close */}
                     <View style={styles.header}>
                         <View style={[styles.categoryBadge, { backgroundColor: `${session.color}20` }]}>
-                            <Text style={[styles.categoryText, { color: session.color }]}>
+                            <Text style={[styles.categoryText, { color: session.color || '#FFF' }]}>
                                 {session.category.toUpperCase()}
                             </Text>
                         </View>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color={theme.colors.textMuted} />
+                            <Ionicons name="close" size={24} color="#FFF" />
                         </TouchableOpacity>
                     </View>
 
@@ -50,11 +54,11 @@ const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onS
 
                         <View style={styles.metaRow}>
                             <View style={styles.metaItem}>
-                                <Ionicons name="time-outline" size={16} color={theme.colors.textMuted} />
+                                <Ionicons name="time-outline" size={16} color="#DDDDDD" />
                                 <Text style={styles.metaText}>{session.durationMinutes} min</Text>
                             </View>
                             <View style={styles.metaItem}>
-                                <Ionicons name="fitness-outline" size={16} color={theme.colors.textMuted} />
+                                <Ionicons name="fitness-outline" size={16} color="#DDDDDD" />
                                 <Text style={styles.metaText}>{session.difficultyLevel}</Text>
                             </View>
                         </View>
@@ -111,11 +115,20 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: theme.colors.surface,
+        backgroundColor: '#111420', // Fixed dark background matching dark theme surface
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
-        height: SCREEN_HEIGHT * 0.85,
+        height: '85%', // Responsive height
         padding: 24,
+        paddingBottom: 0, // Reset padding, will be handled by safe area inline style
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: -10,
+        },
+        shadowOpacity: 0.5,
+        shadowRadius: 20,
+        elevation: 20,
     },
     header: {
         flexDirection: 'row',
@@ -137,7 +150,7 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -147,7 +160,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: '800',
-        color: theme.colors.textMain,
+        color: '#FFFFFF',
         marginBottom: 12,
         lineHeight: 34,
     },
@@ -163,12 +176,12 @@ const styles = StyleSheet.create({
     },
     metaText: {
         fontSize: 14,
-        color: theme.colors.textMuted,
+        color: '#BBBBBB', // Solid light grey
         fontWeight: '600',
     },
     description: {
         fontSize: 16,
-        color: theme.colors.textMain,
+        color: '#FFFFFF',
         lineHeight: 24,
         marginBottom: 24,
         opacity: 0.9,
@@ -176,41 +189,41 @@ const styles = StyleSheet.create({
     creatorCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.02)',
+        backgroundColor: '#1A1F2E', // Solid dark background
         padding: 16,
         borderRadius: 16,
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
+        borderColor: '#2A2F3E',
     },
     creatorAvatar: {
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: 'rgba(74, 103, 65, 0.15)',
+        backgroundColor: 'rgba(74, 103, 65, 0.4)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     creatorName: {
         fontSize: 16,
         fontWeight: '700',
-        color: theme.colors.textMain,
+        color: '#FFFFFF',
     },
     creatorCredentials: {
         fontSize: 12,
-        color: theme.colors.textMuted,
+        color: '#888888',
     },
     divider: {
         height: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: '#333333',
         marginVertical: 24,
     },
     scienceSection: {
-        backgroundColor: 'rgba(212, 175, 55, 0.05)',
+        backgroundColor: 'rgba(212, 175, 55, 0.1)',
         padding: 20,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'rgba(212, 175, 55, 0.1)',
+        borderColor: 'rgba(212, 175, 55, 0.2)',
         marginBottom: 24,
     },
     scienceHeader: {
@@ -226,24 +239,23 @@ const styles = StyleSheet.create({
     },
     scienceText: {
         fontSize: 14,
-        color: theme.colors.textMain,
+        color: '#EEEEEE',
         lineHeight: 22,
-        opacity: 0.8,
     },
     preparationBox: {
         padding: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.01)',
+        backgroundColor: '#1A1F2E',
         borderRadius: 16,
     },
     prepTitle: {
         fontSize: 14,
         fontWeight: '700',
-        color: theme.colors.textMain,
+        color: '#FFFFFF',
         marginBottom: 8,
     },
     prepText: {
         fontSize: 13,
-        color: theme.colors.textMuted,
+        color: '#AAAAAA',
         marginBottom: 4,
     },
     startBtn: {
@@ -254,6 +266,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
         marginTop: 10,
+        marginBottom: 10, // Extra margin
     },
     startBtnText: {
         fontSize: 18,

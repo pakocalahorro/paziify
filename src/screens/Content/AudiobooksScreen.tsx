@@ -22,12 +22,23 @@ import {
     Circle,
     Group,
     Blur,
+    RadialGradient,
+    vec
 } from '@shopify/react-native-skia';
+import {
+    useSharedValue,
+    withRepeat,
+    withTiming,
+    Easing,
+    useDerivedValue
+} from 'react-native-reanimated';
 import { Screen, RootStackParamList, Audiobook } from '../../types';
 import { theme } from '../../constants/theme';
 import { audiobooksService } from '../../services/contentService';
 import { useApp } from '../../context/AppContext';
 import AudiobookCard from '../../components/AudiobookCard';
+import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
+import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
 
 type AudiobooksScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -39,6 +50,41 @@ interface Props {
 }
 
 const { width } = Dimensions.get('window');
+
+const BacklitSilhouette: React.FC = () => {
+    const pulse = useSharedValue(0.4);
+
+    useEffect(() => {
+        pulse.value = withRepeat(
+            withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+            -1,
+            true
+        );
+    }, []);
+
+    const glowOpacity = useDerivedValue(() => pulse.value * 0.6);
+    const glowRadiusVal = useDerivedValue(() => 60 + pulse.value * 40);
+
+    return (
+        <View style={styles.silhouetteContainer}>
+            <Canvas style={styles.silhouetteCanvas}>
+                <Group>
+                    <Circle cx={80} cy={80} r={glowRadiusVal}>
+                        <RadialGradient
+                            c={vec(80, 80)}
+                            r={glowRadiusVal}
+                            colors={['rgba(251, 113, 133, 0.5)', 'transparent']}
+                        />
+                        <Blur blur={25} />
+                    </Circle>
+                </Group>
+            </Canvas>
+            <View style={styles.silhouetteIconWrapper}>
+                <Ionicons name="book-outline" size={60} color="rgba(251, 113, 133, 0.4)" style={styles.silhouetteIcon} />
+            </View>
+        </View>
+    );
+};
 
 const CATEGORIES = [
     { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
@@ -60,7 +106,7 @@ const BOOK_COVERS: Record<string, any> = {
 
 const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState } = useApp();
+    const { userState, isNightMode } = useApp();
     const isPlusMember = userState.isPlusMember || false;
 
     const [audiobooks, setAudiobooks] = useState<Audiobook[]>([]);
@@ -164,33 +210,31 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
-            {/* NEW UNIFIED HEADER AT THE TOP */}
-            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity
-                        style={styles.backBtn}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#FFF" />
-                    </TouchableOpacity>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity
+                    style={styles.backBtnAbsolute}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                </TouchableOpacity>
 
-                    <View style={styles.headerTitleContainer}>
+                <View style={styles.headerRow}>
+                    <View style={styles.headerTextContainer}>
                         <Text style={styles.headerLabel}>BIBLIOTECA DE</Text>
-                        <Text style={styles.headerTitle}>Sabiduría</Text>
+                        <View style={styles.headerTop}>
+                            <Text style={styles.headerTitle}>Sabiduría</Text>
+                        </View>
                     </View>
-
-                    <View style={styles.silhouetteContainer}>
-                        <Canvas style={styles.silhouetteCanvas}>
-                            <Group>
-                                <Circle cx={50} cy={50} r={40} color="rgba(251, 113, 133, 0.2)">
-                                    <Blur blur={15} />
-                                </Circle>
-                            </Group>
-                        </Canvas>
-                        <Ionicons name="book-outline" size={32} color="rgba(251, 113, 133, 0.6)" />
-                    </View>
+                    <BacklitSilhouette />
                 </View>
+                <Text style={styles.headerSubtitle}>
+                    Sabiduría atemporal para acompañar tu viaje de crecimiento.
+                </Text>
+            </View>
 
+            {/* Search */}
+            <View style={styles.searchContainer}>
                 <View style={styles.searchWrapper}>
                     <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
                     <TextInput
@@ -249,14 +293,21 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
 
             <View style={StyleSheet.absoluteFill}>
-                <LinearGradient
-                    colors={['#050810', '#101222', '#050810']}
-                    style={StyleSheet.absoluteFill}
-                />
+                {isNightMode ? (
+                    <NebulaBackground mode="healing" />
+                ) : (
+                    <>
+                        <NoiseBackground />
+                        <LinearGradient
+                            colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                    </>
+                )}
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
@@ -297,34 +348,41 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#050810',
     },
+    headerContent: {
+        // Wrapper
+    },
     header: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        backgroundColor: '#050810',
-    },
-    headerTop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         marginBottom: 20,
+        paddingHorizontal: 20,
     },
-    backBtn: {
+    backBtnAbsolute: {
         width: 44,
         height: 44,
         borderRadius: 22,
         backgroundColor: 'rgba(255,255,255,0.06)',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 16,
+        alignSelf: 'flex-start',
     },
-    headerTitleContainer: {
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    headerTextContainer: {
         flex: 1,
-        marginLeft: 15,
     },
     headerLabel: {
         fontSize: 10,
         fontWeight: '900',
         color: '#FB7185',
         letterSpacing: 2,
+        marginBottom: 4,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        marginBottom: 10,
     },
     headerTitle: {
         fontSize: 28,
@@ -332,22 +390,54 @@ const styles = StyleSheet.create({
         color: '#FFF',
         letterSpacing: -0.5,
     },
+    headerSubtitle: {
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.45)',
+        fontWeight: '500',
+        lineHeight: 24,
+    },
     silhouetteContainer: {
-        width: 60,
-        height: 60,
+        width: 140,
+        height: 140,
+        marginTop: -40,
+        marginRight: -20,
         justifyContent: 'center',
         alignItems: 'center',
     },
     silhouetteCanvas: {
-        width: 100,
-        height: 100,
+        width: 160,
+        height: 160,
         position: 'absolute',
     },
-    listContent: {
-        paddingHorizontal: 20,
+    silhouetteIconWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    headerContent: {
-        // Wrapper
+    silhouetteIcon: {
+        zIndex: 2,
+    },
+    searchContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 20,
+    },
+    searchWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        height: 48,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        color: '#FFF',
+        fontSize: 15,
+        fontWeight: '500',
     },
     heroContainer: {
         marginTop: 10,
@@ -415,23 +505,6 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginBottom: 16,
     },
-    searchWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: 16,
-        paddingHorizontal: 15,
-        height: 48,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: 10,
-        color: '#FFF',
-        fontSize: 15,
-        fontWeight: '500',
-    },
     categoryList: {
         paddingLeft: 20,
         paddingBottom: 4,
@@ -462,6 +535,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
+    },
+    listContent: {
+        paddingHorizontal: 20,
     },
 });
 

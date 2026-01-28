@@ -22,12 +22,23 @@ import {
     Circle,
     Group,
     Blur,
+    RadialGradient,
+    vec
 } from '@shopify/react-native-skia';
+import {
+    useSharedValue,
+    withRepeat,
+    withTiming,
+    Easing,
+    useDerivedValue
+} from 'react-native-reanimated';
 import { Screen, RootStackParamList, RealStory } from '../../types';
 import { theme } from '../../constants/theme';
 import { storiesService } from '../../services/contentService';
 import { useApp } from '../../context/AppContext';
 import StoryCard from '../../components/StoryCard';
+import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
+import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
 
 type StoriesScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -39,6 +50,41 @@ interface Props {
 }
 
 const { width } = Dimensions.get('window');
+
+const BacklitSilhouette: React.FC = () => {
+    const pulse = useSharedValue(0.4);
+
+    useEffect(() => {
+        pulse.value = withRepeat(
+            withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+            -1,
+            true
+        );
+    }, []);
+
+    const glowOpacity = useDerivedValue(() => pulse.value * 0.6);
+    const glowRadiusVal = useDerivedValue(() => 60 + pulse.value * 40);
+
+    return (
+        <View style={styles.silhouetteContainer}>
+            <Canvas style={styles.silhouetteCanvas}>
+                <Group>
+                    <Circle cx={80} cy={80} r={glowRadiusVal}>
+                        <RadialGradient
+                            c={vec(80, 80)}
+                            r={glowRadiusVal}
+                            colors={['rgba(251, 191, 36, 0.5)', 'transparent']}
+                        />
+                        <Blur blur={25} />
+                    </Circle>
+                </Group>
+            </Canvas>
+            <View style={styles.silhouetteIconWrapper}>
+                <Ionicons name="sparkles-outline" size={60} color="rgba(251, 191, 36, 0.4)" style={styles.silhouetteIcon} />
+            </View>
+        </View>
+    );
+};
 
 const CATEGORIES = [
     { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
@@ -52,19 +98,28 @@ const CATEGORIES = [
 
 const CATEGORY_ASSETS: Record<string, any> = {
     anxiety: { uri: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80' },
+    ansiedad: { uri: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80' },
     health: { uri: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&q=80' },
-    growth: { uri: 'https://images.unsplash.com/photo-1499728603263-137cb7ab3e1f?w=800&q=80' },
+    bienestar: { uri: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&q=80' },
+    growth: { uri: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80' },
+    crecimiento: { uri: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80' },
     relationships: { uri: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80' },
+    relaciones: { uri: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80' },
     professional: { uri: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&q=80' },
-    sleep: { uri: 'https://images.unsplash.com/photo-1511295742364-9119556d7395?w=800&q=80' },
+    carrera: { uri: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&q=80' },
+    sleep: { uri: 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=800&q=80' },
+    sueño: { uri: 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=800&q=80' },
     family: { uri: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=800&q=80' },
+    familia: { uri: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=800&q=80' },
     children: { uri: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=800&q=80' },
+    hijos: { uri: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=800&q=80' },
     all: { uri: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80' },
+    todo: { uri: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80' },
 };
 
 const StoriesScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState } = useApp();
+    const { userState, isNightMode } = useApp();
     const isPlusMember = userState.isPlusMember || false;
 
     const [stories, setStories] = useState<RealStory[]>([]);
@@ -168,33 +223,31 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
-            {/* NEW UNIFIED HEADER AT THE TOP */}
-            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity
-                        style={styles.backBtn}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#FFF" />
-                    </TouchableOpacity>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity
+                    style={styles.backBtnAbsolute}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                </TouchableOpacity>
 
-                    <View style={styles.headerTitleContainer}>
+                <View style={styles.headerRow}>
+                    <View style={styles.headerTextContainer}>
                         <Text style={styles.headerLabel}>RELATOS DE</Text>
-                        <Text style={styles.headerTitle}>Superación</Text>
+                        <View style={styles.headerTop}>
+                            <Text style={styles.headerTitle}>Superación</Text>
+                        </View>
                     </View>
-
-                    <View style={styles.silhouetteContainer}>
-                        <Canvas style={styles.silhouetteCanvas}>
-                            <Group>
-                                <Circle cx={50} cy={50} r={40} color="rgba(251, 191, 36, 0.2)">
-                                    <Blur blur={15} />
-                                </Circle>
-                            </Group>
-                        </Canvas>
-                        <Ionicons name="sparkles-outline" size={32} color="rgba(251, 191, 36, 0.6)" />
-                    </View>
+                    <BacklitSilhouette />
                 </View>
+                <Text style={styles.headerSubtitle}>
+                    Historias reales de fuerza, coraje y transformación personal.
+                </Text>
+            </View>
 
+            {/* Search */}
+            <View style={styles.searchContainer}>
                 <View style={styles.searchWrapper}>
                     <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
                     <TextInput
@@ -253,14 +306,21 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
 
             <View style={StyleSheet.absoluteFill}>
-                <LinearGradient
-                    colors={['#0A0E1A', '#1A1B2E', '#0A0E1A']}
-                    style={StyleSheet.absoluteFill}
-                />
+                {isNightMode ? (
+                    <NebulaBackground mode="healing" />
+                ) : (
+                    <>
+                        <NoiseBackground />
+                        <LinearGradient
+                            colors={['rgba(10, 14, 26, 0.8)', 'rgba(10, 14, 26, 0.96)']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                    </>
+                )}
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
@@ -301,34 +361,41 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#0A0E1A',
     },
+    headerContent: {
+        // Wrapper
+    },
     header: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        backgroundColor: '#0A0E1A',
-    },
-    headerTop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         marginBottom: 20,
+        paddingHorizontal: 20,
     },
-    backBtn: {
+    backBtnAbsolute: {
         width: 44,
         height: 44,
         borderRadius: 22,
         backgroundColor: 'rgba(255,255,255,0.06)',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 16,
+        alignSelf: 'flex-start',
     },
-    headerTitleContainer: {
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    headerTextContainer: {
         flex: 1,
-        marginLeft: 15,
     },
     headerLabel: {
         fontSize: 10,
         fontWeight: '900',
         color: '#FBBF24',
         letterSpacing: 2,
+        marginBottom: 4,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        marginBottom: 10,
     },
     headerTitle: {
         fontSize: 28,
@@ -336,22 +403,54 @@ const styles = StyleSheet.create({
         color: '#FFF',
         letterSpacing: -0.5,
     },
+    headerSubtitle: {
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.45)',
+        fontWeight: '500',
+        lineHeight: 24,
+    },
     silhouetteContainer: {
-        width: 60,
-        height: 60,
+        width: 140,
+        height: 140,
+        marginTop: -40,
+        marginRight: -20,
         justifyContent: 'center',
         alignItems: 'center',
     },
     silhouetteCanvas: {
-        width: 100,
-        height: 100,
+        width: 160,
+        height: 160,
         position: 'absolute',
     },
-    listContent: {
-        paddingHorizontal: 20,
+    silhouetteIconWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    headerContent: {
-        // Wrapper
+    silhouetteIcon: {
+        zIndex: 2,
+    },
+    searchContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 20,
+    },
+    searchWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        height: 48,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        color: '#FFF',
+        fontSize: 15,
+        fontWeight: '500',
     },
     heroContainer: {
         marginTop: 10,
@@ -418,23 +517,6 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginBottom: 16,
     },
-    searchWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: 16,
-        paddingHorizontal: 15,
-        height: 48,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: 10,
-        color: '#FFF',
-        fontSize: 15,
-        fontWeight: '500',
-    },
     categoryList: {
         paddingLeft: 20,
         paddingBottom: 8,
@@ -464,6 +546,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
+    },
+    listContent: {
+        paddingHorizontal: 20,
     },
 });
 

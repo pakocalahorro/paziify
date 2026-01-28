@@ -4,12 +4,14 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
-    Image,
     Dimensions,
+    ImageBackground,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Session } from '../types';
+import { theme } from '../constants/theme';
 import { IMAGES } from '../constants/images';
 
 const { width } = Dimensions.get('window');
@@ -38,119 +40,136 @@ const SessionCard: React.FC<SessionCardProps> = ({
     const catKey = session.category.toLowerCase();
     const imageSource = SESSION_ASSETS[catKey] || SESSION_ASSETS['default'];
 
-    const getCategoryStyles = (category: string) => {
+    const getCategoryDetails = (category: string) => {
         switch (category.toLowerCase()) {
-            case 'ansiedad': return { color: '#66DEFF', icon: 'water-outline' };
-            case 'sueño': return { color: '#9575CD', icon: 'moon-outline' };
-            case 'mindfulness': return { color: '#FFA726', icon: 'sunny-outline' };
-            case 'resiliencia': return { color: '#FF6B9D', icon: 'heart-outline' };
-            case 'despertar': return { color: '#FFA726', icon: 'sunny-outline' };
-            default: return { color: '#646CFF', icon: 'leaf-outline' };
+            case 'ansiedad':
+                return { icon: 'water-outline', color: '#66DEFF', gradient: ['rgba(102, 222, 255, 0.2)', 'rgba(0, 188, 212, 0.4)'] };
+            case 'sueño':
+                return { icon: 'moon-outline', color: '#9575CD', gradient: ['rgba(149, 117, 205, 0.2)', 'rgba(103, 58, 183, 0.4)'] };
+            case 'mindfulness':
+                return { icon: 'leaf-outline', color: '#66BB6A', gradient: ['rgba(102, 187, 106, 0.2)', 'rgba(67, 160, 71, 0.4)'] };
+            case 'resiliencia':
+                return { icon: 'heart-outline', color: '#FF6B9D', gradient: ['rgba(255, 107, 157, 0.2)', 'rgba(196, 69, 105, 0.4)'] };
+            case 'despertar':
+                return { icon: 'sunny-outline', color: '#FFA726', gradient: ['rgba(255, 167, 38, 0.2)', 'rgba(251, 140, 0, 0.4)'] };
+            default:
+                return { icon: 'medkit-outline', color: '#646CFF', gradient: ['rgba(100, 108, 255, 0.2)', 'rgba(79, 86, 217, 0.4)'] };
         }
     };
 
-    const { color } = getCategoryStyles(session.category);
+    const { icon, color, gradient } = getCategoryDetails(session.category);
 
     return (
         <TouchableOpacity
             style={styles.container}
             onPress={() => onPress(session)}
-            activeOpacity={0.8}
+            activeOpacity={0.9}
         >
-            <View style={styles.cardInner}>
-                <View style={styles.imageWrapper}>
-                    <Image
-                        source={typeof imageSource === 'string' ? { uri: imageSource } : imageSource}
-                        style={styles.image}
-                    />
+            <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
+                <ImageBackground
+                    source={typeof imageSource === 'string' ? { uri: imageSource } : imageSource}
+                    style={styles.mainContent}
+                    imageStyle={{ opacity: 0.15 }}
+                >
+                    {/* Category indicator line */}
                     <LinearGradient
-                        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.3)']}
-                        style={StyleSheet.absoluteFill}
+                        colors={gradient as any}
+                        style={styles.categoryLine}
                     />
-                    {isLocked && (
-                        <View style={styles.lockBadge}>
-                            <Ionicons name="lock-closed" size={10} color="#FFD700" />
-                        </View>
-                    )}
-                </View>
 
-                <View style={styles.contentWrapper}>
-                    <View style={styles.headerRow}>
-                        <View style={[styles.categoryIndicator, { backgroundColor: color }]} />
-                        <Text style={[styles.categoryText, { color }]}>{session.category.toUpperCase()}</Text>
-                        <View style={styles.spacer} />
-                        <View style={styles.durationBadge}>
-                            <Ionicons name="time-outline" size={10} color="rgba(255,255,255,0.4)" />
-                            <Text style={styles.durationText}>{session.duration}m</Text>
+                    <View style={styles.cardBody}>
+                        <View style={styles.header}>
+                            <View style={styles.categoryBadge}>
+                                <Ionicons name={icon as any} size={14} color={color} />
+                                <Text style={[styles.categoryText, { color }]}>{session.category.toUpperCase()}</Text>
+                            </View>
+                            <View style={styles.durationBadge}>
+                                <Ionicons name="time-outline" size={12} color={theme.colors.textMuted} />
+                                <Text style={styles.durationText}>{session.duration} min</Text>
+                            </View>
+                        </View>
+
+                        <Text style={styles.title} numberOfLines={2}>{session.title}</Text>
+
+                        {/* 
+                           Si tuviéramos subtítulo/descripción corta en el objeto Session 
+                           podríamos ponerlo aquí, igual que en StoryCard.
+                           De momento, usamos el espacio para separar visualmente.
+                        */}
+                        <View style={{ height: 8 }} />
+
+                        <View style={styles.footer}>
+                            <View style={styles.footerLeft}>
+                                <View style={[styles.playButton, { backgroundColor: `${color}20` }]}>
+                                    <Ionicons name="play" size={14} color={color} style={{ marginLeft: 2 }} />
+                                </View>
+                                {isLocked ? (
+                                    <View style={styles.lockBadge}>
+                                        <Ionicons name="lock-closed" size={10} color={theme.colors.accent} />
+                                        <Text style={styles.lockText}>PLUS</Text>
+                                    </View>
+                                ) : (
+                                    <View style={styles.freeBadge}>
+                                        <Text style={styles.freeText}>GRATIS</Text>
+                                    </View>
+                                )}
+                            </View>
+
+                            <View style={styles.chevronContainer}>
+                                <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                            </View>
                         </View>
                     </View>
-
-                    <Text style={styles.title} numberOfLines={1}>{session.title}</Text>
-
-                    <View style={styles.footerRow}>
-                        <View style={styles.stars}>
-                            {[1, 2, 3, 4, 5].map((s) => (
-                                <Ionicons key={s} name="star" size={8} color="#FFD700" style={{ opacity: 0.6 }} />
-                            ))}
-                        </View>
-                        <View style={[styles.miniPlay, { backgroundColor: `${color}20` }]}>
-                            <Ionicons name="play" size={12} color={color} />
-                        </View>
-                    </View>
-                </View>
-            </View>
+                </ImageBackground>
+            </BlurView>
         </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
-        height: 90,
-        marginBottom: 12,
-        borderRadius: 18,
+        marginBottom: theme.spacing.md,
+        borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.08)',
-        backgroundColor: 'rgba(25, 30, 45, 0.4)',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
     },
-    cardInner: {
-        flex: 1,
+    glassContainer: {
+        paddingVertical: 0,
+    },
+    mainContent: {
         flexDirection: 'row',
+        minHeight: 110,
     },
-    imageWrapper: {
-        width: 90,
+    categoryLine: {
+        width: 4,
         height: '100%',
-        backgroundColor: '#111',
     },
-    image: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
-    },
-    contentWrapper: {
+    cardBody: {
         flex: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        padding: theme.spacing.md,
         justifyContent: 'space-between',
     },
-    headerRow: {
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    categoryBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    categoryIndicator: {
-        width: 3,
-        height: 8,
-        borderRadius: 2,
-        marginRight: 6,
+        backgroundColor: 'rgba(255, 255, 255, 0.07)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        gap: 6,
     },
     categoryText: {
         fontSize: 10,
         fontWeight: '900',
-        letterSpacing: 1,
-    },
-    spacer: {
-        flex: 1,
+        letterSpacing: 0.5,
     },
     durationBadge: {
         flexDirection: 'row',
@@ -158,39 +177,63 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     durationText: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: 10,
-        fontWeight: '700',
-    },
-    lockBadge: {
-        position: 'absolute',
-        top: 6,
-        left: 6,
-        padding: 4,
-        borderRadius: 8,
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        fontSize: 11,
+        color: theme.colors.textMuted,
+        fontWeight: '600',
     },
     title: {
-        fontSize: 15,
+        fontSize: 18,
         fontWeight: '800',
         color: '#FFFFFF',
-        letterSpacing: -0.3,
+        marginBottom: 4,
+        lineHeight: 24,
     },
-    footerRow: {
+    footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginTop: 4,
     },
-    stars: {
+    footerLeft: {
         flexDirection: 'row',
-        gap: 2,
+        alignItems: 'center',
+        gap: 10,
     },
-    miniPlay: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+    playButton: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    lockBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        backgroundColor: 'rgba(255, 107, 157, 0.1)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    lockText: {
+        fontSize: 9,
+        fontWeight: '900',
+        color: theme.colors.accent,
+    },
+    freeBadge: {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    freeText: {
+        fontSize: 9,
+        fontWeight: '900',
+        color: 'rgba(255, 255, 255, 0.6)',
+    },
+    chevronContainer: {
+        justifyContent: 'center',
+        paddingRight: 4,
     },
 });
 

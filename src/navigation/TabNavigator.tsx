@@ -13,8 +13,10 @@ import CBTAcademyScreen from '../screens/Academy/CBTAcademyScreen';
 import CommunityScreen from '../screens/Social/CommunityScreen';
 import MeditationCatalogScreen from '../screens/Meditation/MeditationCatalogScreen';
 import AudiobooksScreen from '../screens/Content/AudiobooksScreen';
+import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
 import StoriesScreen from '../screens/Content/StoriesScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import MiniPlayer from '../components/Shared/MiniPlayer';
 
 const Tab = createBottomTabNavigator();
 const LibStack = createNativeStackNavigator();
@@ -25,6 +27,7 @@ const LibraryStack = () => (
         <LibStack.Screen name={Screen.MEDITATION_CATALOG} component={MeditationCatalogScreen} />
         <LibStack.Screen name={Screen.AUDIOBOOKS} component={AudiobooksScreen} />
         <LibStack.Screen name={Screen.STORIES} component={StoriesScreen} />
+        <LibStack.Screen name={Screen.AUDIOBOOK_PLAYER} component={AudiobookPlayerScreen} />
     </LibStack.Navigator>
 );
 
@@ -32,75 +35,78 @@ export const TabNavigator = () => {
     const insets = useSafeAreaInsets();
 
     return (
-        <Tab.Navigator
-            screenOptions={{
-                headerShown: false,
-                tabBarStyle: {
-                    backgroundColor: theme.colors.surface,
-                    borderTopWidth: 1,
-                    borderTopColor: 'rgba(255, 255, 255, 0.05)',
-                    height: 60 + insets.bottom,
-                    paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
-                    paddingTop: 8,
-                },
-                tabBarActiveTintColor: theme.colors.primary,
-                tabBarInactiveTintColor: theme.colors.textMuted,
-                tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: '600',
-                },
-            }}
-        >
-            <Tab.Screen
-                name={Screen.HOME}
-                component={HomeScreen}
-                options={{
-                    tabBarLabel: 'Inicio',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="home" size={size} color={color} />
-                    ),
+        <>
+            <Tab.Navigator
+                screenOptions={{
+                    headerShown: false,
+                    tabBarStyle: {
+                        backgroundColor: theme.colors.surface,
+                        borderTopWidth: 1,
+                        borderTopColor: 'rgba(255, 255, 255, 0.05)',
+                        height: 60 + insets.bottom,
+                        paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+                        paddingTop: 8,
+                    },
+                    tabBarActiveTintColor: theme.colors.primary,
+                    tabBarInactiveTintColor: theme.colors.textMuted,
+                    tabBarLabelStyle: {
+                        fontSize: 12,
+                        fontWeight: '600',
+                    },
                 }}
-            />
-            <Tab.Screen
-                name="LibraryTab"
-                component={LibraryStack}
-                options={{
-                    tabBarLabel: 'Biblioteca',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="library" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name={Screen.CBT_ACADEMY}
-                component={CBTAcademyScreen}
-                options={{
-                    tabBarLabel: 'Academia',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="school" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name={Screen.COMMUNITY}
-                component={CommunityScreen}
-                options={{
-                    tabBarLabel: 'Comunidad',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="chatbubbles" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name={Screen.PROFILE}
-                component={ProfileScreen}
-                options={{
-                    tabBarLabel: 'Perfil',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="person" size={size} color={color} />
-                    ),
-                }}
-            />
-        </Tab.Navigator>
+            >
+                <Tab.Screen
+                    name={Screen.HOME}
+                    component={HomeScreen}
+                    options={{
+                        tabBarLabel: 'Inicio',
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons name="home" size={size} color={color} />
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name="LibraryTab"
+                    component={LibraryStack}
+                    options={{
+                        tabBarLabel: 'Biblioteca',
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons name="library" size={size} color={color} />
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name={Screen.CBT_ACADEMY}
+                    component={CBTAcademyScreen}
+                    options={{
+                        tabBarLabel: 'Academia',
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons name="school" size={size} color={color} />
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name={Screen.COMMUNITY}
+                    component={CommunityScreen}
+                    options={{
+                        tabBarLabel: 'Comunidad',
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons name="chatbubbles" size={size} color={color} />
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name={Screen.PROFILE}
+                    component={ProfileScreen}
+                    options={{
+                        tabBarLabel: 'Perfil',
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons name="person" size={size} color={color} />
+                        ),
+                    }}
+                />
+            </Tab.Navigator>
+            <MiniPlayer />
+        </>
     );
 };

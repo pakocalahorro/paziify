@@ -22,6 +22,7 @@ import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { IMAGES } from '../../constants/images';
 import { useApp } from '../../context/AppContext';
+import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import AudioEngineService from '../../services/AudioEngineService';
 import { MEDITATION_SESSIONS } from '../../data/sessionsData';
 import { SOUNDSCAPES, BINAURAL_WAVES, Soundscape, BinauralWave } from '../../data/soundscapesData';
@@ -205,6 +206,7 @@ const SoundSelectorControl = ({ label, icon, value, isLocked, onValueChange, onP
 const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
     const { userState } = useApp();
+    const { setExternalAudioActive } = useAudioPlayer(); // Context hook
     const [timeLeft, setTimeLeft] = useState(0);
     const [isActive, setIsActive] = useState(false);
     const [isAudioLoaded, setIsAudioLoaded] = useState(false);
@@ -225,6 +227,14 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
     // Unlocked premium for testing
     const isPremium = true;
+
+    // Manage External Audio State (e.g. pause ambient music)
+    useEffect(() => {
+        setExternalAudioActive(true);
+        return () => {
+            setExternalAudioActive(false);
+        };
+    }, []);
 
     useEffect(() => {
         const pulse = Animated.loop(

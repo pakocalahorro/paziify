@@ -26,11 +26,17 @@ interface Props {
     route: TransitionTunnelScreenRouteProp;
 }
 
+import { useAudioPlayer } from '../../context/AudioPlayerContext';
+
 const TransitionTunnel: React.FC<Props> = ({ navigation, route }) => {
-    const fadeAnim = new Animated.Value(0);
-    const scaleAnim = new Animated.Value(0.8);
+    const fadeAnim = React.useRef(new Animated.Value(0)).current;
+    const scaleAnim = React.useRef(new Animated.Value(0.8)).current;
+    const { setExternalAudioActive } = useAudioPlayer();
 
     useEffect(() => {
+        // Signal that we are starting a meditation-like flow
+        setExternalAudioActive(true);
+
         Animated.parallel([
             Animated.timing(fadeAnim, {
                 toValue: 1,
@@ -50,7 +56,9 @@ const TransitionTunnel: React.FC<Props> = ({ navigation, route }) => {
             } as any);
         }, 4500);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+        };
     }, []);
 
     return (
