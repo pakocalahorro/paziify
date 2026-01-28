@@ -39,4 +39,4 @@ Automatizaciones disponibles en `.agent/workflows/`:
 
 ---
 
-**Última actualización:** 27 de Enero de 2026 - **Versión v1.4 Oasis Hub** 🚀
+**Última actualización:** 28 de Enero de 2026 - **Versión v1.4.1 Mantenimiento** (Disk Cleanup & Audio Migration)
