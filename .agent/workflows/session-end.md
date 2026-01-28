@@ -37,7 +37,13 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
 3. **Supabase - Base de datos y Login** 
    - Si en la nota de sesion hay cambios en login o base de datos leer y actualizar `docs/guides/database.md`
 
-4. **Commit de cambios** Preguntar si hacemos commit
+4. **Diseño y Audio** 
+   - Si en la nota de sesion hay cambios en diseño o audio leer y actualizar `docs/guides/designs_audio.md`
+
+5. **Manual de usuario** 
+   - Si en la nota de sesion hay nuevos cambios en cualquier funcionalidad leer y actualizar `docs/guides/user_manual.md`
+
+6. **Commit de cambios** Preguntar si hacemos commit
    - Crear commit con mensaje descriptivo
    - Incluir todos los archivos relevantes
 

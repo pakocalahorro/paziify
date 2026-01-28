@@ -18,12 +18,15 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
 2. **Supabase - Base de datos y Login** 
    - Leer `docs/guides/database.md` para estar al corriente y aplicar buenas practicas a los nuevos cambios
 
-3. **Verificar estado del código**
+3. **Diseño y Audio** 
+   - Leer `docs/guides/designs_audio.md` para estar al corriente y aplicar buenas practicas a los nuevos cambios
+
+4. **Verificar estado del código**
    - Revisar archivos modificados recientemente
    - Verificar si hay errores pendientes
    - Comprobar estado de dependencias
 
-4. **Resumir al usuario**
+5. **Resumir al usuario**
    - Crear resumen conciso:
      ```
      📊 Estado del Proyecto Paziify
