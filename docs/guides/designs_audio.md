@@ -35,7 +35,8 @@ Paziify permite la mezcla simultánea de tres tipos de fuentes:
 3.  **Ondas Binaurales**: Frecuencias (Theta, Alpha) para estados mentales específicos.
 
 ### Implementaciones Técnicas
-*   **Edge Functions**: Sourcing dinámico de audio mediante Supabase Edge Functions e IA de Google (Vertex AI) para generación de contenido.
+*   **Supabase Storage**: Todos los assets estáticos (Soundscapes, Binaurales, Audiolibros) se sirven desde buckets dedicados (`soundscapes`, `binaurals`, `audiobooks`) para minimizar el tamaño del bundle.
+*   **Edge Functions**: Sourcing dinámico de metadatos mediante Supabase Edge Functions.
 *   **Pre-carga Dinámica**: Los cues de voz se pre-cargan antes de iniciar la sesión para evitar latencia.
 *   **Mezclador en Pantalla**: Control de volumen independiente para cada capa de audio.
 
@@ -77,4 +78,8 @@ Si modificas archivos críticos de diseño como el Orbe y no ves los cambios:
 ---
 
 ## 5. Mantenimiento de Assets
-Todas las nuevas imágenes deben registrarse en `src/constants/images.ts` y estar alojadas preferiblemente en **Supabase Storage** para carga eficiente, con un fallback de color sólido definido en las tarjetas de sesión.
+Todas las nuevas imágenes y audios deben alojarse en **Supabase Storage**.
+*   **Imágenes**: Registrar en `src/constants/images.ts`.
+*   **Audio**: Registrar URLs en `src/data/soundscapesData.ts` (Soundscapes/Binaurales).
+> [!WARNING]
+> **No subir archivos de audio a `src/assets/`**. El proyecto mantiene una política de "Zero Local Media" para mantener el APK ligero (<30MB Release).

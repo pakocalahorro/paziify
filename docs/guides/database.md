@@ -109,7 +109,19 @@ Cada registro en `auth.users` dispara la creación de un perfil en `public.profi
 
 ---
 
-## 5. Buenas Prácticas 🚀
+## 5. Almacenamiento (Supabase Storage) ☁️
+Paziify utiliza buckets públicos para servir contenido multimedia optimizado:
+
+| Bucket | Contenido | Política de Acceso |
+| :--- | :--- | :--- |
+| `audiobooks` | Archivos MP3 de audiolibros | Public Read |
+| `binaurals` | Frecuencias binaurales (.mp3) | Public Read |
+| `soundscapes` | Ambientes de fondo (lluvia, bosque) | Public Read |
+| `images` | Portadas y assets visuales | Public Read |
+
+---
+
+## 6. Buenas Prácticas 🚀
 
 1. **Derecho al Olvido**: Todas las claves foráneas hacia `user_id` utilizan `ON DELETE CASCADE`.
 2. **Consultas Seguras**: Utilizar siempre el servicio `contentService` para interactuar con estas tablas, asegurando el manejo correcto de errores y estados de carga.
