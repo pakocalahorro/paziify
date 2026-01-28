@@ -23,3 +23,12 @@ Sesión dedicada al mantenimiento técnico del proyecto. Se detectó un crecimie
 
 ---
 **Nota**: No se realizaron cambios en el código fuente de la aplicación (`src/`), solo gestión de infraestructura.
+
+## Anexo: Limpieza de Historial Git
+Para solucionar el rechazo del push por archivos grandes, se realizó una reescritura del historial (Surgical Fix):
+1.  **Reset Hard**: Se recuperaron los 13 commits originales (`git reset --hard a238e59`).
+2.  **Filter Branch**: Se ejecutó el siguiente comando para eliminar `src/assets/audio` de todo el historial:
+    ```bash
+    git filter-branch --force --index-filter "git rm --cached --ignore-unmatch src/assets/audio/*.mp3" --prune-empty --tag-name-filter cat -- --all
+    ```
+3.  **Resultado**: Historial limpio y sincronizado con el remoto.
