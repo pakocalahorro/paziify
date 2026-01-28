@@ -40,6 +40,12 @@ Paziify permite la mezcla simultánea de tres tipos de fuentes:
 *   **Pre-carga Dinámica**: Los cues de voz se pre-cargan antes de iniciar la sesión para evitar latencia.
 *   **Mezclador en Pantalla**: Control de volumen independiente para cada capa de audio.
 
+### Reproductor Global y Persistencia (`AudioPlayerContext.tsx`)
+Para audiolibros e historias, utilizamos una arquitectura separada del motor de meditación:
+*   **Global Context**: Un proveedor único envuelve la navegación para mantener el estado del audio (`Sound` object) vivo entre cambios de pantalla.
+*   **MiniPlayer**: Componente flotante que se renderiza condicionalmente en el `TabNavigator`, permitiendo control de reproducción fuera de la pantalla de detalle.
+*   **Gestión de Conflictos**: El contexto global pausa automáticamente el motor de meditación si se inicia un audiolibro, y viceversa.
+
 ---
 
 ## 3. Estructura de Proyecto (Vista Milestone 3)

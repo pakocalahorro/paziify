@@ -24,8 +24,8 @@ Historial de progreso diario y decisiones clave:
 
 ## 🛠️ Guías Técnicas y Manuales
 
-- **[Manual de Usuario](guides/user_manual.md)**: Guía detallada de todas las funcionalidades actuales (v1.2).
-- **[Diseño y Audio](guides/designs_audio.md)**: Arquitectura del motor de audio multi-capa y sistema visual Skia (v1.4).
+- **[Manual de Usuario](guides/user_manual.md)**: Guía detallada de todas las funcionalidades actuales (v1.5).
+- **[Diseño y Audio](guides/designs_audio.md)**: Arquitectura del motor de audio multi-capa y sistema visual Skia (v1.5).
 - **[Base de Datos](guides/database.md)**: Esquema de Supabase, políticas RLS y diccionarios de datos actualizados.
 
 ---
@@ -39,4 +39,4 @@ Automatizaciones disponibles en `.agent/workflows/`:
 
 ---
 
-**Última actualización:** 28 de Enero de 2026 - **Versión v1.4.1 Mantenimiento** (Disk Cleanup & Audio Migration)
+**Última actualización:** 28 de Enero de 2026 - **Versión v1.5.0** (UI Standardization & Persistent Audio Player)

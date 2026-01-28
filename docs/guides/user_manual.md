@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.4.0 Oasis) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.5.0 Oasis) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.4**. Esta versión introduce el **Oasis Hub**, visuales Skia de alta gama y un motor de audio multi-capa inmersivo.
+Bienvenido a la guía oficial de **Paziify v1.5**. Esta versión consolida la "Experiencia Oasis" con un diseño visual unificado, un motor de audio persistente y nuevas herramientas de bienestar.
 
 ---
 
@@ -14,56 +14,47 @@ Paziify prioriza tu entrada al bienestar:
 
 ## 2. El Santuario Mágico (Experiencia Inicial) ✨
 **Pantalla:** `CompassScreen` -> `ManifestoScreen`
-Hemos transformado la Brújula Interior en una experiencia inmersiva única:
-- **Orbes de Energía Hiperrealista**: Elige entre dos fuentes de poder vivo.
+Hemos transformado la Brújula Interior en una experiencia interactiva mágica:
+- **Orbes 3D Hiperrealistas**:
     - **Sanar (Emerald Heart)**: Un orbe de cristal esmeralda con energía bio-luminiscente que late al ritmo de tu respiración.
     - **Crecer (Solar Plasma)**: Un orbe de energía solar dorada para vitalidad y foco.
 - **Interacción Explosiva**: Al tocar un orbe, este carga energía (vibración háptica) y al soltar, genera una **explosión espiritual** de luz que despeja tu camino.
-- **Polvo Estelar**: El fondo cuenta con un sistema de partículas dinámicas que crean una profundidad espacial real.
+- **Atmósfera Cósmica**: Fondo con sistema de partículas (stardust) y movimiento fluido que crea profundidad espacial real.
 
 ---
 
-## 3. La Nueva Biblioteca Expandida 📚
+## 3. La Nueva Biblioteca Unificada 📚
 **Pantalla:** `LibraryScreen` -> Hubs de Contenido
-La Biblioteca es ahora un portal unificado con tres pilares fundamentales:
+La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamentales que comparten la estética "Glassmorphic Zen":
 
 ### 🧘 Sesiones de Meditación (Experiencia v2.0)
-- **Catálogo de 18 Técnicas**: Desde respiración Square hasta técnicas avanzadas de coherencia cardíaca.
-- **Briefing Científico Pre-Sesión**: Al pulsar play, una tarjeta te informa sobre el objetivo neurológico de la sesión y te da instrucciones precisas (ojos abiertos/cerrados).
-- **Guía Háptica (Sentir la Respiración)**: No necesitas mirar la pantalla. Paziify usa vibraciones inteligentes:
-    - **Inhalar**: Doble pulso (Éxito).
-    - **Exhalar**: Vibración profunda y pesada (Relajación).
-    - **Mantener**: Toque rítmico constante.
-
-- **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando:
-    - **Voz Guía**: Instrucciones claras de meditación.
-    - **Paisaje Sonoro**: Lluvia, bosque, o aves.
-    - **Ondas Binaurales**: Frecuencias Theta/Alpha para mayor profundidad.
+- **Tarjetas de Cristal**: Nuevo diseño transparente con fondos inmersivos que se integran con el ambiente.
+- **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
+- **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
 
 ### 🎧 Audiolibros (Clásicos del Bienestar)
-- **Escucha Clásica**: Acceso a libros de dominio público (LibriVox) con narración humana.
-- **Reproductor Avanzado**:
-    - **Velocidad Variable**: Ajusta desde 0.5x hasta 2.0x.
-    - **Sleep Timer**: Configura un apagado automático (15min a 1h).
-    - **Persistencia Directa**: La app recuerda exactamente dónde dejaste cada libro.
+- **Reproductor Persistente**: Escucha tus libros mientras navegas por otras partes de la aplicación.
+- **Mini Player Flotante**: Un control discreto aparece sobre el menú inferior para pausar o cerrar el audio sin volver a la pantalla completa.
+- **Funciones Pro**: Velocidad variable (0.5x-2.0x), Sleep Timer y marcadores de posición automáticos.
 
 ### 🌟 Historias Reales
 - **Lectura Inspiradora**: Testimonios de superación en formato texto.
-- **Categorización Inteligente**: Filtra historias de Ansiedad, Resiliencia o Crecimiento según lo que necesites leer hoy.
+- **Categorización Inteligente**: Filtra por Ansiedad, Resiliencia o Crecimiento con soporte visual temático.
+- **Estética Unificada**: Tarjetas y cabeceras siguen el mismo diseño premium que las meditaciones.
 
 ---
 
 ## 4. El Reproductor Premium 💎
-**Componente:** `AudiobookPlayer` / `MeditationPlayer`
+**Componente:** `AudiobookPlayer` / `MeditationPlayer` / `MiniPlayer`
+- **Mini Player**: Nuevo componente flotante que te acompaña mientras exploras la app, permitiendo control total sin interrupciones.
 - **Glassmorphism**: Controles transparentes que flotan sobre portadas artísticas.
 - **Retroiluminación Dinámica**: El fondo del reproductor se adapta a los colores de la sesión.
-- **Favoritos**: Guarda cualquier audiolibro o historia para acceder instantáneamente desde tu biblioteca personal.
 
 ---
 
 ## 5. El Panel de Control Adaptativo (Home)
 - **Atmósfera Respiratoria**: La nebulosa de fondo pulsa rítmicamente.
-- **Efecto Cristal**: Toda la interfaz utiliza un diseño esmerilado nativo para máxima elegancia y legibilidad.
+- **Diseño Unificado**: Cabeceras con iconos retroiluminados (`BacklitSilhouette`) y tipografía jerarquizada en todas las pantallas.
 
 ---
 
@@ -73,12 +64,12 @@ La Biblioteca es ahora un portal unificado con tres pilares fundamentales:
 
 ---
 
-## checklist de Verificación de Usuario ✅
+## Checklist de Verificación de Usuario ✅
 - [x] ¿Sientes la vibración al cargar energía en la Brújula?
-- [x] ¿Diferencias los haptics de inhalación y exhalación sin mirar el móvil?
-- [x] ¿El modal de preparación (briefing) te ayuda a entender el objetivo de la sesión?
+- [x] ¿Puedes seguir escuchando un audiolibro mientras buscas una meditación?
+- [x] ¿El Mini Player aparece correctamente sobre el menú inferior?
+- [x] ¿Las tarjetas de meditación e historias tienen el mismo estilo de vidrio transparente?
 - [x] ¿Las portadas de los audiolibros se ven nítidas y artísticas?
-- [x] ¿El reproductor recuerda el minuto exacto donde paraste el audiolibro?
 
 ---
-*Última revisión: 27 de Enero de 2026 - Milestone 3: Oasis Hub (v1.4)*
+*Última revisión: 28 de Enero de 2026 - v1.5.0 (UI Standardization & Audio Player)*
