@@ -9,6 +9,7 @@ import {
     StatusBar,
     Platform,
     Alert,
+    Image,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,13 +18,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useApp } from '../../context/AppContext';
-import { Screen, RootStackParamList } from '../../types';
+import { Screen, RootStackParamList, Audiobook, RealStory } from '../../types';
 import { theme } from '../../constants/theme';
 import { IMAGES } from '../../constants/images';
+import { audiobooksService, storiesService } from '../../services/contentService';
 import GGAssistant from '../../components/GGAssistant';
 import GuestBanner from '../../components/GuestBanner';
 import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
+import SunriseBackground from '../../components/Sanctuary/SunriseBackground';
 import { clearStorage } from '../../utils/storage';
+import { FlatList } from 'react-native';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -41,6 +45,49 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
     // Determine visual mode from route or default to healing/night context
     const visualMode = route.params?.mode || (isNightMode ? 'healing' : 'healing');
+
+    // Suggestions State
+    const [suggestedAudiobooks, setSuggestedAudiobooks] = React.useState<Audiobook[]>([]);
+    const [suggestedStories, setSuggestedStories] = React.useState<RealStory[]>([]);
+    const [loadingSuggestions, setLoadingSuggestions] = React.useState(true);
+
+    React.useEffect(() => {
+        const loadSuggestions = async () => {
+            try {
+                const [allBooks, allStories] = await Promise.all([
+                    audiobooksService.getAll(),
+                    storiesService.getAll()
+                ]);
+
+                // Filter logic based on visualMode
+                // Healing: Anxiety, Sleep, Health
+                // Growth: Career, Success, Relationships, Leadership
+                // NOTE: Using English keys to match database/data content
+                const targetCategories = visualMode === 'healing'
+                    ? ['anxiety', 'sleep', 'health', 'wellness', 'stress', 'ansiedad', 'sueño', 'salud']
+                    : ['professional', 'growth', 'career', 'relationships', 'leadership', 'success', 'carrera', 'exito'];
+
+                const filteredBooks = allBooks.filter(item =>
+                    targetCategories.some(cat => item.category.toLowerCase().includes(cat))
+                ).slice(0, 5);
+
+                const filteredStories = allStories.filter(item =>
+                    targetCategories.some(cat => item.category.toLowerCase().includes(cat))
+                ).slice(0, 5);
+
+                // Fallback if empty (show popular or random)
+                setSuggestedAudiobooks(filteredBooks.length > 0 ? filteredBooks : allBooks.slice(0, 5));
+                setSuggestedStories(filteredStories.length > 0 ? filteredStories : allStories.slice(0, 5));
+
+            } catch (error) {
+                console.error('Failed to load suggestions', error);
+            } finally {
+                setLoadingSuggestions(false);
+            }
+        };
+
+        loadSuggestions();
+    }, [visualMode]);
 
     const handleStartSession = () => {
         navigation.navigate(Screen.TRANSITION_TUNNEL);
@@ -74,10 +121,88 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         return { title: 'Informe Diario', message: `Hoy es tu ${userState.streak}º día consecutivo.`, type: 'default' as const, actionLabel: 'Empezar dosis diaria' };
     }, [isDone, isRecovery, isNightMode, userState.streak]);
 
+    const renderSuggestions = () => {
+        if (loadingSuggestions || (suggestedAudiobooks.length === 0 && suggestedStories.length === 0)) return null;
+
+        return (
+            <View style={styles.suggestionsContainer}>
+                <Text style={styles.sectionTitle}>
+                    {visualMode === 'healing' ? 'Sugerencias para Sanar' : 'Impulsa tu Crecimiento'}
+                </Text>
+
+                {/* Audiobooks Horizontal List */}
+                {suggestedAudiobooks.length > 0 && (
+                    <View style={styles.horizontalSection}>
+                        <Text style={styles.subTitle}>Audiolibros Recomendados</Text>
+                        <FlatList
+                            horizontal
+                            data={suggestedAudiobooks}
+                            keyExtractor={(item) => item.id}
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.horizontalList}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.suggestionCard}
+                                    onPress={() => navigation.navigate(Screen.AUDIOBOOKS)}
+                                >
+                                    <ImageBackground
+                                        source={{ uri: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c' }} // Placeholder
+                                        style={styles.suggestionImage}
+                                        imageStyle={{ borderRadius: 16 }}
+                                    >
+                                        <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.suggestionGradient}>
+                                            <Text style={styles.suggestionTitle} numberOfLines={2}>{item.title}</Text>
+                                            <Text style={styles.suggestionMeta}>{item.author}</Text>
+                                        </LinearGradient>
+                                    </ImageBackground>
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                )}
+
+                {/* Stories Horizontal List */}
+                {suggestedStories.length > 0 && (
+                    <View style={styles.horizontalSection}>
+                        <Text style={styles.subTitle}>Historias para ti</Text>
+                        <FlatList
+                            horizontal
+                            data={suggestedStories}
+                            keyExtractor={(item) => item.id}
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.horizontalList}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.suggestionCard}
+                                    onPress={() => navigation.navigate(Screen.STORY_DETAIL, { storyId: item.id })}
+                                >
+                                    <ImageBackground
+                                        source={{ uri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb' }} // Placeholder
+                                        style={styles.suggestionImage}
+                                        imageStyle={{ borderRadius: 16 }}
+                                    >
+                                        <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.suggestionGradient}>
+                                            <Text style={styles.suggestionTitle} numberOfLines={2}>{item.title}</Text>
+                                            <Text style={styles.suggestionMeta}>{item.subtitle}</Text>
+                                        </LinearGradient>
+                                    </ImageBackground>
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                )}
+            </View>
+        );
+    };
+
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={StyleSheet.absoluteFill}>
-                <NebulaBackground mode={visualMode as 'healing' | 'growth'} />
+                {isNightMode ? (
+                    <NebulaBackground mode={visualMode as 'healing' | 'growth'} />
+                ) : (
+                    <SunriseBackground />
+                )}
             </View>
             <StatusBar barStyle="light-content" translucent={true} />
 
@@ -87,30 +212,31 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                     <GuestBanner onPressRegister={handleRegisterClick} />
                 )}
 
-                {/* Header */}
+                {/* Header Redesigned */}
                 <View style={styles.header}>
-                    <View>
-                        <Text style={[styles.greetingLabel, isNightMode && { color: '#818CF8', fontWeight: '700' }]}>
-                            {isNightMode ? '9:00 PM' : (isDone ? 'BIENVENIDO' : 'Buenos días,')}
-                        </Text>
-                        <View style={styles.nameRow}>
-                            <Text style={styles.greetingText}>
-                                {isNightMode ? 'Buenas noches, ' : (isDone ? `Hoy, ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}` : `Hola, `)}
+                    <View style={styles.profileContainer}>
+                        <View style={styles.avatarContainer}>
+                            {userState.avatarUrl ? (
+                                <Image source={{ uri: userState.avatarUrl }} style={styles.avatar} />
+                            ) : (
+                                <View style={styles.avatarPlaceholder}>
+                                    <Text style={styles.avatarInitial}>{userState.name.charAt(0)}</Text>
+                                </View>
+                            )}
+                        </View>
+                        <View style={styles.welcomeTextContainer}>
+                            <Text style={styles.welcomeLabel}>
+                                {isNightMode ? 'Buenas noches' : 'Bienvenido de nuevo'}
                             </Text>
-                            <Text style={styles.greetingName}>{userState.name}</Text>
+                            <Text style={styles.userName} numberOfLines={1} adjustsFontSizeToFit>
+                                {userState.name}
+                            </Text>
                         </View>
                     </View>
-                    <View style={styles.headerActions}>
-                        {isNightMode && (
-                            <View style={styles.nightModeBadge}>
-                                <Ionicons name="moon" size={12} color="#818CF8" />
-                                <Text style={styles.nightModeBadgeText}>MODO NOCHE</Text>
-                            </View>
-                        )}
-                        <TouchableOpacity style={styles.iconButton}>
-                            <Ionicons name="notifications" size={22} color="#FFF" />
-                        </TouchableOpacity>
-                    </View>
+
+                    <TouchableOpacity style={styles.notificationBtn}>
+                        <Ionicons name="notifications-outline" size={24} color="#FFF" />
+                    </TouchableOpacity>
                 </View>
 
                 {isNightMode && !isDone && !isRecovery ? (
@@ -132,6 +258,9 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                                 <Ionicons name="play-circle" size={24} color="#FFF" /><Text style={styles.nightActionBtnText}>¿Empezamos?</Text>
                             </TouchableOpacity>
                         </BlurView>
+
+                        {/* Night Mode Suggestions */}
+                        {renderSuggestions()}
                     </View>
                 ) : isDone ? (
                     <View style={styles.doneView}>
@@ -166,6 +295,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                 ) : (
                     <View style={styles.defaultView}>
                         <GGAssistant title={assistantProps.title} message={assistantProps.message} type={assistantProps.type} actionLabel={assistantProps.actionLabel} onAction={handleStartSession} />
+
                         <TouchableOpacity style={styles.heroActionCard} onPress={handleStartSession}>
                             <ImageBackground source={{ uri: IMAGES.DAY }} style={styles.heroImg} imageStyle={{ borderRadius: 24 }}>
                                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.heroGradient}>
@@ -174,6 +304,9 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                                 </LinearGradient>
                             </ImageBackground>
                         </TouchableOpacity>
+
+                        {/* Suggestions Section */}
+                        {renderSuggestions()}
                     </View>
                 )}
 
@@ -192,15 +325,75 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#000' },
     scrollView: { flex: 1 },
     content: { padding: 20, paddingBottom: 120 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 25 },
-    greetingLabel: { fontSize: 13, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 },
-    nameRow: { flexDirection: 'row', marginTop: 4 },
-    greetingText: { fontSize: 28, fontWeight: '700', color: '#FFF' },
-    greetingName: { fontSize: 28, fontWeight: '900', color: '#FFF' },
-    headerActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-    nightModeBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(129, 140, 248, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20, gap: 6 },
-    nightModeBadgeText: { fontSize: 9, fontWeight: '800', color: '#818CF8', letterSpacing: 1 },
-    iconButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center' },
+
+    // Header Styles
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 30,
+        marginTop: 10,
+    },
+    profileContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        flex: 1, // Allow text to take remaining space
+    },
+    avatarContainer: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    avatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    avatarPlaceholder: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: theme.colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    avatarInitial: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#FFF',
+    },
+    welcomeTextContainer: {
+        flex: 1,
+    },
+    welcomeLabel: {
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.6)',
+        fontWeight: '500',
+        marginBottom: 2,
+    },
+    userName: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#FFF',
+        letterSpacing: 0.5,
+    },
+    notificationBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
 
     nightView: {},
     nightSubtitle: { fontSize: 15, color: 'rgba(255,255,255,0.6)', marginBottom: 25, fontWeight: '500' },
@@ -247,6 +440,17 @@ const styles = StyleSheet.create({
     devBar: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 50, opacity: 0.8 },
     devTab: { backgroundColor: 'rgba(255,255,255,0.06)', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 10 },
     devTabText: { fontSize: 9, fontWeight: '900', color: 'rgba(255,255,255,0.4)', letterSpacing: 0.5 },
+
+    suggestionsContainer: { marginTop: 10, gap: 20 },
+    sectionTitle: { fontSize: 18, fontWeight: '900', color: '#FFF', marginBottom: 5 },
+    horizontalSection: { gap: 12 },
+    subTitle: { fontSize: 14, color: 'rgba(255,255,255,0.6)', fontWeight: '700', letterSpacing: 1 },
+    horizontalList: { paddingRight: 20 },
+    suggestionCard: { width: 160, height: 200, marginRight: 15, borderRadius: 16, overflow: 'hidden', backgroundColor: '#1A1E29' },
+    suggestionImage: { width: '100%', height: '100%' },
+    suggestionGradient: { flex: 1, justifyContent: 'flex-end', padding: 12 },
+    suggestionTitle: { fontSize: 14, fontWeight: '800', color: '#FFF', marginBottom: 4 },
+    suggestionMeta: { fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: '600' },
 });
 
 export default HomeScreen;

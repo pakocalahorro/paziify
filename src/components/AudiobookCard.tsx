@@ -6,6 +6,8 @@ import {
     StyleSheet,
     Image,
     Dimensions,
+    ImageBackground,
+    Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -17,9 +19,14 @@ interface AudiobookCardProps {
     audiobook: Audiobook;
     onPress: (audiobook: Audiobook) => void;
     isPlusMember: boolean;
+    scrollY?: Animated.Value;
+    index?: number;
 }
 
-const { width } = Dimensions.get('window');
+const { width, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const ITEM_SIZE = 150; // Approximated height + margin for AudiobookCard
+
+
 
 // Mapping for specific book covers or generic category covers
 const BOOK_COVERS: Record<string, any> = {
@@ -37,6 +44,8 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
     audiobook,
     onPress,
     isPlusMember,
+    scrollY,
+    index,
 }) => {
     const isLocked = audiobook.is_premium && !isPlusMember;
 
@@ -63,6 +72,29 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
         return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
     };
 
+    let imageOpacity: any = 0.25;
+
+    if (scrollY && typeof index === 'number') {
+        const HEADER_HEIGHT = 480; // Slightly larger header estimate for Audiobooks
+        const itemCenter = HEADER_HEIGHT + (ITEM_SIZE * index) + (ITEM_SIZE / 2);
+        const screenCenter = SCREEN_HEIGHT / 2;
+        const targetScrollY = itemCenter - screenCenter;
+
+        const range = [
+            targetScrollY - 250,
+            targetScrollY,
+            targetScrollY + 250
+        ];
+
+        imageOpacity = scrollY.interpolate({
+            inputRange: range,
+            outputRange: [0.25, 1, 0.25],
+            extrapolate: 'clamp'
+        });
+    }
+
+
+
     return (
         <TouchableOpacity
             style={styles.container}
@@ -70,57 +102,54 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
             activeOpacity={0.93}
         >
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
-                <View style={styles.content}>
-                    {/* Book Cover */}
-                    <View style={styles.coverWrapper}>
-                        <Image
-                            source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
-                            style={styles.coverImage}
-                        />
-                        {isLocked && (
-                            <View style={styles.lockOverlay}>
-                                <Ionicons name="lock-closed" size={20} color="#FFFFFF" />
-                            </View>
-                        )}
-                        <LinearGradient
-                            colors={['transparent', 'rgba(0,0,0,0.4)']}
-                            style={styles.coverShadow}
-                        />
-                    </View>
-
-                    {/* Info */}
-                    <View style={styles.infoContainer}>
-                        <View style={styles.header}>
-                            <View style={[styles.categoryBadge, { backgroundColor: `${color}20` }]}>
-                                <Ionicons name={icon as any} size={12} color={color} />
-                                <Text style={[styles.categoryText, { color }]}>{audiobook.category.toUpperCase()}</Text>
-                            </View>
-                            {audiobook.is_featured && (
-                                <View style={styles.featuredBadge}>
-                                    <Ionicons name="star" size={10} color="#FFD700" />
-                                    <Text style={styles.featuredText}>TOP</Text>
+                <View style={{ flex: 1 }}>
+                    <Animated.Image
+                        source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
+                        style={[
+                            StyleSheet.absoluteFill,
+                            { opacity: imageOpacity }
+                        ]}
+                        resizeMode="cover"
+                    />
+                    <View style={styles.content}>
+                        {/* Book Cover */}
+                        <View style={styles.coverWrapper}>
+                            <Image
+                                source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
+                                style={styles.coverImage}
+                            />
+                            {isLocked && (
+                                <View style={styles.lockOverlay}>
+                                    <Ionicons name="lock-closed" size={20} color="#FFFFFF" />
                                 </View>
                             )}
+                            <LinearGradient
+                                colors={['transparent', 'rgba(0,0,0,0.4)']}
+                                style={styles.gradient}
+                            />
                         </View>
 
-                        <Text style={styles.title} numberOfLines={2}>{audiobook.title}</Text>
-                        <Text style={styles.author} numberOfLines={1}>de {audiobook.author}</Text>
-
-                        <View style={styles.footer}>
-                            <View style={styles.meta}>
-                                <Ionicons name="time-outline" size={12} color="rgba(255,255,255,0.4)" />
-                                <Text style={styles.metaText}>{formatDuration(audiobook.duration_minutes)}</Text>
+                        <View style={styles.details}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                <Ionicons name={icon as any} size={12} color={color} />
+                                <Text style={[styles.category, { color }]}>{audiobook.category.toUpperCase()}</Text>
                             </View>
-                            {audiobook.language && (
-                                <View style={styles.langBadge}>
-                                    <Text style={styles.langText}>{audiobook.language.toUpperCase()}</Text>
-                                </View>
-                            )}
+
+                            <Text style={styles.title} numberOfLines={2}>{audiobook.title}</Text>
+                            <Text style={styles.author} numberOfLines={1}>{audiobook.author}</Text>
+
+                            <View style={styles.footer}>
+                                {isLocked ? (
+                                    <Ionicons name="lock-closed" size={14} color={theme.colors.accent} />
+                                ) : (
+                                    <Ionicons name="play-circle" size={24} color="white" />
+                                )}
+                            </View>
                         </View>
                     </View>
 
                     <View style={styles.btnContainer}>
-                        <View style={[styles.playButton, { backgroundColor: `${color}30` }]}>
+                        <View style={[styles.playButton, { backgroundColor: color + '30' }]}>
                             <Ionicons name="play" size={18} color={color} />
                         </View>
                     </View>
@@ -140,11 +169,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.03)',
     },
     glassContainer: {
-        padding: 12,
+        padding: 0, // Removed padding here, handled inside
     },
     content: {
         flexDirection: 'row',
         alignItems: 'center',
+        padding: 12, // Moved padding here
     },
     coverWrapper: {
         width: 80,
@@ -168,7 +198,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         zIndex: 5,
     },
-    infoContainer: {
+    gradient: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    details: {
         flex: 1,
         marginLeft: 16,
         justifyContent: 'center',
@@ -187,8 +220,8 @@ const styles = StyleSheet.create({
         paddingVertical: 3,
         borderRadius: 6,
     },
-    categoryText: {
-        fontSize: 9,
+    category: {
+        fontSize: 10,
         fontWeight: '900',
         letterSpacing: 0.5,
     },

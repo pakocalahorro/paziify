@@ -72,7 +72,9 @@ Testimonios reales y artículos de inspiración.
 | `id` | UUID (PK) | Identificador único |
 | `title` | TEXT | Título de la historia |
 | `content` | TEXT | Cuerpo del texto (soporta Markdown) |
+| `content` | TEXT | Cuerpo del texto (soporta Markdown) |
 | `image_url` | TEXT | Portada representativa |
+| `created_at` | TIMESTAMPTZ | Fecha de creación (ordenación) |
 
 ### `user_favorites_content` ⭐
 Sistema unificado de marcadores para la biblioteca.
@@ -105,7 +107,9 @@ CREATE POLICY "Dueño gestiona sus logs" ON meditation_logs FOR ALL USING (auth.
 ## 4. Automatizaciones y Triggers ⚡
 
 ### Creación Automática de Perfil
-Cada registro en `auth.users` dispara la creación de un perfil en `public.profiles` con los metadatos de Google o el registro manual. Esto garantiza que el `AppContext` siempre tenga un perfil disponible al iniciar sesión.
+### Creación Automática de Perfil
+Cada registro en `auth.users` dispara la creación de un perfil en `public.profiles` mediante el trigger `on_auth_user_created`. 
+*   **Fix 2026-01-29**: Se ha robustecido la función pl/pgsql para manejar metadatos de Google (`raw_user_meta_data`) y asignar nombres/avatares por defecto si faltan, evitando errores de "Perfil no encontrado".
 
 ---
 

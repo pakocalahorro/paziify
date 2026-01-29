@@ -37,8 +37,7 @@ import { theme } from '../../constants/theme';
 import { audiobooksService } from '../../services/contentService';
 import { useApp } from '../../context/AppContext';
 import AudiobookCard from '../../components/AudiobookCard';
-import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
-import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
+import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 
 type AudiobooksScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -163,51 +162,6 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         return matchesCategory && matchesSearch;
     });
 
-    const renderHero = () => {
-        if (featuredBooks.length === 0 || selectedCategory !== 'all') return null;
-
-        return (
-            <View style={styles.heroContainer}>
-                <Text style={styles.sectionTitle}>Escucha destacada</Text>
-                <Animated.FlatList
-                    horizontal
-                    data={featuredBooks}
-                    keyExtractor={(item) => `hero-${item.id}`}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.heroList}
-                    snapToInterval={width * 0.7}
-                    decelerationRate="fast"
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={styles.heroCard}
-                            onPress={() => handleAudiobookPress(item)}
-                            activeOpacity={0.9}
-                        >
-                            <ImageBackground
-                                source={BOOK_COVERS[item.title] || require('../../assets/covers/growth.png')}
-                                style={styles.heroImage}
-                                imageStyle={{ borderRadius: 20 }}
-                            >
-                                <LinearGradient
-                                    colors={['transparent', 'rgba(0,0,0,0.8)']}
-                                    style={styles.heroGradient}
-                                >
-                                    <View style={styles.heroBadge}>
-                                        <Text style={styles.heroBadgeText}>DESTACADO</Text>
-                                    </View>
-                                    <View style={styles.heroInfo}>
-                                        <Text style={styles.heroTitle} numberOfLines={1}>{item.title}</Text>
-                                        <Text style={styles.heroAuthor} numberOfLines={1}>{item.author}</Text>
-                                    </View>
-                                </LinearGradient>
-                            </ImageBackground>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
-        );
-    };
-
     const renderHeader = () => (
         <View style={styles.headerContent}>
             {/* Header */}
@@ -246,8 +200,6 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     />
                 </View>
             </View>
-
-            {renderHero()}
 
             <View style={styles.filterSection}>
                 <Text style={styles.sectionTitle}>
@@ -289,7 +241,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     )}
                 />
             </View>
-        </View>
+        </View >
     );
 
     return (
@@ -297,17 +249,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
             <StatusBar barStyle="light-content" />
 
             <View style={StyleSheet.absoluteFill}>
-                {isNightMode ? (
-                    <NebulaBackground mode="healing" />
-                ) : (
-                    <>
-                        <NoiseBackground />
-                        <LinearGradient
-                            colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
-                            style={StyleSheet.absoluteFill}
-                        />
-                    </>
-                )}
+                <BackgroundWrapper nebulaMode="healing" />
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
@@ -315,11 +257,13 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     data={filteredAudiobooks}
                     keyExtractor={(item) => item.id}
                     ListHeaderComponent={renderHeader}
-                    renderItem={({ item }) => (
+                    renderItem={({ item, index }) => (
                         <AudiobookCard
                             audiobook={item}
                             onPress={handleAudiobookPress}
                             isPlusMember={isPlusMember}
+                            scrollY={scrollY}
+                            index={index}
                         />
                     )}
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
@@ -438,62 +382,6 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 15,
         fontWeight: '500',
-    },
-    heroContainer: {
-        marginTop: 10,
-        marginBottom: 30,
-    },
-    heroList: {
-        paddingRight: 40,
-        paddingLeft: 20,
-    },
-    heroCard: {
-        width: width * 0.65,
-        height: 280,
-        marginRight: 20,
-        borderRadius: 20,
-        overflow: 'hidden',
-        elevation: 15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.5,
-        shadowRadius: 15,
-    },
-    heroImage: {
-        width: '100%',
-        height: '100%',
-    },
-    heroGradient: {
-        flex: 1,
-        padding: 20,
-        justifyContent: 'flex-end',
-    },
-    heroBadge: {
-        position: 'absolute',
-        top: 20,
-        left: 20,
-        backgroundColor: theme.colors.primary,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-    },
-    heroBadgeText: {
-        color: '#FFFFFF',
-        fontSize: 10,
-        fontWeight: '900',
-    },
-    heroInfo: {
-        gap: 4,
-    },
-    heroTitle: {
-        color: '#FFFFFF',
-        fontSize: 22,
-        fontWeight: '900',
-    },
-    heroAuthor: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 14,
-        fontWeight: '700',
     },
     filterSection: {
         marginBottom: 20,

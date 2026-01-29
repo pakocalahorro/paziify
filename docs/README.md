@@ -3,6 +3,8 @@
 Esta carpeta contiene toda la documentación del proyecto Paziify, organizada para facilitar el seguimiento de la arquitectura, el progreso y la experiencia de usuario.
 
 ---
+## 📋 Ejecutar proyecto en consola
+- npx expo start --dev-client
 
 ## 📋 Roadmap y Planes (Plans)
 

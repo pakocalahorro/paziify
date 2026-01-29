@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     ScrollView,
+    Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,7 +25,7 @@ interface Props {
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState } = useApp();
+    const { userState, signOut } = useApp();
 
     const chartData = [20, 35, 45, 30, 50, 65, 55, 70, 85];
 
@@ -145,6 +146,23 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         Tus datos están encriptados y son privados.
                     </Text>
                 </View>
+
+                {/* Logout Button */}
+                <TouchableOpacity
+                    style={styles.logoutButton}
+                    onPress={() => {
+                        Alert.alert(
+                            "Cerrar Sesión",
+                            "¿Estás seguro de que quieres salir?",
+                            [
+                                { text: "Cancelar", style: "cancel" },
+                                { text: "Salir", style: "destructive", onPress: signOut }
+                            ]
+                        );
+                    }}
+                >
+                    <Text style={styles.logoutText}>Cerrar Sesión</Text>
+                </TouchableOpacity>
             </ScrollView>
         </View>
     );
@@ -349,6 +367,18 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '800',
         letterSpacing: 1,
+    },
+    logoutButton: {
+        marginTop: theme.spacing.xl,
+        alignSelf: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+    },
+    logoutText: {
+        color: theme.colors.textMuted,
+        fontSize: 14,
+        fontWeight: '600',
+        textDecorationLine: 'underline',
     },
 });
 

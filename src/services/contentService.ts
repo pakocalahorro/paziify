@@ -22,7 +22,36 @@ export const audiobooksService = {
             throw error;
         }
 
-        return data || [];
+        if (data && data.length > 0) return data;
+
+        // Mock fallback if empty
+        return [
+            {
+                id: '1', title: 'The Conquest of Fear', author: 'Basil King', narrator: 'Paziify AI',
+                category: 'anxiety', tags: ['peace', 'mind'], audio_url: 'dummy', duration_minutes: 45,
+                source: 'librivox', language: 'en', is_premium: false, is_featured: true
+            },
+            {
+                id: '2', title: 'As a Man Thinketh', author: 'James Allen', narrator: 'Paziify AI',
+                category: 'growth', tags: ['mindset', 'success'], audio_url: 'dummy', duration_minutes: 60,
+                source: 'librivox', language: 'en', is_premium: false, is_featured: true
+            },
+            {
+                id: '3', title: 'Meditations', author: 'Marcus Aurelius', narrator: 'Paziify AI',
+                category: 'leadership', tags: ['stoic', 'philosophy'], audio_url: 'dummy', duration_minutes: 120,
+                source: 'librivox', language: 'en', is_premium: true, is_featured: true
+            },
+            {
+                id: '4', title: 'Little Women', author: 'Louisa May Alcott', narrator: 'Paziify AI',
+                category: 'relationships', tags: ['family', 'love'], audio_url: 'dummy', duration_minutes: 300,
+                source: 'librivox', language: 'en', is_premium: false, is_featured: false
+            },
+            {
+                id: '5', title: 'Sleep Well', author: 'Dr. Calm', narrator: 'Paziify AI',
+                category: 'sleep', tags: ['rest', 'dreams'], audio_url: 'dummy', duration_minutes: 30,
+                source: 'paziify', language: 'en', is_premium: false, is_featured: false
+            }
+        ];
     },
 
     /**
@@ -120,7 +149,31 @@ export const storiesService = {
             throw error;
         }
 
-        return data || [];
+        if (data && data.length > 0) return data;
+
+        // Mock fallback if empty
+        return [
+            {
+                id: '1', title: 'El Renacer del Fénix', subtitle: 'Superando la Adversidad', story_text: '...',
+                category: 'growth', tags: ['resilience'], reading_time_minutes: 5, transformation_theme: 'Resilience',
+                is_featured: true, is_premium: false, created_at: new Date().toISOString()
+            },
+            {
+                id: '2', title: 'Calma en la Tormenta', subtitle: 'Ansiedad bajo control', story_text: '...',
+                category: 'anxiety', tags: ['peace'], reading_time_minutes: 7, transformation_theme: 'Peace',
+                is_featured: true, is_premium: false, created_at: new Date().toISOString()
+            },
+            {
+                id: '3', title: 'Liderazgo Consciente', subtitle: 'Gestionando equipos', story_text: '...',
+                category: 'leadership', tags: ['work'], reading_time_minutes: 6, transformation_theme: 'Leadership',
+                is_featured: false, is_premium: true, created_at: new Date().toISOString()
+            },
+            {
+                id: '4', title: 'Dormir Profundo', subtitle: 'Un viaje a los sueños', story_text: '...',
+                category: 'sleep', tags: ['rest'], reading_time_minutes: 10, transformation_theme: 'Sleep',
+                is_featured: false, is_premium: false, created_at: new Date().toISOString()
+            }
+        ];
     },
 
     /**

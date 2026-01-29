@@ -33,6 +33,7 @@ interface AudioPlayerContextType {
 const AudioPlayerContext = createContext<AudioPlayerContextType | undefined>(undefined);
 
 const NIGHT_AMBIENCE_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/soundscapes/night_cricket_ambience.mp3';
+const DAY_AMBIENCE_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/soundscapes/mountains_rivers_water.mp3';
 
 export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { isNightMode, user } = useApp(); // Access night mode and user auth state
@@ -76,40 +77,83 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         ambienceRef.current = ambienceSound;
     }, [ambienceSound]);
 
-    // Night Mode Ambience Logic
-    useEffect(() => {
-        const manageAmbience = async () => {
-            const shouldPlayAmbience = isNightMode && !isPlaying && !isExternalAudioActive;
+    const activeUrlRef = useRef<string | null>(null);
 
+    // Consolidated Ambience Logic with Concurrency Safety
+    useEffect(() => {
+        let isCurrentEffect = true; // Flag to track if this effect execution is still valid
+
+        const manageAmbience = async () => {
+            const shouldPlayAmbience = !isPlaying && !isExternalAudioActive;
+            const targetUrl = isNightMode ? NIGHT_AMBIENCE_URL : DAY_AMBIENCE_URL;
+
+            // 1. Check if we need to switch tracks (because mode changed)
+            if (activeUrlRef.current && activeUrlRef.current !== targetUrl) {
+                // Unload current sound because it doesn't match the new mode
+                if (ambienceRef.current) {
+                    try {
+                        await ambienceRef.current.stopAsync();
+                        await ambienceRef.current.unloadAsync();
+                    } catch (e) {
+                        console.log('Error unloading previous ambience:', e);
+                    }
+                    if (isCurrentEffect) setAmbienceSound(null);
+                }
+                activeUrlRef.current = null;
+            }
+
+            if (!isCurrentEffect) return; // Exit if effect was cleaned up during unload
+
+            // 2. Manage Playback
             if (shouldPlayAmbience) {
-                if (!ambienceSound) {
+                if (!ambienceRef.current && !activeUrlRef.current) {
+                    // Load the target sound ONLY if we don't have one and we aren't tracking one
                     try {
                         const { sound: newAmbience } = await Audio.Sound.createAsync(
-                            { uri: NIGHT_AMBIENCE_URL },
+                            { uri: targetUrl },
                             { shouldPlay: true, isLooping: true, volume: 0.3 }
                         );
-                        setAmbienceSound(newAmbience);
+
+                        if (isCurrentEffect) {
+                            setAmbienceSound(newAmbience);
+                            activeUrlRef.current = targetUrl;
+                        } else {
+                            // If effect was cancelled while loading, unload immediately
+                            await newAmbience.unloadAsync();
+                        }
                     } catch (error) {
-                        console.error('Error loading night ambience:', error);
+                        console.error('Error loading ambience:', error);
                     }
-                } else {
-                    const status = await ambienceSound.getStatusAsync();
-                    if (status.isLoaded && !status.isPlaying) {
-                        await ambienceSound.playAsync();
+                } else if (ambienceRef.current) {
+                    // Sound IS loaded (and presumably matches targetUrl if we didn't unload it above)
+                    try {
+                        const status = await ambienceRef.current.getStatusAsync();
+                        if (status.isLoaded && !status.isPlaying) {
+                            await ambienceRef.current.playAsync();
+                        }
+                    } catch (e) {
+                        console.log("Error checking status:", e);
                     }
                 }
             } else {
-                if (ambienceSound) {
-                    const status = await ambienceSound.getStatusAsync();
-                    if (status.isLoaded && status.isPlaying) {
-                        await ambienceSound.pauseAsync();
-                    }
+                // Should be paused/stopped
+                if (ambienceRef.current) {
+                    try {
+                        const status = await ambienceRef.current.getStatusAsync();
+                        if (status.isLoaded && status.isPlaying) {
+                            await ambienceRef.current.pauseAsync();
+                        }
+                    } catch (e) { }
                 }
             }
         };
 
         manageAmbience();
-    }, [isNightMode, isPlaying, isExternalAudioActive, ambienceSound]); // Re-run when conditions change
+
+        return () => {
+            isCurrentEffect = false; // Cleanup: Mark this execution as stale
+        };
+    }, [isNightMode, isPlaying, isExternalAudioActive, ambienceSound]);
 
     // Auto-save position
     useEffect(() => {

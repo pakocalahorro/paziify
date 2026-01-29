@@ -54,6 +54,8 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 
 ## 5. El Panel de Control Adaptativo (Home)
 - **Atmósfera Respiratoria**: La nebulosa de fondo pulsa rítmicamente.
+- **Sugerencias Inteligentes**: El contenido se adapta a tu estado actual. Si elegiste "Sanar", verás recomendaciones para ansiedad y sueño. Si elegiste "Crecer", verás contenido sobre liderazgo y carrera.
+- **Disponibilidad 24/7**: Las sugerencias ahora son visibles tanto en el vibrante Modo Día como en el relajante Modo Noche.
 - **Diseño Unificado**: Cabeceras con iconos retroiluminados (`BacklitSilhouette`) y tipografía jerarquizada en todas las pantallas.
 
 ---

@@ -5,13 +5,14 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
+    Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { RealStory } from '../types';
 import { theme } from '../constants/theme';
-import { ImageBackground } from 'react-native';
+
 
 const CATEGORY_ASSETS: Record<string, any> = {
     anxiety: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
@@ -36,11 +37,16 @@ interface StoryCardProps {
     story: RealStory;
     onPress: (story: RealStory) => void;
     isPlusMember: boolean;
+    scrollY?: Animated.Value;
+    index?: number;
 }
 
-const { width } = Dimensions.get('window');
+const { width, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const ITEM_SIZE = 180; // Approximate height + margin
 
-const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember }) => {
+
+
+const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember, scrollY, index }) => {
     const isLocked = story.is_premium && !isPlusMember;
 
     const getCategoryDetails = (category: string) => {
@@ -68,6 +74,29 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember }) =
 
     const { icon, color, gradient } = getCategoryDetails(story.category);
 
+    let imageOpacity: any = 0.35;
+
+    if (scrollY && typeof index === 'number') {
+        const HEADER_HEIGHT = 480; // Estimate for Stories header
+        const itemCenter = HEADER_HEIGHT + (ITEM_SIZE * index) + (ITEM_SIZE / 2);
+        const screenCenter = SCREEN_HEIGHT / 2;
+        const targetScrollY = itemCenter - screenCenter;
+
+        const range = [
+            targetScrollY - 250,
+            targetScrollY,
+            targetScrollY + 250
+        ];
+
+        imageOpacity = scrollY.interpolate({
+            inputRange: range,
+            outputRange: [0.35, 1, 0.35],
+            extrapolate: 'clamp'
+        });
+    }
+
+
+
     return (
         <TouchableOpacity
             style={styles.container}
@@ -75,68 +104,59 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember }) =
             activeOpacity={0.9}
         >
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
-                <ImageBackground
-                    source={{ uri: CATEGORY_ASSETS[story.category] || CATEGORY_ASSETS['growth'] }}
-                    style={styles.mainContent}
-                    imageStyle={{ opacity: 0.15 }} // Sutil imagen de fondo para personalidad
-                >
+                <View style={styles.mainContent}>
+                    <Animated.Image
+                        source={{ uri: CATEGORY_ASSETS[story.category] || CATEGORY_ASSETS['growth'] }}
+                        style={[
+                            StyleSheet.absoluteFill,
+                            { opacity: imageOpacity }
+                        ]}
+                        resizeMode="cover"
+                    />
                     {/* Category indicator line */}
                     <LinearGradient
-                        colors={gradient as any}
+                        colors={gradient}
                         style={styles.categoryLine}
                     />
 
                     <View style={styles.cardBody}>
                         <View style={styles.header}>
-                            <View style={styles.categoryBadge}>
+                            <View style={[styles.categoryBadge, { backgroundColor: `${color}15` }]}>
                                 <Ionicons name={icon as any} size={14} color={color} />
                                 <Text style={[styles.categoryText, { color }]}>{story.category.toUpperCase()}</Text>
                             </View>
-                            <View style={styles.readingTime}>
+                            <View style={styles.durationBadge}>
                                 <Ionicons name="time-outline" size={12} color={theme.colors.textMuted} />
-                                <Text style={styles.readingTimeText}>{story.reading_time_minutes} min</Text>
+                                <Text style={styles.durationText}>{story.reading_time_minutes} min</Text>
                             </View>
                         </View>
 
                         <Text style={styles.title} numberOfLines={2}>{story.title}</Text>
-
-                        {story.subtitle && (
-                            <Text style={styles.subtitle} numberOfLines={1}>{story.subtitle}</Text>
-                        )}
+                        <Text style={styles.subtitle} numberOfLines={2}>{story.subtitle}</Text>
 
                         <View style={styles.footer}>
-                            <View style={styles.userInfo}>
-                                <View style={styles.avatarPlaceholder}>
-                                    <Text style={styles.avatarInitial}>
-                                        {(story.character_name || 'U').charAt(0)}
-                                    </Text>
+                            <View style={styles.footerLeft}>
+                                <View style={[styles.playButton, { backgroundColor: `${color}20` }]}>
+                                    <Ionicons name="play" size={14} color={color} style={{ marginLeft: 2 }} />
                                 </View>
-                                <Text style={styles.characterText}>
-                                    {story.character_name || 'Anónimo'}{story.character_age ? `, ${story.character_age}` : ''}
-                                </Text>
-                            </View>
-
-                            <View style={styles.tagsRow}>
-                                {story.is_featured && (
-                                    <View style={styles.featuredBadge}>
-                                        <Ionicons name="star" size={10} color="#FFD700" />
-                                        <Text style={styles.featuredText}>DESTACADO</Text>
-                                    </View>
-                                )}
-                                {isLocked && (
+                                {isLocked ? (
                                     <View style={styles.lockBadge}>
                                         <Ionicons name="lock-closed" size={10} color={theme.colors.accent} />
                                         <Text style={styles.lockText}>PLUS</Text>
                                     </View>
+                                ) : (
+                                    <View style={styles.freeBadge}>
+                                        <Text style={styles.freeText}>GRATIS</Text>
+                                    </View>
                                 )}
+                            </View>
+
+                            <View style={styles.chevronContainer}>
+                                <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                             </View>
                         </View>
                     </View>
-
-                    <View style={styles.chevronContainer}>
-                        <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
-                    </View>
-                </ImageBackground>
+                </View>
             </BlurView>
         </TouchableOpacity>
     );
@@ -274,6 +294,39 @@ const styles = StyleSheet.create({
     chevronContainer: {
         justifyContent: 'center',
         paddingRight: theme.spacing.md,
+    },
+    durationBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    durationText: {
+        fontSize: 11,
+        color: theme.colors.textMuted,
+        fontWeight: '600',
+    },
+    footerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    playButton: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    freeBadge: {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    freeText: {
+        fontSize: 9,
+        fontWeight: '900',
+        color: 'rgba(255, 255, 255, 0.6)',
     },
 });
 

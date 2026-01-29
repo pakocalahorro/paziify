@@ -37,8 +37,7 @@ import { theme } from '../../constants/theme';
 import { storiesService } from '../../services/contentService';
 import { useApp } from '../../context/AppContext';
 import StoryCard from '../../components/StoryCard';
-import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
-import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
+import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 
 type StoriesScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -176,51 +175,6 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
         return matchesCategory && matchesSearch;
     });
 
-    const renderHero = () => {
-        if (featuredStories.length === 0 || selectedCategory !== 'all') return null;
-
-        return (
-            <View style={styles.heroContainer}>
-                <Text style={styles.sectionTitle}>Destacados para ti</Text>
-                <FlatList
-                    horizontal
-                    data={featuredStories}
-                    keyExtractor={(item) => `hero-${item.id}`}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.heroList}
-                    snapToInterval={width * 0.82}
-                    decelerationRate="fast"
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={styles.heroCard}
-                            onPress={() => handleStoryPress(item)}
-                            activeOpacity={0.9}
-                        >
-                            <ImageBackground
-                                source={CATEGORY_ASSETS[item.category.toLowerCase()] || CATEGORY_ASSETS['all']}
-                                style={styles.heroImage}
-                                imageStyle={{ borderRadius: 24 }}
-                            >
-                                <LinearGradient
-                                    colors={['transparent', 'rgba(0,0,0,0.85)']}
-                                    style={styles.heroGradient}
-                                >
-                                    <View style={styles.heroContent}>
-                                        <View style={styles.heroBadge}>
-                                            <Text style={styles.heroBadgeText}>ESTRENO</Text>
-                                        </View>
-                                        <Text style={styles.heroTitle} numberOfLines={2}>{item.title}</Text>
-                                        <Text style={styles.heroSubtitle} numberOfLines={1}>{item.subtitle}</Text>
-                                    </View>
-                                </LinearGradient>
-                            </ImageBackground>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
-        );
-    };
-
     const renderHeader = () => (
         <View style={styles.headerContent}>
             {/* Header */}
@@ -234,15 +188,15 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
 
                 <View style={styles.headerRow}>
                     <View style={styles.headerTextContainer}>
-                        <Text style={styles.headerLabel}>RELATOS DE</Text>
+                        <Text style={styles.headerLabel}>HISTORIAS DE</Text>
                         <View style={styles.headerTop}>
-                            <Text style={styles.headerTitle}>Superación</Text>
+                            <Text style={styles.headerTitle}>Transformación</Text>
                         </View>
                     </View>
                     <BacklitSilhouette />
                 </View>
                 <Text style={styles.headerSubtitle}>
-                    Historias reales de fuerza, coraje y transformación personal.
+                    Narrativas reales de superación y crecimiento personal.
                 </Text>
             </View>
 
@@ -259,8 +213,6 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     />
                 </View>
             </View>
-
-            {renderHero()}
 
             <View style={styles.filterSection}>
                 <Text style={styles.sectionTitle}>
@@ -302,7 +254,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     )}
                 />
             </View>
-        </View>
+        </View >
     );
 
     return (
@@ -310,17 +262,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
             <StatusBar barStyle="light-content" />
 
             <View style={StyleSheet.absoluteFill}>
-                {isNightMode ? (
-                    <NebulaBackground mode="healing" />
-                ) : (
-                    <>
-                        <NoiseBackground />
-                        <LinearGradient
-                            colors={['rgba(10, 14, 26, 0.8)', 'rgba(10, 14, 26, 0.96)']}
-                            style={StyleSheet.absoluteFill}
-                        />
-                    </>
-                )}
+                <BackgroundWrapper nebulaMode="healing" />
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
@@ -328,11 +270,13 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     data={filteredStories}
                     keyExtractor={(item) => item.id}
                     ListHeaderComponent={renderHeader}
-                    renderItem={({ item }) => (
+                    renderItem={({ item, index }) => (
                         <StoryCard
                             story={item}
                             onPress={handleStoryPress}
-                            isPlusMember={isPlusMember}
+                            isPlusMember={userState.isPlusMember}
+                            scrollY={scrollY}
+                            index={index}
                         />
                     )}
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 20 }]}
@@ -451,61 +395,6 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 15,
         fontWeight: '500',
-    },
-    heroContainer: {
-        marginTop: 10,
-        marginBottom: 30,
-    },
-    heroList: {
-        paddingRight: 20,
-        paddingLeft: 20,
-    },
-    heroCard: {
-        width: width * 0.78,
-        height: 180,
-        marginRight: 16,
-        borderRadius: 24,
-        overflow: 'hidden',
-        elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-    },
-    heroImage: {
-        width: '100%',
-        height: '100%',
-    },
-    heroGradient: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        padding: 20,
-    },
-    heroContent: {
-        gap: 4,
-    },
-    heroBadge: {
-        backgroundColor: theme.colors.primary,
-        alignSelf: 'flex-start',
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
-        marginBottom: 4,
-    },
-    heroBadgeText: {
-        color: '#FFFFFF',
-        fontSize: 9,
-        fontWeight: '900',
-    },
-    heroTitle: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontWeight: '800',
-    },
-    heroSubtitle: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 13,
-        fontWeight: '600',
     },
     filterSection: {
         marginBottom: 20,

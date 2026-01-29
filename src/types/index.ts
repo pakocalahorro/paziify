@@ -26,6 +26,7 @@ export enum Screen {
 export interface UserState {
     id?: string;
     name: string;
+    avatarUrl?: string;
     email?: string;
     isRegistered: boolean;
     isGuest: boolean;

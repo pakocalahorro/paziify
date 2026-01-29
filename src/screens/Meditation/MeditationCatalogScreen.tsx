@@ -38,8 +38,7 @@ import SessionCard from '../../components/SessionCard';
 import SessionPreviewModal from '../../components/SessionPreviewModal';
 import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData';
 import { IMAGES } from '../../constants/images';
-import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
-import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
+import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 
 type MeditationCatalogScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -151,57 +150,6 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         }
     };
 
-    const renderHero = () => {
-        if (selectedCategory !== 0 || searchQuery !== '') return null;
-        const featured = MEDITATION_SESSIONS.slice(0, 3);
-
-        return (
-            <View style={styles.heroWrapper}>
-                <Text style={styles.sectionTitle}>Sugerencias Vitales</Text>
-                <FlatList
-                    horizontal
-                    data={featured}
-                    keyExtractor={(item) => `hero-${item.id}`}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.heroList}
-                    snapToInterval={width * 0.85}
-                    decelerationRate="fast"
-                    renderItem={({ item }) => {
-                        const asset = SESSION_ASSETS[item.category.toLowerCase()] || SESSION_ASSETS['default'];
-                        return (
-                            <TouchableOpacity
-                                style={styles.heroCard}
-                                onPress={() => handleSessionClick(convertToSession(item))}
-                                activeOpacity={0.9}
-                            >
-                                <ImageBackground
-                                    source={typeof asset === 'string' ? { uri: asset } : asset}
-                                    style={styles.heroImage}
-                                    imageStyle={{ borderRadius: 32 }}
-                                >
-                                    <LinearGradient
-                                        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.85)']}
-                                        style={styles.heroGradient}
-                                    >
-                                        <View style={styles.heroBadge}>
-                                            <Ionicons name="sparkles" size={10} color="#FFF" />
-                                            <Text style={styles.heroBadgeText}>OASIS</Text>
-                                        </View>
-                                        <Text style={styles.heroTitle}>{item.title}</Text>
-                                        <View style={styles.heroMeta}>
-                                            <Ionicons name="time-outline" size={14} color="rgba(255,255,255,0.8)" />
-                                            <Text style={styles.heroMetaText}>{item.durationMinutes} min</Text>
-                                        </View>
-                                    </LinearGradient>
-                                </ImageBackground>
-                            </TouchableOpacity>
-                        );
-                    }}
-                />
-            </View>
-        );
-    };
-
     const renderHeader = () => (
         <View style={styles.headerContent}>
             {/* Header */}
@@ -241,10 +189,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
             </View>
 
-            {/* 2. Then the Hero/Suggestions section */}
-            {renderHero()}
-
-            {/* 3. Then Categories */}
+            {/* 2. Categories */}
             <View style={styles.categoryWrap}>
                 <FlatList
                     horizontal
@@ -283,7 +228,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             <View style={styles.listSeparator} />
-        </View>
+        </View >
     );
 
     return (
@@ -291,19 +236,10 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             <StatusBar barStyle="light-content" />
 
             {/* Premium Background */}
-            {isNightMode ? (
-                <View style={StyleSheet.absoluteFill}>
-                    <NebulaBackground mode="healing" />
-                </View>
-            ) : (
-                <>
-                    <NoiseBackground />
-                    <LinearGradient
-                        colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </>
-            )}
+            {/* Premium Background */}
+            <View style={StyleSheet.absoluteFill}>
+                <BackgroundWrapper nebulaMode="healing" />
+            </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.FlatList
@@ -311,12 +247,14 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     keyExtractor={(item) => item.id}
                     numColumns={1}
                     ListHeaderComponent={renderHeader}
-                    renderItem={({ item }) => (
+                    renderItem={({ item, index }) => (
                         <View style={styles.sessionCardWrapper}>
                             <SessionCard
                                 session={item}
                                 onPress={handleSessionClick}
                                 isPlusMember={userState.isPlusMember}
+                                scrollY={scrollY}
+                                index={index}
                             />
                         </View>
                     )}
@@ -443,78 +381,6 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 15,
         fontWeight: '500',
-    },
-    heroWrapper: {
-        marginTop: 10,
-        marginBottom: 20,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#FFFFFF',
-        marginLeft: 20,
-        marginBottom: 16,
-    },
-    heroList: {
-        paddingLeft: 20,
-        paddingRight: 20,
-    },
-    heroCard: {
-        width: width * 0.8,
-        height: 140,
-        marginRight: 16,
-        borderRadius: 28,
-        overflow: 'hidden',
-        elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-    },
-    heroImage: {
-        width: '100%',
-        height: '100%',
-    },
-    heroGradient: {
-        flex: 1,
-        padding: 20,
-        justifyContent: 'flex-end',
-    },
-    heroBadge: {
-        position: 'absolute',
-        top: 15,
-        left: 15,
-        backgroundColor: 'rgba(45, 212, 191, 0.3)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    heroBadgeText: {
-        color: '#FFFFFF',
-        fontSize: 9,
-        fontWeight: '900',
-        letterSpacing: 1,
-    },
-    heroTitle: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    heroMeta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-    },
-    heroMetaText: {
-        color: 'rgba(255,255,255,0.6)',
-        fontSize: 11,
-        fontWeight: '700',
     },
     categoryWrap: {
         marginBottom: 20,

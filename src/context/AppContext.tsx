@@ -59,6 +59,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     // Initial session and auth listener
     useEffect(() => {
+        const loadStoredState = async () => {
+            try {
+                const storedState = await AsyncStorage.getItem(STORAGE_KEY);
+                if (storedState) {
+                    const parsedState = JSON.parse(storedState);
+                    setUserState(prev => ({ ...prev, ...parsedState }));
+                }
+            } catch (error) {
+                console.error('Failed to load user state from storage:', error);
+            }
+        };
+
+        loadStoredState();
+    }, []);
+
+    // Check Supabase session
+    useEffect(() => {
         // Check current session
         const initAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -81,6 +98,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }, []);
 
     // Load profile from Supabase when user changes
+    // Load profile from Supabase when user changes
     useEffect(() => {
         const loadProfile = async () => {
             if (user) {
@@ -94,6 +112,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                     setUserState(prev => ({
                         ...prev,
                         name: data.full_name || prev.name,
+                        avatarUrl: data.avatar_url,
                         streak: data.streak || 0,
                         resilienceScore: data.resilience_score || 50,
                         isPlusMember: data.is_plus_member || false,

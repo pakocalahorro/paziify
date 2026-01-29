@@ -153,7 +153,7 @@ const LibrarySection: React.FC<LibrarySectionProps> = ({
 };
 
 import { useApp } from '../../context/AppContext';
-import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
+import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 
 const LibraryScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
@@ -164,19 +164,10 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
             <StatusBar barStyle="light-content" />
 
             {/* Premium Background */}
-            {isNightMode ? (
-                <View style={StyleSheet.absoluteFill}>
-                    <NebulaBackground mode="healing" />
-                </View>
-            ) : (
-                <>
-                    <NoiseBackground />
-                    <LinearGradient
-                        colors={['rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 0.96)']}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </>
-            )}
+            {/* Premium Background */}
+            <View style={StyleSheet.absoluteFill}>
+                <BackgroundWrapper nebulaMode="healing" />
+            </View>
 
             <ScrollView
                 style={styles.scrollView}

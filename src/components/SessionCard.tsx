@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Dimensions,
     ImageBackground,
+    Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,7 +15,10 @@ import { Session } from '../types';
 import { theme } from '../constants/theme';
 import { IMAGES } from '../constants/images';
 
-const { width } = Dimensions.get('window');
+const { width, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const ITEM_SIZE = 180; // Approximate height + margin
+
+
 
 const SESSION_ASSETS: Record<string, any> = {
     'ansiedad': IMAGES.SESSION_PEACE,
@@ -29,12 +33,16 @@ interface SessionCardProps {
     session: Session;
     onPress: (session: Session) => void;
     isPlusMember: boolean;
+    scrollY?: Animated.Value;
+    index?: number;
 }
 
 const SessionCard: React.FC<SessionCardProps> = ({
     session,
     onPress,
     isPlusMember,
+    scrollY,
+    index,
 }) => {
     const isLocked = session.isPlus && !isPlusMember;
     const catKey = session.category.toLowerCase();
@@ -59,6 +67,37 @@ const SessionCard: React.FC<SessionCardProps> = ({
 
     const { icon, color, gradient } = getCategoryDetails(session.category);
 
+    // Default opacity if no animation props
+    let imageOpacity: any = 0.35;
+
+    if (scrollY && typeof index === 'number') {
+
+        const HEADER_HEIGHT = 450;
+        const itemCenter = HEADER_HEIGHT + (ITEM_SIZE * index) + (ITEM_SIZE / 2);
+        const screenCenter = SCREEN_HEIGHT / 2;
+        const targetScrollY = itemCenter - screenCenter;
+
+        const range = [
+            targetScrollY - 250,
+            targetScrollY,
+            targetScrollY + 250
+        ];
+
+        imageOpacity = scrollY.interpolate({
+            inputRange: range,
+            outputRange: [0.35, 1, 0.35],
+            extrapolate: 'clamp'
+        });
+    }
+
+
+    // Use Animated.ImageBackground is not standard, so we use wrapping logic or create one.
+    // Better: Render normal ImageBackground but pass Animated value to imageStyle? 
+    // ImageBackground's imageStyle/style accepts animated values if generic.
+    // Safest: Use Animated.createAnimatedComponent.
+
+
+
     return (
         <TouchableOpacity
             style={styles.container}
@@ -66,11 +105,15 @@ const SessionCard: React.FC<SessionCardProps> = ({
             activeOpacity={0.9}
         >
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
-                <ImageBackground
-                    source={typeof imageSource === 'string' ? { uri: imageSource } : imageSource}
-                    style={styles.mainContent}
-                    imageStyle={{ opacity: 0.15 }}
-                >
+                <View style={styles.mainContent}>
+                    <Animated.Image
+                        source={typeof imageSource === 'string' ? { uri: imageSource } : imageSource}
+                        style={[
+                            StyleSheet.absoluteFill,
+                            { opacity: imageOpacity }
+                        ]}
+                        resizeMode="cover"
+                    />
                     {/* Category indicator line */}
                     <LinearGradient
                         colors={gradient as any}
@@ -120,7 +163,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
                             </View>
                         </View>
                     </View>
-                </ImageBackground>
+                </View>
             </BlurView>
         </TouchableOpacity>
     );

@@ -46,6 +46,11 @@ Para audiolibros e historias, utilizamos una arquitectura separada del motor de 
 *   **MiniPlayer**: Componente flotante que se renderiza condicionalmente en el `TabNavigator`, permitiendo control de reproducción fuera de la pantalla de detalle.
 *   **Gestión de Conflictos**: El contexto global pausa automáticamente el motor de meditación si se inicia un audiolibro, y viceversa.
 
+### Estrategia de Datos (Mock Fallback)
+Para garantizar una experiencia fluida ("Oasis") incluso sin conexión o con base de datos vacía:
+*   **Service Level Mocking**: `contentService.ts` implementa un fallback automático. Si la consulta a Supabase retorna vacío, se inyectan datos locales de alta fidelidad.
+*   **Tipado Estricto**: Los datos simulados cumplen estrictamente con las interfaces de TypeScript (`Audiobook`, `RealStory`) para evitar errores en tiempo de ejecución.
+
 ---
 
 ## 3. Estructura de Proyecto (Vista Milestone 3)
