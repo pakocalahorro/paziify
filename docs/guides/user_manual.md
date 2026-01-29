@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.5.0 Oasis) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.6.0 Oasis Verified) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.5**. Esta versión consolida la "Experiencia Oasis" con un diseño visual unificado, un motor de audio persistente y nuevas herramientas de bienestar.
+Bienvenido a la guía oficial de **Paziify v1.6**. Esta versión solidifica la integración de **Google Auth**, activa las **Sugerencias Inteligentes** y garantiza una experiencia consistente en **Modo Noche**.
 
 ---
 
@@ -74,4 +74,5 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - [x] ¿Las portadas de los audiolibros se ven nítidas y artísticas?
 
 ---
-*Última revisión: 28 de Enero de 2026 - v1.5.0 (UI Standardization & Audio Player)*
+---
+*Última revisión: 29 de Enero de 2026 - v1.6.0 (Dynamic Intelligence & Night Mode)*

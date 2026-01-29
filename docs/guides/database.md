@@ -132,4 +132,4 @@ Paziify utiliza buckets públicos para servir contenido multimedia optimizado:
 3. **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
 
 ---
-*Última revisión: 27 de Enero de 2026 - Milestone 3: Oasis Hub (v1.4)*
+*Última revisión: 29 de Enero de 2026 - Milestone 3: Oasis Hub (v1.6 Verified)*
