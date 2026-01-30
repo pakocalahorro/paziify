@@ -59,17 +59,25 @@ Para garantizar una experiencia fluida ("Oasis") incluso sin conexión o con bas
 src/
 ├── components/
 │   ├── Meditation/
-│   │   └── ProBreathingOrb.tsx   # Joya de la corona visual (Skia)
+│   │   ├── ThemedBreathingOrb.tsx   # Orbe temático adaptable (Skia)
+│   │   └── ProBreathingOrb.tsx      # Orbe legacy (deprecated)
 │   └── Shared/
-│       └── OasisHeader.tsx      # Cabezal unificado
+│       └── OasisHeader.tsx          # Cabezal unificado
 ├── services/
-│   └── AudioEngineService.ts    # Cerebro del audio multi-capa
+│   └── AudioEngineService.ts        # Cerebro del audio multi-capa
 ├── constants/
-│   └── images.ts                # Mapeo normalizado de assets vibrantes
+│   ├── images.ts                    # Mapeo normalizado de assets vibrantes
+│   └── visualThemes.ts              # Configuración de temas visuales
+├── assets/
+│   └── backgrounds/                 # Fondos de alta calidad por tema
+│       ├── cosmos.png
+│       ├── temple.png
+│       ├── forest.png
+│       └── cave.png
 └── screens/
     └── Meditation/
-        ├── BreathingTimer.tsx   # Integración total Orbe + Audio
-        └── MeditationCatalog.tsx# Estructura Oasis
+        ├── BreathingTimer.tsx       # Integración total Orbe + Audio + Temas
+        └── MeditationCatalog.tsx    # Estructura Oasis
 ```
 
 ---

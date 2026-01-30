@@ -12,6 +12,7 @@ import {
     TouchableWithoutFeedback,
     Animated,
 } from 'react-native';
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -26,7 +27,9 @@ import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import AudioEngineService from '../../services/AudioEngineService';
 import { MEDITATION_SESSIONS } from '../../data/sessionsData';
 import { SOUNDSCAPES, BINAURAL_WAVES, Soundscape, BinauralWave } from '../../data/soundscapesData';
-import ProBreathingOrb from '../../components/Meditation/ProBreathingOrb';
+import ThemedBreathingOrb from '../../components/Meditation/ThemedBreathingOrb';
+import { VISUAL_THEMES, DEFAULT_THEME, type ThemeId } from '../../constants/visualThemes';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -92,6 +95,7 @@ const SelectionModal = ({ visible, onClose, title, data, onSelect, currentId }: 
 };
 
 const SessionBriefingModal = ({ visible, session, onConfirm, onCancel }: any) => {
+    const insets = useSafeAreaInsets();
     if (!visible || !session) return null;
     return (
         <View style={styles.modalOverlay}>
@@ -136,7 +140,7 @@ const SessionBriefingModal = ({ visible, session, onConfirm, onCancel }: any) =>
                         </View>
                     </ScrollView>
 
-                    <View style={styles.briefingFooter}>
+                    <View style={[styles.briefingFooter, { paddingBottom: insets.bottom + 24 }]}>
                         <View style={styles.rhythmPreview}>
                             <Text style={styles.sectionLabel}>RITMO DE RESPIRACIÓN</Text>
                             <View style={styles.rhythmRow}>
@@ -263,7 +267,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     }, [isActive, isCountingStart]);
 
     const [volumes, setVolumes] = useState({
-        voice: 1.0,
+        voice: 0.35,
         soundscape: 0.7,
         binaural: 0.4,
         elements: 0.5,
@@ -274,6 +278,9 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
     const [showSoundscapeModal, setShowSoundscapeModal] = useState(false);
     const [showBinauralModal, setShowBinauralModal] = useState(false);
+    const [selectedTheme, setSelectedTheme] = useState<ThemeId>(DEFAULT_THEME);
+    const [isImmersiveMode, setIsImmersiveMode] = useState(false);
+    const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
     useEffect(() => {
         const initSession = async () => {
@@ -540,7 +547,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     };
 
-    const handleVolumeChange = async (layer: 'soundscape' | 'binaural' | 'elements', value: number) => {
+    const handleVolumeChange = async (layer: 'soundscape' | 'binaural' | 'elements' | 'voice', value: number) => {
         setVolumes(prev => ({ ...prev, [layer]: value }));
         await AudioEngineService.setLayerVolume(layer, value);
     };
@@ -562,155 +569,246 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <StatusBar barStyle="light-content" translucent={true} />
-            <ImageBackground source={{ uri: IMAGES.LEAF_BG }} style={styles.background} imageStyle={{ opacity: 0.4 }}>
-                <LinearGradient colors={['rgba(7,10,21,0.6)', 'rgba(7,10,21,0.95)']} style={styles.gradient}>
-                    <View style={[styles.mainWrapper, { paddingTop: insets.top }]}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <View style={styles.container}>
+                <StatusBar barStyle="light-content" translucent={true} />
+                <ImageBackground
+                    source={VISUAL_THEMES[selectedTheme].background}
+                    style={styles.background}
+                    imageStyle={{ opacity: isImmersiveMode ? 1.0 : 0.6 }}
+                    resizeMode="cover"
+                    resizeMethod="resize"
+                >
+                    <LinearGradient
+                        colors={isImmersiveMode ? ['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.4)'] : VISUAL_THEMES[selectedTheme].gradient as any}
+                        style={styles.gradient}
+                    >
+                        <View style={[styles.mainWrapper, { paddingTop: insets.top }]}>
 
-                        {/* Header */}
-                        <View style={styles.header}>
-                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-                                <Ionicons name="chevron-down" size={28} color="#FFF" />
-                            </TouchableOpacity>
-                            <View style={styles.headerInfo}>
-                                <Text style={styles.sessionStatus}>{isActive ? 'REPRODUCIENDO' : 'PAUSADO'}</Text>
-                                <Text style={styles.sessionTitle}>Respiración Consciente</Text>
-                            </View>
-                            <TouchableOpacity style={styles.iconBtn}>
-                                <Ionicons name="ellipsis-horizontal" size={24} color="#FFF" />
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Visual Timer */}
-                        <View style={styles.mainContent}>
-
-                            <TouchableOpacity
-                                activeOpacity={0.9}
-                                style={styles.orbContainer}
-                                onPress={(!isActive && !isCountingStart && !isCountingEnd) ? startPreSessionCountdown : toggleTimer}
-                            >
-                                <ProBreathingOrb
-                                    size={width * 0.75}
-                                    active={isActive && !isCountingEnd && !isCountingStart}
-                                    phase={phase === 'holdPost' ? 'hold' : phase}
-                                    progress={phaseProgress}
-                                />
-
-                                <View style={styles.orbContentOverlay}>
-                                    <View style={styles.orbInner}>
-                                        {(isCountingStart || isCountingEnd) ? (
-                                            <View style={styles.countdownBox}>
-                                                <Text style={styles.countdownNumber}>{countdownValue}</Text>
-                                                <Text style={styles.countdownSub}>
-                                                    {isCountingStart ? 'EMPIEZA' : 'COMPLETADA'}
-                                                </Text>
-                                            </View>
-                                        ) : (
-                                            <>
-                                                <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-
-                                                {/* Pause Controls Overlay */}
-                                                {!isActive && timeLeft < (currentSession?.durationMinutes * 60) && (
-                                                    <View style={styles.pauseOverlay}>
-                                                        <TouchableOpacity
-                                                            style={styles.pauseBtnMain}
-                                                            onPress={toggleTimer}
-                                                        >
-                                                            <Ionicons name="play" size={40} color="#FFF" />
-                                                            <Text style={styles.pauseBtnText}>CONTINUAR</Text>
-                                                        </TouchableOpacity>
-
-                                                        <TouchableOpacity
-                                                            style={styles.pauseBtnSub}
-                                                            onPress={handleRestart}
-                                                        >
-                                                            <Ionicons name="refresh" size={20} color="rgba(255,255,255,0.6)" />
-                                                            <Text style={styles.pauseBtnSubText}>REINICIAR</Text>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                )}
-
-                                                {isActive && (
-                                                    <Text style={styles.phaseLabel}>
-                                                        {phase === 'inhale' ? 'Inhala' :
-                                                            phase === 'hold' ? 'Mantén' :
-                                                                phase === 'exhale' ? 'Exhala' : 'Pausa'}
-                                                    </Text>
-                                                )}
-                                            </>
-                                        )}
-                                    </View>
+                            {/* Header */}
+                            <View style={styles.header}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
+                                    <Ionicons name="chevron-back" size={28} color="#FFF" />
+                                </TouchableOpacity>
+                                <View style={styles.headerInfo}>
+                                    <Text style={styles.sessionStatus}>{isActive ? 'REPRODUCIENDO' : 'PAUSADO'}</Text>
+                                    <Text style={styles.sessionTitle}>Respiración Consciente</Text>
                                 </View>
-                            </TouchableOpacity>
-                            <Text style={styles.instructionText}>
-                                {isActive ? (
-                                    phase === 'inhale' ? 'Inhala por la nariz...' :
-                                        phase === 'hold' ? 'Mantén el aire...' :
-                                            phase === 'exhale' ? 'Exhala suavemente...' : 'Prepárate...'
-                                ) : (
-                                    isCountingStart ? 'Prepárate...' :
-                                        (timeLeft < (currentSession?.durationMinutes * 60) ? 'Sesión pausada' : 'Pulsa el círculo para iniciar')
-                                )}
-                            </Text>
+                                <TouchableOpacity
+                                    style={styles.iconBtn}
+                                    onPress={() => setIsImmersiveMode(!isImmersiveMode)}
+                                >
+                                    <Ionicons
+                                        name={isImmersiveMode ? "moon" : "sunny"}
+                                        size={24}
+                                        color={isImmersiveMode ? "#FCD34D" : "#FFF"}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Visual Timer */}
+                            <View style={styles.mainContent}>
+
+                                <TouchableOpacity
+                                    activeOpacity={0.9}
+                                    style={styles.orbContainer}
+                                    onPress={(!isActive && !isCountingStart && !isCountingEnd) ? startPreSessionCountdown : toggleTimer}
+                                >
+                                    <ThemedBreathingOrb
+                                        size={width * 0.75}
+                                        active={isActive && !isCountingEnd && !isCountingStart}
+                                        phase={phase === 'holdPost' ? 'hold' : phase}
+                                        theme={selectedTheme}
+                                    />
+
+                                    <View style={styles.orbContentOverlay}>
+                                        <View style={styles.orbInner}>
+                                            {(isCountingStart || isCountingEnd) ? (
+                                                <View style={styles.countdownBox}>
+                                                    <Text style={styles.countdownNumber}>{countdownValue}</Text>
+                                                    <Text style={styles.countdownSub}>
+                                                        {isCountingStart ? 'EMPIEZA' : 'COMPLETADA'}
+                                                    </Text>
+                                                </View>
+                                            ) : (
+                                                <>
+                                                    <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+
+                                                    {/* Pause Controls Overlay */}
+                                                    {!isActive && timeLeft < (currentSession?.durationMinutes * 60) && (
+                                                        <View style={styles.pauseOverlay}>
+                                                            <TouchableOpacity
+                                                                style={styles.pauseBtnMain}
+                                                                onPress={toggleTimer}
+                                                            >
+                                                                <Ionicons name="play" size={40} color="#FFF" />
+                                                                <Text style={styles.pauseBtnText}>CONTINUAR</Text>
+                                                            </TouchableOpacity>
+
+                                                            <TouchableOpacity
+                                                                style={styles.pauseBtnSub}
+                                                                onPress={handleRestart}
+                                                            >
+                                                                <Ionicons name="refresh" size={20} color="rgba(255,255,255,0.6)" />
+                                                                <Text style={styles.pauseBtnSubText}>REINICIAR</Text>
+                                                            </TouchableOpacity>
+                                                        </View>
+                                                    )}
+
+                                                    {isActive && (
+                                                        <Text style={styles.phaseLabel}>
+                                                            {phase === 'inhale' ? 'Inhala' :
+                                                                phase === 'hold' ? 'Mantén' :
+                                                                    phase === 'exhale' ? 'Exhala' : 'Pausa'}
+                                                        </Text>
+                                                    )}
+                                                </>
+                                            )}
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                                <Text style={styles.instructionText}>
+                                    {isActive ? (
+                                        phase === 'inhale' ? 'Inhala por la nariz...' :
+                                            phase === 'hold' ? 'Mantén el aire...' :
+                                                phase === 'exhale' ? 'Exhala suavemente...' : 'Prepárate...'
+                                    ) : (
+                                        isCountingStart ? 'Prepárate...' :
+                                            (timeLeft < (currentSession?.durationMinutes * 60) ? 'Sesión pausada' : 'Pulsa el círculo para iniciar')
+                                    )}
+                                </Text>
+                            </View>
+
+                            {/* Audio Controls Panel */}
+                            <PanGestureHandler
+                                onGestureEvent={(event) => {
+                                    const { translationY } = event.nativeEvent;
+                                    // Swipe down to collapse (translationY > 0)
+                                    // Swipe up to expand (translationY < 0)
+                                    if (Math.abs(translationY) > 50) {
+                                        if (translationY > 0 && isPanelExpanded) {
+                                            setIsPanelExpanded(false);
+                                        } else if (translationY < 0 && !isPanelExpanded) {
+                                            setIsPanelExpanded(true);
+                                        }
+                                    }
+                                }}
+                            >
+                                <View style={[styles.controlsPanel, { paddingBottom: insets.bottom + 24 }]}>
+                                    <TouchableOpacity
+                                        onPress={() => setIsPanelExpanded(!isPanelExpanded)}
+                                        style={styles.handleContainer}
+                                        activeOpacity={0.7}
+                                    >
+                                        <View style={styles.handle} />
+                                        <Text style={styles.handleLabel}>
+                                            {isPanelExpanded ? 'OCULTAR CONTROLES' : 'CONTROLES DE AUDIO'}
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                    {isPanelExpanded && (
+                                        <>
+                                            {/* Visual Theme Selector */}
+                                            <View style={styles.themesSection}>
+                                                <Text style={styles.sectionLabel}>AMBIENTE VISUAL</Text>
+                                                <View style={styles.themesRow}>
+                                                    {(Object.keys(VISUAL_THEMES) as ThemeId[]).map((themeId) => {
+                                                        const theme = VISUAL_THEMES[themeId];
+                                                        const isSelected = selectedTheme === themeId;
+                                                        return (
+                                                            <TouchableOpacity
+                                                                key={themeId}
+                                                                style={[
+                                                                    styles.themeButton,
+                                                                    isSelected && styles.themeButtonSelected
+                                                                ]}
+                                                                onPress={() => setSelectedTheme(themeId)}
+                                                                activeOpacity={0.7}
+                                                            >
+                                                                <View style={[
+                                                                    styles.themeIcon,
+                                                                    { backgroundColor: theme.orbGlow }
+                                                                ]}>
+                                                                    <Ionicons name={theme.icon as any} size={20} color="#FFF" />
+                                                                </View>
+                                                                <Text style={[
+                                                                    styles.themeName,
+                                                                    isSelected && styles.themeNameSelected
+                                                                ]}>{theme.name}</Text>
+                                                            </TouchableOpacity>
+                                                        );
+                                                    })}
+                                                </View>
+                                            </View>
+
+                                            <View style={styles.divider} />
+
+                                            <SoundSelectorControl
+                                                label="Guía de Voz"
+                                                icon="mic"
+                                                value={volumes.voice}
+                                                color="#F59E0B"
+                                                onPressSelector={() => { }}
+                                                isLocked={false}
+                                                onValueChange={(val: number) => handleVolumeChange('voice', val)}
+                                            />
+
+                                            <SoundSelectorControl
+                                                label={selectedSoundscape?.name || "Ambiente"}
+                                                icon={selectedSoundscape?.icon || "leaf"}
+                                                value={volumes.soundscape}
+                                                color={selectedSoundscape?.color || "#4A90E2"}
+                                                onPressSelector={() => setShowSoundscapeModal(true)}
+                                                isLocked={false}
+                                                onValueChange={(val: number) => handleVolumeChange('soundscape', val)}
+                                            />
+
+                                            <SoundSelectorControl
+                                                label={selectedBinaural?.name || "Frecuencia"}
+                                                icon={selectedBinaural?.icon || "pulse"}
+                                                value={volumes.binaural}
+                                                color={selectedBinaural?.color || "#2DD4BF"}
+                                                onPressSelector={() => isPremium ? setShowBinauralModal(true) : navigation.navigate(Screen.PAYWALL)}
+                                                isLocked={!isPremium}
+                                                onValueChange={(val: number) => handleVolumeChange('binaural', val)}
+                                            />
+
+                                            <View style={{ height: 20 }} />
+                                        </>
+                                    )}
+                                </View>
+                            </PanGestureHandler>
                         </View>
+                    </LinearGradient>
+                </ImageBackground>
 
-                        {/* Audio Controls Panel */}
-                        <View style={styles.controlsPanel}>
-                            <View style={styles.handle} />
+                {/* Custom Modals */}
+                <SelectionModal
+                    visible={showSoundscapeModal}
+                    onClose={() => setShowSoundscapeModal(false)}
+                    title="Sonido Ambiente"
+                    data={SOUNDSCAPES}
+                    currentId={selectedSoundscape?.id}
+                    onSelect={handleSoundscapeChange}
+                />
 
-                            <SoundSelectorControl
-                                label={selectedSoundscape?.name || "Ambiente"}
-                                icon={selectedSoundscape?.icon || "leaf"}
-                                value={volumes.soundscape}
-                                color={selectedSoundscape?.color || "#4A90E2"}
-                                onPressSelector={() => setShowSoundscapeModal(true)}
-                                isLocked={false}
-                                onValueChange={(val: number) => handleVolumeChange('soundscape', val)}
-                            />
+                <SelectionModal
+                    visible={showBinauralModal}
+                    onClose={() => setShowBinauralModal(false)}
+                    title="Ondas Binaurales"
+                    data={BINAURAL_WAVES}
+                    currentId={selectedBinaural?.id}
+                    onSelect={handleBinauralChange}
+                />
 
-                            <SoundSelectorControl
-                                label={selectedBinaural?.name || "Frecuencia"}
-                                icon={selectedBinaural?.icon || "pulse"}
-                                value={volumes.binaural}
-                                color={selectedBinaural?.color || "#2DD4BF"}
-                                onPressSelector={() => isPremium ? setShowBinauralModal(true) : navigation.navigate(Screen.PAYWALL)}
-                                isLocked={!isPremium}
-                                onValueChange={(val: number) => handleVolumeChange('binaural', val)}
-                            />
-
-                            <View style={{ height: 20 }} />
-                        </View>
-                    </View>
-                </LinearGradient>
-            </ImageBackground>
-
-            {/* Custom Modals */}
-            <SelectionModal
-                visible={showSoundscapeModal}
-                onClose={() => setShowSoundscapeModal(false)}
-                title="Sonido Ambiente"
-                data={SOUNDSCAPES}
-                currentId={selectedSoundscape?.id}
-                onSelect={handleSoundscapeChange}
-            />
-
-            <SelectionModal
-                visible={showBinauralModal}
-                onClose={() => setShowBinauralModal(false)}
-                title="Ondas Binaurales"
-                data={BINAURAL_WAVES}
-                currentId={selectedBinaural?.id}
-                onSelect={handleBinauralChange}
-            />
-
-            <SessionBriefingModal
-                visible={showBriefingModal}
-                session={currentSession}
-                onCancel={() => setShowBriefingModal(false)}
-                onConfirm={confirmBriefing}
-            />
-        </View >
+                <SessionBriefingModal
+                    visible={showBriefingModal}
+                    session={currentSession}
+                    onCancel={() => setShowBriefingModal(false)}
+                    onConfirm={confirmBriefing}
+                />
+            </View >
+        </GestureHandlerRootView>
     );
 };
 
@@ -793,10 +891,14 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
     },
 
-    controlsPanel: { backgroundColor: 'rgba(255,255,255,0.05)', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: Platform.OS === 'ios' ? 40 : 24 },
-    handle: { width: 40, height: 4, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
 
-    controlContainer: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 20, padding: 16, marginBottom: 12 },
+    controlsPanel: { backgroundColor: 'rgba(17,20,32,0.92)', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)' },
+    handleContainer: { alignItems: 'center', marginBottom: 16 },
+    handle: { width: 40, height: 4, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 2, marginBottom: 8 },
+    handleLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '700', letterSpacing: 1.5 },
+
+
+    controlContainer: { backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 20, padding: 16, marginBottom: 12 },
     selectorRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     selectorLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     selectorLabel: { color: '#FFF', fontSize: 15, fontWeight: '600' },
@@ -846,6 +948,16 @@ const styles = StyleSheet.create({
     briefingFooter: { padding: 24, paddingTop: 12, backgroundColor: '#111420', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
     startBtn: { backgroundColor: theme.colors.accent, height: 60, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12, shadowColor: theme.colors.accent, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8, marginTop: 20 },
     startBtnText: { color: '#000', fontSize: 16, fontWeight: '800' },
+
+    // Theme Selector Styles
+    themesSection: { marginBottom: 16 },
+    themesRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+    themeButton: { flex: 1, alignItems: 'center', padding: 12, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 2, borderColor: 'transparent' },
+    themeButtonSelected: { borderColor: 'rgba(255,255,255,0.3)', backgroundColor: 'rgba(255,255,255,0.08)' },
+    themeIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+    themeName: { color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: '600', textAlign: 'center' },
+    themeNameSelected: { color: '#FFF', fontWeight: '700' },
+    divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.05)', marginVertical: 16 },
 });
 
 export default BreathingTimer;

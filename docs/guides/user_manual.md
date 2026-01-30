@@ -1,4 +1,4 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.6.0 Oasis Verified) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.7.0 Visual Theme System) 💎
 
 Bienvenido a la guía oficial de **Paziify v1.6**. Esta versión solidifica la integración de **Google Auth**, activa las **Sugerencias Inteligentes** y garantiza una experiencia consistente en **Modo Noche**.
 
@@ -31,6 +31,13 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - **Tarjetas de Cristal**: Nuevo diseño transparente con fondos inmersivos que se integran con el ambiente.
 - **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
 - **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
+- **Temas Visuales Personalizables**: Elige entre 4 ambientes únicos para tu meditación:
+  - 🌌 **Cosmos Místico**: Nebulosa espacial verde/azul con orbe esmeralda
+  - ⛩️ **Templo Zen**: Interior minimalista con velas y orbe naranja
+  - 🌲 **Bosque Místico**: Bosque al amanecer con orbe verde lima
+  - 💧 **Cueva Cristalina**: Cueva natural con gotas y orbe cian
+- **Modo Inmersivo**: Alterna entre visualización oscura (meditativa) y brillante (inmersiva) con el botón sol/luna en la esquina superior.
+- **Selector de Temas**: Accede al selector deslizando hacia arriba el panel de audio durante tu sesión.
 
 ### 🎧 Audiolibros (Clásicos del Bienestar)
 - **Reproductor Persistente**: Escucha tus libros mientras navegas por otras partes de la aplicación.
