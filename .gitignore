@@ -40,3 +40,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Google Cloud credentials
+paziify-*.json
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!app.json
+!eas.json

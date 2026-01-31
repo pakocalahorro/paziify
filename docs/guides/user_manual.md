@@ -1,6 +1,6 @@
 # 📖 Guía de Funcionalidad - Manual de Usuario (v1.7.0 Visual Theme System) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.6**. Esta versión solidifica la integración de **Google Auth**, activa las **Sugerencias Inteligentes** y garantiza una experiencia consistente en **Modo Noche**.
+Bienvenido a la guía oficial de **Paziify v1.7**. Esta versión introduce un **Sistema de Temas Visuales Personalizables** para meditación, además de consolidar la integración de **Google Auth** y las **Sugerencias Inteligentes**.
 
 ---
 
@@ -31,13 +31,25 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - **Tarjetas de Cristal**: Nuevo diseño transparente con fondos inmersivos que se integran con el ambiente.
 - **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
 - **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
-- **Temas Visuales Personalizables**: Elige entre 4 ambientes únicos para tu meditación:
-  - 🌌 **Cosmos Místico**: Nebulosa espacial verde/azul con orbe esmeralda
-  - ⛩️ **Templo Zen**: Interior minimalista con velas y orbe naranja
-  - 🌲 **Bosque Místico**: Bosque al amanecer con orbe verde lima
-  - 💧 **Cueva Cristalina**: Cueva natural con gotas y orbe cian
-- **Modo Inmersivo**: Alterna entre visualización oscura (meditativa) y brillante (inmersiva) con el botón sol/luna en la esquina superior.
-- **Selector de Temas**: Accede al selector deslizando hacia arriba el panel de audio durante tu sesión.
+
+#### 🎨 Sistema de Temas Visuales (v1.7.0)
+Paziify ahora te permite personalizar completamente la atmósfera visual de tus sesiones de meditación:
+
+- **4 Temas Únicos** con fondos de alta calidad (1920x1080):
+  - 🌌 **Cosmos Místico**: Nebulosa espacial verde/azul con orbe esmeralda brillante
+  - ⛩️ **Templo Zen**: Interior minimalista con velas y orbe naranja cálido
+  - 🌲 **Bosque Místico**: Bosque al amanecer con orbe verde lima natural
+  - 💧 **Cueva Cristalina**: Cueva natural con gotas y orbe cian refrescante
+
+- **Orbe Temático Adaptativo**: El orbe de respiración cambia de color según el tema seleccionado, manteniendo sincronización perfecta con las fases de respiración (inhalar/exhalar/sostener).
+
+- **Selector de Temas**: Accede al selector deslizando hacia arriba el panel de audio durante tu sesión. Verás 4 botones circulares con iconos temáticos. El tema activo se indica visualmente con un borde destacado.
+
+- **Modo Inmersivo ☀️/🌙**: Botón toggle en la esquina superior derecha que alterna entre:
+  - **Modo Meditación** (🌙 default): Fondo oscurecido al 60% con gradiente profundo para concentración
+  - **Modo Inmersivo** (☀️): Fondo al 100% de opacidad con gradiente sutil para experiencia visual completa
+
+- **Performance Premium**: Todas las animaciones mantienen 60 FPS con transiciones suaves entre temas.
 
 ### 🎧 Audiolibros (Clásicos del Bienestar)
 - **Reproductor Persistente**: Escucha tus libros mientras navegas por otras partes de la aplicación.
@@ -79,7 +91,11 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - [x] ¿El Mini Player aparece correctamente sobre el menú inferior?
 - [x] ¿Las tarjetas de meditación e historias tienen el mismo estilo de vidrio transparente?
 - [x] ¿Las portadas de los audiolibros se ven nítidas y artísticas?
+- [x] ¿Puedes cambiar entre los 4 temas visuales durante una sesión de meditación?
+- [x] ¿El orbe cambia de color al seleccionar un tema diferente?
+- [x] ¿El modo inmersivo (☀️/🌙) alterna correctamente la opacidad del fondo?
+- [x] ¿Los fondos de alta calidad se ven nítidos y sin pixelación?
 
 ---
 ---
-*Última revisión: 29 de Enero de 2026 - v1.6.0 (Dynamic Intelligence & Night Mode)*
+*Última revisión: 30 de Enero de 2026 - v1.7.0 (Visual Theme System)*

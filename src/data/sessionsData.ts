@@ -1,5 +1,6 @@
 export interface AudioLayers {
   voice?: any;
+  voiceTrack?: string; // Pre-recorded voice track URL (for background execution)
   defaultSoundscape?: string;
   defaultBinaural?: string;
   defaultElements?: string;
@@ -60,7 +61,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     difficultyLevel: 'principiante',
     sessionType: 'guided_pure',
     isCustomizable: false,
-    audioLayers: { defaultBinaural: 'theta_waves', defaultSoundscape: 'bird_relaxation' },
+    audioLayers: {
+      voiceTrack: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_478_voices.mp3',
+      defaultBinaural: 'theta_waves',
+      defaultSoundscape: 'bird_relaxation'
+    },
     breathingPattern: { inhale: 4, hold: 7, exhale: 8, holdPost: 0 },
     voiceStyle: 'deep',
     creatorName: 'Dr. Michael Chen',
@@ -81,7 +86,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     difficultyLevel: 'principiante',
     sessionType: 'guided_pure',
     isCustomizable: false,
-    audioLayers: { defaultBinaural: 'alpha_waves', defaultSoundscape: 'moon_stretched' },
+    audioLayers: {
+      voiceTrack: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_box_voices.mp3',
+      defaultBinaural: 'alpha_waves',
+      defaultSoundscape: 'moon_stretched'
+    },
     breathingPattern: { inhale: 4, hold: 4, exhale: 4, holdPost: 4 },
     voiceStyle: 'standard',
     creatorName: 'Sarah Jenkins',
@@ -102,7 +111,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     difficultyLevel: 'principiante',
     sessionType: 'guided_pure',
     isCustomizable: false,
-    audioLayers: { defaultSoundscape: 'ethereal_voices' },
+    audioLayers: { voiceTrack: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_sigh_voices.mp3', defaultSoundscape: 'ethereal_voices' },
     breathingPattern: { inhale: 2, hold: 1, exhale: 6, holdPost: 0 },
     voiceStyle: 'deep',
     creatorName: 'Dr. David Spiegel',
@@ -455,3 +464,4 @@ export const getFreeSessionsCount = () => {
 export const getPremiumSessionsCount = () => {
   return MEDITATION_SESSIONS.filter(s => s.isPremium).length;
 };
+

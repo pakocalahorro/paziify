@@ -118,8 +118,8 @@ export type RootStackParamList = {
     [Screen.AUDIOBOOK_PLAYER]: { audiobookId: string };
     [Screen.STORIES]: undefined;
     [Screen.STORY_DETAIL]: { storyId: string };
-    [Screen.TRANSITION_TUNNEL]: undefined;
-    [Screen.BREATHING_TIMER]: undefined;
+    [Screen.TRANSITION_TUNNEL]: { sessionId: string };
+    [Screen.BREATHING_TIMER]: { sessionId: string };
     [Screen.SESSION_END]: undefined;
     [Screen.PROFILE]: undefined;
     [Screen.WEEKLY_REPORT]: undefined;

@@ -4,6 +4,7 @@ import { SOUNDSCAPES, BINAURAL_WAVES, ELEMENTS } from '../data/soundscapesData';
 
 export interface AudioConfig {
     voice?: any;
+    voiceTrack?: string; // URL to pre-recorded voice track (for background execution)
     soundscape?: string;
     binaural?: string;
     elements?: string;
@@ -21,9 +22,11 @@ class AudioEngineService {
     private soundscapeSound: Audio.Sound | null = null;
     private binauralSound: Audio.Sound | null = null;
     private elementsSound: Audio.Sound | null = null;
+    private voiceTrackSound: Audio.Sound | null = null; // Pre-recorded voice track
+    private silentSound: Audio.Sound | null = null; // Silent audio to keep JS active in background
 
     private volumes: VolumeConfig = {
-        voice: 1.0,
+        voice: 0.35,
         soundscape: 0.7,
         binaural: 0.4,
         elements: 0.5,
@@ -42,8 +45,14 @@ class AudioEngineService {
                 allowsRecordingIOS: false,
                 playsInSilentModeIOS: true,
                 staysActiveInBackground: true,
-                shouldDuckAndroid: true,
+                shouldDuckAndroid: false,
+                interruptionModeIOS: 1, // Do not mix with others (same as soundscapes)
+                interruptionModeAndroid: 1, // Do not duck others
             });
+
+            // Start silent audio to keep JavaScript active in background ("Silent Audio Trick")
+            await this.startSilentAudio();
+
             this.isInitialized = true;
         } catch (error) {
             console.error('Error initializing audio engine:', error);
@@ -94,6 +103,16 @@ class AudioEngineService {
                     this.elementsSound = sound;
                 }
             }
+
+            // Capa 1 (NEW): Pre-recorded voice track (for background execution)
+            if (config.voiceTrack) {
+                const { sound } = await Audio.Sound.createAsync(
+                    { uri: config.voiceTrack },
+                    { shouldPlay: false, volume: this.volumes.voice, isLooping: true }
+                );
+                this.voiceTrackSound = sound;
+                console.log('Voice track loaded:', config.voiceTrack);
+            }
         } catch (error) {
             console.error('Error loading session:', error);
             throw error;
@@ -106,6 +125,7 @@ class AudioEngineService {
     async playAll() {
         try {
             const promises = [];
+            if (this.voiceTrackSound) promises.push(this.voiceTrackSound.playAsync());
             if (this.soundscapeSound) promises.push(this.soundscapeSound.playAsync());
             if (this.binauralSound) promises.push(this.binauralSound.playAsync());
             if (this.elementsSound) promises.push(this.elementsSound.playAsync());
@@ -125,6 +145,7 @@ class AudioEngineService {
             for (const sound of this.cueCache.values()) {
                 promises.push(sound.pauseAsync());
             }
+            if (this.voiceTrackSound) promises.push(this.voiceTrackSound.pauseAsync());
             if (this.soundscapeSound) promises.push(this.soundscapeSound.pauseAsync());
             if (this.binauralSound) promises.push(this.binauralSound.pauseAsync());
             if (this.elementsSound) promises.push(this.elementsSound.pauseAsync());
@@ -205,15 +226,20 @@ class AudioEngineService {
             for (const sound of this.cueCache.values()) {
                 promises.push(sound.unloadAsync());
             }
+            if (this.voiceTrackSound) promises.push(this.voiceTrackSound.unloadAsync());
             if (this.soundscapeSound) promises.push(this.soundscapeSound.unloadAsync());
             if (this.binauralSound) promises.push(this.binauralSound.unloadAsync());
             if (this.elementsSound) promises.push(this.elementsSound.unloadAsync());
             await Promise.all(promises);
 
             this.cueCache.clear();
+            this.voiceTrackSound = null;
             this.soundscapeSound = null;
             this.binauralSound = null;
             this.elementsSound = null;
+
+            // Stop silent audio when session ends
+            await this.stopSilentAudio();
         } catch (error) {
             console.error('Error unloading audio:', error);
         }
@@ -311,28 +337,16 @@ class AudioEngineService {
     }
 
     /**
-     * Reproduce una instrucción de voz con Ducking
+     * Reproduce una instrucción de voz sin ducking (todas las capas suenan simultáneamente)
      */
     async playVoiceCue(type: string, style: string = 'calm', text?: string) {
         const sound = this.cueCache.get(type);
 
         if (sound) {
             try {
-                // Ducking suave
-                await Promise.all([
-                    this.soundscapeSound?.setVolumeAsync(this.volumes.soundscape * 0.2),
-                    this.binauralSound?.setVolumeAsync(this.volumes.binaural * 0.2),
-                ]);
-
+                // Play voice without reducing other layers (professional audio mixing)
+                // All layers play at their configured volumes simultaneously
                 await sound.replayAsync();
-
-                sound.setOnPlaybackStatusUpdate((status: any) => {
-                    if (status.didJustFinish) {
-                        // Restauración suave
-                        this.soundscapeSound?.setVolumeAsync(this.volumes.soundscape);
-                        this.binauralSound?.setVolumeAsync(this.volumes.binaural);
-                    }
-                });
             } catch (error) {
                 console.error('Error playing voice cue:', error);
             }
@@ -349,6 +363,41 @@ class AudioEngineService {
             return await sound.getStatusAsync();
         } catch (error) {
             return null;
+        }
+    }
+
+    /**
+     * Starts silent audio loop to keep JavaScript active in background
+     * This is the "Silent Audio Trick" used by professional meditation apps
+     */
+    private async startSilentAudio() {
+        try {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../../assets/audio/silence.wav'),
+                {
+                    isLooping: true,
+                    volume: 0,
+                    shouldPlay: true
+                }
+            );
+            this.silentSound = sound;
+            console.log('Silent audio started - JavaScript will stay active in background');
+        } catch (error) {
+            console.warn('Could not start silent audio (background execution may be affected):', error);
+        }
+    }
+
+    /**
+     * Stops silent audio loop
+     */
+    private async stopSilentAudio() {
+        if (this.silentSound) {
+            try {
+                await this.silentSound.unloadAsync();
+                this.silentSound = null;
+            } catch (error) {
+                console.error('Error stopping silent audio:', error);
+            }
         }
     }
 }

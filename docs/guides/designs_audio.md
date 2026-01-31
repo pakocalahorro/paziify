@@ -29,15 +29,19 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 El motor de audio ha sido diseñado para ser inmersivo y personalizable.
 
 ### Motor Multi-Capa (`AudioEngineService.ts`)
-Paziify permite la mezcla simultánea de tres tipos de fuentes:
-1.  **Guía Vocal**: Instrucciones de meditación.
-2.  **Soundscapes**: Sonidos de naturaleza (lluvia, bosque, aves).
-3.  **Ondas Binaurales**: Frecuencias (Theta, Alpha) para estados mentales específicos.
+Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
+1.  **Voice Track (Pre-grabado)**: Pistas de voz MP3 generadas con Google Cloud TTS para background execution confiable.
+2.  **Guía Vocal (Dinámica)**: Instrucciones TTS en tiempo real para sesiones sin voice track.
+3.  **Soundscapes**: Sonidos de naturaleza (lluvia, bosque, aves).
+4.  **Ondas Binaurales**: Frecuencias (Theta, Alpha) para estados mentales específicos.
 
 ### Implementaciones Técnicas
-*   **Supabase Storage**: Todos los assets estáticos (Soundscapes, Binaurales, Audiolibros) se sirven desde buckets dedicados (`soundscapes`, `binaurals`, `audiobooks`) para minimizar el tamaño del bundle.
+*   **Supabase Storage**: Todos los assets estáticos (Voice Tracks, Soundscapes, Binaurales, Audiolibros) se sirven desde buckets dedicados (`meditation-voices`, `soundscapes`, `binaurals`, `audiobooks`) para minimizar el tamaño del bundle.
+*   **Voice Tracks Pre-grabadas**: Archivos MP3 generados con Google Cloud TTS (WaveNet) que contienen todas las instrucciones de voz de una sesión. Configurados con `isLooping: true` para evitar pausa en background (la sesión termina antes del loop).
+*   **Sistema Híbrido**: Sesiones con `voiceTrack` usan audio pre-grabado; sesiones sin `voiceTrack` usan TTS dinámico (`playVoiceCue`).
+*   **Background Execution**: Audio configurado con `staysActiveInBackground: true` y silent audio trick para mantener JavaScript activo.
 *   **Edge Functions**: Sourcing dinámico de metadatos mediante Supabase Edge Functions.
-*   **Pre-carga Dinámica**: Los cues de voz se pre-cargan antes de iniciar la sesión para evitar latencia.
+*   **Pre-carga Dinámica**: Los cues de voz se pre-cargan antes de iniciar la sesión para evitar latencia (solo en modo dinámico).
 *   **Mezclador en Pantalla**: Control de volumen independiente para cada capa de audio.
 
 ### Reproductor Global y Persistencia (`AudioPlayerContext.tsx`)

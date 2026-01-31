@@ -216,6 +216,10 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     const [isAudioLoaded, setIsAudioLoaded] = useState(false);
     const [currentSession, setCurrentSession] = useState<any>(null);
 
+    // Timestamp-based timer for background execution
+    const sessionStartTime = React.useRef<number | null>(null);
+    const initialDuration = React.useRef<number>(0);
+
     // Countdown and Interaction State
     const [showBriefingModal, setShowBriefingModal] = useState(false);
     const [isCountingStart, setIsCountingStart] = useState(false);
@@ -292,10 +296,9 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     setCurrentSession(session);
 
                     const messages: Record<string, string> = {
-                        inhale: 'Inhala suavemente',
-                        hold: 'Mantén el aire',
-                        exhale: 'Exhala liberando tensión',
-                        holdPost: 'Pausa y descansa'
+                        inhale: 'Inhala',
+                        hold: 'Mantén',
+                        exhale: 'Exhala'
                     };
 
                     // Auto-select based on session defaults
@@ -311,15 +314,22 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     // Force the actual session duration
                     setTimeLeft(session.durationMinutes * 60);
 
-                    // Load audio layers + Preload Voice Cues
-                    await Promise.all([
+                    // Load audio layers + Preload Voice Cues (only if no pre-recorded track)
+                    const loadPromises = [
                         AudioEngineService.loadSession({
+                            voiceTrack: session.audioLayers.voiceTrack, // Pre-recorded voice track
                             soundscape: ss.id,
                             binaural: bw.id,
                             elements: session.audioLayers.defaultElements,
-                        }),
-                        AudioEngineService.preloadCues(messages)
-                    ]);
+                        })
+                    ];
+
+                    // Only use dynamic voice cues if there's no pre-recorded track
+                    if (!session.audioLayers.voiceTrack) {
+                        loadPromises.push(AudioEngineService.preloadCues(messages));
+                    }
+
+                    await Promise.all(loadPromises);
 
                     // Set initial volumes from session defaults 
                     await AudioEngineService.setLayerVolume('soundscape', 0.6);
@@ -411,24 +421,18 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     }
                 }
 
-                if (shouldSpeak) {
+                if (shouldSpeak && phase !== 'holdPost') {
                     const messages: Record<string, string> = {
                         inhale: 'Inhala',
                         hold: 'Mantén',
-                        exhale: 'Exhala',
-                        holdPost: 'Pausa'
+                        exhale: 'Exhala'
                     };
 
-                    if (totalCycleTime < 6.0) {
+                    // Only use dynamic voice cues if there's no pre-recorded track
+                    if (!currentSession.audioLayers.voiceTrack) {
+                        // Always use short commands for clarity and to prevent overlap
+                        // No voice command for holdPost - natural silence indicates pause (industry standard)
                         AudioEngineService.playVoiceCue(phase, currentSession.voiceStyle, messages[phase]);
-                    } else {
-                        const longMessages: Record<string, string> = {
-                            inhale: 'Inhala suavemente',
-                            hold: 'Mantén el aire',
-                            exhale: 'Exhala liberando tensión',
-                            holdPost: 'Pausa y descansa'
-                        };
-                        AudioEngineService.playVoiceCue(phase, currentSession.voiceStyle, longMessages[phase]);
                     }
                 }
 
@@ -467,17 +471,37 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         }
     }, [phase, isActive]);
 
+    // Timestamp-based timer (works in background when screen is locked)
     useEffect(() => {
         let interval: NodeJS.Timeout;
+
         if (isActive && timeLeft > 0) {
+            // Initialize start time when timer starts
+            if (!sessionStartTime.current) {
+                sessionStartTime.current = Date.now();
+                initialDuration.current = timeLeft;
+            }
+
             interval = setInterval(() => {
-                setTimeLeft((prev) => prev - 1);
+                if (sessionStartTime.current) {
+                    // Calculate elapsed time based on real timestamps
+                    const elapsed = Math.floor((Date.now() - sessionStartTime.current) / 1000);
+                    const newTimeLeft = Math.max(0, initialDuration.current - elapsed);
+                    setTimeLeft(newTimeLeft);
+
+                    // Session completed
+                    if (newTimeLeft === 0) {
+                        setIsActive(false);
+                        AudioEngineService.pauseAll();
+                        startPostSessionCountdown();
+                    }
+                }
             }, 1000);
-        } else if (timeLeft === 0 && isActive) {
-            setIsActive(false);
-            AudioEngineService.pauseAll();
-            startPostSessionCountdown();
+        } else if (!isActive) {
+            // Reset timestamp when paused
+            sessionStartTime.current = null;
         }
+
         return () => clearInterval(interval);
     }, [isActive, timeLeft]);
 
@@ -537,6 +561,11 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         setTimeLeft(currentSession?.durationMinutes * 60 || 600);
         setPhase('inhale');
         setPhaseProgress(0);
+
+        // Reset timestamp references
+        sessionStartTime.current = null;
+        initialDuration.current = 0;
+
         try {
             await AudioEngineService.pauseAll();
             // We could add a 'reset' to AudioEngine if needed, but pause is enough for now
