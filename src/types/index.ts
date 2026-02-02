@@ -55,8 +55,10 @@ export interface Session {
     category: string;
     isPlus: boolean;
     image?: string;
+    thumbnailUrl?: string;
     audioUrl?: string;
     description?: string;
+    creatorName?: string;
 }
 
 export interface UserSession {

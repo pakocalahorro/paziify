@@ -43,6 +43,11 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 *   **Edge Functions**: Sourcing dinámico de metadatos mediante Supabase Edge Functions.
 *   **Pre-carga Dinámica**: Los cues de voz se pre-cargan antes de iniciar la sesión para evitar latencia (solo en modo dinámico).
 *   **Mezclador en Pantalla**: Control de volumen independiente para cada capa de audio.
+*   **Sincronización Quirúrgica (v1.8.0)**:
+    - **Update Interval**: Configurado a 16ms (60 FPS) para eliminiar latencia visual.
+    - **Compensación Aditiva**: El motor visual suma dinámicamente el tiempo de voz (SPEECH_PER_WORD) a las fases activas para evitar la desincronización por "drift" en pistas técnicas.
+    - **Offset de Anticipación**: Adelanto visual de 350ms respecto al audio para una respuesta intuitiva.
+    - **Flujo Zen**: Inicio automático tras carga total del audio con cuenta atrás de 3 segundos.
 
 ### Reproductor Global y Persistencia (`AudioPlayerContext.tsx`)
 Para audiolibros e historias, utilizamos una arquitectura separada del motor de meditación:

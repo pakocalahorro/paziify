@@ -3,8 +3,10 @@
 Esta carpeta contiene toda la documentación del proyecto Paziify, organizada para facilitar el seguimiento de la arquitectura, el progreso y la experiencia de usuario.
 
 ---
-## 📋 Ejecutar proyecto en consola
+## 📋 Ejecutar proyecto en consola en local
 - npx expo start --dev-client
+## 📋 Ejecutar proyecto en consola fuera de casa
+-npx expo start --dev-client --tunnel
 
 ## 📋 Roadmap y Planes (Plans)
 

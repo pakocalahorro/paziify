@@ -46,12 +46,15 @@ const SessionCard: React.FC<SessionCardProps> = ({
 }) => {
     const isLocked = session.isPlus && !isPlusMember;
     const catKey = session.category.toLowerCase();
-    const imageSource = SESSION_ASSETS[catKey] || SESSION_ASSETS['default'];
+    const fallbackImage = SESSION_ASSETS[catKey] || SESSION_ASSETS['default'];
+    const imageSource = session.thumbnailUrl ? { uri: session.thumbnailUrl } : (typeof fallbackImage === 'string' ? { uri: fallbackImage } : fallbackImage);
 
     const getCategoryDetails = (category: string) => {
-        switch (category.toLowerCase()) {
-            case 'ansiedad':
-                return { icon: 'water-outline', color: '#66DEFF', gradient: ['rgba(102, 222, 255, 0.2)', 'rgba(0, 188, 212, 0.4)'] };
+        const cat = category.toLowerCase();
+        if (cat === 'ansiedad' || cat === 'calma sos') {
+            return { icon: 'water-outline', color: '#66DEFF', gradient: ['rgba(102, 222, 255, 0.2)', 'rgba(0, 188, 212, 0.4)'] };
+        }
+        switch (cat) {
             case 'sueño':
                 return { icon: 'moon-outline', color: '#9575CD', gradient: ['rgba(149, 117, 205, 0.2)', 'rgba(103, 58, 183, 0.4)'] };
             case 'mindfulness':
@@ -85,9 +88,11 @@ const SessionCard: React.FC<SessionCardProps> = ({
 
         imageOpacity = scrollY.interpolate({
             inputRange: range,
-            outputRange: [0.35, 1, 0.35],
+            outputRange: [0.6, 1, 0.6],
             extrapolate: 'clamp'
         });
+    } else {
+        imageOpacity = 0.6;
     }
 
 
@@ -107,7 +112,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
                 <View style={styles.mainContent}>
                     <Animated.Image
-                        source={typeof imageSource === 'string' ? { uri: imageSource } : imageSource}
+                        source={imageSource}
                         style={[
                             StyleSheet.absoluteFill,
                             { opacity: imageOpacity }
@@ -134,12 +139,12 @@ const SessionCard: React.FC<SessionCardProps> = ({
 
                         <Text style={styles.title} numberOfLines={2}>{session.title}</Text>
 
-                        {/* 
-                           Si tuviéramos subtítulo/descripción corta en el objeto Session 
-                           podríamos ponerlo aquí, igual que en StoryCard.
-                           De momento, usamos el espacio para separar visualmente.
-                        */}
-                        <View style={{ height: 8 }} />
+                        <View style={styles.guideContainer}>
+                            <Ionicons name="sparkles-outline" size={12} color="rgba(255,255,255,0.4)" />
+                            <Text style={styles.guideText}>
+                                {session.creatorName || 'Guía Paziify'}
+                            </Text>
+                        </View>
 
                         <View style={styles.footer}>
                             <View style={styles.footerLeft}>
@@ -175,8 +180,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+        backgroundColor: 'rgba(255, 255, 255, 0.01)',
     },
     glassContainer: {
         paddingVertical: 0,
@@ -277,6 +282,19 @@ const styles = StyleSheet.create({
     chevronContainer: {
         justifyContent: 'center',
         paddingRight: 4,
+    },
+    guideContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 4,
+        opacity: 0.7,
+    },
+    guideText: {
+        fontSize: 12,
+        color: '#FFFFFF',
+        fontWeight: '600',
+        letterSpacing: 0.2,
     },
 });
 

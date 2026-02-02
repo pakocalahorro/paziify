@@ -23,6 +23,7 @@ interface Props {
     active?: boolean;
     phase?: 'inhale' | 'exhale' | 'hold' | 'ready';
     theme?: ThemeId;
+    customColor?: string;
 }
 
 const ThemedBreathingOrb: React.FC<Props> = ({
@@ -30,8 +31,10 @@ const ThemedBreathingOrb: React.FC<Props> = ({
     active = true,
     phase = 'ready',
     theme = 'cosmos',
+    customColor,
 }) => {
     const themeConfig = VISUAL_THEMES[theme];
+    const orbGlowColor = customColor || themeConfig.orbGlow;
 
     // Animación de escala del orbe (respiración)
     const orbScale = useSharedValue(1);
@@ -74,12 +77,12 @@ const ThemedBreathingOrb: React.FC<Props> = ({
                         />
                     </Circle>
 
-                    {/* Brillo interior (color según tema) */}
+                    {/* Brillo interior (color según tema o personalizado) */}
                     <Circle c={center} r={useDerivedValue(() => currentRadius.value * 0.6)}>
                         <RadialGradient
                             c={center}
                             r={useDerivedValue(() => currentRadius.value * 0.6)}
-                            colors={[themeConfig.orbGlow, 'transparent']}
+                            colors={[orbGlowColor, 'transparent']}
                             positions={[0, 1]}
                         />
                     </Circle>

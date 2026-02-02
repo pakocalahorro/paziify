@@ -15,29 +15,34 @@
 const fs = require('fs');
 const path = require('path');
 
-// Meditation sessions data (hardcoded to avoid TypeScript import issues)
-// You can update this manually or parse the sessionsData.ts file
-const SESSIONS_SAMPLE = [
-    {
-        id: 'anx_478',
-        title: 'Respiración 4-7-8',
-        durationMinutes: 5,
-        breathingPattern: { inhale: 4, hold: 7, exhale: 8, holdPost: 0 }
-    },
-    {
-        id: 'anx_box',
-        title: 'Box Breathing',
-        durationMinutes: 4,
-        breathingPattern: { inhale: 4, hold: 4, exhale: 4, holdPost: 4 }
-    },
-    {
-        id: 'anx_sigh',
-        title: 'Suspiro Cíclico',
-        durationMinutes: 3,
-        breathingPattern: { inhale: 2, hold: 1, exhale: 6, holdPost: 0 }
+// Meditation sessions data (parsed from sessionsData.ts)
+const sessionsFilePath = path.join(__dirname, '../src/data/sessionsData.ts');
+const sessionsFileContent = fs.readFileSync(sessionsFilePath, 'utf8');
+
+// Regex-based simple parser for sessionsData.ts (since we can't easily import TS in Node without extra setup)
+function parseSessions(content) {
+    const sessions = [];
+    const sessionRegex = /\{\s*id:\s*'([^']+)',\s*title:\s*'([^']+)',[\s\S]*?durationMinutes:\s*(\d+),[\s\S]*?breathingPattern:\s*\{\s*inhale:\s*([\d.]+),\s*hold:\s*([\d.]+),\s*exhale:\s*([\d.]+),\s*holdPost:\s*([\d.]+)\s*\}/g;
+
+    let match;
+    while ((match = sessionRegex.exec(content)) !== null) {
+        sessions.push({
+            id: match[1],
+            title: match[2],
+            durationMinutes: parseInt(match[3]),
+            breathingPattern: {
+                inhale: parseFloat(match[4]),
+                hold: parseFloat(match[5]),
+                exhale: parseFloat(match[6]),
+                holdPost: parseFloat(match[7])
+            }
+        });
     }
-    // Add more sessions here or implement automatic parsing
-];
+    return sessions;
+}
+
+const ALL_SESSIONS = parseSessions(sessionsFileContent);
+
 
 // Voice messages
 const VOICE_MESSAGES = {
@@ -135,13 +140,12 @@ function generateScheduleFile(session) {
 function main() {
     console.log('🚀 Paziify Voice Schedule Generator');
     console.log('===================================\n');
-    console.log(`Sessions to process: ${SESSIONS_SAMPLE.length}`);
-    console.log('\n⚠️  NOTE: This is processing a SAMPLE of sessions.');
-    console.log('   To process all sessions, update SESSIONS_SAMPLE in this script.\n');
+    console.log(`Sessions found in sessionsData.ts: ${ALL_SESSIONS.length}`);
 
     const results = [];
 
-    for (const session of SESSIONS_SAMPLE) {
+    for (const session of ALL_SESSIONS) {
+
         try {
             const result = generateScheduleFile(session);
             results.push(result);

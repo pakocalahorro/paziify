@@ -39,6 +39,7 @@ import SessionPreviewModal from '../../components/SessionPreviewModal';
 import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData';
 import { IMAGES } from '../../constants/images';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import CategoryRow from '../../components/CategoryRow';
 
 type MeditationCatalogScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -88,7 +89,7 @@ const BacklitSilhouette: React.FC = () => {
 
 const CATEGORIES = [
     { label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
-    { label: 'Ansiedad', icon: 'water-outline', color: '#66DEFF' },
+    { label: 'Calma SOS', icon: 'water-outline', color: '#66DEFF' },
     { label: 'Despertar', icon: 'sunny-outline', color: '#FFA726' },
     { label: 'Sueño', icon: 'moon-outline', color: '#9575CD' },
     { label: 'Mindfulness', icon: 'leaf-outline', color: '#66BB6A' },
@@ -128,9 +129,11 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             id: medSession.id,
             title: medSession.title,
             duration: medSession.durationMinutes,
-            category: medSession.category,
+            category: medSession.category.toLowerCase() === 'ansiedad' ? 'Calma SOS' : medSession.category,
             isPlus: medSession.isPremium,
             image: SESSION_ASSETS[categoryKey] || SESSION_ASSETS['default'],
+            thumbnailUrl: medSession.thumbnailUrl,
+            creatorName: medSession.creatorName,
         };
     };
 
@@ -142,6 +145,32 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             return matchesSearch && matchesCategory;
         }).map(convertToSession);
     }, [searchQuery, selectedCategory]);
+
+    const sessionsByRow = useMemo(() => {
+        if (selectedCategory !== 0 || searchQuery !== '') {
+            // If filtered, return single row
+            return [{ title: 'Resultados', data: filteredSessions }];
+        }
+
+        // Group by category for the "Discovery" view
+        const rows = CATEGORIES.slice(1).map(cat => {
+            const matchesCategory = (sessionCat: string) => {
+                const sCat = sessionCat.toLowerCase();
+                const lCat = cat.label.toLowerCase();
+                if (lCat === 'calma sos') return sCat === 'ansiedad';
+                return sCat === lCat;
+            };
+
+            return {
+                title: cat.label,
+                data: MEDITATION_SESSIONS
+                    .filter(s => matchesCategory(s.category))
+                    .map(convertToSession)
+            };
+        }).filter(row => row.data.length > 0);
+
+        return rows;
+    }, [filteredSessions, selectedCategory, searchQuery]);
 
     const handleSessionClick = (session: Session) => {
         const fullSession = MEDITATION_SESSIONS.find(s => s.id === session.id);
@@ -228,7 +257,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             <View style={styles.listSeparator} />
-        </View >
+        </View>
     );
 
     return (
@@ -243,20 +272,17 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.FlatList
-                    data={filteredSessions}
-                    keyExtractor={(item) => item.id}
-                    numColumns={1}
+                    data={sessionsByRow}
+                    keyExtractor={(item) => item.title}
                     ListHeaderComponent={renderHeader}
-                    renderItem={({ item, index }) => (
-                        <View style={styles.sessionCardWrapper}>
-                            <SessionCard
-                                session={item}
-                                onPress={handleSessionClick}
-                                isPlusMember={userState.isPlusMember}
-                                scrollY={scrollY}
-                                index={index}
-                            />
-                        </View>
+                    renderItem={({ item }) => (
+                        <CategoryRow
+                            title={item.title}
+                            sessions={item.data}
+                            onSessionPress={handleSessionClick}
+                            isPlusMember={userState.isPlusMember}
+                            scrollY={scrollY}
+                        />
                     )}
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
                     showsVerticalScrollIndicator={false}
@@ -277,7 +303,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                         const medData = MEDITATION_SESSIONS.find(s => s.id === selectedSession.id);
                         setSelectedSession(null);
                         if (medData) {
-                            navigation.navigate(Screen.TRANSITION_TUNNEL, { sessionId: medData.id });
+                            navigation.navigate(Screen.BREATHING_TIMER, { sessionId: medData.id });
                         }
                     }}
                 />
@@ -411,7 +437,6 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingTop: 10,
-        paddingHorizontal: 20,
     },
     sessionCardWrapper: {
         marginBottom: 12,

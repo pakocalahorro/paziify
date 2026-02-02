@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.7.0 Visual Theme System) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.8.0 Surgical Sync) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.7**. Esta versión introduce un **Sistema de Temas Visuales Personalizables** para meditación, además de consolidar la integración de **Google Auth** y las **Sugerencias Inteligentes**.
+Bienvenido a la guía oficial de **Paziify v1.8**. Esta versión introduce la **Sincronización Quirúrgica** de audio-vocal, el flujo de **Inicio Zen** y refinamientos de UI para mayor inmersión.
 
 ---
 
@@ -31,6 +31,9 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - **Tarjetas de Cristal**: Nuevo diseño transparente con fondos inmersivos que se integran con el ambiente.
 - **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
 - **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
+- **Sincronización Grado Médico (v1.8.0)**: El orbe y las instrucciones de voz ahora respiran al unísono con una precisión de 16ms, sin importar la velocidad de la sesión.
+- **Inicio Zen Automático**: Olvídate de pulsar "Play" dos veces. Al elegir una sesión, el sistema prepara el audio y dispara una cuenta atrás automática de 3 segundos.
+- **Adiós a las Pausas**: Interfaz más limpia sin etiquetas de "Pausa" innecesarias, manteniendo el estado de exhalación hasta el nuevo ciclo.
 
 #### 🎨 Sistema de Temas Visuales (v1.7.0)
 Paziify ahora te permite personalizar completamente la atmósfera visual de tus sesiones de meditación:
@@ -98,4 +101,4 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ---
 ---
-*Última revisión: 30 de Enero de 2026 - v1.7.0 (Visual Theme System)*
+*Última revisión: 2 de Febrero de 2026 - v1.8.0 (Surgical Sync & Zen Flow)*

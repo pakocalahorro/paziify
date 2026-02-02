@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
     Text,
@@ -10,6 +10,9 @@ import {
     Platform,
     ScrollView,
     TouchableWithoutFeedback,
+} from 'react-native';
+import { BlurView } from 'expo-blur';
+import {
     Animated,
 } from 'react-native';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
@@ -32,6 +35,22 @@ import { VISUAL_THEMES, DEFAULT_THEME, type ThemeId } from '../../constants/visu
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
+
+// Default Coherence Breathing pattern for guided meditations without visual sync
+const ATMOSPHERIC_PATTERN = {
+    inhale: 6,
+    hold: 0,
+    exhale: 6,
+    holdPost: 0
+};
+
+// Technical sessions use a voice track with fixed timestamps.
+// We use a global offset to compensate for UI processing delay.
+const SYNC_OFFSET = 0.35; // Anticipate by 350ms so title appears before voice
+
+// The recorded voice tracks add speech duration (approx 0.72s per word) to the cycle.
+const SPEECH_PER_WORD = 0.72;
+
 
 type BreathingTimerScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -94,75 +113,8 @@ const SelectionModal = ({ visible, onClose, title, data, onSelect, currentId }: 
     );
 };
 
-const SessionBriefingModal = ({ visible, session, onConfirm, onCancel }: any) => {
-    const insets = useSafeAreaInsets();
-    if (!visible || !session) return null;
-    return (
-        <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback onPress={onCancel}>
-                <View style={styles.modalBackdrop} />
-            </TouchableWithoutFeedback>
-            <View style={[styles.modalContent, { height: height * 0.82 }]}>
-                <LinearGradient
-                    colors={[session.color + '40', '#111420']}
-                    style={styles.briefingGradient}
-                >
-                    <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Preparación de Sesión</Text>
-                        <TouchableOpacity onPress={onCancel} style={styles.closeBtn}>
-                            <Ionicons name="close" size={24} color="#FFF" />
-                        </TouchableOpacity>
-                    </View>
 
-                    <ScrollView
-                        style={styles.briefingScroll}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.briefingScrollContent}
-                    >
-                        <View style={styles.briefingTop}>
-                            <View style={[styles.briefingBadge, { backgroundColor: session.color }]}>
-                                <Text style={styles.briefingBadgeText}>{session.category.toUpperCase()}</Text>
-                            </View>
-                            <Text style={styles.briefingTitle}>{session.title}</Text>
-                            <Text style={styles.briefingDesc}>{session.description}</Text>
-                        </View>
-
-                        <View style={styles.briefingSection}>
-                            <Text style={styles.sectionLabel}>OBJETIVO CIENTÍFICO</Text>
-                            <Text style={styles.sectionText}>{session.scientificBenefits}</Text>
-                        </View>
-
-                        <View style={styles.briefingSectionText}>
-                            <Ionicons name="information-circle-outline" size={20} color={theme.colors.accent} />
-                            <Text style={[styles.sectionText, { color: theme.colors.accent, marginLeft: 8, fontWeight: '700', flex: 1 }]}>
-                                {session.practiceInstruction}
-                            </Text>
-                        </View>
-                    </ScrollView>
-
-                    <View style={[styles.briefingFooter, { paddingBottom: insets.bottom + 24 }]}>
-                        <View style={styles.rhythmPreview}>
-                            <Text style={styles.sectionLabel}>RITMO DE RESPIRACIÓN</Text>
-                            <View style={styles.rhythmRow}>
-                                <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.inhale}s</Text><Text style={styles.rhythmSub}>Inhala</Text></View>
-                                {session.breathingPattern.hold > 0 && <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.hold}s</Text><Text style={styles.rhythmSub}>Mantén</Text></View>}
-                                <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.exhale}s</Text><Text style={styles.rhythmSub}>Exhala</Text></View>
-                                {session.breathingPattern.holdPost > 0 && <View style={styles.rhythmItem}><Text style={styles.rhythmVal}>{session.breathingPattern.holdPost}s</Text><Text style={styles.rhythmSub}>Pausa</Text></View>}
-                            </View>
-                        </View>
-
-                        <TouchableOpacity style={styles.startBtn} onPress={onConfirm}>
-                            <Text style={styles.startBtnText}>EMPEZAR PRÁCTICA</Text>
-                            <Ionicons name="arrow-forward" size={20} color="#000" />
-                        </TouchableOpacity>
-                    </View>
-                </LinearGradient>
-            </View>
-        </View>
-    );
-};
-
-const SoundSelectorControl = ({ label, icon, value, isLocked, onValueChange, onPressSelector, color }: any) => {
+const SoundSelectorControl = ({ label, icon, value, isLocked, onValueChange, onPressSelector, color, isEnabled = true, onToggle }: any) => {
     const handlePanGesture = (event: any) => {
         if (isLocked) return;
         const { locationX } = event.nativeEvent;
@@ -180,14 +132,27 @@ const SoundSelectorControl = ({ label, icon, value, isLocked, onValueChange, onP
                 disabled={isLocked}
             >
                 <View style={styles.selectorLeft}>
-                    <Ionicons name={icon} size={20} color={isLocked ? 'rgba(255,255,255,0.2)' : color} />
-                    <Text style={[styles.selectorLabel, isLocked && { color: 'rgba(255,255,255,0.3)' }]}>{label}</Text>
+                    <Ionicons name={icon} size={20} color={!isEnabled || isLocked ? 'rgba(255,255,255,0.2)' : color} />
+                    <Text style={[styles.selectorLabel, (!isEnabled || isLocked) && { color: 'rgba(255,255,255,0.3)' }]}>{label}</Text>
                 </View>
-                {!isLocked && <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.3)" />}
-                {isLocked && <Ionicons name="lock-closed" size={14} color="rgba(255,255,255,0.2)" />}
+                <View style={styles.selectorRight}>
+                    {onToggle && (
+                        <TouchableOpacity
+                            onPress={onToggle}
+                            style={[
+                                styles.toggleBtn,
+                                isEnabled ? { backgroundColor: color } : styles.toggleBtnOff
+                            ]}
+                        >
+                            <View style={[styles.toggleCircle, isEnabled ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }]} />
+                        </TouchableOpacity>
+                    )}
+                    {!isLocked && !onToggle && <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.3)" />}
+                    {isLocked && <Ionicons name="lock-closed" size={14} color="rgba(255,255,255,0.2)" />}
+                </View>
             </TouchableOpacity>
 
-            <View style={styles.volumeWrapper}>
+            <View style={[styles.volumeWrapper, !isEnabled && { opacity: 0.3 }]}>
                 <Ionicons name="volume-low" size={12} color="rgba(255,255,255,0.2)" />
                 <TouchableOpacity
                     style={styles.sliderTrack}
@@ -196,7 +161,7 @@ const SoundSelectorControl = ({ label, icon, value, isLocked, onValueChange, onP
                     onPress={handlePanGesture}
                 >
                     <View style={styles.trackBase}>
-                        <View style={[styles.trackFill, { width: `${value * 100}%`, backgroundColor: isLocked ? 'rgba(255,255,255,0.1)' : color }]} />
+                        <View style={[styles.trackFill, { width: `${value * 100}%`, backgroundColor: !isEnabled || isLocked ? 'rgba(255,255,255,0.1)' : color }]} />
                     </View>
                 </TouchableOpacity>
                 <Ionicons name="volume-high" size={12} color="rgba(255,255,255,0.2)" />
@@ -211,19 +176,25 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
     const { userState } = useApp();
     const { setExternalAudioActive } = useAudioPlayer(); // Context hook
+    // Unified Session State Machine
+    type SessionStatus = 'IDLE' | 'INTRO' | 'COUNTDOWN' | 'ACTIVE' | 'PAUSED' | 'ENDING' | 'COMPLETED';
+    const [sessionState, setSessionState] = useState<SessionStatus>('IDLE');
+
     const [timeLeft, setTimeLeft] = useState(0);
-    const [isActive, setIsActive] = useState(false);
     const [isAudioLoaded, setIsAudioLoaded] = useState(false);
     const [currentSession, setCurrentSession] = useState<any>(null);
+    const sessionRef = useRef<any>(null);
+    const [enabledLayers, setEnabledLayers] = useState({
+        voice: true,
+        soundscape: true,
+        binaural: true,
+        customTheme: false,
+    });
 
-    // Timestamp-based timer for background execution
-    const sessionStartTime = React.useRef<number | null>(null);
-    const initialDuration = React.useRef<number>(0);
 
-    // Countdown and Interaction State
-    const [showBriefingModal, setShowBriefingModal] = useState(false);
-    const [isCountingStart, setIsCountingStart] = useState(false);
-    const [isCountingEnd, setIsCountingEnd] = useState(false);
+    const totalDuration = useRef<number>(0);
+
+    // Interaction State
     const [countdownValue, setCountdownValue] = useState(3);
 
     // Aura/Heartbeat Animation
@@ -260,7 +231,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
             ])
         );
 
-        if (!isActive && !isCountingStart) {
+        if (sessionState === 'IDLE' || sessionState === 'PAUSED') {
             pulse.start();
         } else {
             pulse.stop();
@@ -268,7 +239,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         }
 
         return () => pulse.stop();
-    }, [isActive, isCountingStart]);
+    }, [sessionState]);
 
     const [volumes, setVolumes] = useState({
         voice: 0.35,
@@ -286,6 +257,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     const [isImmersiveMode, setIsImmersiveMode] = useState(false);
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
+
     useEffect(() => {
         const initSession = async () => {
             try {
@@ -294,6 +266,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
                 if (session) {
                     setCurrentSession(session);
+                    sessionRef.current = session;
 
                     const messages: Record<string, string> = {
                         inhale: 'Inhala',
@@ -311,29 +284,55 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     setSelectedSoundscape(ss);
                     setSelectedBinaural(bw);
 
-                    // Force the actual session duration
-                    setTimeLeft(session.durationMinutes * 60);
-
-                    // Load audio layers + Preload Voice Cues (only if no pre-recorded track)
-                    const loadPromises = [
-                        AudioEngineService.loadSession({
-                            voiceTrack: session.audioLayers.voiceTrack, // Pre-recorded voice track
-                            soundscape: ss.id,
-                            binaural: bw.id,
-                            elements: session.audioLayers.defaultElements,
-                        })
-                    ];
-
-                    // Only use dynamic voice cues if there's no pre-recorded track
-                    if (!session.audioLayers.voiceTrack) {
-                        loadPromises.push(AudioEngineService.preloadCues(messages));
+                    // Auto-select Visual Theme based on category (UX Restoration)
+                    const cat = session.category.toLowerCase();
+                    if (cat === 'ansiedad' || cat === 'calma sos') {
+                        setSelectedTheme('cosmos');
+                    } else if (cat === 'sueño') {
+                        setSelectedTheme('cave');
+                    } else if (cat === 'despertar' || cat === 'habitos') {
+                        setSelectedTheme('forest');
+                    } else if (cat === 'mindfulness' || cat === 'rendimiento') {
+                        setSelectedTheme('temple');
+                    } else {
+                        setSelectedTheme('cosmos');
                     }
 
-                    await Promise.all(loadPromises);
+                    // Set initial volumes and layers based on session type
+                    const isGuided = !session.visualSync;
+                    const initialVolumes = {
+                        voice: 0.5,
+                        soundscape: isGuided ? 0.25 : 0.6,
+                        binaural: 0.3,
+                        elements: 0.5,
+                    };
 
-                    // Set initial volumes from session defaults 
-                    await AudioEngineService.setLayerVolume('soundscape', 0.6);
-                    await AudioEngineService.setLayerVolume('binaural', 0.4);
+                    setVolumes(initialVolumes);
+                    setEnabledLayers({
+                        voice: true,
+                        soundscape: true,
+                        binaural: !isGuided, // Disable binaural by default for guided
+                        customTheme: false
+                    });
+
+                    // Load audio layers
+                    await AudioEngineService.loadSession({
+                        voiceTrack: session.audioLayers.voiceTrack,
+                        soundscape: ss.id,
+                        binaural: bw.id,
+                        elements: session.audioLayers.defaultElements,
+                    });
+
+                    // Preload voice cues if needed
+                    if (!isGuided && !session.audioLayers.voiceTrack) {
+                        await AudioEngineService.preloadCues(messages);
+                    }
+
+                    // Apply initial volumes to engine
+                    await AudioEngineService.setLayerVolume('voice', initialVolumes.voice);
+                    await AudioEngineService.setLayerVolume('soundscape', initialVolumes.soundscape);
+                    await AudioEngineService.setLayerVolume('binaural', isGuided ? 0 : initialVolumes.binaural);
+                    await AudioEngineService.setLayerVolume('elements', initialVolumes.elements);
 
                     setIsAudioLoaded(true);
                 }
@@ -343,61 +342,137 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         };
         initSession();
 
+
         return () => {
             AudioEngineService.unloadAll();
         };
     }, [route.params]);
 
-    // Breathing Logic Effect
+    // --- MASTER CLOCK SYNCHRONIZATION ---
     useEffect(() => {
-        let phaseInterval: NodeJS.Timeout;
+        AudioEngineService.setStatusCallback((status) => {
+            if (status.isLoaded && status.isPlaying && sessionState === 'ACTIVE') {
+                let elapsed = status.positionMillis / 1000;
 
-        if (isActive && currentSession) {
-            const pattern = currentSession.breathingPattern;
-            let currentTimer = 0;
-
-            const runPhase = () => {
-                const { inhale, hold, exhale, holdPost } = pattern;
-                const totalCycle = inhale + hold + exhale + holdPost;
-
-                const cycleTimer = (currentTimer % totalCycle * 10) / 10; // Precision to 0.1s
-
-                if (cycleTimer < inhale) {
-                    setPhase('inhale');
-                    setPhaseProgress(cycleTimer / inhale);
-                } else if (cycleTimer < inhale + hold) {
-                    setPhase('hold');
-                    setPhaseProgress(1);
-                } else if (cycleTimer < inhale + hold + exhale) {
-                    setPhase('exhale');
-                    setPhaseProgress(1 - (cycleTimer - inhale - hold) / exhale);
-                } else {
-                    setPhase('holdPost');
-                    setPhaseProgress(0);
+                // 1. Apply micro-adjustment if present (Calibration for the 18 core sessions)
+                if (currentSession?.visualSync && currentSession?.audioAdjustmentFactor) {
+                    elapsed = elapsed / currentSession.audioAdjustmentFactor;
                 }
 
-                currentTimer += 0.1;
-            };
+                // 2. Update Time Left (Master Clock - from raw position for accuracy)
+                const rawElapsed = status.positionMillis / 1000;
+                const newTimeLeft = Math.max(0, totalDuration.current - rawElapsed);
+                setTimeLeft(newTimeLeft);
 
-            phaseInterval = setInterval(runPhase, 100);
-        } else {
-            setPhase('inhale');
-            setPhaseProgress(0);
+                if (status.didJustFinish || newTimeLeft <= 0) {
+                    setSessionState('ENDING');
+                    return;
+                }
+
+                // 3. Update Breathing Phase & Progress (Adjusted for visual sync mode)
+                if (sessionRef.current) {
+                    const isSynced = sessionRef.current.visualSync;
+                    const pattern = isSynced ? sessionRef.current.breathingPattern : ATMOSPHERIC_PATTERN;
+
+                    // The audio files are ADDITIVE: Speech length adds to the total cycle.
+                    // Each vocalized phase lasts [pattern_duration + speech_duration]
+                    const speechDelay = isSynced ? SPEECH_PER_WORD : 0;
+
+                    const inhaleLimit = pattern.inhale + (pattern.inhale > 0 ? speechDelay : 0);
+                    const holdLimit = inhaleLimit + pattern.hold + (pattern.hold > 0 ? speechDelay : 0);
+                    const exhaleLimit = holdLimit + pattern.exhale + (pattern.exhale > 0 ? speechDelay : 0);
+                    // holdPost doesn't have a vocal cue in our current scripts
+                    const holdPostLimit = exhaleLimit + pattern.holdPost;
+
+                    const totalTrackCycle = holdPostLimit;
+                    const adjustedElapsed = (elapsed + SYNC_OFFSET) % totalTrackCycle;
+
+                    if (adjustedElapsed < inhaleLimit) {
+                        setPhase('inhale');
+                        const phaseTime = pattern.inhale > 0 ? pattern.inhale : 1;
+                        setPhaseProgress(Math.min(1, adjustedElapsed / phaseTime));
+                    } else if (adjustedElapsed < holdLimit) {
+                        setPhase('hold');
+                        setPhaseProgress(1);
+                    } else if (adjustedElapsed < exhaleLimit) {
+                        setPhase('exhale');
+                        const timeInPhase = adjustedElapsed - holdLimit;
+                        const phaseTime = pattern.exhale > 0 ? pattern.exhale : 1;
+                        setPhaseProgress(Math.max(0, 1 - (timeInPhase / phaseTime)));
+                    } else {
+                        // Merging HoldPost with Exhale visual state as requested
+                        setPhase('holdPost');
+                        setPhaseProgress(0);
+                    }
+                }
+            }
+        });
+
+        return () => {
+            AudioEngineService.setStatusCallback(null);
+        };
+    }, [sessionState, currentSession]);
+
+    // ZEN AUTO-START LOGIC
+    useEffect(() => {
+        if (isAudioLoaded && sessionState === 'IDLE') {
+            setSessionState('COUNTDOWN');
+            setCountdownValue(3);
         }
+    }, [isAudioLoaded, sessionState]);
 
-        return () => clearInterval(phaseInterval);
-    }, [isActive, currentSession]);
+    useEffect(() => {
+        let timer: any;
+        if (sessionState === 'COUNTDOWN' && countdownValue > 0) {
+            timer = setInterval(() => {
+                setCountdownValue(prev => {
+                    if (prev <= 1) {
+                        clearInterval(timer);
+                        startSession();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+    }, [sessionState]);
+
+    const startSession = async () => {
+        if (sessionState === 'ACTIVE' || sessionState === 'ENDING') return;
+
+        try {
+            setSessionState('ACTIVE');
+            totalDuration.current = sessionRef.current?.durationMinutes * 60 || 600;
+            setTimeLeft(totalDuration.current);
+
+            // Play all enabled layers simultaneously
+            const layersToPlay: any[] = ['voice', 'soundscape', 'elements'];
+            if (enabledLayers.binaural) layersToPlay.push('binaural');
+
+            await AudioEngineService.playSelectedLayers(layersToPlay);
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } catch (error) {
+            console.error('Error starting session:', error);
+        }
+    };
 
     // Unified Guiding Logic (Smart Guiding)
     const cycleRef = React.useRef(0);
     const lastPlayedPhase = React.useRef<string | null>(null);
 
     useEffect(() => {
-        if (isActive && currentSession) {
+        if (sessionState === 'ACTIVE' && currentSession) {
+            // Only perform voice cues and haptic breath guidance if visualSync is enabled
+            // For guided meditations, the voice track handles the pacing
+            if (!currentSession.visualSync) return;
+
             const pattern = currentSession.breathingPattern;
             const totalCycleTime = pattern.inhale + pattern.hold + pattern.exhale + pattern.holdPost;
 
-            // Smart Guiding Rules (Pacing logic):
+            // ... (rest of smart guiding logic)
             let guideFrequency = 1;
             let showAllPhases = true;
 
@@ -430,151 +505,89 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
                     // Only use dynamic voice cues if there's no pre-recorded track
                     if (!currentSession.audioLayers.voiceTrack) {
-                        // Always use short commands for clarity and to prevent overlap
-                        // No voice command for holdPost - natural silence indicates pause (industry standard)
                         AudioEngineService.playVoiceCue(phase, currentSession.voiceStyle, messages[phase]);
                     }
                 }
 
-                // Haptic Feedback for physical guidance (Eyes-closed support)
+                // Haptic Feedback for physical guidance
                 try {
                     switch (phase) {
                         case 'inhale':
-                            // Double impact for Inhale (Stronger signal)
                             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                             break;
                         case 'hold':
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                             break;
                         case 'exhale':
-                            // Deep vibration for Exhale
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                             break;
                         case 'holdPost':
                             Haptics.selectionAsync();
                             break;
                     }
-                } catch (e) {
-                    // Silently ignore if haptics fail
-                }
+                } catch (e) { }
 
-                // Increment cycle counter when we start a new inhale
                 if (phase === 'inhale' && lastPlayedPhase.current !== 'inhale') {
                     cycleRef.current += 1;
                 }
-
                 lastPlayedPhase.current = phase;
             }
         } else {
             cycleRef.current = 0;
             lastPlayedPhase.current = null;
         }
-    }, [phase, isActive]);
+    }, [phase, sessionState, currentSession]);
 
-    // Timestamp-based timer (works in background when screen is locked)
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-
-        if (isActive && timeLeft > 0) {
-            // Initialize start time when timer starts
-            if (!sessionStartTime.current) {
-                sessionStartTime.current = Date.now();
-                initialDuration.current = timeLeft;
-            }
-
-            interval = setInterval(() => {
-                if (sessionStartTime.current) {
-                    // Calculate elapsed time based on real timestamps
-                    const elapsed = Math.floor((Date.now() - sessionStartTime.current) / 1000);
-                    const newTimeLeft = Math.max(0, initialDuration.current - elapsed);
-                    setTimeLeft(newTimeLeft);
-
-                    // Session completed
-                    if (newTimeLeft === 0) {
-                        setIsActive(false);
-                        AudioEngineService.pauseAll();
-                        startPostSessionCountdown();
-                    }
-                }
-            }, 1000);
-        } else if (!isActive) {
-            // Reset timestamp when paused
-            sessionStartTime.current = null;
-        }
-
-        return () => clearInterval(interval);
-    }, [isActive, timeLeft]);
-
-    const startPreSessionCountdown = () => {
-        if (!currentSession) return;
-        setShowBriefingModal(true);
-    };
-
-    const confirmBriefing = () => {
-        setShowBriefingModal(false);
-        setIsCountingStart(true);
-        setCountdownValue(3);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-        let val = 3;
-        const countInt = setInterval(() => {
-            val -= 1;
-            if (val > 0) {
-                setCountdownValue(val);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-            } else {
-                clearInterval(countInt);
-                setIsCountingStart(false);
-                toggleTimer(); // This will play audio and set isActive
-            }
-        }, 1000);
-    };
-
-    const startPostSessionCountdown = () => {
-        setIsCountingEnd(true);
-        setCountdownValue(3);
-
-        // No longer counting 3-2-1 at the end, just showing "Session Completed"
-        setTimeout(() => {
-            setIsCountingEnd(false);
-            navigation.navigate(Screen.SESSION_END);
-        }, 2000);
-    };
 
     const toggleTimer = async () => {
-        if (!isAudioLoaded || isCountingStart || isCountingEnd) return;
+        if (!isAudioLoaded || sessionState === 'ENDING') return;
+
         try {
-            if (isActive) {
+            if (sessionState === 'IDLE' || sessionState === 'COUNTDOWN') {
+                // Manual override or auto-trigger
+                await startSession();
+            } else if (sessionState === 'ACTIVE') {
+                setSessionState('PAUSED');
                 await AudioEngineService.pauseAll();
-            } else {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            } else if (sessionState === 'PAUSED') {
                 await AudioEngineService.playAll();
+                setSessionState('ACTIVE');
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             }
-            setIsActive(!isActive);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         } catch (error) {
-            console.error('Error toggling audio:', error);
+            console.error('Error toggling session:', error);
         }
     };
 
+
     const handleRestart = async () => {
-        setIsActive(false);
-        setTimeLeft(currentSession?.durationMinutes * 60 || 600);
+        setSessionState('IDLE');
+        setTimeLeft(sessionRef.current?.durationMinutes * 60 || 600);
         setPhase('inhale');
         setPhaseProgress(0);
 
-        // Reset timestamp references
-        sessionStartTime.current = null;
-        initialDuration.current = 0;
-
         try {
             await AudioEngineService.pauseAll();
-            // We could add a 'reset' to AudioEngine if needed, but pause is enough for now
-            // since initSession will reload on next param change or we can manual reload
         } catch (error) {
             console.error('Error restarting:', error);
         }
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+
+        pulseAnim.setValue(1);
     };
+
+
+    useEffect(() => {
+        if (sessionState === 'ENDING') {
+            AudioEngineService.pauseAll();
+            setCountdownValue(3);
+            setTimeout(() => {
+                setSessionState('COMPLETED');
+                navigation.navigate(Screen.SESSION_END);
+            }, 2000);
+        }
+    }, [sessionState]);
 
     const handleVolumeChange = async (layer: 'soundscape' | 'binaural' | 'elements' | 'voice', value: number) => {
         setVolumes(prev => ({ ...prev, [layer]: value }));
@@ -583,18 +596,29 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
     const handleSoundscapeChange = async (item: Soundscape) => {
         setSelectedSoundscape(item);
-        await AudioEngineService.swapSoundscape(item.id, isActive);
+        await AudioEngineService.swapSoundscape(item.id, sessionState === 'ACTIVE');
     };
 
     const handleBinauralChange = async (item: BinauralWave) => {
         setSelectedBinaural(item);
-        await AudioEngineService.swapBinaural(item.id, isActive);
+        await AudioEngineService.swapBinaural(item.id, sessionState === 'ACTIVE');
     };
 
     const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
+        const totalSecs = Math.floor(Math.max(0, seconds));
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
         return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const toggleLayer = async (layer: 'voice' | 'soundscape' | 'binaural' | 'customTheme') => {
+        const newState = !enabledLayers[layer];
+        setEnabledLayers(prev => ({ ...prev, [layer]: newState }));
+
+        if (layer !== 'customTheme') {
+            await AudioEngineService.setLayerVolume(layer, newState ? volumes[layer] : 0);
+        }
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     };
 
     return (
@@ -602,7 +626,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
             <View style={styles.container}>
                 <StatusBar barStyle="light-content" translucent={true} />
                 <ImageBackground
-                    source={VISUAL_THEMES[selectedTheme].background}
+                    source={(enabledLayers.customTheme || !currentSession?.thumbnailUrl) ? VISUAL_THEMES[selectedTheme].background : { uri: currentSession.thumbnailUrl }}
                     style={styles.background}
                     imageStyle={{ opacity: isImmersiveMode ? 1.0 : 0.6 }}
                     resizeMode="cover"
@@ -620,7 +644,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                     <Ionicons name="chevron-back" size={28} color="#FFF" />
                                 </TouchableOpacity>
                                 <View style={styles.headerInfo}>
-                                    <Text style={styles.sessionStatus}>{isActive ? 'REPRODUCIENDO' : 'PAUSADO'}</Text>
+                                    <Text style={styles.sessionStatus}>{sessionState === 'ACTIVE' ? 'REPRODUCIENDO' : 'PAUSADO'}</Text>
                                     <Text style={styles.sessionTitle}>Respiración Consciente</Text>
                                 </View>
                                 <TouchableOpacity
@@ -641,22 +665,23 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                 <TouchableOpacity
                                     activeOpacity={0.9}
                                     style={styles.orbContainer}
-                                    onPress={(!isActive && !isCountingStart && !isCountingEnd) ? startPreSessionCountdown : toggleTimer}
+                                    onPress={toggleTimer}
                                 >
+
                                     <ThemedBreathingOrb
-                                        size={width * 0.75}
-                                        active={isActive && !isCountingEnd && !isCountingStart}
+                                        size={width * 0.8}
                                         phase={phase === 'holdPost' ? 'hold' : phase}
                                         theme={selectedTheme}
+                                        customColor={enabledLayers.customTheme ? VISUAL_THEMES[selectedTheme].orbGlow : currentSession?.color}
+                                        active={sessionState === 'ACTIVE'}
                                     />
-
                                     <View style={styles.orbContentOverlay}>
                                         <View style={styles.orbInner}>
-                                            {(isCountingStart || isCountingEnd) ? (
+                                            {(sessionState === 'COUNTDOWN' || sessionState === 'ENDING') ? (
                                                 <View style={styles.countdownBox}>
                                                     <Text style={styles.countdownNumber}>{countdownValue}</Text>
                                                     <Text style={styles.countdownSub}>
-                                                        {isCountingStart ? 'EMPIEZA' : 'COMPLETADA'}
+                                                        {sessionState === 'COUNTDOWN' ? 'EMPIEZA' : 'COMPLETADA'}
                                                     </Text>
                                                 </View>
                                             ) : (
@@ -664,7 +689,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                                     <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
 
                                                     {/* Pause Controls Overlay */}
-                                                    {!isActive && timeLeft < (currentSession?.durationMinutes * 60) && (
+                                                    {sessionState === 'PAUSED' && timeLeft < (currentSession?.durationMinutes * 60) && (
                                                         <View style={styles.pauseOverlay}>
                                                             <TouchableOpacity
                                                                 style={styles.pauseBtnMain}
@@ -684,11 +709,10 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                                         </View>
                                                     )}
 
-                                                    {isActive && (
+                                                    {sessionState === 'ACTIVE' && currentSession?.visualSync && (
                                                         <Text style={styles.phaseLabel}>
                                                             {phase === 'inhale' ? 'Inhala' :
-                                                                phase === 'hold' ? 'Mantén' :
-                                                                    phase === 'exhale' ? 'Exhala' : 'Pausa'}
+                                                                phase === 'hold' ? 'Mantén' : 'Exhala'}
                                                         </Text>
                                                     )}
                                                 </>
@@ -697,13 +721,15 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                     </View>
                                 </TouchableOpacity>
                                 <Text style={styles.instructionText}>
-                                    {isActive ? (
-                                        phase === 'inhale' ? 'Inhala por la nariz...' :
-                                            phase === 'hold' ? 'Mantén el aire...' :
-                                                phase === 'exhale' ? 'Exhala suavemente...' : 'Prepárate...'
+                                    {sessionState === 'ACTIVE' ? (
+                                        currentSession?.visualSync ? (
+                                            phase === 'inhale' ? 'Inhala por la nariz...' :
+                                                phase === 'hold' ? 'Mantén el aire...' : 'Exhala suavemente...'
+                                        ) : 'Déjate guiar por la voz...'
                                     ) : (
-                                        isCountingStart ? 'Prepárate...' :
-                                            (timeLeft < (currentSession?.durationMinutes * 60) ? 'Sesión pausada' : 'Pulsa el círculo para iniciar')
+                                        sessionState === 'COUNTDOWN' ? 'Prepárate...' :
+                                            (!isAudioLoaded ? 'Preparando tu espacio...' :
+                                                (timeLeft < (currentSession?.durationMinutes * 60) && sessionState === 'PAUSED' ? 'Sesión pausada' : 'Pulsa el círculo para iniciar'))
                                     )}
                                 </Text>
                             </View>
@@ -731,7 +757,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                     >
                                         <View style={styles.handle} />
                                         <Text style={styles.handleLabel}>
-                                            {isPanelExpanded ? 'OCULTAR CONTROLES' : 'CONTROLES DE AUDIO'}
+                                            {isPanelExpanded ? 'OCULTAR CONFIGURACIÓN' : 'CONFIGURACIÓN'}
                                         </Text>
                                     </TouchableOpacity>
 
@@ -739,8 +765,16 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                         <>
                                             {/* Visual Theme Selector */}
                                             <View style={styles.themesSection}>
-                                                <Text style={styles.sectionLabel}>AMBIENTE VISUAL</Text>
-                                                <View style={styles.themesRow}>
+                                                <View style={styles.sectionHeaderRow}>
+                                                    <Text style={styles.sectionLabel}>AMBIENTE VISUAL</Text>
+                                                    <TouchableOpacity
+                                                        onPress={() => toggleLayer('customTheme')}
+                                                        style={[styles.toggleBtnSmall, enabledLayers.customTheme ? { backgroundColor: VISUAL_THEMES[selectedTheme].orbGlow } : styles.toggleBtnOff]}
+                                                    >
+                                                        <View style={[styles.toggleCircleSmall, enabledLayers.customTheme ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }]} />
+                                                    </TouchableOpacity>
+                                                </View>
+                                                <View style={[styles.themesRow, !enabledLayers.customTheme && { opacity: 0.4 }]}>
                                                     {(Object.keys(VISUAL_THEMES) as ThemeId[]).map((themeId) => {
                                                         const theme = VISUAL_THEMES[themeId];
                                                         const isSelected = selectedTheme === themeId;
@@ -751,8 +785,12 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                                                     styles.themeButton,
                                                                     isSelected && styles.themeButtonSelected
                                                                 ]}
-                                                                onPress={() => setSelectedTheme(themeId)}
+                                                                onPress={() => {
+                                                                    setSelectedTheme(themeId);
+                                                                    if (!enabledLayers.customTheme) setEnabledLayers(prev => ({ ...prev, customTheme: true }));
+                                                                }}
                                                                 activeOpacity={0.7}
+                                                                disabled={!enabledLayers.customTheme}
                                                             >
                                                                 <View style={[
                                                                     styles.themeIcon,
@@ -779,6 +817,8 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                                 color="#F59E0B"
                                                 onPressSelector={() => { }}
                                                 isLocked={false}
+                                                isEnabled={enabledLayers.voice}
+                                                onToggle={() => toggleLayer('voice')}
                                                 onValueChange={(val: number) => handleVolumeChange('voice', val)}
                                             />
 
@@ -789,6 +829,8 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                                 color={selectedSoundscape?.color || "#4A90E2"}
                                                 onPressSelector={() => setShowSoundscapeModal(true)}
                                                 isLocked={false}
+                                                isEnabled={enabledLayers.soundscape}
+                                                onToggle={() => toggleLayer('soundscape')}
                                                 onValueChange={(val: number) => handleVolumeChange('soundscape', val)}
                                             />
 
@@ -799,6 +841,8 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                                                 color={selectedBinaural?.color || "#2DD4BF"}
                                                 onPressSelector={() => isPremium ? setShowBinauralModal(true) : navigation.navigate(Screen.PAYWALL)}
                                                 isLocked={!isPremium}
+                                                isEnabled={enabledLayers.binaural}
+                                                onToggle={() => toggleLayer('binaural')}
                                                 onValueChange={(val: number) => handleVolumeChange('binaural', val)}
                                             />
 
@@ -830,16 +874,11 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     onSelect={handleBinauralChange}
                 />
 
-                <SessionBriefingModal
-                    visible={showBriefingModal}
-                    session={currentSession}
-                    onCancel={() => setShowBriefingModal(false)}
-                    onConfirm={confirmBriefing}
-                />
             </View >
         </GestureHandlerRootView>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#070A15' },
@@ -926,11 +965,26 @@ const styles = StyleSheet.create({
     handle: { width: 40, height: 4, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 2, marginBottom: 8 },
     handleLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '700', letterSpacing: 1.5 },
 
-
     controlContainer: { backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 20, padding: 16, marginBottom: 12 },
     selectorRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     selectorLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    selectorRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     selectorLabel: { color: '#FFF', fontSize: 15, fontWeight: '600' },
+
+    toggleBtn: { width: 44, height: 24, borderRadius: 12, padding: 2, justifyContent: 'center' },
+    toggleBtnSmall: { width: 36, height: 20, borderRadius: 10, padding: 2, justifyContent: 'center' },
+    toggleBtnOff: { backgroundColor: 'rgba(255,255,255,0.1)' },
+    toggleCircle: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#FFF' },
+    toggleCircleSmall: { width: 16, height: 16, borderRadius: 8, backgroundColor: '#FFF' },
+
+    sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    themesSection: { marginBottom: 20 },
+    themesRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+    themeButton: { flex: 1, alignItems: 'center', padding: 12, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 2, borderColor: 'transparent' },
+    themeButtonSelected: { borderColor: 'rgba(255,255,255,0.3)', backgroundColor: 'rgba(255,255,255,0.08)' },
+    themeIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+    themeName: { color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: '600', textAlign: 'center' },
+    themeNameSelected: { color: '#FFF', fontWeight: '700' },
 
     volumeWrapper: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     sliderTrack: { flex: 1, height: 20, justifyContent: 'center' },
@@ -941,7 +995,6 @@ const styles = StyleSheet.create({
     btnSecondary: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center' },
     btnPlay: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#2DD4BF', justifyContent: 'center', alignItems: 'center', shadowColor: '#2DD4BF', shadowOpacity: 0.3, shadowRadius: 10, elevation: 5 },
 
-    // Modal Styles
     modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, justifyContent: 'flex-end' },
     modalBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)' },
     modalContent: { backgroundColor: '#111420', borderTopLeftRadius: 24, borderTopRightRadius: 24, height: height * 0.65, width: '100%', overflow: 'hidden' },
@@ -956,7 +1009,6 @@ const styles = StyleSheet.create({
     optionName: { color: '#FFF', fontSize: 15, fontWeight: '600', marginBottom: 2 },
     optionDesc: { color: 'rgba(255,255,255,0.4)', fontSize: 12 },
 
-    // Briefing Modal Styles
     briefingGradient: { flex: 1 },
     briefingTop: { padding: 24, paddingBottom: 12 },
     briefingBadge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginBottom: 12 },
@@ -977,16 +1029,24 @@ const styles = StyleSheet.create({
     briefingFooter: { padding: 24, paddingTop: 12, backgroundColor: '#111420', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
     startBtn: { backgroundColor: theme.colors.accent, height: 60, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12, shadowColor: theme.colors.accent, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8, marginTop: 20 },
     startBtnText: { color: '#000', fontSize: 16, fontWeight: '800' },
-
-    // Theme Selector Styles
-    themesSection: { marginBottom: 16 },
-    themesRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
-    themeButton: { flex: 1, alignItems: 'center', padding: 12, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 2, borderColor: 'transparent' },
-    themeButtonSelected: { borderColor: 'rgba(255,255,255,0.3)', backgroundColor: 'rgba(255,255,255,0.08)' },
-    themeIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
-    themeName: { color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: '600', textAlign: 'center' },
-    themeNameSelected: { color: '#FFF', fontWeight: '700' },
     divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.05)', marginVertical: 16 },
+
+    entryOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+    },
+    entryMessage: {
+        fontSize: 24,
+        fontWeight: '300',
+        color: '#FFF',
+        textAlign: 'center',
+        lineHeight: 36,
+        letterSpacing: 1,
+        fontStyle: 'italic',
+        maxWidth: '80%',
+    },
 });
 
 export default BreathingTimer;

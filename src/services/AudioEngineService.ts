@@ -33,6 +33,7 @@ class AudioEngineService {
     };
 
     private isInitialized = false;
+    private statusCallback: ((status: any) => void) | null = null;
 
     /**
      * Inicializa el motor de audio con la configuración necesaria
@@ -108,7 +109,15 @@ class AudioEngineService {
             if (config.voiceTrack) {
                 const { sound } = await Audio.Sound.createAsync(
                     { uri: config.voiceTrack },
-                    { shouldPlay: false, volume: this.volumes.voice, isLooping: true }
+                    {
+                        shouldPlay: false,
+                        volume: this.volumes.voice,
+                        isLooping: false,
+                        progressUpdateIntervalMillis: 16 // 60fps for surgical synchronization
+                    },
+                    (status) => {
+                        if (this.statusCallback) this.statusCallback(status);
+                    }
                 );
                 this.voiceTrackSound = sound;
                 console.log('Voice track loaded:', config.voiceTrack);
@@ -123,15 +132,22 @@ class AudioEngineService {
      * Reproduce todas las capas de audio sincronizadas
      */
     async playAll() {
+        await this.playSelectedLayers(['voice', 'soundscape', 'binaural', 'elements']);
+    }
+
+    /**
+     * Reproduce capas específicas de forma selectiva
+     */
+    async playSelectedLayers(layers: Array<'voice' | 'soundscape' | 'binaural' | 'elements'>) {
         try {
             const promises = [];
-            if (this.voiceTrackSound) promises.push(this.voiceTrackSound.playAsync());
-            if (this.soundscapeSound) promises.push(this.soundscapeSound.playAsync());
-            if (this.binauralSound) promises.push(this.binauralSound.playAsync());
-            if (this.elementsSound) promises.push(this.elementsSound.playAsync());
+            if (layers.includes('voice') && this.voiceTrackSound) promises.push(this.voiceTrackSound.playAsync());
+            if (layers.includes('soundscape') && this.soundscapeSound) promises.push(this.soundscapeSound.playAsync());
+            if (layers.includes('binaural') && this.binauralSound) promises.push(this.binauralSound.playAsync());
+            if (layers.includes('elements') && this.elementsSound) promises.push(this.elementsSound.playAsync());
             await Promise.all(promises);
         } catch (error) {
-            console.error('Error playing audio:', error);
+            console.error('Error playing selected layers:', error);
             throw error;
         }
     }
@@ -164,6 +180,9 @@ class AudioEngineService {
         if (layer === 'voice') {
             for (const sound of this.cueCache.values()) {
                 await sound.setVolumeAsync(volume);
+            }
+            if (this.voiceTrackSound) {
+                await this.voiceTrackSound.setVolumeAsync(volume);
             }
             return;
         }
@@ -243,6 +262,13 @@ class AudioEngineService {
         } catch (error) {
             console.error('Error unloading audio:', error);
         }
+    }
+
+    /**
+     * Establece el callback para actualizaciones de estado (Master Clock)
+     */
+    setStatusCallback(callback: ((status: any) => void) | null) {
+        this.statusCallback = callback;
     }
 
     /**
