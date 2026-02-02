@@ -121,7 +121,12 @@ Paziify utiliza buckets públicos para servir contenido multimedia optimizado:
 | `audiobooks` | Archivos MP3 de audiolibros | Public Read |
 | `binaurals` | Frecuencias binaurales (.mp3) | Public Read |
 | `soundscapes` | Ambientes de fondo (lluvia, bosque) | Public Read |
-| `images` | Portadas y assets visuales | Public Read |
+| `images` | Assets UI estáticos | Public Read |
+| `meditation-voices` | Voces pre-grabadas de las 101 sesiones | Public Read |
+| `meditation-thumbnails`| Imágenes IA de las 101 sesiones | Public Read |
+
+> [!TIP]
+> Para detalles sobre la organización de las 101 sesiones y la estrategia de "Zero Local Media", consulta la **[Guía de Arquitectura de Contenido v2.0](./content_architecture_expansion.md)**.
 
 ---
 

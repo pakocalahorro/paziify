@@ -42,6 +42,7 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 *   **Background Execution**: Audio configurado con `staysActiveInBackground: true` y silent audio trick para mantener JavaScript activo.
 *   **Edge Functions**: Sourcing dinámico de metadatos mediante Supabase Edge Functions.
 *   **Pre-carga Dinámica**: Los cues de voz se pre-cargan antes de iniciar la sesión para evitar latencia (solo en modo dinámico).
+*   **Estrategia "Content King" (101 Sesiones)**: Arquitectura diseñada para servir un catálogo masivo desde Supabase Storage sin aumentar el tamaño de la app. Ver **[Arquitectura de Contenido v2.0](./content_architecture_expansion.md)**.
 *   **Mezclador en Pantalla**: Control de volumen independiente para cada capa de audio.
 *   **Sincronización Quirúrgica (v1.8.0)**:
     - **Update Interval**: Configurado a 16ms (60 FPS) para eliminiar latencia visual.
