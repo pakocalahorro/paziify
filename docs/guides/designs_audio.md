@@ -20,6 +20,11 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 ### Buenas Prácticas de UI
 *   **Glassmorphism**: Uso de fondos semi-transparentes (`rgba`) y bordes finos de 1px a 1.5px.
 *   **Paleta Bio-Luminiscente**: Tonos esmeralda, cian eléctrico, magenta neón y blanco puro sobre fondos obsidian (`#000000`) o gradientes profundos.
+*   **Identidad Visual por Guía (v2.0)**:
+    *   **Aria (Mindfulness)**: Realismo sereno, luz natural, tonos cálidos y suaves.
+    *   **Éter (Resiliencia/Sueño)**: "Realismo Etéreo y Humano". Fusión de personas reales en entornos místicos (cuevas, bosques, niebla). Paleta índigo/violeta.
+    *   **Ziro (Rendimiento)**: "Obsidiana Técnica". Fotografía documental de lujo, hiperrealismo, entornos de trabajo/estudio oscuros con iluminación focalizada (spotlight). Paleta Cian/Azul Cobalto.
+    *   **Gaia (Niños)**: "Realismo Mágico". Fotografía vibrante con toques de fantasía sutil.
 *   **Consistencia de Cabezales**: Los catálogos (Oasis) deben seguir la jerarquía: **Header Unificado -> Contenido -> Tarjetas**.
 *   **Patrón UX "Netflix"**: Organización del contenido en carruseles horizontales por categoría con botón de expansión para mejorar el descubrimiento sin abrumar al usuario.
 

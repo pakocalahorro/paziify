@@ -38,6 +38,8 @@ export interface UserState {
     totalMinutes?: number;
     lastSessionDate?: string;
     completedLessons?: string[];
+    favoriteSessionIds?: string[];
+    completedSessionIds?: string[];
     settings: {
         notificationMorning: boolean;
         notificationNight: boolean;

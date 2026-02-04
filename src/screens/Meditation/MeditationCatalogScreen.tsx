@@ -107,30 +107,30 @@ const GUIDES = [
     {
         id: 'aria',
         name: 'Aria',
-        specialty: 'Ansiedad',
+        specialty: 'Calma',
         color: '#66DEFF',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/aria_avatar.png'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/aria_avatar.webp'
     },
     {
         id: 'eter',
         name: 'Éter',
         specialty: 'Sueño',
         color: '#9575CD',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/eter_avatar.png'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/eter_avatar.webp'
     },
     {
         id: 'ziro',
         name: 'Ziro',
         specialty: 'Resiliencia',
         color: '#646CFF',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/ziro_avatar.png'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/ziro_avatar.webp'
     },
     {
         id: 'gaia',
         name: 'Gaia',
         specialty: 'Energía',
         color: '#FFA726',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/gaia_avatar.png'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/gaia_avatar.webp'
     },
 ];
 
@@ -155,9 +155,14 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+    // Randomize sessions on mount for "freshness" feel
+    const [shuffledSessions] = useState(() => [...MEDITATION_SESSIONS].sort(() => 0.5 - Math.random()));
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scrollY = useRef(new Animated.Value(0)).current;
+    const searchAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -166,6 +171,18 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             useNativeDriver: true,
         }).start();
     }, []);
+
+    const toggleSearch = () => {
+        const toValue = isSearchExpanded ? 0 : 1;
+        Animated.spring(searchAnim, {
+            toValue,
+            useNativeDriver: false,
+            friction: 8,
+            tension: 40
+        }).start();
+        setIsSearchExpanded(!isSearchExpanded);
+        if (isSearchExpanded) setSearchQuery('');
+    };
 
     const convertToSession = (medSession: MeditationSession): Session => {
         const categoryKey = medSession.category.toLowerCase();
@@ -225,54 +242,82 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             return [{ title: 'Resultados', data: filteredSessions }];
         }
 
-        const rows: { title: string; data: Session[]; icon?: string; accentColor?: string }[] = [];
+        const rows: { title: string; data: Session[]; icon?: string; accentColor?: string; variant?: 'overlay' | 'standard' | 'poster' | 'wide' | 'hero' | 'section-header' }[] = [];
 
         // 1. tus Favoritos (Solo si hay)
         const favoriteIds = userState.favoriteSessionIds || [];
         if (favoriteIds.length > 0) {
+            // Keep favorites stable/predictable
             const favorites = MEDITATION_SESSIONS
                 .filter(s => favoriteIds.includes(s.id))
                 .map(convertToSession);
             rows.push({ title: 'Tus Favoritos', data: favorites, icon: 'heart', accentColor: '#FF6B6B' });
         }
-
-        // 1.5. Protocolos Técnicos (Core Paziify)
-        const technicalSessions = MEDITATION_SESSIONS
+        // 1.5. Protocolos Técnicos (Core Paziify) - Randomized
+        const technicalSessions = shuffledSessions
             .filter(s => s.isTechnical)
             .slice(0, 6)
             .map(convertToSession);
         if (technicalSessions.length > 0) {
-            rows.push({ title: 'Protocolos Técnicos (Core Paziify)', data: technicalSessions, icon: 'shield-checkmark', accentColor: '#2DD4BF' });
+            // New Separator for Featured Section
+            rows.push({
+                title: 'DESTACADOS',
+                data: [],
+                variant: 'section-header'
+            });
+
+            rows.push({
+                title: 'Meditaciones técnicas',
+                data: technicalSessions,
+                icon: 'shield-checkmark',
+                accentColor: '#2DD4BF',
+                variant: 'hero' // Single card, full width carousel
+            });
         }
 
-        // 2. Sesiones Flash (< 6 min)
-        const flashSessions = MEDITATION_SESSIONS
+        // 2. Sesiones Flash (< 6 min) - Randomized
+        const flashSessions = shuffledSessions
             .filter(s => s.durationMinutes < 6)
             .slice(0, 6)
             .map(convertToSession);
         if (flashSessions.length > 0) {
-            rows.push({ title: 'Sesiones Flash (Menos de 5 min)', data: flashSessions, icon: 'flash', accentColor: '#FBBF24' });
+            rows.push({
+                title: 'Sesiones rápidas',
+                data: flashSessions,
+                icon: 'flash',
+                accentColor: '#FBBF24',
+                variant: 'poster' // Cinematic Poster Styles
+            });
         }
 
-        // 3. Novedades (Últimas 5)
+        // 3. Novedades (Últimas 5) - Keep strict order for "Newest"
         const newArrivals = [...MEDITATION_SESSIONS]
             .reverse()
             .slice(0, 5)
             .map(convertToSession);
-        rows.push({ title: 'Novedades de la Semana', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA' });
+        rows.push({ title: 'Mejor valoradas', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA', variant: 'wide' });
 
-        // 4. Categorías Estándar (Las 10 reales)
+        // SEPARATOR
+        rows.push({
+            title: 'EXPLORA POR CATEGORÍAS',
+            data: [], // Empty data is fine for section-header
+            variant: 'section-header'
+        });
+
+        // 4. Categorías Estándar (Las 10 reales) - Randomized
         CATEGORIES.slice(1).forEach(cat => {
-            const catSessions = MEDITATION_SESSIONS
+            const catSessions = shuffledSessions
                 .filter(s => s.category.toLowerCase() === cat.key)
                 .map(convertToSession);
 
             if (catSessions.length > 0) {
+                // Apply 'standard' variant (Netflix-style) to all standard categories
                 rows.push({
                     title: cat.label,
                     data: catSessions,
                     icon: cat.icon.replace('-outline', ''),
-                    accentColor: cat.color
+                    accentColor: cat.color,
+                    variant: 'standard'
                 });
             }
         });
@@ -290,18 +335,22 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         }
 
         // Special sections
-        if (sectionTitle.includes('Flash')) {
+        if (sectionTitle.includes('Flash') || sectionTitle.includes('rápidas')) {
             setSearchQuery('flash');
             setSelectedCategory(0);
         } else if (sectionTitle.includes('Favoritos')) {
             setSearchQuery('favoritos');
             setSelectedCategory(0);
-        } else if (sectionTitle.includes('Novedades')) {
+        } else if (sectionTitle.includes('Novedades') || sectionTitle.includes('valoradas')) {
             setSearchQuery('novedades');
             setSelectedCategory(0);
-        } else if (sectionTitle.includes('Técnicos') || sectionTitle.includes('Core')) {
+        } else if (sectionTitle.includes('Técnicos') || sectionTitle.includes('Core') || sectionTitle.includes('técnica')) {
             setSearchQuery('core');
             setSelectedCategory(0);
+        } else if (sectionTitle === 'Resultados') {
+            setSearchQuery('');
+            setSelectedCategory(0);
+            setSelectedGuide(null);
         }
     };
 
@@ -323,6 +372,16 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                         onPress={() => navigation.goBack()}
                     >
                         <Ionicons name="arrow-back" size={24} color="#FFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.searchToggleBtn}
+                        onPress={toggleSearch}
+                    >
+                        <Ionicons
+                            name={isSearchExpanded ? "close-outline" : "search-outline"}
+                            size={24}
+                            color={isSearchExpanded ? "#2DD4BF" : "#FFF"}
+                        />
                     </TouchableOpacity>
                     <View style={styles.headerTextContainer}>
                         <Text style={styles.headerTitle} numberOfLines={1}>Oasis de Calma</Text>
@@ -356,8 +415,22 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             )}
 
             {/* Search */}
-            <View style={styles.searchContainer}>
-                <View style={styles.searchWrapper}>
+            <Animated.View style={[
+                styles.searchContainer,
+                {
+                    height: searchAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 72]
+                    }),
+                    opacity: searchAnim,
+                    marginBottom: searchAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 24]
+                    }),
+                    overflow: 'hidden'
+                }
+            ]}>
+                <View style={[styles.searchWrapper, { marginTop: 12 }]}>
                     <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
                     <TextInput
                         style={styles.searchInput}
@@ -365,9 +438,10 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                         placeholderTextColor="rgba(255,255,255,0.3)"
                         value={searchQuery}
                         onChangeText={setSearchQuery}
+                        autoFocus={isSearchExpanded}
                     />
                 </View>
-            </View>
+            </Animated.View>
 
             {/* 2. Categories */}
             <View style={styles.categoryWrap}>
@@ -409,9 +483,9 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
 
             {/* 3. Our Guides */}
             <View style={styles.guidesSection}>
-                <View style={styles.moodHeader}>
+                <View style={styles.moodHeaderCentered}>
                     <Ionicons name="people" size={14} color="#2DD4BF" style={{ marginRight: 8 }} />
-                    <Text style={styles.moodSectionTitle}>NUESTROS GUÍAS</Text>
+                    <Text style={styles.moodSectionTitleLarge}>NUESTROS GUÍAS</Text>
                 </View>
                 <ScrollView
                     horizontal
@@ -487,7 +561,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     data={sessionsByRow}
                     keyExtractor={(item) => item.title}
                     ListHeaderComponent={renderHeader}
-                    renderItem={({ item }) => (
+                    renderItem={({ item, index }) => (
                         <CategoryRow
                             title={item.title}
                             sessions={item.data}
@@ -501,6 +575,8 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                             completedSessionIds={userState.completedSessionIds}
                             scrollY={scrollY}
                             isResults={item.title === 'Resultados'}
+                            variant={item.variant}
+                            index={index}
                         />
                     )}
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
@@ -517,6 +593,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                 <SessionPreviewModal
                     isVisible={!!selectedSession}
                     session={selectedSession}
+                    guideAvatar={GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar}
                     onClose={() => setSelectedSession(null)}
                     onStart={() => {
                         const medData = MEDITATION_SESSIONS.find(s => s.id === selectedSession.id);
@@ -544,6 +621,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     backBtnAbsolute: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    searchToggleBtn: {
         width: 40,
         height: 40,
         borderRadius: 20,
@@ -682,10 +768,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
+    moodHeaderCentered: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+    },
     moodSectionTitle: {
         fontSize: 10,
         fontWeight: '900',
         color: 'rgba(255,255,255,0.4)',
+        letterSpacing: 2,
+    },
+    moodSectionTitleLarge: {
+        fontSize: 12,
+        fontWeight: '900',
+        color: 'rgba(255,255,255,0.6)',
         letterSpacing: 2,
     },
     moodGlassContainer: {
@@ -700,7 +798,7 @@ const styles = StyleSheet.create({
     },
     guidesSection: {
         marginTop: 10,
-        marginBottom: 32,
+        marginBottom: 12, // Reduced from 32
     },
     guidesList: {
         paddingHorizontal: 20,
@@ -757,7 +855,7 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: 'rgba(255,255,255,0.05)',
         marginHorizontal: 20,
-        marginVertical: 10,
+        marginVertical: 4, // Reduced from 10
     },
 });
 

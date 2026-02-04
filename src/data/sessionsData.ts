@@ -87,7 +87,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz y las vibraciones.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calma_sos_3_energy_orb_1770031726848.png"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_001_respiracion-4-7-8.webp"
   },
   {
     "id": "anx_box",
@@ -124,7 +124,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Enfócate en el orbe o mantén los ojos cerrados sintiendo el ritmo constante.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calma_sos_1_emerald_rings_1770031469977.png"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_002_respiracion-cuadrada-box-breathing-.webp"
   },
   {
     "id": "anx_sigh",
@@ -160,7 +160,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#FF6B6B",
     "practiceInstruction": "Realiza una doble inhalación por la nariz y un suspiro largo por la boca.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calma_sos_2_teal_bands_1770031561341.png"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_003_suspiro-ciclico.webp"
   },
   {
     "id": "wake_bellows",
@@ -241,7 +241,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "Protocolo de descanso profundo para recuperar el cerebro sin dormir.",
     "scientificBenefits": "Utiliza el escaneo corporal para entrar en un estado de hipnagogia (limbo entre vigilia y sueño), donde el cerebro repara circuitos dopaminérgicos dañados por el estrés.",
     "durationMinutes": 10,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "fatiga",
       "descanso",
@@ -269,7 +269,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos. Escucha el escaneo corporal y relájate profundamente."
+    "practiceInstruction": "Cierra los ojos. Escucha el escaneo corporal y relájate profundamente.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_006_nsdr-non-sleep-deep-rest-.webp"
   },
   {
     "id": "sleep_478_night",
@@ -277,7 +278,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "La variante optimizada para inducción al sueño profundo.",
     "scientificBenefits": "La retención de 7 segundos permite que la hemoglobina se cargue de oxígeno mientras el CO2 se acumula ligeramente, lo que induce una somnolencia natural y segura.",
     "durationMinutes": 10,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "insomnio",
       "sueño",
@@ -305,7 +306,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": true,
     "color": "#4A90E2",
-    "practiceInstruction": "Ojos cerrados. Deja que la exhalación sea un alivio total."
+    "practiceInstruction": "Ojos cerrados. Deja que la exhalación sea un alivio total.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_007_4-7-8-nocturno.webp"
   },
   {
     "id": "mind_open",
@@ -341,7 +343,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": true,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y observa tus pensamientos como nubes pasando."
+    "practiceInstruction": "Cierra los ojos y observa tus pensamientos como nubes pasando.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_tecnica_008_monitorizacion-abierta.webp"
   },
   {
     "id": "mind_breath",
@@ -377,7 +380,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Ojos cerrados. Siente el aire entrar y salir por tus fosas nasales."
+    "practiceInstruction": "Ojos cerrados. Siente el aire entrar y salir por tus fosas nasales.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_tecnica_009_anclaje-en-la-respiracion.webp"
   },
   {
     "id": "res_stoic",
@@ -413,7 +417,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": true,
     "color": "#FF9F43",
-    "practiceInstruction": "Enfócate en la voz. Visualiza los desafíos con serenidad y ojos cerrados."
+    "practiceInstruction": "Enfócate en la voz. Visualiza los desafíos con serenidad y ojos cerrados.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_tecnica_010_visualizacion-negativa.webp"
   },
   {
     "id": "res_gratitude",
@@ -449,7 +454,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Ojos cerrados. Evoca tres momentos de gratitud mientras respiras."
+    "practiceInstruction": "Ojos cerrados. Evoca tres momentos de gratitud mientras respiras.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_tecnica_011_gratitud-recableado.webp"
   },
   {
     "id": "res_vagus",
@@ -485,7 +491,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": true,
     "color": "#FF9F43",
-    "practiceInstruction": "Ojos suavemente cerrados. Sigue las instrucciones para liberar tensión."
+    "practiceInstruction": "Ojos suavemente cerrados. Sigue las instrucciones para liberar tensión.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_tecnica_012_tonificacion-del-vago.webp"
   },
   {
     "id": "anx_sos",
@@ -521,7 +528,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Sigue el orbe visualmente si te ayuda a anclarte en el presente."
+    "practiceInstruction": "Sigue el orbe visualmente si te ayuda a anclarte en el presente.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_013_s-o-s-rescate-de-panico.webp"
   },
   {
     "id": "anx_calm_ocean",
@@ -556,7 +564,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": true,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos e imagina el vaivén de las olas con tu respiración."
+    "practiceInstruction": "Cierra los ojos e imagina el vaivén de las olas con tu respiración.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_014_calma-oceanica.webp"
   },
   {
     "id": "sleep_yoganidra",
@@ -564,7 +573,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "El sueño psíquico de los yoguis para una recuperación total en minutos.",
     "scientificBenefits": "Lleva al cerebro a las ondas Delta profundas sin necesidad de sueño R.E.M. completo.",
     "durationMinutes": 20,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "insomnio",
       "agotamiento",
@@ -592,7 +601,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": true,
     "color": "#4A90E2",
-    "practiceInstruction": "Ojos cerrados. Entra en el descanso profundo sin dormirte."
+    "practiceInstruction": "Ojos cerrados. Entra en el descanso profundo sin dormirte.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_015_yoga-nidra-directo.webp"
   },
   {
     "id": "sleep_soft_rain",
@@ -600,7 +610,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "Visualización de limpieza para calmar el pensamiento rumiante antes de dormir.",
     "scientificBenefits": "El ruido rosa de la lluvia reduce la variabilidad del pulso facilitando el inicio del sueño.",
     "durationMinutes": 15,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "mente agitada",
       "noche",
@@ -627,7 +637,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate llevar por el sonido de la lluvia."
+    "practiceInstruction": "Cierra los ojos y déjate llevar por el sonido de la lluvia.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_016_lluvia-mental.webp"
   },
   {
     "id": "wake_espresso",
@@ -698,7 +709,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": true,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y expande tu consciencia como el cielo infinito."
+    "practiceInstruction": "Cierra los ojos y expande tu consciencia como el cielo infinito.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_tecnica_018_mente-como-el-cielo.webp"
   },
   {
     "id": "01_respiracion_cuadrada",
@@ -730,7 +742,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_019_respiracion-cuadrada-estabilidad-mental-.webp"
   },
   {
     "id": "02_coherencia_cardiaca",
@@ -762,7 +775,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_020_coherencia-cardiaca-ritmo-5-5-.webp"
   },
   {
     "id": "03_sosiego_pensamientos",
@@ -794,7 +808,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_021_sosiego-de-los-pensamientos.webp"
   },
   {
     "id": "04_tecnica_54321",
@@ -826,7 +841,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_022_tecnica-de-anclaje-5-4-3-2-1.webp"
   },
   {
     "id": "05_desanclaje_pensamientos",
@@ -858,7 +874,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_023_desanclaje-de-pensamientos.webp"
   },
   {
     "id": "06_refugio_respiracion",
@@ -890,7 +907,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_024_la-respiracion-como-refugio.webp"
   },
   {
     "id": "07_sos_reunion",
@@ -922,7 +940,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_026_gestion-del-panico-tierra-.webp"
   },
   {
     "id": "08_gestion_panico",
@@ -954,7 +973,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_025_sos-antes-de-una-reunion-confianza-rapida-.webp"
   },
   {
     "id": "09_alivio_pecho",
@@ -986,7 +1006,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_028_neutralizacion-de-la-rumiacion.webp"
   },
   {
     "id": "10_neutralizar_rumiacion",
@@ -1018,7 +1039,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_027_alivio-de-la-opresion-en-el-pecho.webp"
   },
   {
     "id": "11_reset_3min",
@@ -1050,7 +1072,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF6B6B",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_029_reset-de-3-minutos.webp"
   },
   {
     "id": "11_despertar_mente",
@@ -2362,7 +2385,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_070_mindfulness-en-la-respiracion-anapanasati-.webp"
   },
   {
     "id": "32_escaner_corporal",
@@ -2394,7 +2418,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_071_escaner-corporal-para-el-dia.webp"
   },
   {
     "id": "33_observador_pensamientos",
@@ -2426,7 +2451,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_072_el-observador-de-pensamientos.webp"
   },
   {
     "id": "34_observador_imparcial",
@@ -2458,7 +2484,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_073_el-observador-imparcial.webp"
   },
   {
     "id": "35_mindfulness_sonidos",
@@ -2490,7 +2517,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_074_mindfulness-en-los-sonidos.webp"
   },
   {
     "id": "36_consciencia_sensaciones",
@@ -2522,7 +2550,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_075_consciencia-de-las-sensaciones-el-mapa-vivo-.webp"
   },
   {
     "id": "37_caminata_consciente",
@@ -2554,7 +2583,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_076_caminata-lenta-consciente.webp"
   },
   {
     "id": "38_pausa_pensamientos",
@@ -2586,7 +2616,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_077_la-pausa-entre-pensamientos.webp"
   },
   {
     "id": "39_vipassana_cuerpo",
@@ -2618,7 +2649,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_078_vipassana-el-cuerpo-revelado.webp"
   },
   {
     "id": "40_presencia_ahora",
@@ -2650,7 +2682,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_079_presencia-en-el-.webp"
   },
   {
     "id": "51_flow_state",
@@ -2682,7 +2715,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_080_flow-state-inmersion-total.webp"
   },
   {
     "id": "52_concentracion_laser",
@@ -2714,7 +2748,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_081_concentracion-laser.webp"
   },
   {
     "id": "53_preparacion_creatividad",
@@ -2746,7 +2781,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_082_preparacion-para-la-creatividad.webp"
   },
   {
     "id": "54_enfoque_estudiar",
@@ -2778,7 +2814,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_083_enfoque-antes-de-estudiar.webp"
   },
   {
     "id": "55_mentalidad_ganadora",
@@ -3002,7 +3039,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_090_la-ciudadela-interior.webp"
   },
   {
     "id": "42_gestion_cambio",
@@ -3034,7 +3072,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_091_gestion-del-cambio.webp"
   },
   {
     "id": "43_gratitud_radical",
@@ -3066,7 +3105,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_092_gratitud-radical.webp"
   },
   {
     "id": "44_transformar_fracaso",
@@ -3098,7 +3138,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_093_transformar-el-fracaso.webp"
   },
   {
     "id": "45_observador_tormenta",
@@ -3130,7 +3171,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_094_el-observador-de-la-tormenta.webp"
   },
   {
     "id": "46_fortaleza_adversidad",
@@ -3162,7 +3204,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_095_fortaleza-ante-la-adversidad.webp"
   },
   {
     "id": "47_autocompasion_error",
@@ -3194,7 +3237,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_096_autocompasion-ante-el-error.webp"
   },
   {
     "id": "48_desaprender_juicio",
@@ -3226,7 +3270,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_097_desaprender-el-juicio.webp"
   },
   {
     "id": "49_ecuanimidad_caos",
@@ -3258,7 +3303,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_098_ecuanimidad-en-el-caos.webp"
   },
   {
     "id": "50_previsualizacion_males",
@@ -3290,7 +3336,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_099_previsualizacion-de-males.webp"
   },
   {
     "id": "61_alivio_dolor",
@@ -3617,7 +3664,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Preparación para el Ensueño",
     "description": "Facilitar la transición de ondas beta a ondas alfa y theta, preparando el subconsciente para un sueño reparador.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3642,14 +3689,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_110_preparacion-para-el-ensueno.webp"
   },
   {
     "id": "22_descanso_post_pantallas",
     "title": "Relajación Post-Pantallas",
     "description": "Mitigar el impacto de la luz azul en el cerebro mediante la relajación visual y mental nocturna.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3674,14 +3722,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_111_relajacion-post-pantallas.webp"
   },
   {
     "id": "23_lago_calma",
     "title": "El Lago de la Calma",
     "description": "Inducir un estado de relajación profunda mediante la visualización de un paisaje acuático estático, ideal para desconectar el sistema de alerta.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3706,14 +3755,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_112_el-lago-de-la-calma.webp"
   },
   {
     "id": "24_respiracion_luna",
     "title": "Respiración de la Luna (Chandra Bhedana)",
-    "description": "Enfriar el sistema y calmar la mente inhalando exclusivamente por la fosa nasal izquierda.",
+    "description": "Enfriar el sistema y calmar la mente inhalando exclusivamente por la fosa natal izquierda.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3738,14 +3788,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_113_respiracion-de-la-luna-chandra-bhedana-.webp"
   },
   {
     "id": "25_478_nocturno",
     "title": "4-7-8 Nocturno (Hacia el Sueño)",
     "description": "Preparar la química cerebral para el sueño profundo mediante la técnica 4-7-8, optimizada con una guía narrativa de entrega al descanso.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3770,14 +3821,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_114_4-7-8-nocturno-hacia-el-sueno-.webp"
   },
   {
     "id": "26_relajacion_jacobson",
     "title": "Relajación Muscular Progresiva (Jacobson)",
     "description": "Eliminar la tensión residual en los músculos para asegurar un descanso sin interrupciones físicas.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3802,14 +3854,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_115_relajacion-muscular-progresiva-jacobson-.webp"
   },
   {
     "id": "27_vaciado_mental",
     "title": "Soltar el Día (Vaciado Mental)",
     "description": "Cerrar psicológicamente los asuntos pendientes del día para evitar el insomnio ansioso.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3834,14 +3887,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_116_soltar-el-dia-vaciado-mental-.webp"
   },
   {
     "id": "28_alivio_insomnio",
     "title": "Sosiego del Insomnio",
     "description": "Reducir la ansiedad de no poder dormir mediante la aceptación y el descanso consciente sin presión.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3866,14 +3920,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_117_sosiego-del-insomnio.webp"
   },
   {
     "id": "29_respiracion_abdominal",
     "title": "Respiración Abdominal Profunda",
     "description": "Activar el sistema parasimpático de forma inmediata para bajar el pulso antes de dormir.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3898,14 +3953,15 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_118_respiracion-abdominal-profunda.webp"
   },
   {
     "id": "30_silencio_mente",
     "title": "El Silencio de la Mente",
     "description": "Alcanzar un estado de vacuidad mental antes del sueño profundo, eliminando el ruido blanco atencional.",
     "durationMinutes": 5,
-    "category": "sueño",
+    "category": "sueno",
     "moodTags": [
       "sueño"
     ],
@@ -3931,7 +3987,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1531353179753-ff39764a7cc3?w=800&q=80"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_119_el-silencio-de-la-mente.webp"
   }
 ];
 

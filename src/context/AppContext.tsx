@@ -20,6 +20,7 @@ interface AppContextType {
     exitGuestMode: () => void;
     signOut: () => Promise<void>;
     signInWithGoogle: () => Promise<void>;
+    toggleFavorite: (sessionId: string) => void;
 }
 
 const defaultUserState: UserState = {
@@ -31,6 +32,8 @@ const defaultUserState: UserState = {
     resilienceScore: 50,
     isPlusMember: false,
     isGuest: false,
+    favoriteSessionIds: [],
+    completedSessionIds: [],
     settings: {
         notificationMorning: true,
         notificationNight: true,
@@ -183,6 +186,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setUserState(prev => ({ ...prev, ...updates }));
     };
 
+    const toggleFavorite = (sessionId: string) => {
+        const currentFavorites = userState.favoriteSessionIds || [];
+        const isFavorite = currentFavorites.includes(sessionId);
+
+        const newFavorites = isFavorite
+            ? currentFavorites.filter(id => id !== sessionId)
+            : [...currentFavorites, sessionId];
+
+        updateUserState({ favoriteSessionIds: newFavorites });
+    };
+
     return (
         <AppContext.Provider
             value={{
@@ -201,6 +215,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 exitGuestMode,
                 signOut,
                 signInWithGoogle,
+                toggleFavorite,
             }}
         >
             {children}
