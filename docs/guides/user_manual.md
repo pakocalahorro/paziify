@@ -109,4 +109,4 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ---
 ---
-*Última revisión: 4 de Febrero de 2026 - v1.9.0 (Catalog Mastery & ASCII Sync)*
+*Última revisión: 4 de Febrero de 2026 - v1.10.0 (Catalog Mastery & ASCII Sync)*
