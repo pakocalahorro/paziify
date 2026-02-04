@@ -17,6 +17,12 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 *   **Movimiento Lava Flow**: Energía interna generada por gradientes radiales que se desplazan de forma independiente para evitar el estatismo.
 *   **Renderizado de Alta Fidelidad**: Evitamos el componente `Blur` de Skia en capas transparentes para prevenir el "lavado gris" (Blur Bleaching). En su lugar, usamos gradientes multi-parada (`positions`) para suavizar los bordes.
 
+#### Separadores de Frecuencia (Soundwaves)
+*   **Concepto**: Líneas de energía viva que separan grandes bloques de contenido.
+*   **Implementación Skia**: `Path` personalizado con alta amplitud y `BlurMask` para el resplandor cian/blanco.
+*   **Animación**: Uso de `useSharedValue` y `withRepeat` de Reanimated para pulsar la opacidad (0.3 <-> 1.0), simulando respiración.
+*   **Tipografía**: Textos de sección con sombra negra sólida (`textShadowColor: 'rgba(0,0,0,1)'`) para crear un efecto de "silueta" o "retroiluminación" de alto contraste sobre la onda brillante.
+
 ### Buenas Prácticas de UI
 *   **Glassmorphism**: Uso de fondos semi-transparentes (`rgba`) y bordes finos de 1px a 1.5px.
 *   **Paleta Bio-Luminiscente**: Tonos esmeralda, cian eléctrico, magenta neón y blanco puro sobre fondos obsidian (`#000000`) o gradientes profundos.

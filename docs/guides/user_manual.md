@@ -29,6 +29,11 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 
 ### 🧘 Sesiones de Meditación (Experiencia v2.0)
 - **Navegación Intuitiva (Estilo Netflix)**: Explora el contenido mediante filas horizontales deslizables organizadas por temáticas. Usa el botón "Ver Todo" debajo de cada título para entrar en una vista de lista vertical detallada de esa categoría.
+- **Jerarquía Visual Clara**:
+    - **DESTACADOS**: Sección superior con "Meditaciones Técnicas" (Core), "Sesiones Rápidas" (Poster) y "Mejor Valoradas" (Wide).
+    - **EXPLORA POR CATEGORÍAS**: Sección general con las 10 áreas temáticas.
+    - **Separadores Vivos**: Líneas de energía ("Soundwaves") que respiran y separan visualmente estos grandes bloques.
+- **Contenido Fresco (Smart Shuffle)**: Cada vez que abres la app, el orden de las sesiones técnicas y categorías cambia sutilmente para que siempre descubras algo nuevo, manteniendo tus Favoritos y Novedades siempre a mano.
 - **Categorización Maestra (10 Temáticas)**: El catálogo ahora se organiza en 10 áreas reales del bienestar: *Calma SOS, Mindfulness, Sueño, Resiliencia, Rendimiento, Despertar, Salud, Hábitos, Emocional* y *Niños*. Cada una con su color e iconografía distintiva.
 - **Identidad de Guías**: Disfruta de la personalidad vocal única de nuestros 4 guías (Aria, Ziro, Éter y Gaia) en sus especialidades correspondientes.
 - **Tarjetas de Cristal**: Diseño transparente con fondos inmersivos que se integran con el ambiente.
