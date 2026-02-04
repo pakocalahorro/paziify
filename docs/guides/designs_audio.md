@@ -21,6 +21,7 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 *   **Glassmorphism**: Uso de fondos semi-transparentes (`rgba`) y bordes finos de 1px a 1.5px.
 *   **Paleta Bio-Luminiscente**: Tonos esmeralda, cian eléctrico, magenta neón y blanco puro sobre fondos obsidian (`#000000`) o gradientes profundos.
 *   **Consistencia de Cabezales**: Los catálogos (Oasis) deben seguir la jerarquía: **Header Unificado -> Contenido -> Tarjetas**.
+*   **Patrón UX "Netflix"**: Organización del contenido en carruseles horizontales por categoría con botón de expansión para mejorar el descubrimiento sin abrumar al usuario.
 
 ---
 
@@ -42,7 +43,14 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 *   **Background Execution**: Audio configurado con `staysActiveInBackground: true` y silent audio trick para mantener JavaScript activo.
 *   **Edge Functions**: Sourcing dinámico de metadatos mediante Supabase Edge Functions.
 *   **Pre-carga Dinámica**: Los cues de voz se pre-cargan antes de iniciar la sesión para evitar latencia (solo en modo dinámico).
-*   **Estrategia "Content King" (101 Sesiones)**: Arquitectura diseñada para servir un catálogo masivo desde Supabase Storage sin aumentar el tamaño de la app. Ver **[Arquitectura de Contenido v2.0](./content_architecture_expansion.md)**.
+*   **Estrategia "Content King" (119 Sesiones)**: Arquitectura diseñada para servir un catálogo masivo desde Supabase Storage. Ver **[Arquitectura de Contenido v2.0](./content_architecture_expansion.md)**.
+*   **Protocolo de Nomenclatura ASCII**: Todos los archivos de audio y sus URLs deben ser 100% ASCII (ej. `sueno` en lugar de `sueño`) para garantizar la compatibilidad universal y evitar errores 400 en la nube.
+*   **Mapeo de Voces y Especialidades (v1.9.0)**:
+    - **Aria** (Femenina - Calm): Especialista en Calma SOS y Mindfulness.
+    - **Ziro** (Masculina - Standard): Especialista en Rendimiento (Sesiones 080-089) y Enfoque.
+    - **Éter** (Masculina - Deep): Especialista en Sueño y Resiliencia (Sesiones 090-099).
+    - **Gaia** (Femenina - Kids): Especialista en Niños y Despertar/Energía.
+    - **Paziify Team**: Protocolos técnicos y core del sistema.
 *   **Mezclador en Pantalla**: Control de volumen independiente para cada capa de audio.
 *   **Sincronización Quirúrgica (v1.8.0)**:
     - **Update Interval**: Configurado a 16ms (60 FPS) para eliminiar latencia visual.
@@ -111,4 +119,15 @@ Todas las nuevas imágenes y audios deben alojarse en **Supabase Storage**.
 *   **Imágenes**: Registrar en `src/constants/images.ts`.
 *   **Audio**: Registrar URLs en `src/data/soundscapesData.ts` (Soundscapes/Binaurales).
 > [!WARNING]
-> **No subir archivos de audio a `src/assets/`**. El proyecto mantiene una política de "Zero Local Media" para mantener el APK ligero (<30MB Release).
+---
+
+## 6. Herramientas de Mantenimiento (Scripts)
+
+Para mantener el catálogo de 119 sesiones organizado y sincronizado, disponemos de las siguientes herramientas en la carpeta `scripts/`:
+
+*   **`sync_sessions.js`**: El cerebro de la organización. Cruza los guiones de `docs/scripts/` con el código en `sessionsData.ts`. Asigna guías, categorías y genera las URLs de audio siguiendo el protocolo ASCII.
+*   **`prepare_upload.js`**: El puente a la nube. Escanea `sessionsData.ts` y renombra físicamente tus archivos MP3 locales en `assets/voice-tracks-renamed/` para que coincidan con lo que la app espera.
+*   **Auditores (`catalog_audit.js`, etc.)**: Generan informes de consistencia para detectar PDFs o audios faltantes.
+
+> [!TIP]
+> **Regla de Oro**: Si cambias algo en la autoría o categorías, primero corre `sync_sessions.js`, luego `prepare_upload.js`, y finalmente sube el contenido a Supabase.

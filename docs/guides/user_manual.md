@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.8.0 Surgical Sync) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v1.9.0 Catalog Mastery) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.8**. Esta versión introduce la **Sincronización Quirúrgica** de audio-vocal, el flujo de **Inicio Zen** y refinamientos de UI para mayor inmersión.
+Bienvenido a la guía oficial de **Paziify v1.9**. Esta versión introduce el **Catálogo Maestro** con 10 categorías sincronizadas, rescate de voces de guías y optimización ASCII de audio.
 
 ---
 
@@ -28,7 +28,10 @@ Hemos transformado la Brújula Interior en una experiencia interactiva mágica:
 La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamentales que comparten la estética "Glassmorphic Zen":
 
 ### 🧘 Sesiones de Meditación (Experiencia v2.0)
-- **Tarjetas de Cristal**: Nuevo diseño transparente con fondos inmersivos que se integran con el ambiente.
+- **Navegación Intuitiva (Estilo Netflix)**: Explora el contenido mediante filas horizontales deslizables organizadas por temáticas. Usa el botón "Ver Todo" debajo de cada título para entrar en una vista de lista vertical detallada de esa categoría.
+- **Categorización Maestra (10 Temáticas)**: El catálogo ahora se organiza en 10 áreas reales del bienestar: *Calma SOS, Mindfulness, Sueño, Resiliencia, Rendimiento, Despertar, Salud, Hábitos, Emocional* y *Niños*. Cada una con su color e iconografía distintiva.
+- **Identidad de Guías**: Disfruta de la personalidad vocal única de nuestros 4 guías (Aria, Ziro, Éter y Gaia) en sus especialidades correspondientes.
+- **Tarjetas de Cristal**: Diseño transparente con fondos inmersivos que se integran con el ambiente.
 - **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
 - **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
 - **Sincronización Grado Médico (v1.8.0)**: El orbe y las instrucciones de voz ahora respiran al unísono con una precisión de 16ms, sin importar la velocidad de la sesión.
@@ -101,4 +104,4 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ---
 ---
-*Última revisión: 2 de Febrero de 2026 - v1.8.0 (Surgical Sync & Zen Flow)*
+*Última revisión: 4 de Febrero de 2026 - v1.9.0 (Catalog Mastery & ASCII Sync)*

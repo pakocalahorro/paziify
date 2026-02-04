@@ -10,6 +10,8 @@ export const IMAGES = {
     SESSION_JOY: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80', // Mountain meadow
     SESSION_PEACE: 'https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=800&q=80', // Calm blue nature
     SESSION_ENERGY: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80', // Golden hour nature
+    SESSION_FOCUS: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80', // Calm focus
+    SESSION_ROUTINE: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&q=80', // Organized routine
 
     // Legacy support (to avoid crashes)
     SESSION_1: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80',

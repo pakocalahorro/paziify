@@ -10,6 +10,8 @@ import {
     Dimensions,
     StatusBar,
     ImageBackground,
+    ScrollView,
+    Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -88,27 +90,69 @@ const BacklitSilhouette: React.FC = () => {
 };
 
 const CATEGORIES = [
-    { label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
-    { label: 'Calma SOS', icon: 'water-outline', color: '#66DEFF' },
-    { label: 'Despertar', icon: 'sunny-outline', color: '#FFA726' },
-    { label: 'Sueño', icon: 'moon-outline', color: '#9575CD' },
-    { label: 'Mindfulness', icon: 'leaf-outline', color: '#66BB6A' },
-    { label: 'Resiliencia', icon: 'heart-outline', color: '#FF6B9D' },
+    { label: 'Todo', icon: 'apps-outline', color: '#646CFF', key: 'all' },
+    { label: 'Calma SOS', icon: 'water-outline', color: '#66DEFF', key: 'calmasos' },
+    { label: 'Mindfulness', icon: 'leaf-outline', color: '#66BB6A', key: 'mindfulness' },
+    { label: 'Sueño', icon: 'moon-outline', color: '#9575CD', key: 'sueno' },
+    { label: 'Resiliencia', icon: 'fitness-outline', color: '#FF6B9D', key: 'resiliencia' },
+    { label: 'Rendimiento', icon: 'flash-outline', color: '#FBBF24', key: 'rendimiento' },
+    { label: 'Despertar', icon: 'sunny-outline', color: '#FFA726', key: 'despertar' },
+    { label: 'Salud', icon: 'medkit-outline', color: '#2DD4BF', key: 'salud' },
+    { label: 'Hábitos', icon: 'calendar-outline', color: '#A78BFA', key: 'habitos' },
+    { label: 'Emocional', icon: 'heart-outline', color: '#FF8A80', key: 'emocional' },
+    { label: 'Niños', icon: 'happy-outline', color: '#FFD54F', key: 'kids' },
+];
+
+const GUIDES = [
+    {
+        id: 'aria',
+        name: 'Aria',
+        specialty: 'Ansiedad',
+        color: '#66DEFF',
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/aria_avatar.png'
+    },
+    {
+        id: 'eter',
+        name: 'Éter',
+        specialty: 'Sueño',
+        color: '#9575CD',
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/eter_avatar.png'
+    },
+    {
+        id: 'ziro',
+        name: 'Ziro',
+        specialty: 'Resiliencia',
+        color: '#646CFF',
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/ziro_avatar.png'
+    },
+    {
+        id: 'gaia',
+        name: 'Gaia',
+        specialty: 'Energía',
+        color: '#FFA726',
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/gaia_avatar.png'
+    },
 ];
 
 const SESSION_ASSETS: Record<string, string> = {
-    'ansiedad': IMAGES.SESSION_PEACE,
-    'sueño': 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=800&q=80',
+    'calmasos': IMAGES.SESSION_PEACE,
+    'sueno': 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=800&q=80',
     'mindfulness': IMAGES.SESSION_JOY,
     'resiliencia': IMAGES.SESSION_MOTIVATION,
     'despertar': IMAGES.SESSION_ENERGY,
+    'rendimiento': IMAGES.SESSION_FOCUS,
+    'salud': 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=800&q=80',
+    'habitos': IMAGES.SESSION_ROUTINE,
+    'emocional': 'https://images.unsplash.com/photo-1516589174184-c685eb32140a?w=800&q=80',
+    'kids': 'https://images.unsplash.com/photo-1536640712247-c7553ee84681?w=800&q=80',
     'default': IMAGES.SESSION_PEACE,
 };
 
 const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState, isNightMode } = useApp();
+    const { userState, isNightMode, toggleFavorite } = useApp();
     const [selectedCategory, setSelectedCategory] = useState(0);
+    const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
 
@@ -125,11 +169,12 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
 
     const convertToSession = (medSession: MeditationSession): Session => {
         const categoryKey = medSession.category.toLowerCase();
+        const catInfo = CATEGORIES.find(c => c.key === categoryKey);
         return {
             id: medSession.id,
             title: medSession.title,
             duration: medSession.durationMinutes,
-            category: medSession.category.toLowerCase() === 'ansiedad' ? 'Calma SOS' : medSession.category,
+            category: catInfo ? catInfo.label : medSession.category,
             isPlus: medSession.isPremium,
             image: SESSION_ASSETS[categoryKey] || SESSION_ASSETS['default'],
             thumbnailUrl: medSession.thumbnailUrl,
@@ -138,39 +183,127 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     const filteredSessions = useMemo(() => {
+        const query = searchQuery.toLowerCase().trim();
+
         return MEDITATION_SESSIONS.filter(session => {
-            const matchesSearch = session.title.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesCategory = selectedCategory === 0 ||
-                session.category.toLowerCase() === CATEGORIES[selectedCategory].label.toLowerCase();
-            return matchesSearch && matchesCategory;
+            // Special internal filters for "See All"
+            if (query === 'favoritos') {
+                return (userState.favoriteSessionIds || []).includes(session.id);
+            }
+            if (query === 'flash') {
+                return session.durationMinutes < 6;
+            }
+            if (query === 'novedades') {
+                const newIds = [...MEDITATION_SESSIONS].reverse().slice(0, 5).map(s => s.id);
+                return newIds.includes(session.id);
+            }
+            if (query === 'core') {
+                return session.isTechnical;
+            }
+
+            const matchesSearch = query === '' ||
+                session.title.toLowerCase().includes(query) ||
+                session.description.toLowerCase().includes(query) ||
+                session.scientificBenefits.toLowerCase().includes(query) ||
+                session.creatorName.toLowerCase().includes(query) ||
+                (session.moodTags && session.moodTags.some(tag => tag.toLowerCase().includes(query)));
+
+            const sCat = session.category.toLowerCase();
+            const activeCat = CATEGORIES[selectedCategory];
+            const matchesCategory = selectedCategory === 0 || sCat === activeCat.key;
+
+            const matchesGuide = !selectedGuide || session.creatorName.toLowerCase() === selectedGuide.toLowerCase();
+
+            return matchesSearch && matchesCategory && matchesGuide;
         }).map(convertToSession);
-    }, [searchQuery, selectedCategory]);
+    }, [searchQuery, selectedCategory, selectedGuide, userState.favoriteSessionIds]);
 
     const sessionsByRow = useMemo(() => {
-        if (selectedCategory !== 0 || searchQuery !== '') {
-            // If filtered, return single row
+        const hasActiveFilter = selectedCategory !== 0 || searchQuery !== '' || selectedGuide !== null;
+
+        if (hasActiveFilter) {
             return [{ title: 'Resultados', data: filteredSessions }];
         }
 
-        // Group by category for the "Discovery" view
-        const rows = CATEGORIES.slice(1).map(cat => {
-            const matchesCategory = (sessionCat: string) => {
-                const sCat = sessionCat.toLowerCase();
-                const lCat = cat.label.toLowerCase();
-                if (lCat === 'calma sos') return sCat === 'ansiedad';
-                return sCat === lCat;
-            };
+        const rows: { title: string; data: Session[]; icon?: string; accentColor?: string }[] = [];
 
-            return {
-                title: cat.label,
-                data: MEDITATION_SESSIONS
-                    .filter(s => matchesCategory(s.category))
-                    .map(convertToSession)
-            };
-        }).filter(row => row.data.length > 0);
+        // 1. tus Favoritos (Solo si hay)
+        const favoriteIds = userState.favoriteSessionIds || [];
+        if (favoriteIds.length > 0) {
+            const favorites = MEDITATION_SESSIONS
+                .filter(s => favoriteIds.includes(s.id))
+                .map(convertToSession);
+            rows.push({ title: 'Tus Favoritos', data: favorites, icon: 'heart', accentColor: '#FF6B6B' });
+        }
+
+        // 1.5. Protocolos Técnicos (Core Paziify)
+        const technicalSessions = MEDITATION_SESSIONS
+            .filter(s => s.isTechnical)
+            .slice(0, 6)
+            .map(convertToSession);
+        if (technicalSessions.length > 0) {
+            rows.push({ title: 'Protocolos Técnicos (Core Paziify)', data: technicalSessions, icon: 'shield-checkmark', accentColor: '#2DD4BF' });
+        }
+
+        // 2. Sesiones Flash (< 6 min)
+        const flashSessions = MEDITATION_SESSIONS
+            .filter(s => s.durationMinutes < 6)
+            .slice(0, 6)
+            .map(convertToSession);
+        if (flashSessions.length > 0) {
+            rows.push({ title: 'Sesiones Flash (Menos de 5 min)', data: flashSessions, icon: 'flash', accentColor: '#FBBF24' });
+        }
+
+        // 3. Novedades (Últimas 5)
+        const newArrivals = [...MEDITATION_SESSIONS]
+            .reverse()
+            .slice(0, 5)
+            .map(convertToSession);
+        rows.push({ title: 'Novedades de la Semana', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA' });
+
+        // 4. Categorías Estándar (Las 10 reales)
+        CATEGORIES.slice(1).forEach(cat => {
+            const catSessions = MEDITATION_SESSIONS
+                .filter(s => s.category.toLowerCase() === cat.key)
+                .map(convertToSession);
+
+            if (catSessions.length > 0) {
+                rows.push({
+                    title: cat.label,
+                    data: catSessions,
+                    icon: cat.icon.replace('-outline', ''),
+                    accentColor: cat.color
+                });
+            }
+        });
 
         return rows;
-    }, [filteredSessions, selectedCategory, searchQuery]);
+    }, [filteredSessions, selectedCategory, searchQuery, userState.favoriteSessionIds]);
+
+    const handleSeeAll = (sectionTitle: string) => {
+        // Find if it matches a category
+        const catIndex = CATEGORIES.findIndex(c => c.label.toLowerCase() === sectionTitle.toLowerCase());
+        if (catIndex !== -1) {
+            setSelectedCategory(catIndex);
+            setSearchQuery('');
+            return;
+        }
+
+        // Special sections
+        if (sectionTitle.includes('Flash')) {
+            setSearchQuery('flash');
+            setSelectedCategory(0);
+        } else if (sectionTitle.includes('Favoritos')) {
+            setSearchQuery('favoritos');
+            setSelectedCategory(0);
+        } else if (sectionTitle.includes('Novedades')) {
+            setSearchQuery('novedades');
+            setSelectedCategory(0);
+        } else if (sectionTitle.includes('Técnicos') || sectionTitle.includes('Core')) {
+            setSearchQuery('core');
+            setSelectedCategory(0);
+        }
+    };
 
     const handleSessionClick = (session: Session) => {
         const fullSession = MEDITATION_SESSIONS.find(s => s.id === session.id);
@@ -182,27 +315,45 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const renderHeader = () => (
         <View style={styles.headerContent}>
             {/* Header */}
+            {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.backBtnAbsolute}
-                    onPress={() => navigation.goBack()}
-                >
-                    <Ionicons name="arrow-back" size={24} color="#FFF" />
-                </TouchableOpacity>
-
                 <View style={styles.headerRow}>
+                    <TouchableOpacity
+                        style={styles.backBtnAbsolute}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#FFF" />
+                    </TouchableOpacity>
                     <View style={styles.headerTextContainer}>
-                        <Text style={styles.headerLabel}>OASIS DE</Text>
-                        <View style={styles.headerTop}>
-                            <Text style={styles.headerTitle}>Calma</Text>
-                        </View>
+                        <Text style={styles.headerTitle} numberOfLines={1}>Oasis de Calma</Text>
                     </View>
-                    <BacklitSilhouette />
+                    <View style={styles.silhouetteAbsolute}>
+                        <BacklitSilhouette />
+                    </View>
                 </View>
-                <Text style={styles.headerSubtitle}>
-                    Tu espacio para reconectar y encontrar la calma interior.
-                </Text>
             </View>
+
+            {/* Active Filter Header (Back Button) */}
+            {(searchQuery !== '' || selectedCategory !== 0 || selectedGuide !== null) && (
+                <View style={styles.activeFilterHeader}>
+                    <TouchableOpacity
+                        style={styles.backFilterRow}
+                        onPress={() => {
+                            setSearchQuery('');
+                            setSelectedCategory(0);
+                            setSelectedGuide(null);
+                        }}
+                    >
+                        <Ionicons name="arrow-back-outline" size={20} color="#2DD4BF" />
+                        <Text style={styles.backFilterText}>Volver al catálogo</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.resultsTitle}>
+                        {selectedGuide ? `Sesiones de ${selectedGuide}` :
+                            searchQuery !== '' ? `Búsqueda: ${searchQuery}` :
+                                CATEGORIES[selectedCategory].label}
+                    </Text>
+                </View>
+            )}
 
             {/* Search */}
             <View style={styles.searchContainer}>
@@ -256,6 +407,61 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                 />
             </View>
 
+            {/* 3. Our Guides */}
+            <View style={styles.guidesSection}>
+                <View style={styles.moodHeader}>
+                    <Ionicons name="people" size={14} color="#2DD4BF" style={{ marginRight: 8 }} />
+                    <Text style={styles.moodSectionTitle}>NUESTROS GUÍAS</Text>
+                </View>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.guidesList}
+                >
+                    {GUIDES.map(guide => {
+                        const isActive = selectedGuide === guide.name;
+                        return (
+                            <TouchableOpacity
+                                key={guide.id}
+                                style={styles.guideItem}
+                                onPress={() => setSelectedGuide(isActive ? null : guide.name)}
+                            >
+                                <View style={styles.avatarWrapper}>
+                                    {isActive && (
+                                        <Canvas style={styles.avatarGlow}>
+                                            <Circle cx={32} cy={32} r={32}>
+                                                <RadialGradient
+                                                    c={vec(32, 32)}
+                                                    r={32}
+                                                    colors={[guide.color, 'transparent']}
+                                                />
+                                                <Blur blur={10} />
+                                            </Circle>
+                                        </Canvas>
+                                    )}
+                                    <View style={[
+                                        styles.avatarContainer,
+                                        isActive && { borderColor: guide.color, borderWidth: 2 }
+                                    ]}>
+                                        <Image
+                                            source={{ uri: guide.avatar }}
+                                            style={styles.avatarImage}
+                                        />
+                                    </View>
+                                </View>
+                                <Text style={[
+                                    styles.guideName,
+                                    isActive && { color: guide.color, fontWeight: 'bold' }
+                                ]}>
+                                    {guide.name}
+                                </Text>
+                                <Text style={styles.guideSpecialty}>{guide.specialty}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </ScrollView>
+            </View>
+
             <View style={styles.listSeparator} />
         </View>
     );
@@ -268,6 +474,12 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             {/* Premium Background */}
             <View style={StyleSheet.absoluteFill}>
                 <BackgroundWrapper nebulaMode="healing" />
+                {/* Visual Fix: High-Intensity Day Sky (0-50%) -> Deep Focus for Cards (70-100%) */}
+                <LinearGradient
+                    colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
+                    locations={[0, 0.15, 0.45, 0.75, 0.98]}
+                    style={StyleSheet.absoluteFill}
+                />
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
@@ -279,9 +491,16 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                         <CategoryRow
                             title={item.title}
                             sessions={item.data}
+                            icon={item.icon}
+                            accentColor={item.accentColor}
                             onSessionPress={handleSessionClick}
+                            onFavoritePress={(session) => toggleFavorite(session.id)}
+                            onSeeAll={handleSeeAll}
                             isPlusMember={userState.isPlusMember}
+                            favoriteSessionIds={userState.favoriteSessionIds}
+                            completedSessionIds={userState.completedSessionIds}
                             scrollY={scrollY}
+                            isResults={item.title === 'Resultados'}
                         />
                     )}
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
@@ -321,43 +540,37 @@ const styles = StyleSheet.create({
         // No specific wrapper style needed
     },
     header: {
-        marginBottom: 20,
+        marginBottom: 8,
         paddingHorizontal: 20,
     },
     backBtnAbsolute: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         backgroundColor: 'rgba(255,255,255,0.06)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
-        alignSelf: 'flex-start',
+        marginRight: 16,
     },
     headerRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: 'center',
     },
     headerTextContainer: {
         flex: 1,
     },
-    headerLabel: {
-        fontSize: 11,
-        fontWeight: '800',
-        color: '#2DD4BF',
-        letterSpacing: 3,
-        marginBottom: 4,
-    },
-    headerTop: {
-        flexDirection: 'row',
-        marginBottom: 10,
-    },
     headerTitle: {
-        fontSize: 36,
+        fontSize: 26,
         fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: -1,
+        letterSpacing: -0.5,
+    },
+    silhouetteAbsolute: {
+        position: 'absolute',
+        right: -30,
+        top: -30,
+        transform: [{ scale: 0.5 }],
+        opacity: 0.8,
     },
     headerSubtitle: {
         fontSize: 16,
@@ -389,7 +602,7 @@ const styles = StyleSheet.create({
     },
     searchContainer: {
         paddingHorizontal: 20,
-        marginBottom: 20,
+        marginBottom: 24,
     },
     searchWrapper: {
         flexDirection: 'row',
@@ -406,10 +619,31 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         color: '#FFF',
         fontSize: 15,
-        fontWeight: '500',
+    },
+    activeFilterHeader: {
+        paddingHorizontal: 20,
+        marginBottom: 20,
+        marginTop: 10,
+    },
+    backFilterRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    backFilterText: {
+        color: '#2DD4BF',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginLeft: 8,
+    },
+    resultsTitle: {
+        fontSize: 22,
+        fontWeight: '900',
+        color: '#FFFFFF',
+        letterSpacing: -0.5,
     },
     categoryWrap: {
-        marginBottom: 20,
+        marginBottom: 32,
     },
     categoryList: {
         paddingLeft: 20,
@@ -438,11 +672,92 @@ const styles = StyleSheet.create({
     listContent: {
         paddingTop: 10,
     },
+    moodSection: {
+        marginTop: 10,
+        paddingHorizontal: 20,
+        marginBottom: 32,
+    },
+    moodHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    moodSectionTitle: {
+        fontSize: 10,
+        fontWeight: '900',
+        color: 'rgba(255,255,255,0.4)',
+        letterSpacing: 2,
+    },
+    moodGlassContainer: {
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: 20,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    moodList: {
+        paddingHorizontal: 16,
+    },
+    guidesSection: {
+        marginTop: 10,
+        marginBottom: 32,
+    },
+    guidesList: {
+        paddingHorizontal: 20,
+        gap: 15,
+    },
+    guideItem: {
+        alignItems: 'center',
+        width: 72,
+    },
+    avatarWrapper: {
+        width: 64,
+        height: 64,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    avatarGlow: {
+        position: 'absolute',
+        width: 80,
+        height: 80,
+        top: -8,
+        left: -8,
+    },
+    avatarContainer: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
+    },
+    guideName: {
+        fontSize: 14,
+        color: '#FFFFFF',
+        textAlign: 'center',
+    },
+    guideSpecialty: {
+        fontSize: 10,
+        color: 'rgba(255,255,255,0.4)',
+        textAlign: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        marginTop: 2,
+    },
     sessionCardWrapper: {
         marginBottom: 12,
     },
     listSeparator: {
-        height: 10,
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        marginHorizontal: 20,
+        marginVertical: 10,
     },
 });
 

@@ -13,7 +13,7 @@ export interface MeditationSession {
   durationMinutes: number;
 
   // Categorización
-  category: 'ansiedad' | 'despertar' | 'sueño' | 'mindfulness' | 'resiliencia' | 'salud' | 'rendimiento' | 'emocional' | 'kids' | 'habitos';
+  category: 'ansiedad' | 'despertar' | 'sueno' | 'mindfulness' | 'resiliencia' | 'salud' | 'rendimiento' | 'emocional' | 'kids' | 'habitos' | 'calmasos';
   moodTags: string[];
   timeOfDay: 'mañana' | 'tarde' | 'noche' | 'cualquiera';
   difficultyLevel: 'principiante' | 'intermedio' | 'avanzado';
@@ -48,6 +48,7 @@ export interface MeditationSession {
   color: string;
   practiceInstruction: string;
   thumbnailUrl?: string;
+  isTechnical?: boolean;
 }
 
 export const MEDITATION_SESSIONS: MeditationSession[] = [
@@ -57,7 +58,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "El \"sedante natural\" del sistema nervioso diseñado por el Dr. Andrew Weil.",
     "scientificBenefits": "Al forzar una exhalación el doble de larga que la inhalación, obligamos al nervio vago a enviar una señal de calma al corazón, reduciendo el cortisol en sangre.",
     "durationMinutes": 5,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "pánico",
       "estrés",
@@ -68,7 +69,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_478_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_001_respiracion-4-7-8.mp3",
       "defaultBinaural": "theta_waves",
       "defaultSoundscape": "bird_relaxation"
     },
@@ -79,8 +80,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "deep",
-    "creatorName": "Éter",
-    "creatorCredentials": "Guía Espiritual - Éter",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
@@ -93,7 +95,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "Técnica utilizada por Navy Seals para mantener la calma bajo fuego.",
     "scientificBenefits": "Sincroniza el ritmo cardíaco con la presión arterial (coherencia cardiovascular), permitiendo que el cerebro racional (neocórtex) mantenga el control sobre el emocional (amígdala).",
     "durationMinutes": 4,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "presión",
       "calma",
@@ -104,7 +106,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_box_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_002_respiracion-cuadrada-box-breathing-.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "moon_stretched"
     },
@@ -115,8 +117,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 4
     },
     "voiceStyle": "standard",
-    "creatorName": "Ziro",
-    "creatorCredentials": "Guía Espiritual - Ziro",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
@@ -129,7 +132,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "La forma más rápida de bajar la frecuencia cardíaca según Stanford.",
     "scientificBenefits": "Investigaciones del Dr. Andrew Huberman demuestran que el suspiro cíclico descarga el exceso de CO2 de los pulmones de forma más eficiente que cualquier otra técnica.",
     "durationMinutes": 3,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "estrés agudo",
       "pánico",
@@ -140,7 +143,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_sigh_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_003_suspiro-ciclico.mp3",
       "defaultSoundscape": "ethereal_voices"
     },
     "breathingPattern": {
@@ -150,8 +153,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "deep",
-    "creatorName": "Éter",
-    "creatorCredentials": "Guía Espiritual - Éter",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": true,
     "color": "#FF6B6B",
@@ -175,7 +179,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/wake_bellows_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_tecnica_004_respiracion-de-fuelle-bhastrika-.mp3",
       "defaultBinaural": "gamma_waves",
       "defaultSoundscape": "meditation_bowls"
     },
@@ -186,8 +190,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0.5
     },
     "voiceStyle": "energizing",
-    "creatorName": "Ananda Gupta",
-    "creatorCredentials": "Maestro de Pranayama",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": false,
     "color": "#FFD93D",
@@ -211,7 +216,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/wake_sun_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_tecnica_005_aliento-de-fuego-kapalbhati-.mp3",
       "defaultBinaural": "beta_waves",
       "defaultSoundscape": "sirens_call_a"
     },
@@ -222,8 +227,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 1
     },
     "voiceStyle": "energizing",
-    "creatorName": "Yogi Vini",
-    "creatorCredentials": "Especialista en Hatha Yoga",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": true,
     "color": "#FFD93D",
@@ -246,7 +252,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sleep_nsdr_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_006_nsdr-non-sleep-deep-rest-.mp3",
       "defaultBinaural": "delta_waves",
       "defaultSoundscape": "lotus_peace"
     },
@@ -257,8 +263,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "deep",
-    "creatorName": "Éter",
-    "creatorCredentials": "Guía Espiritual - Éter",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
@@ -281,7 +288,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sleep_478_night_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_007_4-7-8-nocturno.mp3",
       "defaultBinaural": "delta_waves",
       "defaultSoundscape": "atlantic_loop"
     },
@@ -292,8 +299,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "deep",
-    "creatorName": "Éter",
-    "creatorCredentials": "Guía Espiritual - Éter",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": true,
     "color": "#4A90E2",
@@ -316,7 +324,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mind_open_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_tecnica_008_monitorizacion-abierta.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "forest_meditation"
     },
@@ -327,8 +335,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "calm",
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Espiritual - Aria",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": true,
     "color": "#9B59B6",
@@ -351,7 +360,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mind_breath_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_tecnica_009_anclaje-en-la-respiracion.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "wind_chimes"
     },
@@ -362,8 +371,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "calm",
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Espiritual - Aria",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": false,
     "color": "#9B59B6",
@@ -386,7 +396,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/res_stoic_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_tecnica_010_visualizacion-negativa-estoicismo-.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "meditative_motion"
     },
@@ -397,8 +407,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 2
     },
     "voiceStyle": "standard",
-    "creatorName": "Ziro",
-    "creatorCredentials": "Guía Espiritual - Ziro",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": true,
     "color": "#FF9F43",
@@ -421,7 +432,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/res_gratitude_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_tecnica_011_gratitud-re-cableado-de-sesgos.mp3",
       "defaultBinaural": "528hz",
       "defaultSoundscape": "forest_meditation"
     },
@@ -432,8 +443,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "calm",
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Espiritual - Aria",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
@@ -456,7 +468,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/res_vagus_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_tecnica_012_tonificacion-del-vago.mp3",
       "defaultBinaural": "theta_waves",
       "defaultSoundscape": "theta_state"
     },
@@ -467,8 +479,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "standard",
-    "creatorName": "Ziro",
-    "creatorCredentials": "Guía Espiritual - Ziro",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": true,
     "color": "#FF9F43",
@@ -480,7 +493,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "Intervención de emergencia para detener ataques de pánico mediante hiper-regulación.",
     "scientificBenefits": "Saturación deliberada del sistema vestibular para forzar el cese de la respuesta de lucha o huida.",
     "durationMinutes": 2,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "pánico",
       "crisis",
@@ -491,7 +504,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_sos_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_013_s-o-s-rescate-de-panico.mp3",
       "defaultBinaural": "theta_waves",
       "defaultSoundscape": "athmo_motion"
     },
@@ -502,8 +515,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "standard",
-    "creatorName": "Ziro",
-    "creatorCredentials": "Guía Espiritual - Ziro",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": false,
     "color": "#FF6B6B",
@@ -515,7 +529,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "description": "Respiración rítmica síncrona con las mareas.",
     "scientificBenefits": "La sincronía con ritmos naturales (0.1Hz) induce coherencia cardíaca instantánea.",
     "durationMinutes": 7,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "paz",
       "ritmo",
@@ -526,7 +540,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/anx_calm_ocean_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_014_calma-oceanica.mp3",
       "defaultSoundscape": "atlantic_loop"
     },
     "breathingPattern": {
@@ -536,8 +550,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "calm",
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Espiritual - Aria",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": true,
     "color": "#FF6B6B",
@@ -560,7 +575,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sleep_yoganidra_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_015_yoga-nidra-directo.mp3",
       "defaultBinaural": "delta_waves",
       "defaultSoundscape": "moon_stretched"
     },
@@ -571,8 +586,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 4
     },
     "voiceStyle": "deep",
-    "creatorName": "Éter",
-    "creatorCredentials": "Guía Espiritual - Éter",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": true,
     "color": "#4A90E2",
@@ -595,7 +611,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sleep_soft_rain_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_016_lluvia-mental.mp3",
       "defaultSoundscape": "bird_relaxation"
     },
     "breathingPattern": {
@@ -605,8 +621,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "calm",
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Espiritual - Aria",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": false,
     "color": "#4A90E2",
@@ -629,7 +646,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/wake_espresso_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_tecnica_017_espresso-mental.mp3",
       "defaultBinaural": "gamma_waves",
       "defaultSoundscape": "meditation_bowls"
     },
@@ -640,8 +657,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "energizing",
-    "creatorName": "Coach Mark",
-    "creatorCredentials": "Biohacker Coach",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": true,
     "isPremium": false,
     "color": "#FFD93D",
@@ -664,7 +682,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mind_sky_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_tecnica_018_mente-como-el-cielo.mp3",
       "defaultSoundscape": "ethereal_voices"
     },
     "breathingPattern": {
@@ -674,8 +692,9 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "holdPost": 0
     },
     "voiceStyle": "calm",
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Espiritual - Aria",
+    "creatorName": "Paziify Team",
+    "creatorCredentials": "Protocolo Técnico Paziify",
+    "isTechnical": true,
     "visualSync": false,
     "isPremium": true,
     "color": "#9B59B6",
@@ -686,7 +705,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Respiración Cuadrada (Estabilidad Mental)",
     "description": "Estabilizar el ritmo cardíaco y calmar la mente de forma instantánea mediante una técnica usada por los Navy SEALs.",
     "durationMinutes": 5,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -695,11 +714,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/01_respiracion_cuadrada_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_019_respiracion-cuadrada-estabilidad-mental-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -718,7 +737,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Coherencia Cardíaca (Ritmo 5-5)",
     "description": "Sincronizar el ritmo cardíaco con el respiratorio para equilibrar el sistema nervioso autónomo.",
     "durationMinutes": 5,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -727,11 +746,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/02_coherencia_cardiaca_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_020_coherencia-cardiaca-ritmo-5-5-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -750,7 +769,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Sosiego de los Pensamientos",
     "description": "Detener el torbellino mental mediante la visualización de los pensamientos como hojas en un río.",
     "durationMinutes": 5,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -759,11 +778,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/03_sosiego_pensamientos_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_021_sosiego-de-los-pensamientos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -782,7 +801,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Técnica 5-4-3-2-1 (Anclaje Sensorial)",
     "description": "Detener el ciclo de ansiedad o pánico mediante el anclaje en el momento presente a través de los sentidos.",
     "durationMinutes": 4,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -791,11 +810,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/04_tecnica_54321_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_022_tecnica-5-4-3-2-1-anclaje-sensorial-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -814,7 +833,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Desanclaje de Pensamientos (Defusión Cognitiva)",
     "description": "Reducir el impacto de los pensamientos intrusivos o rumiantes mediante la técnica de defusión (ver los pensamientos como eventos, no como hechos).",
     "durationMinutes": 4,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -823,11 +842,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/05_desanclaje_pensamientos_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_023_desanclaje-de-pensamientos-defusion-cognitiva-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -846,7 +865,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "El Refugio de la Respiración",
     "description": "Crear un santuario mental de seguridad y calma utilizando la respiración como ancla constante.",
     "durationMinutes": 5,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -855,11 +874,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/06_refugio_respiracion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_024_el-refugio-de-la-respiracion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -878,7 +897,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "SOS: Antes de una Reunión (Confianza Rápida)",
     "description": "Reducir el cortisol y la ansiedad social antes de una interacción importante, proyectando calma y seguridad.",
     "durationMinutes": 3,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -887,11 +906,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/07_sos_reunion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_025_sos-antes-de-una-reunion-confianza-rapida-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -910,7 +929,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Gestión del Pánico (Tierra)",
     "description": "Cortar la escalada fisiológica del ataque de pánico mediante la estimulación del nervio vago y el anclaje físico extremo.",
     "durationMinutes": 4,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -919,11 +938,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/08_gestion_panico_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_026_gestion-del-panico-tierra-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -942,7 +961,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Alivio de la Opresión en el Pecho",
     "description": "Aliviar la sensación física de opresión o \"nudo\" en el pecho causada por el estrés agudo mediante la relajación miofascial y la respiración dirigida.",
     "durationMinutes": 5,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -951,11 +970,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/09_alivio_pecho_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_027_alivio-de-la-opresion-en-el-pecho.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -974,7 +993,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Neutralización de la Rumiación",
     "description": "Interrumpir el ciclo de pensamientos repetitivos y negativos mediante la técnica de \"Contar hacia atrás\" y la focalización externa.",
     "durationMinutes": 4,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -983,11 +1002,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/10_neutralizar_rumiacion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_028_neutralizacion-de-la-rumiacion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1006,7 +1025,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "title": "Reset de 3 Minutos",
     "description": "Un rescate rápido ante picos de estrés durante el día de trabajo.",
     "durationMinutes": 3,
-    "category": "ansiedad",
+    "category": "calmasos",
     "moodTags": [
       "ansiedad"
     ],
@@ -1015,11 +1034,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/11_reset_3min_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_029_reset-de-3-minutos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1047,11 +1066,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/11_despertar_mente_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_030_despertar-de-la-mente-focus-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1079,11 +1098,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/12_cardio_energia_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_031_cardio-energia-respiracion-activa-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1111,11 +1130,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/13_afirmaciones_poder_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_032_afirmaciones-de-poder.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1143,11 +1162,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/14_cafe_mental_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_033_cafe-mental-respiracion-de-fuego-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1175,11 +1194,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/15_amanecer_cuerpo_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_034_amanecer-en-el-cuerpo-movilidad-y-consciencia-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1207,11 +1226,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/16_afirmaciones_proposito_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_035_afirmaciones-de-proposito.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1239,11 +1258,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/17_activacion_dopamina_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_036_activacion-de-dopamina-natural.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1271,11 +1290,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/18_superar_niebla_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_037_superar-la-niebla-mental.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1303,11 +1322,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/19_visualizacion_exito_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_038_visualizacion-de-exito-diario.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1335,11 +1354,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/20_respiracion_alterna_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_039_respiracion-alterna-nadi-shodhana-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1367,11 +1386,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/100_mi_nuevo_yo_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_040_mi-nuevo-yo-identidad-y-habito-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1399,11 +1418,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/91_comer_consciente_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_041_comer-consciente-mindful-eating-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1431,11 +1450,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/92_caminar_sin_prisa_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_042_caminar-sin-prisa-mindful-walking-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1463,11 +1482,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/93_detox_digital_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_043_detox-digital-soltar-la-pantalla-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1495,11 +1514,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/94_gratitud_dormir_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_044_gratitud-antes-de-dormir.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1527,11 +1546,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/95_paciencia_espera_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_045_paciencia-ante-la-espera-cola-o-trafico-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1559,11 +1578,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/96_escucha_relaciones_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_046_escucha-profunda-relaciones-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1591,11 +1610,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/97_respiracion_trabajo_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_047_respiracion-consciente-en-el-trabajo.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1623,11 +1642,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/98_minimalismo_mental_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_048_vivir-con-minimalismo-mental.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1655,11 +1674,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/99_valorar_pequeno_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_049_valorar-lo-pequeno-mindfulness-diario-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1687,11 +1706,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/71_reconocer_emocion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_050_reconocer-la-emocion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1719,11 +1738,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/72_espacio_respuesta_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_051_el-espacio-entre-estimulo-y-respuesta.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1751,11 +1770,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/73_autogestion_ansiedad_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_052_autogestion-de-la-ansiedad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1783,11 +1802,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/74_bondad_amorosa_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_053_bondad-amorosa-metta-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1815,11 +1834,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/75_compasion_demas_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_054_compassion-por-los-demas.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1847,11 +1866,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/76_observar_ira_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_055_observar-la-ira-el-volcan-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1879,11 +1898,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/77_gestionar_tristeza_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_056_gestionar-la-tristeza.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1911,11 +1930,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/78_escucha_empatica_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_057_escucha-empatica-preparacion-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1943,11 +1962,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/79_autoresponsabilidad_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_058_auto-responsabilidad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1975,11 +1994,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/80_celebrar_logro_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_059_celebrar-el-logro-ajeno-mudita-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2007,11 +2026,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/81_aventura_aire_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_060_la-aventura-del-aire-respiracion-magica-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2039,11 +2058,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/82_bosque_relajacion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_061_el-bosque-de-la-relajacion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2071,11 +2090,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/83_superpoder_silencio_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_062_el-superpoder-del-silencio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2103,11 +2122,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/84_enfado_monstruo_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_063_adios-al-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2135,11 +2154,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/85_habitantes_mente_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_064_habitantes-de-la-mente-mindfulness-para-ninos-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2167,11 +2186,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/86_viaje_nube_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_065_el-viaje-en-la-nube.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2199,11 +2218,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/87_capitan_barco_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_066_soy-el-capitan-de-mi-barco.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2231,11 +2250,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/88_arbol_gratitud_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_067_gratitud-para-ninos-el-arbol-de-la-suerte-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2263,11 +2282,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/89_rayo_laser_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_068_concentracion-para-ninos-el-rayo-laser-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2295,11 +2314,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/90_estiramiento_estrella_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_069_estiramiento-estrella-despertar-ninos-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2327,11 +2346,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/31_mindfulness_respiracion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_070_mindfulness-en-la-respiracion-anapanasati-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2359,11 +2378,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/32_escaner_corporal_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_071_escaner-corporal-para-el-dia.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2391,11 +2410,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/33_observador_pensamientos_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_072_el-observador-de-pensamientos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2423,11 +2442,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/34_observador_imparcial_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_073_el-observador-imparcial.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2455,11 +2474,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/35_mindfulness_sonidos_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_074_mindfulness-en-los-sonidos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2487,11 +2506,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/36_consciencia_sensaciones_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_075_consciencia-de-las-sensaciones-el-mapa-vivo-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2519,11 +2538,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/37_caminata_consciente_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_076_caminata-lenta-consciente.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2551,11 +2570,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/38_pausa_pensamientos_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_077_la-pausa-entre-pensamientos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2583,11 +2602,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/39_vipassana_cuerpo_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_078_vipassana-el-cuerpo-revelado.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2615,11 +2634,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/40_presencia_ahora_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_079_presencia-en-el-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2647,11 +2666,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/51_flow_state_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_080_flow-state-inmersion-total.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2679,11 +2698,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/52_concentracion_laser_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_081_concentracion-laser.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2711,11 +2730,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/53_preparacion_creatividad_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_082_preparacion-para-la-creatividad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2743,11 +2762,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/54_enfoque_estudiar_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_083_enfoque-antes-de-estudiar.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2775,11 +2794,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/55_mentalidad_ganadora_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_084_mentalidad-ganadora-efecto-ganador-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2807,11 +2826,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/56_superar_procrastinacion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_085_superar-la-procrastinacion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2839,11 +2858,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/57_foco_monotarea_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_086_foco-en-la-monotarea.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2871,11 +2890,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/58_vision_periferica_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_087_vision-periferica-y-calma-hakalau-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2903,11 +2922,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/59_resiliencia_presion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_088_resiliencia-bajo-presion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2935,11 +2954,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/60_bloqueo_distracciones_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_089_bloqueo-de-distracciones.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2967,11 +2986,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/41_ciudadela_interior_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_090_la-ciudadela-interior-estoicismo-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2999,11 +3018,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/42_gestion_cambio_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_091_gestion-del-cambio-aceptacion-estoica-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3031,11 +3050,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/43_gratitud_radical_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_092_gratitud-radical.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3063,11 +3082,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/44_transformar_fracaso_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_093_transformar-el-fracaso-resiliencia-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3095,11 +3114,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/45_observador_tormenta_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_094_el-observador-de-la-tormenta.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3127,11 +3146,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/46_fortaleza_adversidad_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_095_fortaleza-ante-la-adversidad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3159,11 +3178,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/47_autocompasion_error_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_096_auto-compasion-ante-el-error.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3191,11 +3210,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/48_desaprender_juicio_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_097_desaprender-el-juicio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3223,11 +3242,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/49_ecuanimidad_caos_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_098_ecuanimidad-en-el-caos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3255,11 +3274,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/50_previsualizacion_males_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_099_previsualizacion-de-dificultades-pre-mortum-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3287,11 +3306,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/61_alivio_dolor_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_100_alivio-del-dolor-escaner-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3319,11 +3338,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/62_consciencia_postura_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_101_consciencia-de-la-postura.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3351,11 +3370,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/63_recuperacion_post_ejercicio_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_102_recuperacion-post-ejercicio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3383,11 +3402,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/64_respiracion_digestion_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_103_respiracion-para-la-digestion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3415,11 +3434,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/65_escucha_incomodidad_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_104_escucha-de-la-incomodidad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3447,11 +3466,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/66_relajacion_rostro_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_105_relajacion-de-mandibula-y-rostro.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3479,11 +3498,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/67_cuerpo_aliado_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_106_el-cuerpo-como-aliado.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3511,11 +3530,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/68_gestion_cefalea_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_107_gestion-de-la-cefalea-por-tension.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3543,11 +3562,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/69_vitalidad_sistemica_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_108_vitalidad-sistemica.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3575,11 +3594,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/70_conexion_intestino_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_109_conexion-mente-intestino.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3607,11 +3626,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/21_preparacion_ensueno_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_110_preparacion-para-el-ensueno.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3639,11 +3658,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/22_descanso_post_pantallas_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_111_relajacion-post-pantallas.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3671,11 +3690,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/23_lago_calma_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_112_el-lago-de-la-calma.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3703,11 +3722,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/24_respiracion_luna_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_113_respiracion-de-la-luna-chandra-bhedana-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3735,11 +3754,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/25_478_nocturno_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_114_4-7-8-nocturno-hacia-el-sueno-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3767,11 +3786,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/26_relajacion_jacobson_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_115_relajacion-muscular-progresiva-jacobson-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3799,11 +3818,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/27_vaciado_mental_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_116_soltar-el-dia-vaciado-mental-.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3831,11 +3850,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/28_alivio_insomnio_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_117_sosiego-del-insomnio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3863,11 +3882,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/29_respiracion_abdominal_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_118_respiracion-abdominal-profunda.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -3895,11 +3914,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/30_silencio_mente_voices.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_119_el-silencio-de-la-mente.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Paziify Team",
-    "creatorCredentials": "Mindfulness Specialists",
+    "creatorName": "Éter",
+    "creatorCredentials": "Guía de Sueño y Alivio Profundo",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
