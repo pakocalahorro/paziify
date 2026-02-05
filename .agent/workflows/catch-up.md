@@ -19,16 +19,16 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
    - Informar al usuario de la ultima version de git, master, github
    - Comparar ultima version de Git con las ultimas notas de sesion e informar si coincide todo o hay diferencias
 
-3. **Supabase - Base de datos y Login** 
-   - Leer `docs/guides/database.md` para estar al corriente y aplicar buenas practicas a los nuevos cambios
+3. **Visión de Producto & Guías**
+   - **Imprescindible**: Leer `docs/guides/user_manual.md` para entender qué "paz" estamos vendiendo al usuario.
+   - **Técnico**: Leer `docs/guides/database.md` y `docs/guides/designs_audio.md` para refrescar restricciones arquitectónicas.
 
-4. **Diseño y Audio** 
-   - Leer `docs/guides/designs_audio.md` para estar al corriente y aplicar buenas practicas a los nuevos cambios
 
-5. **Verificar estado del código**
-   - Revisar archivos modificados recientemente
-   - Verificar si hay errores pendientes
-   - Comprobar estado de dependencias
+
+5. **Health Check (Sanidad del Proyecto)**
+   - Revisar archivos modificados recientemente (`git status`).
+   - Verificar `package.json` en busca de nuevas dependencias sorpresa.
+   - Confirmar que no hay errores de compilación obvios.
 
 6. **Resumir al usuario**
    - Crear resumen conciso:

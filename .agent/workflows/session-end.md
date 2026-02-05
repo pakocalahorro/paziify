@@ -13,6 +13,7 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
    - Identificar logros principales
    - Detectar problemas pendientes
 
+
 2. **Crear nota de sesión** si ya existe una nota en el mismo dia se crea otra nueva con otro nombre indicando los nuevos cambios.
    - Archivo: `docs/sessions/YYYY-MM-DD_descripcion.md`
    - Formato:
@@ -34,19 +35,25 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
      ## Progreso
      [Estado del milestone actual]
      ```
-3. **Supabase - Base de datos y Login** 
-   - Si en la nota de sesion hay cambios en login o base de datos leer y actualizar `docs/guides/database.md`
 
-4. **Diseño y Audio** 
-   - Si en la nota de sesion hay cambios en diseño o audio leer y actualizar `docs/guides/designs_audio.md`
+3. **Walkthrough & Infraestructura**
+   - **Obligatorio**: Actualizar `walkthrough.md` con un resumen técnico acumulativo de los logros.
+   - **Condicional**: Si hubo cambios de entorno (scripts, build, etc.), actualizar `docs/README.md`.
 
-5. **Manual de usuario** 
-   - Si en la nota de sesion hay nuevos cambios en cualquier funcionalidad leer y actualizar `docs/guides/user_manual.md`
+4. **Guías Técnicas (Actualización en Cascada)** 
+   - **Base de Datos**: Si hubo cambios en esquema/auth -> Actualizar `docs/guides/database.md`.
+   - **Diseño/Audio**: Si hubo cambios visuales/sonoros -> Actualizar `docs/guides/designs_audio.md`.
+   - **Manual de Usuario**: Si hubo cambios funcionales -> Actualizar `docs/guides/user_manual.md`.
 
-6. **Commit de cambios** Preguntar si hacemos commit
-   - Consultar cual es la ultima version generada en git
-   - Crear commit en nueva version si los cambios son funcionales u operativos, sino preguntar al usuario con mensaje descriptivo
-   - Incluir todos los archivos relevantes
+
+5. **Control de Versiones y Commit**
+   - **Verificación**: Comparar versión en `package.json` vs el último `git tag`.
+   - **Decisión**: 
+     - Si los cambios son menores/fix -> Mantener versión o patch (+0.0.1).
+     - Si son nuevas features -> Minor (+0.1.0).
+     - Si es refactor mayor -> Major (+1.0.0).
+   - **Commit**: Crear commit con mensaje descriptivo (ej: `feat: ...`, `fix: ...`).
+   - **Tagging (CRÍTICO)**: Generar SIEMPRE el tag correspondiente (ej: `git tag v1.2.0`) para mantener sincronía.
 
 ## Ubicaciones de Documentos:
 
