@@ -1,4 +1,4 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.0.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v1.2) 🔐
 
 Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La seguridad y la escalabilidad son los pilares de este diseño, con un enfoque centrado en la privacidad mediante **Row Level Security (RLS)**.
 
@@ -135,7 +135,6 @@ Paziify utiliza buckets públicos para servir contenido multimedia optimizado:
 1. **Derecho al Olvido**: Todas las claves foráneas hacia `user_id` utilizan `ON DELETE CASCADE`.
 2. **Consultas Seguras**: Utilizar siempre el servicio `contentService` para interactuar con estas tablas, asegurando el manejo correcto de errores y estados de carga.
 3. **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
-4. **Estrategia Offline**: La aplicación utiliza `React Query` con persistencia en disco (`AsyncStorage`) para cachear todas las respuestas de lectura por 24 horas, permitiendo el funcionamiento sin conexión.
 
 ---
-*Última revisión: 5 de Febrero de 2026 - Milestone 3: Oasis Hub (v2.0.0 - CMS V2 & Offline)*
+*Última revisión: 29 de Enero de 2026 - Milestone 3: Oasis Hub (v1.6 Verified)*

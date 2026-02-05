@@ -7,6 +7,10 @@ Esta carpeta contiene toda la documentación del proyecto Paziify, organizada pa
 - `npx expo start --dev-client`
 ## 📋 Ejecutar proyecto en consola fuera de casa
 - `npx expo start --dev-client --tunnel`
+## 📋 Generar APK development Build
+Ejecuta este comando en la terminal para que te cree el archivo .apk nuevo:
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"; if (Test-Path "android") { cd android }; ./gradlew assembleDebug
+Cuando termine (si pone "BUILD SUCCESSFUL"), el archivo estará aquí: android/app/build/outputs/apk/debug/app-debug.apk
 
 ## 📋 Roadmap y Planes (Plans)
 

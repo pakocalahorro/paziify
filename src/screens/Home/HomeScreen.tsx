@@ -22,6 +22,7 @@ import { Screen, RootStackParamList, Audiobook, RealStory } from '../../types';
 import { theme } from '../../constants/theme';
 import { IMAGES } from '../../constants/images';
 import { audiobooksService, storiesService } from '../../services/contentService';
+import { useAudiobooks, useStories } from '../../hooks/useContent';
 import GGAssistant from '../../components/GGAssistant';
 import GuestBanner from '../../components/GuestBanner';
 import NebulaBackground from '../../components/Sanctuary/NebulaBackground';
@@ -46,48 +47,38 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     // Determine visual mode from route or default to healing/night context
     const visualMode = route.params?.mode || (isNightMode ? 'healing' : 'healing');
 
-    // Suggestions State
-    const [suggestedAudiobooks, setSuggestedAudiobooks] = React.useState<Audiobook[]>([]);
-    const [suggestedStories, setSuggestedStories] = React.useState<RealStory[]>([]);
-    const [loadingSuggestions, setLoadingSuggestions] = React.useState(true);
+    // React Query Hooks
+    const { data: allBooksData, isLoading: loadingBooks } = useAudiobooks();
+    const { data: allStoriesData, isLoading: loadingStories } = useStories();
 
-    React.useEffect(() => {
-        const loadSuggestions = async () => {
-            try {
-                const [allBooks, allStories] = await Promise.all([
-                    audiobooksService.getAll(),
-                    storiesService.getAll()
-                ]);
+    const loadingSuggestions = loadingBooks || loadingStories;
 
-                // Filter logic based on visualMode
-                // Healing: Anxiety, Sleep, Health
-                // Growth: Career, Success, Relationships, Leadership
-                // NOTE: Using English keys to match database/data content
-                const targetCategories = visualMode === 'healing'
-                    ? ['anxiety', 'sleep', 'health', 'wellness', 'stress', 'ansiedad', 'sueño', 'salud']
-                    : ['professional', 'growth', 'career', 'relationships', 'leadership', 'success', 'carrera', 'exito'];
+    const { suggestedAudiobooks, suggestedStories } = useMemo(() => {
+        if (!allBooksData || !allStoriesData) return { suggestedAudiobooks: [], suggestedStories: [] };
 
-                const filteredBooks = allBooks.filter(item =>
-                    targetCategories.some(cat => item.category.toLowerCase().includes(cat))
-                ).slice(0, 5);
+        const allBooks = allBooksData;
+        const allStories = allStoriesData;
 
-                const filteredStories = allStories.filter(item =>
-                    targetCategories.some(cat => item.category.toLowerCase().includes(cat))
-                ).slice(0, 5);
+        // Filter logic based on visualMode
+        // Healing: Anxiety, Sleep, Health
+        // Growth: Career, Success, Relationships, Leadership
+        const targetCategories = visualMode === 'healing'
+            ? ['anxiety', 'sleep', 'health', 'wellness', 'stress', 'ansiedad', 'sueño', 'salud']
+            : ['professional', 'growth', 'career', 'relationships', 'leadership', 'success', 'carrera', 'exito'];
 
-                // Fallback if empty (show popular or random)
-                setSuggestedAudiobooks(filteredBooks.length > 0 ? filteredBooks : allBooks.slice(0, 5));
-                setSuggestedStories(filteredStories.length > 0 ? filteredStories : allStories.slice(0, 5));
+        const filteredBooks = allBooks.filter(item =>
+            targetCategories.some(cat => item.category.toLowerCase().includes(cat))
+        ).slice(0, 5);
 
-            } catch (error) {
-                console.error('Failed to load suggestions', error);
-            } finally {
-                setLoadingSuggestions(false);
-            }
+        const filteredStories = allStories.filter(item =>
+            targetCategories.some(cat => item.category.toLowerCase().includes(cat))
+        ).slice(0, 5);
+
+        return {
+            suggestedAudiobooks: filteredBooks.length > 0 ? filteredBooks : allBooks.slice(0, 5),
+            suggestedStories: filteredStories.length > 0 ? filteredStories : allStories.slice(0, 5)
         };
-
-        loadSuggestions();
-    }, [visualMode]);
+    }, [allBooksData, allStoriesData, visualMode]);
 
     const handleStartSession = () => {
         navigation.navigate(Screen.TRANSITION_TUNNEL);

@@ -10,6 +10,7 @@ import {
     Platform,
     ScrollView,
     TouchableWithoutFeedback,
+    Alert,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import {
@@ -28,7 +29,8 @@ import { IMAGES } from '../../constants/images';
 import { useApp } from '../../context/AppContext';
 import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import AudioEngineService from '../../services/AudioEngineService';
-import { MEDITATION_SESSIONS } from '../../data/sessionsData';
+import { sessionsService, adaptSession } from '../../services/contentService'; // Import service
+// import { MEDITATION_SESSIONS } from '../../data/sessionsData'; // Remove static usage
 import { SOUNDSCAPES, BINAURAL_WAVES, Soundscape, BinauralWave } from '../../data/soundscapesData';
 import ThemedBreathingOrb from '../../components/Meditation/ThemedBreathingOrb';
 import { VISUAL_THEMES, DEFAULT_THEME, type ThemeId } from '../../constants/visualThemes';
@@ -262,7 +264,18 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         const initSession = async () => {
             try {
                 const sessionId = (route.params as any)?.sessionId || 'anx_478';
-                const session = MEDITATION_SESSIONS.find(s => s.id === sessionId);
+
+                // Fetch dynamic session
+                const dbSession = await sessionsService.getById(sessionId);
+                let session;
+
+                if (dbSession) {
+                    session = adaptSession(dbSession);
+                } else {
+                    // Fallback to legacy look up if not found in DB
+                    const { MEDITATION_SESSIONS } = require('../../data/sessionsData');
+                    session = MEDITATION_SESSIONS.find((s: any) => s.id === sessionId);
+                }
 
                 if (session) {
                     setCurrentSession(session);
@@ -285,7 +298,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     setSelectedBinaural(bw);
 
                     // Auto-select Visual Theme based on category (UX Restoration)
-                    const cat = session.category.toLowerCase();
+                    const cat = (session.category || 'calmasos').toLowerCase();
                     if (cat === 'ansiedad' || cat === 'calma sos') {
                         setSelectedTheme('cosmos');
                     } else if (cat === 'sueño') {
@@ -335,9 +348,16 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     await AudioEngineService.setLayerVolume('elements', initialVolumes.elements);
 
                     setIsAudioLoaded(true);
+                } else {
+                    throw new Error('Session not found or offline');
                 }
             } catch (error) {
-                console.error('Error initializing session:', error);
+                console.log('Error initializing session (expected if offline):', error);
+                Alert.alert(
+                    'Error de Conexión',
+                    'No se pudo cargar el audio de la sesión. Por favor, verifica tu conexión a internet e inténtalo de nuevo.',
+                    [{ text: 'OK', onPress: () => navigation.goBack() }]
+                );
             }
         };
         initSession();

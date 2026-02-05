@@ -122,7 +122,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                             await newAmbience.unloadAsync();
                         }
                     } catch (error) {
-                        console.error('Error loading ambience:', error);
+                        console.log('Error loading ambience (expected if offline):', error);
                     }
                 } else if (ambienceRef.current) {
                     // Sound IS loaded (and presumably matches targetUrl if we didn't unload it above)

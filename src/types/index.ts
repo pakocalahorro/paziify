@@ -110,6 +110,50 @@ export interface RealStory {
     source_attribution?: string;
 }
 
+export interface MeditationSessionContent {
+    id: string; // UUID from Supabase
+    legacy_id: string; // "anx_478"
+    title: string;
+    description: string;
+    duration_minutes: number;
+    category: string;
+    mood_tags: string[];
+    time_of_day: string;
+    difficulty_level: string;
+    is_premium: boolean;
+    is_technical: boolean;
+    voice_url: string;
+    thumbnail_url: string;
+
+    // JSONB columns typed
+    audio_config: {
+        voiceTrack?: string;
+        defaultSoundscape?: string;
+        defaultBinaural?: string;
+        postSilence?: number;
+    };
+    breathing_config: {
+        inhale: number;
+        hold: number;
+        exhale: number;
+        holdPost: number;
+    };
+    metadata: {
+        voice_style?: string;
+        color?: string;
+        visual_sync_enabled?: boolean;
+        creator_credentials?: string;
+        scientific_benefits?: string;
+        session_type?: string;
+        is_customizable?: boolean;
+        practice_instruction?: string;
+    };
+
+    creator_name: string;
+}
+
+export type MeditationSession = MeditationSessionContent;
+
 export type RootStackParamList = {
     [Screen.REGISTER]: undefined;
     [Screen.WELCOME]: undefined;
@@ -122,7 +166,7 @@ export type RootStackParamList = {
     [Screen.AUDIOBOOK_PLAYER]: { audiobookId: string };
     [Screen.STORIES]: undefined;
     [Screen.STORY_DETAIL]: { storyId: string };
-    [Screen.TRANSITION_TUNNEL]: { sessionId: string };
+    [Screen.TRANSITION_TUNNEL]: { sessionId?: string };
     [Screen.BREATHING_TIMER]: { sessionId: string };
     [Screen.SESSION_END]: undefined;
     [Screen.PROFILE]: undefined;

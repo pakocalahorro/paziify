@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v1.9.0 Catalog Mastery) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.0.0 Offline & Cloud) 💎
 
-Bienvenido a la guía oficial de **Paziify v1.9**. Esta versión introduce el **Catálogo Maestro** con 10 categorías sincronizadas, rescate de voces de guías y optimización ASCII de audio.
+Bienvenido a la guía oficial de **Paziify v2.0**. Esta versión introduce la arquitectura **Offline-First**, sincronización total con la nube y el **Catálogo Maestro** de 10 categorías.
 
 ---
 
@@ -8,7 +8,12 @@ Bienvenido a la guía oficial de **Paziify v1.9**. Esta versión introduce el **
 **Pantalla:** `WelcomeScreen` -> `RegisterScreen` / `LoginScreen`
 Paziify prioriza tu entrada al bienestar:
 - **Continuar con Google**: Acceso instantáneo y seguro. Tu progreso (minutos, favoritos, historial) se sincroniza automáticamente.
-- **Explorar como Invitado**: Acceso directo sin registros. Tu progreso es efímero y se borrará al cerrar la app a menos que vincules tu cuenta.
+- **Explorar como Invitado (Ghost Mode)**: Acceso directo sin registros.
+    - *Advertencia*: Tu progreso es 100% efímero (se guarda en RAM). Si cierras la app o cambias de dispositivo, perderás tus rachas y favoritos. ¡Vincúlate a Google para guardar!
+- **Modo Offline (Nuevo)**: Tu contenido visitado se guarda automáticamente. Si pierdes la conexión, podrás seguir accediendo a:
+    - Catálogo completo (visto recientemente).
+    - Audiolibros e Historias cacheadas.
+    - *Nota*: Si intentas iniciar una sesión nueva sin internet y sin haberla descargado, verás una alerta amigable.
 
 ---
 
@@ -32,7 +37,7 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - **Jerarquía Visual Clara**:
     - **DESTACADOS**: Sección superior con "Meditaciones Técnicas" (Core), "Sesiones Rápidas" (Poster) y "Mejor Valoradas" (Wide).
     - **EXPLORA POR CATEGORÍAS**: Sección general con las 10 áreas temáticas.
-    - **Separadores Vivos**: Líneas de energía ("Soundwaves") que respiran y separan visualmente estos grandes bloques.
+    - **Separadores "Soundwave"**: Líneas de energía ondulatorias generadas proceduralmente (Skia) que "respiran" y dividen las secciones. Los títulos utilizan un efecto de **Retroiluminación (Backlit)** para máxima legibilidad sobre el fondo animado.
 - **Contenido Fresco (Smart Shuffle)**: Cada vez que abres la app, el orden de las sesiones técnicas y categorías cambia sutilmente para que siempre descubras algo nuevo, manteniendo tus Favoritos y Novedades siempre a mano.
 - **Categorización Maestra (10 Temáticas)**: El catálogo ahora se organiza en 10 áreas reales del bienestar: *Calma SOS, Mindfulness, Sueño, Resiliencia, Rendimiento, Despertar, Salud, Hábitos, Emocional* y *Niños*. Cada una con su color e iconografía distintiva.
 - **Identidad de Guías**: Disfruta de la personalidad vocal única de nuestros 4 guías (Aria, Ziro, Éter y Gaia) en sus especialidades correspondientes.
@@ -40,8 +45,9 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
 - **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
 - **Sincronización Grado Médico (v1.8.0)**: El orbe y las instrucciones de voz ahora respiran al unísono con una precisión de 16ms, sin importar la velocidad de la sesión.
-- **Inicio Zen Automático**: Olvídate de pulsar "Play" dos veces. Al elegir una sesión, el sistema prepara el audio y dispara una cuenta atrás automática de 3 segundos.
-- **Adiós a las Pausas**: Interfaz más limpia sin etiquetas de "Pausa" innecesarias, manteniendo el estado de exhalación hasta el nuevo ciclo.
+- **Inicio Zen (Countdown)**: Al pulsar play, una transición suave con cuenta atrás "3-2-1" prepara tu mente antes de que suene el primer audio.
+- **Aura de Latido (Heartbeat)**: Durante la sesión, el temporizador emite un pulso visual rítmico ("Aura") que imita un corazón en calma, reforzando la relajación visual.
+- **Adiós a las Pausas**: Interfaz limpia sin botones intrusivos. Toca cualquier parte de la pantalla para revelar los controles cuando los necesites.
 
 #### 🎨 Sistema de Temas Visuales (v1.7.0)
 Paziify ahora te permite personalizar completamente la atmósfera visual de tus sesiones de meditación:
@@ -92,7 +98,8 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ## 6. Comunidad y Feedback Social
 - **Dar Paz 🍃**: Envía apoyo a otros usuarios de la comunidad.
-- **Reflexiones**: Comparte tu estado de ánimo al finalizar cada sesión para inspirar a otros.
+- **¿Compartimos la experiencia?**: Al finalizar una sesión, verás una invitación elegante para compartir cómo te sientes.
+- **Reflexiones**: Escribe o selecciona tu estado de ánimo ("Mood Index") para registrar tu viaje emocional y ver cómo otros se sintieron con esa misma sesión.
 
 ---
 
@@ -109,4 +116,4 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ---
 ---
-*Última revisión: 4 de Febrero de 2026 - v1.10.0 (Catalog Mastery & ASCII Sync)*
+*Última revisión: 5 de Febrero de 2026 - v2.0.0 (Offline-First & CMS V2)*

@@ -35,6 +35,7 @@ import {
 import { Screen, RootStackParamList, Audiobook } from '../../types';
 import { theme } from '../../constants/theme';
 import { audiobooksService } from '../../services/contentService';
+import { useAudiobooks } from '../../hooks/useContent';
 import { useApp } from '../../context/AppContext';
 import AudiobookCard from '../../components/AudiobookCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
@@ -108,19 +109,22 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
     const { userState, isNightMode } = useApp();
     const isPlusMember = userState.isPlusMember || false;
 
-    const [audiobooks, setAudiobooks] = useState<Audiobook[]>([]);
-    const [featuredBooks, setFeaturedBooks] = useState<Audiobook[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    // ** React Query Hook **
+    const { data, isLoading: loading, refetch, isRefetching } = useAudiobooks();
+    const audiobooks = data || [];
+
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
+
+    const featuredBooks = React.useMemo(() => {
+        return audiobooks.filter(b => b.is_featured).slice(0, 5);
+    }, [audiobooks]);
 
     // Animations
     const scrollY = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        loadAudiobooks();
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 800,
@@ -128,23 +132,8 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         }).start();
     }, []);
 
-    const loadAudiobooks = async () => {
-        try {
-            setLoading(true);
-            const data = await audiobooksService.getAll();
-            setAudiobooks(data);
-            setFeaturedBooks(data.filter(b => b.is_featured).slice(0, 5));
-        } catch (error) {
-            console.error('Error loading audiobooks:', error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
     const handleRefresh = () => {
-        setRefreshing(true);
-        loadAudiobooks();
+        refetch();
     };
 
     const handleAudiobookPress = (audiobook: Audiobook) => {
@@ -269,7 +258,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
                     showsVerticalScrollIndicator={false}
                     onRefresh={handleRefresh}
-                    refreshing={refreshing}
+                    refreshing={isRefetching}
                     onScroll={Animated.event(
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: true }
@@ -278,7 +267,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                 />
             </Animated.View>
 
-            {loading && !refreshing && (
+            {loading && !isRefetching && (
                 <View style={styles.loadingOverlay}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>

@@ -4,6 +4,7 @@ export interface AudioLayers {
   defaultSoundscape?: string;
   defaultBinaural?: string;
   defaultElements?: string;
+  postSilence?: number;
 }
 
 export interface MeditationSession {
@@ -2715,7 +2716,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    ,
     "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_080_flow-state-inmersion-total.webp"
   },
   {
@@ -2748,7 +2750,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    ,
     "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_081_concentracion-laser.webp"
   },
   {
@@ -2781,7 +2784,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    ,
     "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_082_preparacion-para-la-creatividad.webp"
   },
   {
@@ -2814,7 +2818,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#E67E22",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    ,
     "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_083_enfoque-antes-de-estudiar.webp"
   },
   {
@@ -3039,7 +3044,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    ,
     "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_090_la-ciudadela-interior.webp"
   },
   {
@@ -3072,7 +3078,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    ,
     "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_091_gestion-del-cambio.webp"
   },
   {
@@ -3105,7 +3112,8 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "visualSync": false,
     "isPremium": false,
     "color": "#FF9F43",
-    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
+    "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
+    ,
     "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_092_gratitud-radical.webp"
   },
   {

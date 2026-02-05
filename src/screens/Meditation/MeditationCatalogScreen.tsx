@@ -38,7 +38,10 @@ import { Screen, RootStackParamList, Session } from '../../types';
 import { theme } from '../../constants/theme';
 import SessionCard from '../../components/SessionCard';
 import SessionPreviewModal from '../../components/SessionPreviewModal';
-import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData';
+// import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData'; // Removed static
+import { MeditationSession } from '../../data/sessionsData'; // Keep type
+import { sessionsService, adaptSession } from '../../services/contentService'; // Import service
+import { useSessions } from '../../hooks/useContent'; // Import hook
 import { IMAGES } from '../../constants/images';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import CategoryRow from '../../components/CategoryRow';
@@ -157,20 +160,33 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
-    // Randomize sessions on mount for "freshness" feel
-    const [shuffledSessions] = useState(() => [...MEDITATION_SESSIONS].sort(() => 0.5 - Math.random()));
+    // ** React Query Hook **
+    const { data: rawSessions, isLoading: loading } = useSessions();
+
+    // Adapt raw DB sessions to UI format
+    const sessions = useMemo(() => {
+        if (!rawSessions) return [];
+        return rawSessions.map(adaptSession);
+    }, [rawSessions]);
+
+    // Randomize sessions (memoized to prevent re-shuffling on every render)
+    const shuffledSessions = useMemo(() => {
+        return [...sessions].sort(() => 0.5 - Math.random());
+    }, [sessions]);
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scrollY = useRef(new Animated.Value(0)).current;
     const searchAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-        }).start();
-    }, []);
+        if (!loading) {
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }).start();
+        }
+    }, [loading]);
 
     const toggleSearch = () => {
         const toValue = isSearchExpanded ? 0 : 1;
@@ -200,9 +216,11 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     const filteredSessions = useMemo(() => {
+        if (loading) return []; // Don't filter while loading
+
         const query = searchQuery.toLowerCase().trim();
 
-        return MEDITATION_SESSIONS.filter(session => {
+        return sessions.filter(session => {
             // Special internal filters for "See All"
             if (query === 'favoritos') {
                 return (userState.favoriteSessionIds || []).includes(session.id);
@@ -211,7 +229,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                 return session.durationMinutes < 6;
             }
             if (query === 'novedades') {
-                const newIds = [...MEDITATION_SESSIONS].reverse().slice(0, 5).map(s => s.id);
+                const newIds = [...sessions].reverse().slice(0, 5).map(s => s.id);
                 return newIds.includes(session.id);
             }
             if (query === 'core') {
@@ -233,7 +251,8 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
 
             return matchesSearch && matchesCategory && matchesGuide;
         }).map(convertToSession);
-    }, [searchQuery, selectedCategory, selectedGuide, userState.favoriteSessionIds]);
+    }, [searchQuery, selectedCategory, selectedGuide, userState.favoriteSessionIds, sessions, loading]);
+
 
     const sessionsByRow = useMemo(() => {
         const hasActiveFilter = selectedCategory !== 0 || searchQuery !== '' || selectedGuide !== null;
@@ -248,7 +267,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         const favoriteIds = userState.favoriteSessionIds || [];
         if (favoriteIds.length > 0) {
             // Keep favorites stable/predictable
-            const favorites = MEDITATION_SESSIONS
+            const favorites = sessions
                 .filter(s => favoriteIds.includes(s.id))
                 .map(convertToSession);
             rows.push({ title: 'Tus Favoritos', data: favorites, icon: 'heart', accentColor: '#FF6B6B' });
@@ -291,7 +310,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         }
 
         // 3. Novedades (Últimas 5) - Keep strict order for "Newest"
-        const newArrivals = [...MEDITATION_SESSIONS]
+        const newArrivals = [...sessions]
             .reverse()
             .slice(0, 5)
             .map(convertToSession);
@@ -355,7 +374,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     const handleSessionClick = (session: Session) => {
-        const fullSession = MEDITATION_SESSIONS.find(s => s.id === session.id);
+        const fullSession = sessions.find(s => s.id === session.id);
         if (fullSession) {
             setSelectedSession(fullSession);
         }
@@ -596,7 +615,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     guideAvatar={GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar}
                     onClose={() => setSelectedSession(null)}
                     onStart={() => {
-                        const medData = MEDITATION_SESSIONS.find(s => s.id === selectedSession.id);
+                        const medData = sessions.find(s => s.id === selectedSession.id);
                         setSelectedSession(null);
                         if (medData) {
                             navigation.navigate(Screen.BREATHING_TIMER, { sessionId: medData.id });

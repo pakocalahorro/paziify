@@ -44,7 +44,8 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
    - Si en la nota de sesion hay nuevos cambios en cualquier funcionalidad leer y actualizar `docs/guides/user_manual.md`
 
 6. **Commit de cambios** Preguntar si hacemos commit
-   - Crear commit con mensaje descriptivo
+   - Consultar cual es la ultima version generada en git
+   - Crear commit en nueva version si los cambios son funcionales u operativos, sino preguntar al usuario con mensaje descriptivo
    - Incluir todos los archivos relevantes
 
 ## Ubicaciones de Documentos:

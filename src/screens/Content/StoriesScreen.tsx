@@ -35,6 +35,7 @@ import {
 import { Screen, RootStackParamList, RealStory } from '../../types';
 import { theme } from '../../constants/theme';
 import { storiesService } from '../../services/contentService';
+import { useStories } from '../../hooks/useContent';
 import { useApp } from '../../context/AppContext';
 import StoryCard from '../../components/StoryCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
@@ -121,19 +122,22 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
     const { userState, isNightMode } = useApp();
     const isPlusMember = userState.isPlusMember || false;
 
-    const [stories, setStories] = useState<RealStory[]>([]);
-    const [featuredStories, setFeaturedStories] = useState<RealStory[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    // ** React Query Hook **
+    const { data, isLoading: loading, refetch, isRefetching } = useStories();
+    const stories = data || [];
+
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
+
+    const featuredStories = React.useMemo(() => {
+        return stories.filter(s => s.is_featured).slice(0, 5);
+    }, [stories]);
 
     // Animations
     const scrollY = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        loadStories();
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 800,
@@ -141,23 +145,8 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
         }).start();
     }, []);
 
-    const loadStories = async () => {
-        try {
-            setLoading(true);
-            const data = await storiesService.getAll();
-            setStories(data);
-            setFeaturedStories(data.filter(s => s.is_featured).slice(0, 5));
-        } catch (error) {
-            console.error('Error loading stories:', error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
     const handleRefresh = () => {
-        setRefreshing(true);
-        loadStories();
+        refetch();
     };
 
     const handleStoryPress = (story: RealStory) => {
@@ -282,7 +271,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 20 }]}
                     showsVerticalScrollIndicator={false}
                     onRefresh={handleRefresh}
-                    refreshing={refreshing}
+                    refreshing={isRefetching}
                     onScroll={Animated.event(
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: true }
@@ -291,7 +280,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                 />
             </Animated.View>
 
-            {loading && !refreshing && (
+            {loading && !isRefetching && (
                 <View style={styles.loadingOverlay}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>

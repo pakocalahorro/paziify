@@ -6,10 +6,139 @@ import { Audiobook, RealStory } from '../types';
  * Functions to interact with audiobooks table
  */
 
-export const audiobooksService = {
+import { MeditationSessionContent } from '../types';
+import { MeditationSession } from '../data/sessionsData'; // Keep this for UI compatibility
+
+// Adapter to convert DB V2 Content to Legacy UI Format
+export const adaptSession = (dbSession: MeditationSessionContent): MeditationSession => {
+    return {
+        id: dbSession.id,
+        title: dbSession.title,
+        description: dbSession.description,
+        durationMinutes: dbSession.duration_minutes,
+        category: (dbSession.category || 'calmasos') as any,
+        moodTags: dbSession.mood_tags,
+        // imageUrl: Removed as per interface
+        thumbnailUrl: dbSession.thumbnail_url,
+        // voiceUrl: Removed as per interface
+        voiceStyle: dbSession.metadata?.voice_style as any || 'calm',
+        difficultyLevel: dbSession.difficulty_level as any || 'beginner',
+        isPremium: dbSession.is_premium,
+        isTechnical: dbSession.is_technical,
+        audioAdjustmentFactor: 1.0, // Default
+        visualSync: dbSession.metadata?.visual_sync_enabled || false,
+        scientificBenefits: dbSession.metadata?.scientific_benefits || '',
+        timeOfDay: dbSession.time_of_day as any || 'cualquiera',
+        sessionType: dbSession.metadata?.session_type as any || 'guided_pure',
+        isCustomizable: dbSession.metadata?.is_customizable ?? false,
+        creatorCredentials: dbSession.metadata?.creator_credentials || 'Paziify Expert',
+        color: dbSession.metadata?.color || '#FF6B6B',
+        practiceInstruction: dbSession.metadata?.practice_instruction || 'Sigue la voz y relájate.',
+        creatorName: dbSession.creator_name,
+        audioLayers: {
+            voiceTrack: dbSession.audio_config?.voiceTrack,
+            defaultSoundscape: dbSession.audio_config?.defaultSoundscape || 'rain',
+            defaultBinaural: dbSession.audio_config?.defaultBinaural || 'alpha',
+            defaultElements: undefined, // DB doesn't have this yet
+            postSilence: dbSession.audio_config?.postSilence || 0
+        },
+        breathingPattern: {
+            inhale: dbSession.breathing_config?.inhale || 4,
+            hold: dbSession.breathing_config?.hold || 0,
+            exhale: dbSession.breathing_config?.exhale || 4,
+            holdPost: dbSession.breathing_config?.holdPost || 0
+        }
+    };
+};
+
+export const sessionsService = {
     /**
-     * Get all audiobooks
+     * Get all sessions
      */
+    async getAll(): Promise<MeditationSessionContent[]> {
+        const { data, error } = await supabase
+            .from('meditation_sessions_content')
+            .select('*')
+            .order('title', { ascending: true });
+
+        if (error) {
+            console.error('Error fetching sessions:', error);
+            throw error;
+        }
+        return data || [];
+    },
+
+    /**
+     * Get session by ID (UUID)
+     */
+    async getById(id: string): Promise<MeditationSessionContent | null> {
+        const { data, error } = await supabase
+            .from('meditation_sessions_content')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) {
+            console.log('Error fetching session (offline?):', error);
+            return null;
+        }
+        return data;
+    },
+
+    /**
+     * Get session by Legacy ID (for compatibility during migration)
+     */
+    async getByLegacyId(legacyId: string): Promise<MeditationSessionContent | null> {
+        const { data, error } = await supabase
+            .from('meditation_sessions_content')
+            .select('*')
+            .eq('legacy_id', legacyId)
+            .single();
+
+        if (error) {
+            console.log('Error fetching session by legacy ID (offline?):', error);
+            return null;
+        }
+        return data;
+    },
+
+    /**
+     * Get sessions by Category
+     */
+    async getByCategory(category: string): Promise<MeditationSessionContent[]> {
+        const { data, error } = await supabase
+            .from('meditation_sessions_content')
+            .select('*')
+            .eq('category', category);
+
+        if (error) {
+            console.log('Error fetching sessions by category:', error);
+            return [];
+        }
+        return data || [];
+    },
+
+    /**
+     * Get Daily Session (random or specific algorithm)
+     */
+    async getDaily(): Promise<MeditationSessionContent | null> {
+        // Simple random strategy for now, or pick first
+        // In V2 we might want a 'daily_sessions' table or logic.
+        // For now, let's pick "Respiración 4-7-8" as default or random.
+        const { data, error } = await supabase
+            .from('meditation_sessions_content')
+            .select('*')
+            .eq('title', 'Respiración 4-7-8')
+            .limit(1)
+            .maybeSingle();
+
+        return data;
+    }
+};
+
+export const audiobooksService = {
+    /** ... */
+
     async getAll(): Promise<Audiobook[]> {
         const { data, error } = await supabase
             .from('audiobooks')
@@ -18,7 +147,7 @@ export const audiobooksService = {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching audiobooks:', error);
+            console.log('Error fetching audiobooks:', error);
             throw error;
         }
 
@@ -156,22 +285,22 @@ export const storiesService = {
             {
                 id: '1', title: 'El Renacer del Fénix', subtitle: 'Superando la Adversidad', story_text: '...',
                 category: 'growth', tags: ['resilience'], reading_time_minutes: 5, transformation_theme: 'Resilience',
-                is_featured: true, is_premium: false, created_at: new Date().toISOString()
+                is_featured: true, is_premium: false
             },
             {
                 id: '2', title: 'Calma en la Tormenta', subtitle: 'Ansiedad bajo control', story_text: '...',
                 category: 'anxiety', tags: ['peace'], reading_time_minutes: 7, transformation_theme: 'Peace',
-                is_featured: true, is_premium: false, created_at: new Date().toISOString()
+                is_featured: true, is_premium: false
             },
             {
                 id: '3', title: 'Liderazgo Consciente', subtitle: 'Gestionando equipos', story_text: '...',
                 category: 'leadership', tags: ['work'], reading_time_minutes: 6, transformation_theme: 'Leadership',
-                is_featured: false, is_premium: true, created_at: new Date().toISOString()
+                is_featured: false, is_premium: true
             },
             {
                 id: '4', title: 'Dormir Profundo', subtitle: 'Un viaje a los sueños', story_text: '...',
                 category: 'sleep', tags: ['rest'], reading_time_minutes: 10, transformation_theme: 'Sleep',
-                is_featured: false, is_premium: false, created_at: new Date().toISOString()
+                is_featured: false, is_premium: false
             }
         ];
     },

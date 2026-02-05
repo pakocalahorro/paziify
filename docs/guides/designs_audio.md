@@ -1,4 +1,4 @@
-# Guía Maestra de Diseño y Audio (Milestone 3)
+# Guía Maestra de Diseño y Audio (v2.0.0 Offline & Cloud)
 
 Esta guía documenta la arquitectura técnica y los principios de diseño aplicados durante el **Milestone 3: Excelencia Visual y Sonora**. Es esencial seguir estas directrices para mantener la calidad premium y el rendimiento del proyecto.
 
@@ -16,6 +16,7 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 *   **Dinámica Total**: El orbe completo (base y rim) escala sincrónicamente con las fases de respiración (`inhale`, `exhale`).
 *   **Movimiento Lava Flow**: Energía interna generada por gradientes radiales que se desplazan de forma independiente para evitar el estatismo.
 *   **Renderizado de Alta Fidelidad**: Evitamos el componente `Blur` de Skia en capas transparentes para prevenir el "lavado gris" (Blur Bleaching). En su lugar, usamos gradientes multi-parada (`positions`) para suavizar los bordes.
+*   **Aura de Latido (Heartbeat)**: Durante la fase de mantenimiento, el orbe emite un pulso rítmico secundario para mantener la conexión vital.
 
 #### Separadores de Frecuencia (Soundwaves)
 *   **Concepto**: Líneas de energía viva que separan grandes bloques de contenido.
@@ -26,11 +27,16 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 ### Buenas Prácticas de UI
 *   **Glassmorphism**: Uso de fondos semi-transparentes (`rgba`) y bordes finos de 1px a 1.5px.
 *   **Paleta Bio-Luminiscente**: Tonos esmeralda, cian eléctrico, magenta neón y blanco puro sobre fondos obsidian (`#000000`) o gradientes profundos.
+*   **Sistema de Temas Visuales (v1.7.0)**:
+    *   🌌 **Cosmos Místico**: Nebulosa espacial verde/azul con orbe esmeralda y partículas estelares.
+    *   ⛩️ **Templo Zen**: Interior minimalista con velas, tonos cálidos y orbe naranja.
+    *   🌲 **Bosque Místico**: Bosque al amanecer con orbe verde lima natural y luciérnagas.
+    *   💧 **Cueva Cristalina**: Cueva natural con gotas, tonos fríos y orbe cian.
 *   **Identidad Visual por Guía (v2.0)**:
     *   **Aria (Mindfulness)**: Realismo sereno, luz natural, tonos cálidos y suaves.
     *   **Éter (Resiliencia/Sueño)**: "Realismo Etéreo y Humano". Fusión de personas reales en entornos místicos (cuevas, bosques, niebla). Paleta índigo/violeta.
     *   **Ziro (Rendimiento)**: "Obsidiana Técnica". Fotografía documental de lujo, hiperrealismo, entornos de trabajo/estudio oscuros con iluminación focalizada (spotlight). Paleta Cian/Azul Cobalto.
-    *   **Gaia (Niños)**: "Realismo Mágico". Fotografía vibrante con toques de fantasía sutil.
+    *   **Gaia (Niños/Energía)**: "Realismo Mágico". Fotografía vibrante con toques de fantasía sutil. Especialista en sesiones infantiles y despertar energético.
 *   **Consistencia de Cabezales**: Los catálogos (Oasis) deben seguir la jerarquía: **Header Unificado -> Contenido -> Tarjetas**.
 *   **Patrón UX "Netflix"**: Organización del contenido en carruseles horizontales por categoría con botón de expansión para mejorar el descubrimiento sin abrumar al usuario.
 
@@ -67,7 +73,9 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
     - **Update Interval**: Configurado a 16ms (60 FPS) para eliminiar latencia visual.
     - **Compensación Aditiva**: El motor visual suma dinámicamente el tiempo de voz (SPEECH_PER_WORD) a las fases activas para evitar la desincronización por "drift" en pistas técnicas.
     - **Offset de Anticipación**: Adelanto visual de 350ms respecto al audio para una respuesta intuitiva.
+    - **Offset de Anticipación**: Adelanto visual de 350ms respecto al audio para una respuesta intuitiva.
     - **Flujo Zen**: Inicio automático tras carga total del audio con cuenta atrás de 3 segundos.
+    - **Manejo de Errores Silencioso**: El motor captura fallos de carga de audio ambiental (ej. al cambiar a Modo Noche sin internet) y los maneja silenciosamente para no interrumpir la experiencia visual ni mostrar errores técnicos al usuario.
 
 ### Reproductor Global y Persistencia (`AudioPlayerContext.tsx`)
 Para audiolibros e historias, utilizamos una arquitectura separada del motor de meditación:

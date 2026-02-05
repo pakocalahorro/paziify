@@ -1,0 +1,15 @@
+--- Extraction Log ---
+📦 Reading Sessions from: src/data/sessionsData.ts
+DEBUG: startIdx=1491, equalsIdx=1545, arrayStart=1547, arrayEnd=153920, limit=154192
+DEBUG: Extracted string length=152374
+📚 Reading Audiobooks form: src/services/contentService.ts
+🌟 Reading Stories form: src/services/contentService.ts
+
+📊 Extraction Summary:
+   - Sessions: 119
+   - First Session Type: object
+   - First Session Keys: id, title, description, scientificBenefits, durationMinutes, category, moodTags, timeOfDay, difficultyLevel, sessionType, isCustomizable, audioLayers, breathingPattern, voiceStyle, creatorName, creatorCredentials, isTechnical, visualSync, isPremium, color, practiceInstruction, thumbnailUrl
+   - Audiobooks: 5
+   - Stories: 4
+
+✅ Seed data saved to scripts/seed_data.json
