@@ -63,7 +63,7 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
     const { color, icon } = getCategoryDetails(audiobook.category);
 
     // Determine cover image (specific book title or category generic)
-    const coverSource = BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../assets/covers/growth.png');
+    const coverSource = audiobook.image_url || BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../assets/covers/growth.png');
 
     const formatDuration = (minutes: number): string => {
         if (minutes < 60) return `${minutes} min`;

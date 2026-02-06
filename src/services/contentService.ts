@@ -153,34 +153,7 @@ export const audiobooksService = {
 
         if (data && data.length > 0) return data;
 
-        // Mock fallback if empty
-        return [
-            {
-                id: '1', title: 'The Conquest of Fear', author: 'Basil King', narrator: 'Paziify AI',
-                category: 'anxiety', tags: ['peace', 'mind'], audio_url: 'dummy', duration_minutes: 45,
-                source: 'librivox', language: 'en', is_premium: false, is_featured: true
-            },
-            {
-                id: '2', title: 'As a Man Thinketh', author: 'James Allen', narrator: 'Paziify AI',
-                category: 'growth', tags: ['mindset', 'success'], audio_url: 'dummy', duration_minutes: 60,
-                source: 'librivox', language: 'en', is_premium: false, is_featured: true
-            },
-            {
-                id: '3', title: 'Meditations', author: 'Marcus Aurelius', narrator: 'Paziify AI',
-                category: 'leadership', tags: ['stoic', 'philosophy'], audio_url: 'dummy', duration_minutes: 120,
-                source: 'librivox', language: 'en', is_premium: true, is_featured: true
-            },
-            {
-                id: '4', title: 'Little Women', author: 'Louisa May Alcott', narrator: 'Paziify AI',
-                category: 'relationships', tags: ['family', 'love'], audio_url: 'dummy', duration_minutes: 300,
-                source: 'librivox', language: 'en', is_premium: false, is_featured: false
-            },
-            {
-                id: '5', title: 'Sleep Well', author: 'Dr. Calm', narrator: 'Paziify AI',
-                category: 'sleep', tags: ['rest', 'dreams'], audio_url: 'dummy', duration_minutes: 30,
-                source: 'paziify', language: 'en', is_premium: false, is_featured: false
-            }
-        ];
+        return [];
     },
 
     /**

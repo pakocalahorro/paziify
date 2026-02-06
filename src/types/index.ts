@@ -83,6 +83,7 @@ export interface Audiobook {
     category: string;
     tags: string[];
     audio_url: string;
+    image_url?: string;
     duration_minutes: number;
     source: string;
     language: string;

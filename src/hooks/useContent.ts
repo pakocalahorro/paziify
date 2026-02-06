@@ -29,7 +29,7 @@ export const useAudiobooks = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.AUDIOBOOKS],
         queryFn: audiobooksService.getAll,
-        staleTime: 1000 * 60 * 60, // 1 hour
+        staleTime: 1000 * 60 * 5, // 5 minutes to allow fresher updates
     });
 };
 

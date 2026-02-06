@@ -86,16 +86,18 @@ const BacklitSilhouette: React.FC = () => {
     );
 };
 
-const CATEGORIES = [
-    { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
-    { id: 'growth', label: 'Crecimiento', icon: 'leaf-outline', color: '#646CFF' },
-    { id: 'professional', label: 'Carrera', icon: 'briefcase-outline', color: '#4FC3F7' },
-    { id: 'anxiety', label: 'Ansiedad', icon: 'frown-outline', color: '#FFA726' },
-    { id: 'health', label: 'Salud', icon: 'fitness-outline', color: '#66BB6A' },
-    { id: 'family', label: 'Familia', icon: 'people-outline', color: '#FFB74D' },
-    { id: 'children', label: 'Niños', icon: 'happy-outline', color: '#F06292' },
-    { id: 'sleep', label: 'Sueño', icon: 'moon-outline', color: '#9575CD' },
-];
+// Helper for visual properties of categories
+const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
+    growth: { label: 'Crecimiento', icon: 'leaf-outline', color: '#646CFF' },
+    professional: { label: 'Carrera', icon: 'briefcase-outline', color: '#4FC3F7' },
+    anxiety: { label: 'Ansiedad', icon: 'frown-outline', color: '#FFA726' },
+    health: { label: 'Salud', icon: 'fitness-outline', color: '#66BB6A' },
+    family: { label: 'Familia', icon: 'people-outline', color: '#FFB74D' },
+    children: { label: 'Niños', icon: 'happy-outline', color: '#F06292' },
+    sleep: { label: 'Sueño', icon: 'moon-outline', color: '#9575CD' },
+    focus: { label: 'Enfoque', icon: 'eye-outline', color: '#29B6F6' },
+    stress: { label: 'Estrés', icon: 'thunderstorm-outline', color: '#EF5350' },
+};
 
 const BOOK_COVERS: Record<string, any> = {
     'Meditations': require('../../assets/covers/meditations.png'),
@@ -115,6 +117,28 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
+
+    // ** Dynamic Categories **
+    const availableCategories = React.useMemo(() => {
+        // 1. Extract unique categories from current audiobooks
+        const uniqueCats = Array.from(new Set(audiobooks.map(b => b.category)));
+
+        // 2. Map to config, fallback to capitalized string if not in config
+        const dynamicCats = uniqueCats.map(cat => {
+            const config = CATEGORY_CONFIG[cat] || {
+                label: cat.charAt(0).toUpperCase() + cat.slice(1),
+                icon: 'bookmark-outline',
+                color: '#90CAF9'
+            };
+            return { id: cat, ...config };
+        });
+
+        // 3. Always prepend 'All'
+        return [
+            { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
+            ...dynamicCats
+        ];
+    }, [audiobooks]);
 
     const featuredBooks = React.useMemo(() => {
         return audiobooks.filter(b => b.is_featured).slice(0, 5);
@@ -190,46 +214,49 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
             </View>
 
-            <View style={styles.filterSection}>
-                <Text style={styles.sectionTitle}>
-                    {selectedCategory === 'all' ? 'Todo el Contenido' : `Categoría: ${selectedCategory}`}
-                </Text>
+            {/* Only show filter section if there are actually categories available (besides All) OR active filter */}
+            {(availableCategories.length > 1) && (
+                <View style={styles.filterSection}>
+                    <Text style={styles.sectionTitle}>
+                        {selectedCategory === 'all' ? 'Todo el Contenido' : `Categoría: ${availableCategories.find(c => c.id === selectedCategory)?.label}`}
+                    </Text>
 
-                <FlatList
-                    horizontal
-                    data={CATEGORIES}
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.categoryList}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            onPress={() => setSelectedCategory(item.id)}
-                            activeOpacity={0.7}
-                        >
-                            <BlurView
-                                intensity={selectedCategory === item.id ? 100 : 20}
-                                tint="dark"
-                                style={[
-                                    styles.categoryChip,
-                                    selectedCategory === item.id && { backgroundColor: item.color }
-                                ]}
+                    <FlatList
+                        horizontal
+                        data={availableCategories}
+                        keyExtractor={(item) => item.id}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.categoryList}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                onPress={() => setSelectedCategory(item.id)}
+                                activeOpacity={0.7}
                             >
-                                <Ionicons
-                                    name={item.icon as any}
-                                    size={16}
-                                    color={selectedCategory === item.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)'}
-                                />
-                                <Text style={[
-                                    styles.categoryLabel,
-                                    selectedCategory === item.id && styles.categoryLabelActive
-                                ]}>
-                                    {item.label}
-                                </Text>
-                            </BlurView>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
+                                <BlurView
+                                    intensity={selectedCategory === item.id ? 100 : 20}
+                                    tint="dark"
+                                    style={[
+                                        styles.categoryChip,
+                                        selectedCategory === item.id && { backgroundColor: item.color }
+                                    ]}
+                                >
+                                    <Ionicons
+                                        name={item.icon as any}
+                                        size={16}
+                                        color={selectedCategory === item.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)'}
+                                    />
+                                    <Text style={[
+                                        styles.categoryLabel,
+                                        selectedCategory === item.id && styles.categoryLabelActive
+                                    ]}>
+                                        {item.label}
+                                    </Text>
+                                </BlurView>
+                            </TouchableOpacity>
+                        )}
+                    />
+                </View>
+            )}
         </View >
     );
 

@@ -199,7 +199,8 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         }
         // Case 2: Different track (or no track) is loaded. Load this one now.
         else {
-            const coverSource = BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../../assets/covers/growth.png');
+            let rawCover = audiobook.image_url || BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../../assets/covers/growth.png');
+            const coverSource = typeof rawCover === 'string' ? { uri: rawCover } : rawCover;
 
             // Get saved position
             const savedPos = await getPlaybackPosition(audiobook.id);
@@ -210,7 +211,7 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                 title: audiobook.title,
                 author: audiobook.author,
                 cover: coverSource,
-                audioUrl: audiobook.audioUrl || audiobook.audio_url || '', // handling potential property name diffs
+                audioUrl: audiobook.audio_url || audiobook.audioUrl || '',
                 duration: 0
             }, initialPos);
 
@@ -261,7 +262,8 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         );
     }
 
-    const coverSource = BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../../assets/covers/growth.png');
+    let rawCover = audiobook.image_url || BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../../assets/covers/growth.png');
+    const coverSource = typeof rawCover === 'string' ? { uri: rawCover } : rawCover;
 
     return (
         <View style={styles.container}>

@@ -150,3 +150,5 @@ Para mantener el catálogo de 119 sesiones organizado y sincronizado, disponemos
 
 > [!TIP]
 > **Regla de Oro**: Si cambias algo en la autoría o categorías, primero corre `sync_sessions.js`, luego `prepare_upload.js`, y finalmente sube el contenido a Supabase.
+---
+*Última revisión: 5 de Febrero de 2026 - v2.0.0 (Offline-First & CMS V2)*

@@ -103,6 +103,33 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ---
 
+---
+
+## 7. Panel de Administración (Gestión de Contenido) ⚙️
+**Acceso:** `http://localhost:5173` (Entorno Local)
+
+Paziify ahora cuenta con un Panel de Administración robusto para gestionar el catálogo musical y de audio sin tocar código.
+
+### 🎧 Gestión de Audiolibros
+- **Crear/Editar**: Formulario completo con subida de archivos (mp3/jpg) directa a la nube.
+- **Validación Automática**: El sistema verifica que los archivos se suban correctamente antes de guardar.
+- **Reproducción**: Los audios subidos aparecen inmediatamente en la app móvil.
+
+### 🧘 Gestión de Meditaciones (Nuevo v2.1)
+- **Vista Visual**: El listado muestra las portadas reales en lugar de IDs, facilitando la identificación.
+- **Filtros Inteligentes**:
+    - Haz clic en el icono de **embudo** en las columnas "Category" o "Guide" para filtrar el catálogo rápidamente.
+- **Edición Completa**:
+    - **Cambio de Guía**: Asigna sesiones a Aria, Ziro, Éter o Gaia.
+    - **Categorización**: Mueve sesiones entre categorías (ej: de Calma SOS a Sueño).
+    - **Reemplazo de Archivos**: Sube nuevas versiones de voz o portadas sin perder el ID de la sesión.
+
+### 🖼️ Notas sobre Imágenes
+- El panel espera imágenes verticales (2:3) para mantener la consistencia estética "Glassmorphic Zen".
+- Si subes una imagen, la app móvil la priorizará automáticamente sobre las imágenes predefinidas.
+
+---
+
 ## Checklist de Verificación de Usuario ✅
 - [x] ¿Sientes la vibración al cargar energía en la Brújula?
 - [x] ¿Puedes seguir escuchando un audiolibro mientras buscas una meditación?
