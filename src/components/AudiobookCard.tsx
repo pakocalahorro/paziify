@@ -6,7 +6,6 @@ import {
     StyleSheet,
     Image,
     Dimensions,
-    ImageBackground,
     Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,14 +20,15 @@ interface AudiobookCardProps {
     isPlusMember: boolean;
     scrollY?: Animated.Value;
     index?: number;
+    isLargeCard?: boolean; // New prop for carousel mode
+    guide?: { name: string; avatar: string; };
 }
 
-const { width, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const ITEM_SIZE = 150; // Approximated height + margin for AudiobookCard
+const { width } = Dimensions.get('window');
+// Card dimensions for Large Mode
+const CARD_WIDTH = width * 0.75;
+const CARD_HEIGHT = CARD_WIDTH * 1.5; // Aspect ratio for poster
 
-
-
-// Mapping for specific book covers or generic category covers
 const BOOK_COVERS: Record<string, any> = {
     'Meditations': 'https://images.unsplash.com/photo-1506126613408-eca67ad4844a?w=400&q=80',
     'The Conquest of Fear': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80',
@@ -46,6 +46,8 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
     isPlusMember,
     scrollY,
     index,
+    isLargeCard = false,
+    guide,
 }) => {
     const isLocked = audiobook.is_premium && !isPlusMember;
 
@@ -61,40 +63,103 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
     };
 
     const { color, icon } = getCategoryDetails(audiobook.category);
-
-    // Determine cover image (specific book title or category generic)
     const coverSource = audiobook.image_url || BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../assets/covers/growth.png');
 
-    const formatDuration = (minutes: number): string => {
+    const formatDuration = (minutes?: number): string => {
+        if (!minutes) return 'Audio';
         if (minutes < 60) return `${minutes} min`;
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
         return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
     };
 
-    let imageOpacity: any = 0.25;
+    // --- LARGE CARD RENDER (Vertical Poster) ---
+    if (isLargeCard) {
+        return (
+            <TouchableOpacity
+                onPress={() => onPress(audiobook)}
+                activeOpacity={0.9}
+                style={styles.largeContainer}
+            >
+                {/* Main Card Image */}
+                <View style={[styles.largeImageWrapper, { borderColor: 'rgba(255,255,255,0.1)' }]}>
+                    <Image
+                        source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
+                        style={styles.largeImage}
+                    />
+                    {isLocked && (
+                        <View style={styles.lockOverlayList}>
+                            <BlurView intensity={20} style={StyleSheet.absoluteFill} />
+                            <View style={styles.lockCircle}>
+                                <Ionicons name="lock-closed" size={24} color="#FFFFFF" />
+                            </View>
+                        </View>
+                    )}
+                    <LinearGradient
+                        colors={['transparent', 'transparent', 'rgba(0,0,0,0.8)', 'rgba(0,0,0,0.95)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </View>
 
-    if (scrollY && typeof index === 'number') {
-        const HEADER_HEIGHT = 480; // Slightly larger header estimate for Audiobooks
-        const itemCenter = HEADER_HEIGHT + (ITEM_SIZE * index) + (ITEM_SIZE / 2);
-        const screenCenter = SCREEN_HEIGHT / 2;
-        const targetScrollY = itemCenter - screenCenter;
+                {/* Floating Info Card */}
+                <BlurView intensity={40} tint="dark" style={styles.largeInfoCard}>
+                    <View style={styles.largeHeaderRow}>
+                        <View style={[styles.categoryBadge, { backgroundColor: color + '20', borderColor: color + '40' }]}>
+                            <Ionicons name={icon as any} size={10} color={color} />
+                            <Text style={[styles.categoryText, { color }]}>{audiobook.category.toUpperCase()}</Text>
+                        </View>
+                        {audiobook.is_featured && (
+                            <View style={styles.featuredBadge}>
+                                <Text style={styles.featuredText}>★ DESTACADO</Text>
+                            </View>
+                        )}
+                    </View>
 
-        const range = [
-            targetScrollY - 250,
-            targetScrollY,
-            targetScrollY + 250
-        ];
+                    <Text style={styles.largeTitle} numberOfLines={2}>{audiobook.title}</Text>
+                    <Text style={styles.largeAuthor}>{audiobook.author}</Text>
 
-        imageOpacity = scrollY.interpolate({
-            inputRange: range,
-            outputRange: [0.25, 1, 0.25],
-            extrapolate: 'clamp'
-        });
+                    <View style={styles.largeFooter}>
+                        <View style={styles.durationRow}>
+                            {/* Guide Avatar & Duration */}
+                            {guide ? (
+                                <View style={styles.guideInfoRow}>
+                                    <View style={styles.miniAvatarContainer}>
+                                        <Image
+                                            source={{ uri: guide.avatar }}
+                                            style={styles.miniAvatar}
+                                        />
+                                    </View>
+                                    <Text style={styles.guideNameMini}>{guide.name}</Text>
+                                </View>
+                            ) : (
+                                <Ionicons name="mic-outline" size={14} color="rgba(255,255,255,0.5)" />
+                            )}
+
+                            <View style={styles.dotSeparator} />
+
+                            <View style={styles.timeInfoRow}>
+                                {/* User requested "sustituyendo al texto que pone audio y luego debe indicar el tiempo" 
+                                So: Avatar | Time
+                             */}
+                                <Ionicons name="time-outline" size={12} color="rgba(255,255,255,0.4)" style={{ marginRight: 4 }} />
+                                <Text style={styles.durationText}>{formatDuration(audiobook.duration_minutes || (audiobook as any).duration)}</Text>
+                            </View>
+                        </View>
+
+                        <View style={[styles.playButtonLarge, { backgroundColor: isLocked ? 'rgba(255,255,255,0.1)' : '#FFF' }]}>
+                            <Ionicons
+                                name={isLocked ? "lock-closed" : "play"}
+                                size={20}
+                                color={isLocked ? "rgba(255,255,255,0.5)" : "#000"}
+                            />
+                        </View>
+                    </View>
+                </BlurView>
+            </TouchableOpacity>
+        );
     }
 
-
-
+    // --- LEGACY RENDER (Not used in new design but kept for fallback) ---
     return (
         <TouchableOpacity
             style={styles.container}
@@ -103,16 +168,7 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
         >
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
                 <View style={{ flex: 1 }}>
-                    <Animated.Image
-                        source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
-                        style={[
-                            StyleSheet.absoluteFill,
-                            { opacity: imageOpacity }
-                        ]}
-                        resizeMode="cover"
-                    />
                     <View style={styles.content}>
-                        {/* Book Cover */}
                         <View style={styles.coverWrapper}>
                             <Image
                                 source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
@@ -123,10 +179,6 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                                     <Ionicons name="lock-closed" size={20} color="#FFFFFF" />
                                 </View>
                             )}
-                            <LinearGradient
-                                colors={['transparent', 'rgba(0,0,0,0.4)']}
-                                style={styles.gradient}
-                            />
                         </View>
 
                         <View style={styles.details}>
@@ -147,12 +199,6 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                             </View>
                         </View>
                     </View>
-
-                    <View style={styles.btnContainer}>
-                        <View style={[styles.playButton, { backgroundColor: color + '30' }]}>
-                            <Ionicons name="play" size={18} color={color} />
-                        </View>
-                    </View>
                 </View>
             </BlurView>
         </TouchableOpacity>
@@ -160,6 +206,133 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
 };
 
 const styles = StyleSheet.create({
+    // --- LARGE CARD STYLES ---
+    largeContainer: {
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    largeImageWrapper: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
+    },
+    largeImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    lockOverlayList: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    lockCircle: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    largeInfoCard: {
+        position: 'absolute',
+        bottom: 16,
+        left: 16,
+        right: 16,
+        padding: 16,
+        borderRadius: 16,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+    },
+    largeHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    categoryBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        borderWidth: 1,
+        gap: 4,
+    },
+    categoryText: {
+        fontSize: 10,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+    },
+    featuredBadge: {
+        backgroundColor: '#FBBF24',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    featuredText: {
+        color: '#000',
+        fontSize: 10,
+        fontWeight: '900',
+    },
+    largeTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 4,
+        letterSpacing: -0.5,
+        textShadowColor: 'rgba(0,0,0,0.5)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
+    },
+    largeAuthor: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.7)',
+        fontWeight: '500',
+        marginBottom: 12,
+    },
+    largeFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    durationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    durationText: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    playButtonLarge: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        // Shadow for depth
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.30,
+        shadowRadius: 4.65,
+        elevation: 8,
+    },
+
+    // --- OLD STYLES (Kept for safe fallback/ref) ---
     container: {
         marginBottom: theme.spacing.md,
         borderRadius: 20,
@@ -169,12 +342,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.03)',
     },
     glassContainer: {
-        padding: 0, // Removed padding here, handled inside
+        padding: 0,
     },
     content: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12, // Moved padding here
+        padding: 12,
     },
     coverWrapper: {
         width: 80,
@@ -188,9 +361,6 @@ const styles = StyleSheet.create({
         height: '100%',
         resizeMode: 'cover',
     },
-    coverShadow: {
-        ...StyleSheet.absoluteFillObject,
-    },
     lockOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0,0,0,0.5)',
@@ -198,46 +368,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         zIndex: 5,
     },
-    gradient: {
-        ...StyleSheet.absoluteFillObject,
-    },
     details: {
         flex: 1,
         marginLeft: 16,
         justifyContent: 'center',
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
-    },
-    categoryBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-    },
     category: {
         fontSize: 10,
         fontWeight: '900',
         letterSpacing: 0.5,
-    },
-    featuredBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        backgroundColor: 'rgba(255, 215, 0, 0.1)',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 6,
-    },
-    featuredText: {
-        fontSize: 8,
-        fontWeight: '900',
-        color: '#FFD700',
     },
     title: {
         fontSize: 16,
@@ -256,38 +395,45 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
     },
-    meta: {
+
+    // Mini Guide Avatar Styles
+    guideInfoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        marginRight: 8,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: 12,
     },
-    metaText: {
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.4)',
-        fontWeight: '700',
-    },
-    langBadge: {
-        backgroundColor: 'rgba(255,255,255,0.07)',
-        paddingHorizontal: 5,
-        paddingVertical: 1,
-        borderRadius: 4,
-    },
-    langText: {
-        fontSize: 8,
-        fontWeight: '900',
-        color: 'rgba(255,255,255,0.5)',
-    },
-    btnContainer: {
-        paddingLeft: 8,
-    },
-    playButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
+    miniAvatarContainer: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        overflow: 'hidden',
+        marginRight: 6,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    miniAvatar: {
+        width: '100%',
+        height: '100%',
+    },
+    guideNameMini: {
+        color: 'rgba(255,255,255,0.9)',
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    dotSeparator: {
+        width: 3,
+        height: 3,
+        borderRadius: 1.5,
+        backgroundColor: 'rgba(255,255,255,0.3)',
+        marginRight: 8,
+    },
+    timeInfoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 

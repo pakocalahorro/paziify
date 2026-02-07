@@ -164,6 +164,16 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
         return matchesCategory && matchesSearch;
     });
 
+    const handlePopulate = async () => {
+        try {
+            await storiesService.populateStories();
+            refetch();
+            alert('Historias importadas correctamente');
+        } catch (e) {
+            alert('Error importando historias');
+        }
+    };
+
     const renderHeader = () => (
         <View style={styles.headerContent}>
             {/* Header */}
@@ -177,15 +187,15 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
 
                 <View style={styles.headerRow}>
                     <View style={styles.headerTextContainer}>
-                        <Text style={styles.headerLabel}>HISTORIAS DE</Text>
+                        <Text style={styles.headerLabel}>MENTES MAESTRAS</Text>
                         <View style={styles.headerTop}>
-                            <Text style={styles.headerTitle}>Transformación</Text>
+                            <Text style={styles.headerTitle}>Biografías</Text>
                         </View>
                     </View>
                     <BacklitSilhouette />
                 </View>
                 <Text style={styles.headerSubtitle}>
-                    Narrativas reales de superación y crecimiento personal.
+                    Cómo la meditación transformó a las grandes figuras de la historia.
                 </Text>
             </View>
 
@@ -195,7 +205,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Buscar historias..."
+                        placeholder="Buscar biografías..."
                         placeholderTextColor="rgba(255,255,255,0.3)"
                         value={searchQuery}
                         onChangeText={setSearchQuery}
@@ -205,7 +215,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
 
             <View style={styles.filterSection}>
                 <Text style={styles.sectionTitle}>
-                    {selectedCategory === 'all' ? 'Todas las Historias' : `Superando: ${selectedCategory}`}
+                    {selectedCategory === 'all' ? 'Todas las Biografías' : `Categoría: ${selectedCategory}`}
                 </Text>
 
                 <FlatList
@@ -259,6 +269,14 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     data={filteredStories}
                     keyExtractor={(item) => item.id}
                     ListHeaderComponent={renderHeader}
+                    ListFooterComponent={
+                        <TouchableOpacity
+                            onPress={handlePopulate}
+                            style={{ padding: 20, alignItems: 'center', opacity: 0.3 }}
+                        >
+                            <Text style={{ color: '#FFF', fontSize: 10 }}>Regenerar Contenido (Dev)</Text>
+                        </TouchableOpacity>
+                    }
                     renderItem={({ item, index }) => (
                         <StoryCard
                             story={item}

@@ -1,11 +1,17 @@
 import { Create, useForm } from "@refinedev/antd";
-import { Form, Input, Select, Checkbox, Upload, Button, AutoComplete } from "antd";
+import { Form, Input, Select, Checkbox, Upload, Button, AutoComplete, InputNumber } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { supabaseClient } from "../../providers/supabase-client";
 import { useEffect, useState } from "react";
 
 export const AudiobookCreate = () => {
-    const { formProps, saveButtonProps, form, onFinish } = useForm();
+    // Use Refine hook for form management
+    const { form, formProps, saveButtonProps, onFinish } = useForm();
+
+    // Local state for URLs to ensure persistence regardless of form instance issues
+    const [audioUrl, setAudioUrl] = useState<string>("");
+    const [imageUrl, setImageUrl] = useState<string>("");
+
     const [existingCategories, setExistingCategories] = useState<{ value: string }[]>([]);
 
     useEffect(() => {
@@ -40,7 +46,11 @@ export const AudiobookCreate = () => {
                 .from("audiobook-voices")
                 .getPublicUrl(fileName);
 
-            form?.setFieldValue("audio_url", publicUrlData.publicUrl);
+            // Use our explicit form instance AND local state
+            const url = publicUrlData.publicUrl;
+            console.log("🎤 Audio URL uploaded:", url);
+            setAudioUrl(url);
+            form?.setFieldValue("audio_url", url);
             onSuccess("ok");
         } catch (err) {
             console.error("Audio Upload error:", err);
@@ -64,7 +74,11 @@ export const AudiobookCreate = () => {
                 .from("audiobook-thumbnails")
                 .getPublicUrl(fileName);
 
-            form?.setFieldValue("image_url", publicUrlData.publicUrl);
+            // Use our explicit form instance AND local state
+            const url = publicUrlData.publicUrl;
+            console.log("🖼️ Cover URL uploaded:", url);
+            setImageUrl(url);
+            form?.setFieldValue("image_url", url);
             onSuccess("ok");
         } catch (err) {
             console.error("Image Upload error:", err);
@@ -72,10 +86,29 @@ export const AudiobookCreate = () => {
         }
     };
 
-    const handleOnFinish = (values: any) => {
-        console.log("Submitting form with values:", values);
-        const { file_upload, image_upload, ...rest } = values;
-        return onFinish(rest);
+    const handleOnFinish = async (values: any) => {
+        // Get latest values directly from form instance to be safe
+        const currentAudioUrl = audioUrl || form?.getFieldValue("audio_url") || values.audio_url;
+        const currentImageUrl = imageUrl || form?.getFieldValue("image_url") || values.image_url;
+
+        console.log("🟢 Submitting form with values:", values);
+        console.log("🧐 Resolved URLs:", { currentAudioUrl, currentImageUrl });
+
+        if (!currentAudioUrl || !currentImageUrl) {
+            console.warn("URLs missing on submit. Expected urls from state or form.");
+            // Let's keep the logic but remove the intrusive alert.
+        }
+
+        // Merge form values with our guaranteed local state URLs
+        const finalValues = {
+            ...values,
+            audio_url: currentAudioUrl,
+            image_url: currentImageUrl,
+        };
+
+        const { file_upload, image_upload, ...rest } = finalValues;
+        console.log("🚀 Sending to Supabase:", rest);
+        await onFinish(rest);
     };
 
     const normFile = (e: any) => {
@@ -83,20 +116,16 @@ export const AudiobookCreate = () => {
         return e?.fileList;
     };
 
-    const formPropsWithHandler = {
-        ...formProps,
-        onFinish: handleOnFinish,
-    };
-
     return (
         <Create saveButtonProps={saveButtonProps}>
             <Form
-                {...formPropsWithHandler}
+                {...formProps}
                 form={form}
+                onFinish={handleOnFinish}
                 layout="vertical"
                 onFinishFailed={(errorInfo) => {
-                    console.log('Failed:', errorInfo);
-                    alert("Form validation failed: " + JSON.stringify(errorInfo));
+                    console.error('🔴 Form Validation Failed:', errorInfo);
+                    alert("Form validation failed! Check console for details.");
                 }}
             >
                 <Form.Item
@@ -140,6 +169,15 @@ export const AudiobookCreate = () => {
                         }
                     />
                 </Form.Item>
+
+                <Form.Item
+                    label="Duration (Minutes)"
+                    name="duration_minutes"
+                    rules={[{ required: true, message: "Please enter duration in minutes" }]}
+                >
+                    <InputNumber style={{ width: '100%' }} min={0} placeholder="e.g. 45" />
+                </Form.Item>
+
                 <Form.Item
                     label="Is Premium"
                     name="is_premium"
@@ -148,17 +186,9 @@ export const AudiobookCreate = () => {
                     <Checkbox>Premium Content</Checkbox>
                 </Form.Item>
 
-                {/* DEBUG FIELDS: Visible to check population */}
-                <Form.Item name="audio_url" label="DEBUG: Audio URL (Must not be empty)">
-                    <Input />
-                </Form.Item>
-                <Form.Item name="image_url" label="DEBUG: Image URL (Must not be empty)">
-                    <Input />
-                </Form.Item>
-
                 <Form.Item>
                     <Button type="primary" htmlType="submit" size="large" block style={{ backgroundColor: '#fa541c' }}>
-                        DEBUG GUARDAR (Manual)
+                        Create Audiobook
                     </Button>
                 </Form.Item>
 

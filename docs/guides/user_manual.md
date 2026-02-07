@@ -69,12 +69,15 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 - **Performance Premium**: Todas las animaciones mantienen 60 FPS con transiciones suaves entre temas.
 
 ### 🎧 Audiolibros (Clásicos del Bienestar)
+- **Tarjeta Informativa**: Ahora puedes ver de un vistazo quién narra la historia (con su avatar) y la duración total antes de empezar.
 - **Reproductor Persistente**: Escucha tus libros mientras navegas por otras partes de la aplicación.
 - **Mini Player Flotante**: Un control discreto aparece sobre el menú inferior para pausar o cerrar el audio sin volver a la pantalla completa.
 - **Funciones Pro**: Velocidad variable (0.5x-2.0x), Sleep Timer y marcadores de posición automáticos.
 
-### 🌟 Historias Reales
-- **Lectura Inspiradora**: Testimonios de superación en formato texto.
+### 🌟 Historias Reales: Mentes Maestras
+- **Biografías Inspiradoras**: Descubre cómo la meditación transformó la vida de figuras históricas y contemporáneas (Steve Jobs, Marco Aurelio, Kobe Bryant).
+- **Formato Editorial**: Historias estructuradas en "El Desafío", "El Descubrimiento" y "La Transformación".
+- **Identidad Visual**: Tarjetas con nombres destacados y roles profesionales para máxima inspiración.
 - **Categorización Inteligente**: Filtra por Ansiedad, Resiliencia o Crecimiento con soporte visual temático.
 - **Estética Unificada**: Tarjetas y cabeceras siguen el mismo diseño premium que las meditaciones.
 

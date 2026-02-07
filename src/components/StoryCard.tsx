@@ -131,6 +131,13 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember, scr
                             </View>
                         </View>
 
+                        {story.character_name && (
+                            <View style={styles.characterContainer}>
+                                <Text style={[styles.characterName, { color: color }]}>{story.character_name.toUpperCase()}</Text>
+                                {story.character_role && <Text style={styles.characterRole}> • {story.character_role}</Text>}
+                            </View>
+                        )}
+
                         <Text style={styles.title} numberOfLines={2}>{story.title}</Text>
                         <Text style={styles.subtitle} numberOfLines={2}>{story.subtitle}</Text>
 
@@ -304,6 +311,21 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: theme.colors.textMuted,
         fontWeight: '600',
+    },
+    characterContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    characterName: {
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 1.5,
+    },
+    characterRole: {
+        fontSize: 10,
+        color: 'rgba(255, 255, 255, 0.4)',
+        fontWeight: '500',
     },
     footerLeft: {
         flexDirection: 'row',

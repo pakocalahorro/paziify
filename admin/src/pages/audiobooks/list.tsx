@@ -26,6 +26,7 @@ export const AudiobookList = () => {
                 />
                 <Table.Column dataIndex="title" title="Title" />
                 <Table.Column dataIndex="author" title="Author" />
+                <Table.Column dataIndex="narrator" title="Guide" />
                 <Table.Column
                     dataIndex="audio_url"
                     title="Audio URL"

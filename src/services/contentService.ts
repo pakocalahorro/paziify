@@ -350,6 +350,25 @@ export const storiesService = {
 
         return data || [];
     },
+
+    /**
+     * Populate stories with Mentes Maestras data
+     */
+    async populateStories(): Promise<void> {
+        // Clean existing
+        // Note: DELETE without where is risky in Supabase client usually, but for dev it works if RLS allows
+        await supabase.from('real_stories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+        // Insert new
+        const { error } = await supabase
+            .from('real_stories')
+            .insert(require('../data/realStories').MENTES_MAESTRAS_STORIES);
+
+        if (error) {
+            console.error('Error populating stories:', error);
+            throw error;
+        }
+    }
 };
 
 /**

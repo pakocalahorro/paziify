@@ -211,8 +211,8 @@ const StoryDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                                     <Text style={styles.authorInitial}>{(story.character_name || 'U').charAt(0)}</Text>
                                 </View>
                                 <View>
-                                    <Text style={styles.authorName}>{story.character_name || 'Anónimo'}</Text>
-                                    <Text style={styles.authorRole}>{story.character_role || 'Resiliente'}{story.character_age ? `, ${story.character_age} años` : ''}</Text>
+                                    <Text style={styles.authorName}>{story.character_name || 'Protagonista'}</Text>
+                                    <Text style={styles.authorRole}>{story.character_role || 'Biografía'}</Text>
                                 </View>
                             </View>
                         </View>

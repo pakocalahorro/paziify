@@ -39,6 +39,9 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
     *   **Gaia (Niños/Energía)**: "Realismo Mágico". Fotografía vibrante con toques de fantasía sutil. Especialista en sesiones infantiles y despertar energético.
 *   **Consistencia de Cabezales**: Los catálogos (Oasis) deben seguir la jerarquía: **Header Unificado -> Contenido -> Tarjetas**.
 *   **Patrón UX "Netflix"**: Organización del contenido en carruseles horizontales por categoría con botón de expansión para mejorar el descubrimiento sin abrumar al usuario.
+*   **Tarjetas con Identidad**:
+    *   **Audiolibros**: Diseño tipo "Poster" que destaca la portada, incluye avatar del narrador en "píldora" visual e indicador de duración.
+    *   **Meditaciones**: Diseño "Clean" enfocado en la temática y el estado de ánimo.
 
 ---
 

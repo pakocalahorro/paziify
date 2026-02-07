@@ -62,6 +62,7 @@ Catálogo de audiolibros de dominio público.
 | `title` | TEXT | Título de la obra |
 | `author` | TEXT | Autor |
 | `audio_url` | TEXT | URL del archivo MP3 en Storage |
+| `duration_minutes` | INTEGER | Duración en minutos |
 | `category` | TEXT | Categoría (anxiety, growth, etc.) |
 | `is_premium` | BOOLEAN | Control de acceso Plus |
 
@@ -74,6 +75,11 @@ Testimonios reales y artículos de inspiración.
 | `content` | TEXT | Cuerpo del texto (soporta Markdown) |
 | `content` | TEXT | Cuerpo del texto (soporta Markdown) |
 | `image_url` | TEXT | Portada representativa |
+| `character_name` | TEXT | Nombre del protagonista (Mentes Maestras) |
+| `character_role` | TEXT | Rol/Profesión del protagonista |
+| `transformation_theme` | TEXT | Tema principal (Ansiedad, Resiliencia, etc.) |
+| `reading_time_minutes` | INTEGER | Tiempo de lectura estimado |
+| `tags` | ARRAY | Etiquetas temáticas |
 | `created_at` | TIMESTAMPTZ | Fecha de creación (ordenación) |
 
 ### `user_favorites_content` ⭐
@@ -92,6 +98,9 @@ Sistema unificado de marcadores para la biblioteca.
 -- Contenido Público (Lectura para todos)
 CREATE POLICY "Lectura pública" ON audiobooks FOR SELECT USING (true);
 CREATE POLICY "Lectura pública" ON real_stories FOR SELECT USING (true);
+-- Permisos de escritura para 'real_stories' habilitados en desarrollo para población de datos
+CREATE POLICY "Escritura pública (Dev)" ON real_stories FOR INSERT WITH CHECK (true);
+CREATE POLICY "Modificación pública (Dev)" ON real_stories FOR DELETE USING (true);
 
 -- Favoritos (Privacidad total por usuario)
 CREATE POLICY "Solo dueño gestiona favoritos" ON user_favorites_content

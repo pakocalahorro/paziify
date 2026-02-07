@@ -1,11 +1,34 @@
 import { Edit, useForm } from "@refinedev/antd";
-import { Form, Input, Select, Checkbox, Upload, AutoComplete, Button } from "antd";
+import { Form, Input, Select, Checkbox, Upload, AutoComplete, Button, InputNumber } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { supabaseClient } from "../../providers/supabase-client";
 import { useEffect, useState } from "react";
 
 export const AudiobookEdit = () => {
-    const { formProps, saveButtonProps, form, onFinish } = useForm();
+    // Use Refine hook for form management
+    const { form, formProps, saveButtonProps, onFinish } = useForm();
+
+    // Local state for URLs
+    const [audioUrl, setAudioUrl] = useState<string>("");
+    const [imageUrl, setImageUrl] = useState<string>("");
+
+    // Sync Refine's loaded data to our explicit form instance
+    useEffect(() => {
+        if (formProps.initialValues) {
+            const { audio_url, image_url } = formProps.initialValues;
+
+            // Populate form and state
+            form?.setFieldsValue({
+                ...formProps.initialValues,
+                audio_url: audio_url,
+                image_url: image_url,
+            });
+
+            if (audio_url) setAudioUrl(audio_url);
+            if (image_url) setImageUrl(image_url);
+        }
+    }, [formProps.initialValues]);
+
     const [existingCategories, setExistingCategories] = useState<{ value: string }[]>([]);
 
     useEffect(() => {
@@ -41,8 +64,10 @@ export const AudiobookEdit = () => {
                 .from("audiobook-voices")
                 .getPublicUrl(fileName);
 
-            console.log("🎤 Audio URL set (Edit):", publicUrlData.publicUrl);
-            form?.setFieldValue("audio_url", publicUrlData.publicUrl);
+            const url = publicUrlData.publicUrl;
+            console.log("🎤 Audio URL set (Edit):", url);
+            setAudioUrl(url);
+            form?.setFieldValue("audio_url", url);
             onSuccess("ok");
         } catch (err) {
             console.error("Audio Upload error:", err);
@@ -67,8 +92,10 @@ export const AudiobookEdit = () => {
                 .from("audiobook-thumbnails")
                 .getPublicUrl(fileName);
 
-            console.log("🖼️ Image URL set (Edit):", publicUrlData.publicUrl);
-            form?.setFieldValue("image_url", publicUrlData.publicUrl);
+            const url = publicUrlData.publicUrl;
+            console.log("🖼️ Image URL set (Edit):", url);
+            setImageUrl(url);
+            form?.setFieldValue("image_url", url);
             onSuccess("ok");
         } catch (err) {
             console.error("Image Upload error:", err);
@@ -76,10 +103,19 @@ export const AudiobookEdit = () => {
         }
     };
 
-    const handleOnFinish = (values: any) => {
+    const handleOnFinish = async (values: any) => {
         console.log("Submitting form with values:", values);
-        const { file_upload, image_upload, ...rest } = values;
-        return onFinish(rest);
+
+        // Merge form values with our guaranteed local state URLs
+        const finalValues = {
+            ...values,
+            audio_url: audioUrl || values.audio_url,
+            image_url: imageUrl || values.image_url,
+        };
+
+        const { file_upload, image_upload, ...rest } = finalValues;
+        console.log("🚀 Sending to Supabase with State Overrides:", rest);
+        await onFinish(rest);
     };
 
     const normFile = (e: any) => {
@@ -87,16 +123,12 @@ export const AudiobookEdit = () => {
         return e?.fileList;
     };
 
-    const formPropsWithHandler = {
-        ...formProps,
-        onFinish: handleOnFinish,
-    };
-
     return (
         <Edit saveButtonProps={saveButtonProps}>
             <Form
-                {...formPropsWithHandler}
+                {...formProps}
                 form={form}
+                onFinish={handleOnFinish}
                 layout="vertical"
                 onFinishFailed={(errorInfo) => {
                     console.log('Failed:', errorInfo);
@@ -132,21 +164,18 @@ export const AudiobookEdit = () => {
                         }
                     />
                 </Form.Item>
+
+                <Form.Item label="Duration (Minutes)" name="duration_minutes" rules={[{ required: true }]}>
+                    <InputNumber style={{ width: '100%' }} min={0} />
+                </Form.Item>
+
                 <Form.Item label="Is Premium" name="is_premium" valuePropName="checked">
                     <Checkbox>Premium Content</Checkbox>
                 </Form.Item>
 
-                {/* DEBUG FIELDS: Visible to check population */}
-                <Form.Item name="audio_url" label="DEBUG: Audio URL">
-                    <Input />
-                </Form.Item>
-                <Form.Item name="image_url" label="DEBUG: Image URL">
-                    <Input />
-                </Form.Item>
-
                 <Form.Item>
                     <Button type="primary" htmlType="submit" size="large" block style={{ backgroundColor: '#fa541c' }}>
-                        DEBUG GUARDAR (Manual)
+                        Save Changes
                     </Button>
                 </Form.Item>
 
