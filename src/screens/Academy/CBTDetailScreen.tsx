@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -6,15 +6,18 @@ import {
     TouchableOpacity,
     SafeAreaView,
     ScrollView,
+    ActivityIndicator,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Markdown from 'react-native-markdown-display';
+import { Audio } from 'expo-av';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
-import { ACADEMY_LESSONS } from '../../data/academyData';
+import { ACADEMY_LESSONS, Lesson } from '../../data/academyData';
+import { AcademyService } from '../../services/AcademyService';
 
 type CBTDetailScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -34,7 +37,89 @@ interface Props {
 const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     const { lessonId } = route.params;
     const { userState, updateUserState } = useApp();
-    const lesson = ACADEMY_LESSONS.find(l => l.id === lessonId);
+
+    const [lesson, setLesson] = useState<Lesson | null>(null);
+    const [isLoadingLesson, setIsLoadingLesson] = useState(true);
+
+    // Audio State
+    const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+
+    useEffect(() => {
+        const fetchLesson = async () => {
+            try {
+                const data = await AcademyService.getLessonById(lessonId);
+                setLesson(data);
+            } catch (error) {
+                console.error("Error fetching lesson:", error);
+            } finally {
+                setIsLoadingLesson(false);
+            }
+        };
+        fetchLesson();
+    }, [lessonId]);
+
+    // Unload sound on unmount or new lesson
+    useEffect(() => {
+        return () => {
+            if (sound) {
+                sound.unloadAsync();
+            }
+        };
+    }, [sound]);
+
+    // Load sound when audioSource is available
+    useEffect(() => {
+        const loadAudio = async () => {
+            if (lesson?.audioSource) {
+                try {
+                    setIsLoadingAudio(true);
+                    const { sound: newSound } = await Audio.Sound.createAsync(
+                        lesson.audioSource,
+                        { shouldPlay: false }
+                    );
+                    // Setup callback for playback ended
+                    newSound.setOnPlaybackStatusUpdate((status) => {
+                        if (status.isLoaded && status.didJustFinish) {
+                            setIsPlaying(false);
+                            newSound.setPositionAsync(0); // Reset to start
+                        }
+                    });
+                    setSound(newSound);
+                } catch (error) {
+                    console.error("Error loading sound:", error);
+                } finally {
+                    setIsLoadingAudio(false);
+                }
+            }
+        };
+
+        loadAudio();
+    }, [lesson?.audioSource]);
+
+
+    const handlePlayPause = async () => {
+        if (!sound) return;
+
+        if (isPlaying) {
+            await sound.pauseAsync();
+            setIsPlaying(false);
+        } else {
+            await sound.playAsync();
+            setIsPlaying(true);
+        }
+    };
+
+
+    if (isLoadingLesson) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <Text style={{ color: 'white', marginTop: 20 }}>Cargando lección...</Text>
+            </View>
+        );
+    }
 
     if (!lesson) {
         return (
@@ -68,7 +153,7 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                 </TouchableOpacity>
                 <View style={styles.headerInfo}>
                     <Text style={styles.headerTitle} numberOfLines={1}>{lesson.title}</Text>
-                    <Text style={styles.headerSubtitle}>{lesson.duration} de lectura</Text>
+                    <Text style={styles.headerSubtitle}>{lesson.duration}</Text>
                 </View>
                 <TouchableOpacity style={styles.shareButton}>
                     <Ionicons name="share-social-outline" size={22} color={theme.colors.textMuted} />
@@ -79,6 +164,35 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
+                {/* Audio Player Section */}
+                {lesson.audioSource && (
+                    <View style={styles.audioPlayerContainer}>
+                        <View style={styles.audioIconContainer}>
+                            <Ionicons name="headset" size={32} color={theme.colors.primary} />
+                        </View>
+                        <View style={styles.audioControls}>
+                            <Text style={styles.audioLabel}>Escuchar Lección</Text>
+                            <Text style={styles.audioSubLabel}>{lesson.duration} • Voz de Aria</Text>
+                        </View>
+                        <TouchableOpacity
+                            style={styles.playButton}
+                            onPress={handlePlayPause}
+                            disabled={isLoadingAudio}
+                        >
+                            {isLoadingAudio ? (
+                                <ActivityIndicator color="#FFF" />
+                            ) : (
+                                <Ionicons
+                                    name={isPlaying ? "pause" : "play"}
+                                    size={24}
+                                    color="#FFF"
+                                    style={{ marginLeft: isPlaying ? 0 : 2 }} // Optic center
+                                />
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                )}
+
                 <Markdown style={markdownStyles}>
                     {lesson.content.trim()}
                 </Markdown>
@@ -89,7 +203,7 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                         onPress={handleComplete}
                     >
                         <Text style={styles.buttonText}>
-                            {isCompleted ? 'Lección Completada' : 'Marcar como Leída'}
+                            {isCompleted ? 'Lección Completada' : 'Marcar como Terminada'}
                         </Text>
                         {!isCompleted && (
                             <Text style={styles.rewardText}>+5 resiliencia</Text>
@@ -179,6 +293,51 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: theme.spacing.lg,
+    },
+    audioPlayerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: theme.borderRadius.lg,
+        padding: theme.spacing.md,
+        marginBottom: theme.spacing.xl,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    audioIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: 'rgba(74, 103, 65, 0.2)', // Primary with opacity
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: theme.spacing.md,
+    },
+    audioControls: {
+        flex: 1,
+    },
+    audioLabel: {
+        color: theme.colors.textMain,
+        fontWeight: '700',
+        fontSize: 16,
+    },
+    audioSubLabel: {
+        color: theme.colors.textMuted,
+        fontSize: 12,
+        marginTop: 2,
+    },
+    playButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: theme.colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
     },
     footer: {
         marginTop: theme.spacing.xxl,

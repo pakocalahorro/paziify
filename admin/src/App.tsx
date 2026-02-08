@@ -20,6 +20,12 @@ import { supabaseClient } from "./providers/supabase-client";
 import { AudiobookList } from "./pages/audiobooks/list";
 import { AudiobookCreate } from "./pages/audiobooks/create";
 import { AudiobookEdit } from "./pages/audiobooks/edit";
+import { AcademyModuleList } from "./pages/academy/modules/list";
+import { AcademyModuleCreate } from "./pages/academy/modules/create";
+import { AcademyModuleEdit } from "./pages/academy/modules/edit";
+import { AcademyLessonList } from "./pages/academy/lessons/list";
+import { AcademyLessonCreate } from "./pages/academy/lessons/create";
+import { AcademyLessonEdit } from "./pages/academy/lessons/edit";
 import { MeditationSessionList } from "./pages/meditation-sessions/list";
 import { MeditationSessionCreate } from "./pages/meditation-sessions/create";
 import { MeditationSessionEdit } from "./pages/meditation-sessions/edit";
@@ -58,6 +64,20 @@ function App() {
                     create: "/meditations/create",
                     edit: "/meditations/edit/:id",
                     meta: { label: "Meditaciones" }
+                  },
+                  {
+                    name: "academy_modules",
+                    list: "/academy/modules",
+                    create: "/academy/modules/create",
+                    edit: "/academy/modules/edit/:id",
+                    meta: { label: "Cursos Academia" }
+                  },
+                  {
+                    name: "academy_lessons",
+                    list: "/academy/lessons",
+                    create: "/academy/lessons/create",
+                    edit: "/academy/lessons/edit/:id",
+                    meta: { label: "Lecciones" }
                   }
                 ]}
               >
@@ -97,6 +117,16 @@ function App() {
                       <Route index element={<MeditationSessionList />} />
                       <Route path="create" element={<MeditationSessionCreate />} />
                       <Route path="edit/:id" element={<MeditationSessionEdit />} />
+                    </Route>
+                    <Route path="/academy/modules">
+                      <Route index element={<AcademyModuleList />} />
+                      <Route path="create" element={<AcademyModuleCreate />} />
+                      <Route path="edit/:id" element={<AcademyModuleEdit />} />
+                    </Route>
+                    <Route path="/academy/lessons">
+                      <Route index element={<AcademyLessonList />} />
+                      <Route path="create" element={<AcademyLessonCreate />} />
+                      <Route path="edit/:id" element={<AcademyLessonEdit />} />
                     </Route>
                     <Route path="*" element={<AuthPage type="login" />} />
                   </Route>

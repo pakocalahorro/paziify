@@ -18,6 +18,8 @@ import NotificationSettings from '../screens/Onboarding/NotificationSettings';
 import WeeklyReportScreen from '../screens/Profile/WeeklyReportScreen';
 import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
+import QuizScreen from '../screens/Academy/QuizScreen';
+import AcademyCourseDetailScreen from '../screens/Academy/AcademyCourseDetailScreen'; // Added
 import CompassScreen from '../screens/Sanctuary/CompassScreen';
 import ManifestoScreen from '../screens/Sanctuary/ManifestoScreen';
 import StoryDetailScreen from '../screens/Content/StoryDetailScreen';
@@ -64,6 +66,8 @@ const AppNavigatorContent = () => {
                         <Stack.Screen name={Screen.SESSION_END} component={SessionEndScreen} />
                         <Stack.Screen name={Screen.WEEKLY_REPORT} component={WeeklyReportScreen} />
                         <Stack.Screen name={Screen.CBT_DETAIL} component={CBTDetailScreen} />
+                        <Stack.Screen name={Screen.ACADEMY_COURSE_DETAIL} component={AcademyCourseDetailScreen} />
+                        <Stack.Screen name={Screen.CBT_QUIZ} component={QuizScreen} />
                         <Stack.Screen
                             name={Screen.PAYWALL}
                             component={PaywallScreen}

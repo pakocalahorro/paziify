@@ -42,6 +42,11 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 *   **Tarjetas con Identidad**:
     *   **Audiolibros**: Diseño tipo "Poster" que destaca la portada, incluye avatar del narrador en "píldora" visual e indicador de duración.
     *   **Meditaciones**: Diseño "Clean" enfocado en la temática y el estado de ánimo.
+    *   **Academia (Cursos)**: Diseño "Impact" con tipografía **Oswald** y estilos dinámicos Skia:
+        *   *Ansiedad*: Hollow (Borde Naranja, Interior Transparente).
+        *   *Profesional*: Solid Block (Blanco sobre Caja Oscura).
+        *   *Salud*: Duotone (Relleno Color + Borde Blanco).
+        *   *Crecimiento*: Elegant Outline.
 
 ---
 

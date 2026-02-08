@@ -1,0 +1,3 @@
+UPDATE public.academy_modules SET image_url = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-thumbnails/basics_intro.jpg' WHERE id = 'basics_intro';
+UPDATE public.academy_modules SET image_url = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-thumbnails/self_esteem.jpg' WHERE id = 'self_esteem';
+UPDATE public.academy_modules SET image_url = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-thumbnails/insomnia.jpg' WHERE id = 'insomnia';

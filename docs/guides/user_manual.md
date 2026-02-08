@@ -42,6 +42,7 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - **Categorización Maestra (10 Temáticas)**: El catálogo ahora se organiza en 10 áreas reales del bienestar: *Calma SOS, Mindfulness, Sueño, Resiliencia, Rendimiento, Despertar, Salud, Hábitos, Emocional* y *Niños*. Cada una con su color e iconografía distintiva.
 - **Identidad de Guías**: Disfruta de la personalidad vocal única de nuestros 4 guías (Aria, Ziro, Éter y Gaia) en sus especialidades correspondientes.
 - **Tarjetas de Cristal**: Diseño transparente con fondos inmersivos que se integran con el ambiente.
+- **Academia Visual (v2.3)**: Los cursos ahora presentan una identidad única con tipografías de alto impacto (Oswald) y estilos visuales que reflejan la categoría (ej. letras transparentes para Ansiedad, sólidas para Profesional).
 - **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
 - **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
 - **Sincronización Grado Médico (v1.8.0)**: El orbe y las instrucciones de voz ahora respiran al unísono con una precisión de 16ms, sin importar la velocidad de la sesión.

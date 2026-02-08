@@ -1,18 +1,37 @@
-import React from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
     View,
     Text,
     StyleSheet,
+    FlatList,
+    TextInput,
     TouchableOpacity,
+    Animated,
+    Dimensions,
+    Image,
+    StatusBar,
     ScrollView,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+    Canvas,
+    Circle,
+    RadialGradient,
+    Blur,
+    vec
+} from '@shopify/react-native-skia';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
-import { ACADEMY_MODULES, ACADEMY_LESSONS, AcademyModule, Lesson } from '../../data/academyData';
+import { AcademyModule } from '../../data/academyData';
+import { AcademyService } from '../../services/AcademyService';
+import CourseCard from '../../components/CourseCard';
+import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import SoundWaveHeader from '../../components/SoundWaveHeader';
 
 type CBTAcademyScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -23,91 +42,294 @@ interface Props {
     navigation: CBTAcademyScreenNavigationProp;
 }
 
+const { width } = Dimensions.get('window');
+const ITEM_WIDTH = width * 0.75;
+const SPACING = 10;
+const EMPTY_ITEM_SIZE = (width - ITEM_WIDTH) / 2;
+
+// Helper / Config
+const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
+    growth: { label: 'Crecimiento', icon: 'leaf-outline', color: '#646CFF' },
+    professional: { label: 'Carrera', icon: 'briefcase-outline', color: '#4FC3F7' },
+    anxiety: { label: 'Ansiedad', icon: 'rainy-outline', color: '#FFA726' },
+    health: { label: 'Salud', icon: 'fitness-outline', color: '#66BB6A' },
+
+    basics: { label: 'Fundamentos', icon: 'book-outline', color: '#F06292' },
+    family: { label: 'Familia', icon: 'people-outline', color: '#FFB74D' },
+};
+
 const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const { userState } = useApp();
-    const completedLessons = userState.completedLessons || [];
 
-    const renderLessonCard = ({ item }: { item: Lesson }) => {
-        const isCompleted = completedLessons.includes(item.id);
+    const [modules, setModules] = useState<AcademyModule[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-        return (
-            <TouchableOpacity
-                style={styles.lessonCard}
-                onPress={() => navigation.navigate(Screen.CBT_DETAIL, { lessonId: item.id })}
-            >
-                <View style={styles.lessonInfo}>
-                    <View style={styles.lessonHeaderRow}>
-                        <Text style={styles.lessonTitle}>{item.title}</Text>
-                        {isCompleted && (
-                            <Ionicons name="checkmark-circle" size={18} color={theme.colors.success} />
-                        )}
-                    </View>
-                    <Text style={styles.lessonDesc} numberOfLines={2}>{item.description}</Text>
-                    <View style={styles.lessonFooter}>
-                        <View style={styles.durationBadge}>
-                            <Ionicons name="time-outline" size={12} color={theme.colors.textMuted} />
-                            <Text style={styles.durationText}>{item.duration}</Text>
-                        </View>
-                        {item.isPlus && (
-                            <View style={styles.plusBadge}>
-                                <Text style={styles.plusText}>PLUS</Text>
-                            </View>
-                        )}
-                    </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
-            </TouchableOpacity>
-        );
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+    // Animations
+    const scrollX = useRef(new Animated.Value(0)).current;
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const searchAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const loadModules = async () => {
+            try {
+                const data = await AcademyService.getModules();
+                setModules(data);
+                setErrorMsg(null);
+            } catch (error: any) {
+                console.error('Failed to load academy modules', error);
+                setErrorMsg(error.message || JSON.stringify(error));
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadModules();
+
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+        }).start();
+    }, []);
+
+    const toggleSearch = () => {
+        const toValue = isSearchExpanded ? 0 : 1;
+        Animated.spring(searchAnim, {
+            toValue,
+            useNativeDriver: false,
+            friction: 8,
+            tension: 40
+        }).start();
+        setIsSearchExpanded(!isSearchExpanded);
+        if (isSearchExpanded) setSearchQuery('');
     };
 
-    const renderModule = (module: AcademyModule) => {
-        const moduleLessons = ACADEMY_LESSONS.filter(l => l.moduleId === module.id);
+    // Filter Logic
+    const filteredCourses = useMemo(() => {
+        return modules.filter(course => {
+            const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
+            const query = searchQuery.toLowerCase();
+            const matchesSearch = course.title.toLowerCase().includes(query) ||
+                course.description.toLowerCase().includes(query) ||
+                (course.author && course.author.toLowerCase().includes(query));
 
-        return (
-            <View key={module.id} style={styles.moduleSection}>
-                <View style={styles.moduleHeader}>
-                    <View style={[styles.moduleIcon, { backgroundColor: `${theme.colors.primary}20` }]}>
-                        <Ionicons name={module.icon as any} size={20} color={theme.colors.primary} />
+            return matchesCategory && matchesSearch;
+        });
+    }, [modules, selectedCategory, searchQuery]);
+
+    const carouselData = useMemo(() => {
+        if (filteredCourses.length === 0) return [];
+        return [{ id: 'empty-left' }, ...filteredCourses, { id: 'empty-right' }];
+    }, [filteredCourses]);
+
+    // Derived stats
+    const activeStats = useMemo(() => {
+        const cats = new Set(modules.map(c => c.category));
+        return Object.keys(CATEGORY_CONFIG).filter(cat => cats.has(cat));
+    }, [modules]);
+
+    const availableCategories = useMemo(() => {
+        const dynamicCats = activeStats.map(cat => {
+            const config = CATEGORY_CONFIG[cat as keyof typeof CATEGORY_CONFIG] || {
+                label: cat.charAt(0).toUpperCase() + cat.slice(1),
+                icon: 'school-outline',
+                color: '#90CAF9'
+            };
+            return { id: cat, ...config };
+        });
+
+        return [
+            { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
+            ...dynamicCats
+        ];
+    }, [activeStats]);
+
+    const renderHeader = () => (
+        <View style={styles.headerContent}>
+            <View style={styles.header}>
+                <View style={styles.headerRow}>
+                    <View style={styles.headerLeft}>
+                        {/* 
+                         * Back button logic: 
+                         * If this is a main tab/screen, maybe no back button? 
+                         * But usually user wants to go back to Home.
+                         */}
+                        <TouchableOpacity
+                            style={styles.backBtnAbsolute}
+                            onPress={() => navigation.goBack()}
+                        >
+                            <Ionicons name="arrow-back" size={20} color="#FFF" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.searchToggleBtn}
+                            onPress={toggleSearch}
+                        >
+                            <Ionicons
+                                name={isSearchExpanded ? "close-outline" : "search-outline"}
+                                size={20}
+                                color={isSearchExpanded ? "#FB7185" : "#FFF"}
+                            />
+                        </TouchableOpacity>
                     </View>
-                    <View>
-                        <Text style={styles.moduleTitle}>{module.title}</Text>
-                        <Text style={styles.moduleDesc}>{module.description}</Text>
+
+                    <View style={styles.headerTitleContainer}>
+                        <Text style={styles.headerTitleInline}>Academia TCC</Text>
+                    </View>
+
+                    <View style={styles.headerIconContainer}>
+                        <Ionicons name="school-outline" size={24} color="#FB7185" />
                     </View>
                 </View>
-
-                {moduleLessons.map(lesson => (
-                    <View key={lesson.id}>
-                        {renderLessonCard({ item: lesson })}
-                    </View>
-                ))}
             </View>
-        );
-    };
+
+            {/* Search Bar */}
+            <Animated.View style={[
+                styles.searchBaseContainer,
+                {
+                    height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 60] }),
+                    opacity: searchAnim,
+                    marginBottom: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 15] }),
+                    overflow: 'hidden'
+                }
+            ]}>
+                <View style={styles.searchWrapper}>
+                    <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Buscar cursos..."
+                        placeholderTextColor="rgba(255,255,255,0.3)"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                </View>
+            </Animated.View>
+
+            {/* Categories */}
+            <View style={styles.categoryWrap}>
+                <FlatList
+                    horizontal
+                    data={availableCategories}
+                    keyExtractor={(item) => item.id}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.categoryList}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            onPress={() => setSelectedCategory(item.id)}
+                            activeOpacity={0.7}
+                        >
+                            <BlurView
+                                intensity={selectedCategory === item.id ? 80 : 20}
+                                tint="dark"
+                                style={[
+                                    styles.categoryChip,
+                                    selectedCategory === item.id && { backgroundColor: item.color }
+                                ]}
+                            >
+                                <Ionicons
+                                    name={item.icon as any}
+                                    size={16}
+                                    color={selectedCategory === item.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)'}
+                                />
+                                <Text style={[
+                                    styles.categoryTextLabel,
+                                    selectedCategory === item.id && styles.categoryLabelActive
+                                ]}>
+                                    {item.label}
+                                </Text>
+                            </BlurView>
+                        </TouchableOpacity>
+                    )}
+                />
+            </View>
+        </View>
+    );
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Academia TCC</Text>
-                <Text style={styles.headerSubtitle}>Herramientas para tu bienestar mental</Text>
+            <StatusBar barStyle="light-content" />
+
+            {/* Background */}
+            <View style={StyleSheet.absoluteFill}>
+                <BackgroundWrapper nebulaMode="growth" />
+                <LinearGradient
+                    colors={['rgba(2, 6, 23, 0.3)', 'rgba(2, 6, 23, 0.8)']}
+                    style={StyleSheet.absoluteFill}
+                />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Stats Header */}
-                <View style={styles.statsRow}>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statVal}>{completedLessons.length}</Text>
-                        <Text style={styles.statLab}>Lecciones</Text>
-                    </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statItem}>
-                        <Text style={styles.statVal}>{Math.round((completedLessons.length / ACADEMY_LESSONS.length) * 100)}%</Text>
-                        <Text style={styles.statLab}>Progreso</Text>
+            <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+                <View style={{ flex: 1 }}>
+                    {renderHeader()}
+
+                    {/* Carousel */}
+                    <View style={styles.carouselContainer}>
+                        <SoundWaveHeader title="Elige tu curso" accentColor="#FB7185" />
+                        {filteredCourses.length === 0 ? (
+                            <View style={styles.emptyState}>
+                                <Ionicons name="school-outline" size={48} color="rgba(255,255,255,0.3)" />
+                                <Text style={styles.emptyText}>No se encontraron cursos.</Text>
+                            </View>
+                        ) : (
+                            <Animated.FlatList
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                                horizontal
+                                data={carouselData}
+                                keyExtractor={(item: any) => item.id}
+                                contentContainerStyle={{ alignItems: 'center' }}
+                                snapToInterval={ITEM_WIDTH}
+                                decelerationRate="fast"
+                                bounces={false}
+                                onScroll={Animated.event(
+                                    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                                    { useNativeDriver: true }
+                                )}
+                                scrollEventThrottle={16}
+                                renderItem={({ item, index }) => {
+                                    if (item.id === 'empty-left' || item.id === 'empty-right') {
+                                        return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                                    }
+
+                                    const inputRange = [
+                                        (index - 2) * ITEM_WIDTH,
+                                        (index - 1) * ITEM_WIDTH,
+                                        (index) * ITEM_WIDTH,
+                                    ];
+
+                                    const translateY = scrollX.interpolate({
+                                        inputRange,
+                                        outputRange: [50, 0, 50],
+                                        extrapolate: 'clamp',
+                                    });
+                                    const scale = scrollX.interpolate({
+                                        inputRange,
+                                        outputRange: [0.9, 1, 0.9],
+                                        extrapolate: 'clamp',
+                                    });
+
+                                    return (
+                                        <View style={{ width: ITEM_WIDTH }}>
+                                            <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
+                                                <CourseCard
+                                                    course={item as AcademyModule}
+                                                    onPress={(course) => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, { courseId: course.id })}
+                                                    isLargeCard={true}
+                                                />
+                                            </Animated.View>
+                                        </View>
+                                    );
+                                }}
+                            />
+                        )}
                     </View>
                 </View>
-
-                {ACADEMY_MODULES.map(renderModule)}
-            </ScrollView>
+            </Animated.View>
         </View>
     );
 };
@@ -115,137 +337,129 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
+        backgroundColor: '#020617',
+    },
+    headerContent: {
+        zIndex: 10,
     },
     header: {
-        paddingHorizontal: theme.spacing.lg,
-        paddingTop: theme.spacing.md,
-        paddingBottom: theme.spacing.lg,
+        marginBottom: 8,
+        paddingHorizontal: 20,
+        marginTop: 10,
     },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: theme.colors.textMain,
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        color: theme.colors.textMuted,
-        marginTop: 4,
-    },
-    scrollContent: {
-        paddingHorizontal: theme.spacing.lg,
-        paddingBottom: 40,
-    },
-    statsRow: {
-        flexDirection: 'row',
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.xl,
-        padding: theme.spacing.lg,
-        marginBottom: theme.spacing.xl,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-    },
-    statItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    statVal: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: theme.colors.primary,
-    },
-    statLab: {
-        fontSize: 12,
-        color: theme.colors.textMuted,
-        textTransform: 'uppercase',
-        marginTop: 4,
-    },
-    statDivider: {
-        width: 1,
-        height: 40,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    },
-    moduleSection: {
-        marginBottom: theme.spacing.xxl,
-    },
-    moduleHeader: {
+    headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: theme.spacing.lg,
-        gap: theme.spacing.md,
+        justifyContent: 'space-between',
     },
-    moduleIcon: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    backBtnAbsolute: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    searchToggleBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    moduleTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: theme.colors.textMain,
-    },
-    moduleDesc: {
-        fontSize: 13,
-        color: theme.colors.textMuted,
-        marginTop: 2,
-    },
-    lessonCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.lg,
-        padding: theme.spacing.md,
-        marginBottom: theme.spacing.md,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.03)',
-    },
-    lessonInfo: {
+    headerTitleContainer: {
         flex: 1,
-    },
-    lessonHeaderRow: {
-        flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 4,
+        paddingHorizontal: 8,
     },
-    lessonTitle: {
+    headerTitleInline: {
         fontSize: 16,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: 0.5,
+        textAlign: 'center',
+    },
+    headerIconContainer: {
+        width: 36,
+        height: 36,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    searchBaseContainer: {
+        paddingHorizontal: 20,
+    },
+    searchWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        height: 48,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        color: '#FFF',
+        fontSize: 15,
+    },
+    categoryWrap: {
+        marginBottom: 10,
+        marginTop: 5,
+    },
+    categoryList: {
+        paddingLeft: 20,
+        paddingRight: 10,
+    },
+    categoryChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 20,
+        marginRight: 8,
+        gap: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+        overflow: 'hidden',
+    },
+    categoryTextLabel: {
+        fontSize: 12,
         fontWeight: '600',
-        color: theme.colors.textMain,
+        color: 'rgba(255,255,255,0.5)',
     },
-    lessonDesc: {
-        fontSize: 13,
-        color: theme.colors.textMuted,
-        marginBottom: 8,
-        lineHeight: 18,
+    categoryLabelActive: {
+        color: '#FFFFFF',
     },
-    lessonFooter: {
-        flexDirection: 'row',
+    selectionTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        textAlign: 'center',
+        marginBottom: 20,
+        letterSpacing: 0.5,
+    },
+    carouselContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        minHeight: 400,
+    },
+    emptyState: {
         alignItems: 'center',
-        gap: 12,
+        justifyContent: 'center',
+        marginTop: 50,
     },
-    durationBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    durationText: {
-        fontSize: 11,
-        color: theme.colors.textMuted,
-    },
-    plusBadge: {
-        backgroundColor: theme.colors.accent,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-    },
-    plusText: {
-        fontSize: 8,
-        fontWeight: '900',
-        color: '#000',
+    emptyText: {
+        color: 'rgba(255,255,255,0.4)',
+        marginTop: 10,
+        fontSize: 16,
     },
 });
 

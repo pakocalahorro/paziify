@@ -16,7 +16,9 @@ export enum Screen {
     PROFILE = 'PROFILE',
     WEEKLY_REPORT = 'WEEKLY_REPORT',
     CBT_ACADEMY = 'CBT_ACADEMY',
+    ACADEMY_COURSE_DETAIL = 'ACADEMY_COURSE_DETAIL', // Added
     CBT_DETAIL = 'CBT_DETAIL',
+    CBT_QUIZ = 'CBT_QUIZ', // Added
     COMMUNITY = 'COMMUNITY',
     PAYWALL = 'PAYWALL',
     COMPASS = 'COMPASS',
@@ -173,7 +175,9 @@ export type RootStackParamList = {
     [Screen.PROFILE]: undefined;
     [Screen.WEEKLY_REPORT]: undefined;
     [Screen.CBT_ACADEMY]: undefined;
+    [Screen.ACADEMY_COURSE_DETAIL]: { courseId: string }; // Added
     [Screen.CBT_DETAIL]: { lessonId: string };
+    [Screen.CBT_QUIZ]: { courseId: string }; // Added for Quiz
     [Screen.COMMUNITY]: undefined;
     [Screen.PAYWALL]: undefined;
     [Screen.COMPASS]: undefined;

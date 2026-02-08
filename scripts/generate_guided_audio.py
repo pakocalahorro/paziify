@@ -7,8 +7,8 @@ import time
 
 # Configuration
 CREDENTIALS_PATH = 'paziify-7a576ff2d494.json'
-SCRIPTS_ROOT = Path('docs/scripts')
-OUTPUT_DIR = Path('assets/voice-tracks')
+SCRIPTS_ROOT = Path('docs/scripts/academy_generated')
+OUTPUT_DIR = Path('assets/academy-voices-generated')
 
 VOICE_CONFIGS = {
     'calm': {
@@ -64,33 +64,63 @@ def parse_markdown_script(file_path):
     title_match = re.search(r'^# Guion de Meditación: (.*)', content, re.MULTILINE)
     title = title_match.group(1).strip() if title_match else file_path.stem
     
-    style = 'calm'
-    if 'energ' in content.lower() or 'foco' in content.lower() or 'poder' in content.lower() or 'rendimiento' in content.lower():
-        style = 'standard' # M2: Steady spiritual man
-    if 'sueño' in content.lower() or 'descanso' in content.lower() or 'resiliencia' in content.lower() or 'avanzado' in content.lower():
-        style = 'deep' # M1: Deep spiritual man
-    if 'kids' in str(file_path).lower() or 'niños' in content.lower():
-        style = 'kids' # F6: Earthy spiritual woman
+    style = 'calm' # Default (Aria)
+    
+    # Path-based mapping (Folder name)
+    folder_name = file_path.parent.name.lower()
+    
+    if folder_name in ['basics_intro', 'burnout', 'leadership', 'teens_cbt']:
+        style = 'standard' # Ziro
+    elif folder_name in ['insomnia', 'sueno_descanso']:
+        style = 'deep' # Eter
+    elif folder_name in ['parenting', 'kids_mindfulness', 'kids_familia']:
+        style = 'kids' # Gaia
+    
+    # Fallback to content keywords if folder check fails or is generic
+    if style == 'calm':
+         if 'energ' in content.lower() or 'foco' in content.lower():
+            style = 'standard'
+         if 'sueño' in content.lower():
+            style = 'deep'
     
     # Regex to find sections and their timing
+    # Regex to find sections and their timing
     section_pattern = r'## \d+\. .*?\(((\d+):(\d+))( - (\d+):(\d+))?\)\s*\n(.*?)(?=\n##|$)'
-    matches = re.finditer(section_pattern, content, re.DOTALL)
+    matches = list(re.finditer(section_pattern, content, re.DOTALL))
     
     sections = []
-    for match in matches:
-        start_min = int(match.group(2))
-        start_sec = int(match.group(3))
-        start_time_total_sec = start_min * 60 + start_sec
+    
+    if matches:
+        for match in matches:
+            start_min = int(match.group(2))
+            start_sec = int(match.group(3))
+            start_time_total_sec = start_min * 60 + start_sec
+            
+            text_raw = match.group(7).strip()
+            text_matches = re.findall(r'"([^"]*)"', text_raw)
+            text = " ".join(text_matches) if text_matches else text_raw
+            
+            text = clean_text_for_tts(text)
+            
+            if text:
+                sections.append({
+                    'start_time': start_time_total_sec,
+                    'text': text
+                })
+    else:
+        # Fallback: Treat as standard markdown content (Academy Lessons)
+        # Remove the title header if present to avoid repeating it strangely
+        body_content = re.sub(r'^# Guion de Meditación: .*\n', '', content, flags=re.MULTILINE)
         
-        text_raw = match.group(7).strip()
-        text_matches = re.findall(r'"([^"]*)"', text_raw)
-        text = " ".join(text_matches) if text_matches else text_raw
+        # Clean up markdown headers to be spoken or ignored
+        # Converting ## Header to just Header followed by specific pause?
+        # For simplicity, clean_text_for_tts might handle some, but let's ensure headers aren't read as shouty commands.
+        # Actually, let's just pass the whole text to cleaner.
         
-        text = clean_text_for_tts(text)
-        
+        text = clean_text_for_tts(body_content)
         if text:
             sections.append({
-                'start_time': start_time_total_sec,
+                'start_time': 0,
                 'text': text
             })
     
@@ -132,8 +162,9 @@ def generate_audio_for_script(file_path, overwrite=False):
     if not data['sections']:
         return
     
-    output_file = OUTPUT_DIR / f"{file_path.stem}_voices.mp3"
+    output_file = OUTPUT_DIR / f"{file_path.stem}.mp3"
     if output_file.exists() and not overwrite:
+        print(f"   ⏭️  Skipping (Exists): {output_file.name}")
         return
     
     print(f"🎙️  Synthesizing: [Style: {data['style']}] {data['title']}")

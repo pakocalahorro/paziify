@@ -15,6 +15,8 @@ En Paziify, la privacidad es una característica innegociable. Todas las tablas 
 
 ## 2. Diccionario de Datos (Esquema Public)
 
+### 1. Tablas Core (Meditación)
+
 ### `meditation_sessions_content` 🧘
 Nueva tabla para gestionar la lógica de las sesiones de meditación (v1.4).
 | Campo | Tipo | Descripción |

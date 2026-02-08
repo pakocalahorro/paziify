@@ -8,10 +8,11 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
 
 ## Pasos:
 
-1. **Revisar el trabajo realizado**
-   - Listar archivos modificados
-   - Identificar logros principales
-   - Detectar problemas pendientes
+1. **Revisar el trabajo realizado (VISION HOLÍSTICA)**
+   - **CRÍTICO: Leer `task.md` completo** para identificar todas las tareas marcadas como `[x]` en esta sesión, no solo las últimas.
+   - Revisar el historial de chat para recordar objetivos mayores (ej. "Implementar X", "Refactorizar Y").
+   - Listar archivos modificados como apoyo, pero NO como única fuente de verdad.
+   - Identificar logros principales (Features, Refactors, Fixes).
 
 
 2. **Crear nota de sesión** si ya existe una nota en el mismo dia se crea otra nueva con otro nombre indicando los nuevos cambios.
