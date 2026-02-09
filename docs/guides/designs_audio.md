@@ -11,6 +11,10 @@ El diseño de Paziify se basa en la calma, la naturaleza y la tecnología fluida
 ### Visuales con @shopify/react-native-skia
 Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podrían lograrse con componentes estándar de React Native.
 
+#### Tipografía Dinámica (Oswald) 🅰️
+- **Identidad**: Usamos la fuente *Oswald* en sus variantes Bold/Regular para títulos de alto impacto.
+- **Implementación**: Cargada vía `Skia.Typeface` para renderizado vectorial dentro de los canvas, permitiendo efectos de enmascarado y gradientes sobre el texto.
+
 #### El Orbe de Respiración (`ProBreathingOrb.tsx`)
 *   **Modelo Emerald Heart**: Un núcleo verde esmeralda con retroiluminación interna.
 *   **Dinámica Total**: El orbe completo (base y rim) escala sincrónicamente con las fases de respiración (`inhale`, `exhale`).
@@ -42,10 +46,10 @@ Utilizamos **Skia** para renderizar gráficos de alto rendimiento que no podría
 *   **Tarjetas con Identidad**:
     *   **Audiolibros**: Diseño tipo "Poster" que destaca la portada, incluye avatar del narrador en "píldora" visual e indicador de duración.
     *   **Meditaciones**: Diseño "Clean" enfocado en la temática y el estado de ánimo.
-    *   **Academia (Cursos)**: Diseño "Impact" con tipografía **Oswald** y estilos dinámicos Skia:
-        *   *Ansiedad*: Hollow (Borde Naranja, Interior Transparente).
-        *   *Profesional*: Solid Block (Blanco sobre Caja Oscura).
-        *   *Salud*: Duotone (Relleno Color + Borde Blanco).
+    *   **Academia (Cursos v2.3)**: Diseño "Impact" con tipografía **Oswald** y estilos dinámicos Skia:
+        *   *Ansiedad (Hollow)*: Borde de neón, interior transparente para "claridad".
+        *   *Profesional (Solid)*: Bloque blanco/negro de alto contraste para "foco".
+        *   *Salud (Duotone)*: Gradientes suaves bi-color para "armonía".
         *   *Crecimiento*: Elegant Outline.
 
 ---

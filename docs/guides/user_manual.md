@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.0.0 Offline & Cloud) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.3.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.0**. Esta versión introduce la arquitectura **Offline-First**, sincronización total con la nube y el **Catálogo Maestro** de 10 categorías.
+Bienvenido a la guía oficial de **Paziify v2.3**. Esta versión introduce la **Academia Paziify**, la arquitectura **Offline-First**, sincronización total con la nube y el **Catálogo Maestro** de 10 categorías.
 
 ---
 
@@ -42,7 +42,6 @@ La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamen
 - **Categorización Maestra (10 Temáticas)**: El catálogo ahora se organiza en 10 áreas reales del bienestar: *Calma SOS, Mindfulness, Sueño, Resiliencia, Rendimiento, Despertar, Salud, Hábitos, Emocional* y *Niños*. Cada una con su color e iconografía distintiva.
 - **Identidad de Guías**: Disfruta de la personalidad vocal única de nuestros 4 guías (Aria, Ziro, Éter y Gaia) en sus especialidades correspondientes.
 - **Tarjetas de Cristal**: Diseño transparente con fondos inmersivos que se integran con el ambiente.
-- **Academia Visual (v2.3)**: Los cursos ahora presentan una identidad única con tipografías de alto impacto (Oswald) y estilos visuales que reflejan la categoría (ej. letras transparentes para Ansiedad, sólidas para Profesional).
 - **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
 - **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
 - **Sincronización Grado Médico (v1.8.0)**: El orbe y las instrucciones de voz ahora respiran al unísono con una precisión de 16ms, sin importar la velocidad de la sesión.
@@ -107,8 +106,6 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ---
 
----
-
 ## 7. Panel de Administración (Gestión de Contenido) ⚙️
 **Acceso:** `http://localhost:5173` (Entorno Local)
 
@@ -134,17 +131,53 @@ Paziify ahora cuenta con un Panel de Administración robusto para gestionar el c
 
 ---
 
-## Checklist de Verificación de Usuario ✅
-- [x] ¿Sientes la vibración al cargar energía en la Brújula?
-- [x] ¿Puedes seguir escuchando un audiolibro mientras buscas una meditación?
-- [x] ¿El Mini Player aparece correctamente sobre el menú inferior?
-- [x] ¿Las tarjetas de meditación e historias tienen el mismo estilo de vidrio transparente?
-- [x] ¿Las portadas de los audiolibros se ven nítidas y artísticas?
-- [x] ¿Puedes cambiar entre los 4 temas visuales durante una sesión de meditación?
-- [x] ¿El orbe cambia de color al seleccionar un tema diferente?
-- [x] ¿El modo inmersivo (☀️/🌙) alterna correctamente la opacidad del fondo?
-- [x] ¿Los fondos de alta calidad se ven nítidos y sin pixelación?
+## 8. La Academia Paziify (Nuevo v2.3.0) 🎓
+**Pantalla:** `AcademyScreen` -> `CourseDetail` -> `LessonPlayer`
+
+La Academia es el módulo educativo estructurado de Paziify, diseñado para el aprendizaje profundo y el desarrollo personal a través de cursos secuenciales.
+
+### Catálogo Maestro (10 Cursos)
+Hemos estructurado el conocimiento en 10 pilares fundamentales:
+1.  **Fundamentos CBT**: Terapia Cognitivo-Conductual para el día a día.
+2.  **Autoestima de Acero**: Construyendo confianza indestructible.
+3.  **Relaciones Conscientes**: Comunicación y empatía en pareja/familia.
+4.  **Productividad Zen**: Hacer más con menos estrés (Flow).
+5.  **Liderazgo Empático**: Gestión de equipos desde la calma.
+6.  **Finanzas Zen**: Relación saludable con el dinero.
+7.  **Mindfulness Avanzado**: Más allá de la respiración.
+8.  **Sueño Profundo**: Ciencia y práctica del descanso reparador.
+9.  **Nutrición Consciente**: Alimentación para el cuerpo y la mente.
+10. **Crianza Zen**: Educar desde el amor y la paciencia.
+
+### Estructura de Aprendizaje
+- **Cursos**: Contenedores temáticos con identidad visual única (Tipografía Oswald).
+- **Módulos**: Bloques lógicos que agrupan lecciones.
+- **Lecciones**: Unidades de contenido mixtas (Texto + Audio Guía TTS).
+    - *Progreso Lineal*: Debes completar las lecciones en orden.
+    - *Audio Guía*: Cada lección incluye una versión narrada por nuestros guías IA para aprender en movimiento.
+
+### Sistema de Certificación 🏆
+- **Quiz Final**: Al completar todas las lecciones de un curso, se desbloquea el Examen Final.
+- **Evaluación**: Preguntas de opción múltiple para validar lo aprendido.
+- **Certificado**: Al aprobar, obtienes un certificado digital en tu perfil que valida tu maestría en esa área.
+
+### Identidad Visual "Academy"
+- **Tipografía de Impacto**: Uso exclusivo de la fuente **Oswald** para títulos, transmitiendo autoridad y modernidad.
+- **Tarjetas Skia Avanzadas**:
+    - **Hollow (Ansiedad/CBT)**: Bordes brillantes con interior transparente, simbolizando claridad.
+    - **Solid (Profesional)**: Bloques de color sólido para categorías de negocios y productividad.
+    - **Duotone (Salud)**: Combinación de dos tonos armónicos para temas de bienestar físico.
 
 ---
+
+## Checklist de Verificación de Usuario ✅
+- [x] ¿Sientes la vibración al cargar energía en la Brújula?
+- [x] ¿El Mini Player aparece correctamente sobre el menú inferior?
+- [x] ¿Puedes completar una lección de la Academia y ver tu progreso avanzar?
+- [x] ¿Los títulos de los cursos se ven con la tipografía Oswald (impacto)?
+- [x] ¿Puedes cambiar entre los 4 temas visuales durante una sesión de meditación?
+- [x] ¿El modo inmersivo (☀️/🌙) alterna correctamente la opacidad del fondo?
+
 ---
-*Última revisión: 5 de Febrero de 2026 - v2.0.0 (Offline-First & CMS V2)*
+
+*Última revisión: 9 de Febrero de 2026 - v2.3.0 (Academy & Cloud Sync)*

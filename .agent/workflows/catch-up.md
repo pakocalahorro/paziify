@@ -19,9 +19,12 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
    - Informar al usuario de la ultima version de git, master, github
    - Comparar ultima version de Git con las ultimas notas de sesion e informar si coincide todo o hay diferencias
 
-3. **Visión de Producto & Guías**
-   - **Imprescindible**: Leer `docs/guides/user_manual.md` para entender qué "paz" estamos vendiendo al usuario.
-   - **Técnico**: Leer `docs/guides/database.md` y `docs/guides/designs_audio.md` para refrescar restricciones arquitectónicas.
+3. **Visión de Producto & Guías (LECTURA OBLIGATORIA)**
+   - **Imprescindible**: Leer los 3 pilares de documentación para entender el estado actual:
+     - `docs/guides/user_manual.md`: Funcionalidad y UX (v2.x).
+     - `docs/guides/database.md`: Datos, esquema y seguridad RLS.
+     - `docs/guides/designs_audio.md`: Sistema de diseño Skia e identidad de audio.
+   - Esto garantiza que no reinventemos la rueda ni rompamos la consistencia.
 
 
 

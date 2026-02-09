@@ -2,36 +2,71 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# Paziify - AI Studio App (v2.3.0)
 
-This contains everything you need to run your app locally.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.3.0 (Academy & Cloud Sync)**, que introduce la arquitectura Offline-First y el módulo educativo completo.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## 🚀 Ejecución y Desarrollo
 
+### Ejecutar en Local
+1.  Instalar dependencias:
+    ```bash
+    npm install
+    ```
+2.  Configurar API Key:
+    Establece `GEMINI_API_KEY` en `.env.local`.
+3.  Iniciar servidor de desarrollo:
+    ```bash
+    npx expo start --dev-client
+    ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-   `npm run dev`
+### Ejecutar con Tunnel (Fuera de casa)
+```bash
+npx expo start --dev-client --tunnel
+```
 
-## Mobile Build Requirements (Android)
+### Generar APK Debug (Android)
+Para generar una build de desarrollo (`app-debug.apk`):
 
-To generate a debug APK you need:
-1. Android Studio installed.
-2. JDK 17 (Usually bundled with Android Studio at `jbr` folder).
+**Prerrequisitos**: Android Studio, JDK 17.
 
-### Generate Debug APK (Windows PowerShell)
-
-Use this robust command to set JAVA_HOME and build:
-
+Ejecuta en PowerShell:
 ```powershell
 $env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"; if (Test-Path "android") { cd android }; ./gradlew assembleDebug
 ```
+El APK se generará en: `android/app/build/outputs/apk/debug/app-debug.apk`
 
-The APK will be located at: `android/app/build/outputs/apk/debug/app-debug.apk`
+---
+
+## 📚 Documentación Oficial
+
+Toda la documentación detallada se encuentra en la carpeta `docs/`:
+
+- **[Manual de Usuario](docs/guides/user_manual.md)**: Guía completa de funcionalidades, incluyendo la nueva **Academia**, el sistema de **Temas Visuales** y la **Sincronización Cloud**.
+- **[Base de Datos](docs/guides/database.md)**: Esquema de Supabase, políticas RLS y diccionarios de datos (Cursos, Módulos, Lecciones).
+- **[Diseño y Audio](docs/guides/designs_audio.md)**: Arquitectura del motor de audio multi-capa y sistema de diseño Skia + Oswald.
+
+---
+
+## 📋 Roadmap y Planes
+
+- **[NEW] Academy Implementation v2.3.0**: Módulo educativo completo con integración Supabase.
+- **Catalog Mastery v1.9.0**: Sincronización de 119 audios y diseño tipo Netflix.
+- **Expansión Contenido v1.2**: Audiobooks, Historias Reales y Glassmorphism.
+
+---
+
+## 🛠️ Workflows del Agente
+
+Automatizaciones disponibles en `.agent/workflows/`:
+
+- **`/catch-up`**: Sincroniza el estado mental del agente con el proyecto (requiere lectura de docs).
+- **`/session-end`**: Documentación automática y cierre de sesión (requiere actualización de docs).
+
+---
+
+**Última actualización:** 9 de Febrero de 2026 - **Versión v2.3.0** (Academy Implementation)

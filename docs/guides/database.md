@@ -94,9 +94,66 @@ Sistema unificado de marcadores para la biblioteca.
 
 ---
 
-## 3. Políticas de Seguridad (RLS) 🔐
+## 3. Esquema Educativo (Academia v2.3) 🎓
+
+La infraestructura de la Academia es relacional y jerárquica.
+
+### `courses`
+Catálogo de cursos disponibles.
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | UUID (PK) | Identificador único |
+| `title` | TEXT | Título del curso (ej: Autoconfianza) |
+| `category_id` | TEXT | Categoría (anxiety, growth, etc.) |
+| `description` | TEXT | Resumen del curso |
+| `image_url` | TEXT | Portada del curso |
+| `is_published`| BOOLEAN | Control de visibilidad |
+
+### `modules`
+Agrupación lógica de lecciones.
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | UUID (PK) | Identificador único |
+| `course_id` | UUID (FK) | Curso al que pertenece |
+| `title` | TEXT | Título del módulo |
+| `order_index` | INTEGER | Orden de aparición |
+
+### `lessons`
+Unidad mínima de contenido.
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | UUID (PK) | Identificador único |
+| `module_id` | UUID (FK) | Módulo padre |
+| `title` | TEXT | Título de la lección |
+| `content_text`| TEXT | Contenido educativo (Markdown) |
+| `audio_url` | TEXT | URL del audio guía TTS |
+| `duration_min`| INTEGER | Estimación de tiempo |
+| `order_index` | INTEGER | Secuencia de aprendizaje |
+
+### `user_course_progress` 📊
+Rastreo de avance del estudiante.
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `user_id` | UUID (FK) | Estudiante |
+| `course_id` | UUID (FK) | Curso en progreso |
+| `lesson_id` | UUID (FK) | Última lección completada |
+| `is_completed`| BOOLEAN | ¿Curso finalizado? |
+| `completed_at`| TIMESTAMPTZ | Fecha de graduación |
+
+---
+
+## 4. Políticas de Seguridad (RLS) 🔐
 
 ```sql
+-- Contenido Público / Educativo
+CREATE POLICY "Lectura pública" ON courses FOR SELECT USING (true);
+CREATE POLICY "Lectura pública" ON modules FOR SELECT USING (true);
+CREATE POLICY "Lectura pública" ON lessons FOR SELECT USING (true);
+
+-- Progreso del Estudiante (Privado)
+CREATE POLICY "Dueño gestiona su progreso" ON user_course_progress
+  FOR ALL USING (auth.uid() = user_id);
+
 -- Contenido Público (Lectura para todos)
 CREATE POLICY "Lectura pública" ON audiobooks FOR SELECT USING (true);
 CREATE POLICY "Lectura pública" ON real_stories FOR SELECT USING (true);
@@ -115,16 +172,15 @@ CREATE POLICY "Dueño gestiona sus logs" ON meditation_logs FOR ALL USING (auth.
 
 ---
 
-## 4. Automatizaciones y Triggers ⚡
+## 5. Automatizaciones y Triggers ⚡
 
-### Creación Automática de Perfil
 ### Creación Automática de Perfil
 Cada registro en `auth.users` dispara la creación de un perfil en `public.profiles` mediante el trigger `on_auth_user_created`. 
 *   **Fix 2026-01-29**: Se ha robustecido la función pl/pgsql para manejar metadatos de Google (`raw_user_meta_data`) y asignar nombres/avatares por defecto si faltan, evitando errores de "Perfil no encontrado".
 
 ---
 
-## 5. Almacenamiento (Supabase Storage) ☁️
+## 6. Almacenamiento (Supabase Storage) ☁️
 Paziify utiliza buckets públicos para servir contenido multimedia optimizado:
 
 | Bucket | Contenido | Política de Acceso |
@@ -135,18 +191,20 @@ Paziify utiliza buckets públicos para servir contenido multimedia optimizado:
 | `images` | Assets UI estáticos | Public Read |
 | `meditation-voices` | Voces pre-grabadas de las 101 sesiones | Public Read |
 | `meditation-thumbnails`| Imágenes IA de las 101 sesiones | Public Read |
+| `academy-assets` | Portadas de cursos y lecciones | Public Read |
 
 > [!TIP]
 > Para detalles sobre la organización de las 101 sesiones y la estrategia de "Zero Local Media", consulta la **[Guía de Arquitectura de Contenido v2.0](./content_architecture_expansion.md)**.
 
 ---
 
-## 6. Buenas Prácticas 🚀
+## 7. Buenas Prácticas 🚀
 
-1. **Derecho al Olvido**: Todas las claves foráneas hacia `user_id` utilizan `ON DELETE CASCADE`.
-2. **Consultas Seguras**: Utilizar siempre el servicio `contentService` para interactuar con estas tablas, asegurando el manejo correcto de errores y estados de carga.
-3. **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
-4. **Estrategia Offline**: La aplicación utiliza `React Query` con persistencia en disco (`AsyncStorage`) para cachear todas las respuestas de lectura por 24 horas, permitiendo el funcionamiento sin conexión.
+1.  **Derecho al Olvido**: Todas las claves foráneas hacia `user_id` utilizan `ON DELETE CASCADE`.
+2.  **Consultas Seguras**: Utilizar siempre el servicio `contentService` y `academyService` (v2.3) para interactuar con estas tablas.
+3.  **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
+4.  **Estrategia Offline**: La aplicación utiliza `React Query` con persistencia en disco (`AsyncStorage`) para cachear todas las respuestas de lectura por 24 horas, permitiendo el funcionamiento sin conexión.
+5.  **Integridad Educativa**: El backend no valida el orden secuencial de lecciones (se maneja en frontend para UX), pero sí asegura que el `user_id` sea consistente.
 
 ---
-*Última revisión: 5 de Febrero de 2026 - Milestone 3: Oasis Hub (v2.0.0 - CMS V2 & Offline)*
+*Última revisión: 9 de Febrero de 2026 - Milestone 3: Academy Implementation (v2.3.0)*

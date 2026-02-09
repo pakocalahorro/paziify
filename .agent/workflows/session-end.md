@@ -9,10 +9,9 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
 ## Pasos:
 
 1. **Revisar el trabajo realizado (VISION HOLÍSTICA)**
-   - **CRÍTICO: Leer `task.md` completo** para identificar todas las tareas marcadas como `[x]` en esta sesión, no solo las últimas.
-   - Revisar el historial de chat para recordar objetivos mayores (ej. "Implementar X", "Refactorizar Y").
-   - Listar archivos modificados como apoyo, pero NO como única fuente de verdad.
-   - Identificar logros principales (Features, Refactors, Fixes).
+   - **CRÍTICO: Leer `task.md` y `walkthrough.md` completos** para identificar todas las tareas marcadas como `[x]` y los hitos registrados en esta sesión.
+   - **Historial de Chat**: Revisar los mensajes del usuario para recordar objetivos mayores (ej. "Implementar X", "Refactorizar Y").
+   - **Archivos Modificados**: Usar `git status` como apoyo secundario.
 
 
 2. **Crear nota de sesión** si ya existe una nota en el mismo dia se crea otra nueva con otro nombre indicando los nuevos cambios.
@@ -39,15 +38,21 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
 
 3. **Walkthrough & Infraestructura**
    - **Obligatorio**: Actualizar `walkthrough.md` con un resumen técnico acumulativo de los logros.
-   - **Condicional**: Si hubo cambios de entorno (scripts, build, etc.), actualizar `docs/README.md`.
+   - **Condicional**: Si hubo cambios de entorno (scripts, build, etc.), actualizar `README.md`.
 
 4. **Guías Técnicas (Actualización en Cascada)** 
    - **Base de Datos**: Si hubo cambios en esquema/auth -> Actualizar `docs/guides/database.md`.
    - **Diseño/Audio**: Si hubo cambios visuales/sonoros -> Actualizar `docs/guides/designs_audio.md`.
    - **Manual de Usuario**: Si hubo cambios funcionales -> Actualizar `docs/guides/user_manual.md`.
 
+5. **Documentación Técnica & Funcional (OBLIGATORIO)**
+   - **Antes de cerrar**, revisa y actualiza los 3 pilares de documentación:
+     - `docs/guides/user_manual.md`: ¿Hay nuevas funciones o cambios de UX?
+     - `docs/guides/database.md`: ¿Cambió el esquema, RLS o diccionarios?
+     - `docs/guides/designs_audio.md`: ¿Nuevos componentes Skia, fuentes o assets de audio?
+   - *Validación*: El usuario debe confirmar que estos docs reflejan la realidad v2.x del proyecto.
 
-5. **Control de Versiones y Commit**
+6. **Control de Versiones y Commit**
    - **Verificación**: Comparar versión en `package.json` vs el último `git tag`.
    - **Decisión**: 
      - Si los cambios son menores/fix -> Mantener versión o patch (+0.0.1).
