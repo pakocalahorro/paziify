@@ -83,6 +83,19 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 
 ---
 
+
+### 🎵 Música & Ambientes (Espacios Sonoros)
+**Nuevo en v2.4**: Un santuario sonoro diseñado para el enfoque profundo, el sueño reparador o la simple relajación.
+- **Paisajes Infinitos**: Bucles de alta fidelidad (Bosque, Lluvia, Cosmos) que nunca se detienen.
+- **Mezclador Binaural**: Personaliza tu experiencia añadiendo capas de frecuencias cerebrales:
+    - *432 Hz*: Armonía universal.
+    - *Alpha*: Para relajación consciente y creatividad.
+    - *Theta*: Para meditación profunda.
+- **Visuales Vivos**: Cada paisaje cuenta con un fondo animado sutilmente (polvo estelar, partículas) generado en tiempo real para no distraer.
+- **Modo Background**: El audio continúa reproduciéndose aunque salgas de la app o bloquees la pantalla.
+
+---
+
 ## 4. El Reproductor Premium 💎
 **Componente:** `AudiobookPlayer` / `MeditationPlayer` / `MiniPlayer`
 - **Mini Player**: Nuevo componente flotante que te acompaña mientras exploras la app, permitiendo control total sin interrupciones.

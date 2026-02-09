@@ -62,8 +62,8 @@ El motor de audio ha sido diseñado para ser inmersivo y personalizable.
 Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 1.  **Voice Track (Pre-grabado)**: Pistas de voz MP3 generadas con Google Cloud TTS para background execution confiable.
 2.  **Guía Vocal (Dinámica)**: Instrucciones TTS en tiempo real para sesiones sin voice track.
-3.  **Soundscapes**: Sonidos de naturaleza (lluvia, bosque, aves).
-4.  **Ondas Binaurales**: Frecuencias (Theta, Alpha) para estados mentales específicos.
+3.  **Soundscapes (Ambientes)**: Paisajes sonoros infinitos (lluvia, bosque) que pueden reproducirse solos o mezclados.
+4.  **Ondas Binaurales**: Frecuencias (Theta, Alpha, Gamma) inyectadas como capa secundaria para potenciar el enfoque o la relajación.
 
 ### Implementaciones Técnicas
 *   **Supabase Storage**: Todos los assets estáticos (Voice Tracks, Soundscapes, Binaurales, Audiolibros) se sirven desde buckets dedicados (`meditation-voices`, `soundscapes`, `binaurals`, `audiobooks`) para minimizar el tamaño del bundle.

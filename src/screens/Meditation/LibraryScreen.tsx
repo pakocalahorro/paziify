@@ -204,6 +204,17 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
 
                 <LibrarySection
                     index={1}
+                    icon="headset-outline"
+                    title="Música & Ambientes"
+                    description="Paisajes sonoros para enfocar, dormir o simplemente estar."
+                    count="SONIDOS"
+                    image={IMAGES.LIB_ACADEMY} // Placeholder, maybe use specific image if available
+                    color="#8B5CF6"
+                    onPress={() => navigation.navigate(Screen.BACKGROUND_SOUND)}
+                />
+
+                <LibrarySection
+                    index={2}
                     icon="book-outline"
                     title="Audiolibros"
                     description="Clásicos de la sabiduría para expandir tu conciencia."

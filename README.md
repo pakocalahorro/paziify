@@ -54,7 +54,8 @@ Toda la documentación detallada se encuentra en la carpeta `docs/`:
 
 ## 📋 Roadmap y Planes
 
-- **[NEW] Academy Implementation v2.3.0**: Módulo educativo completo con integración Supabase.
+- **[NEW] Espacios Sonoros (v2.4.0)**: Paisajes inmersivos con mezcla binaural y efectos visuales Skia.
+- **Academy Implementation v2.3.0**: Módulo educativo completo con integración Supabase.
 - **Catalog Mastery v1.9.0**: Sincronización de 119 audios y diseño tipo Netflix.
 - **Expansión Contenido v1.2**: Audiobooks, Historias Reales y Glassmorphism.
 

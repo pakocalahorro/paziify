@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen } from '../types';
+import { Screen, RootStackParamList } from '../types';
 import { theme } from '../constants/theme';
 
 // Screens
@@ -15,11 +15,13 @@ import MeditationCatalogScreen from '../screens/Meditation/MeditationCatalogScre
 import AudiobooksScreen from '../screens/Content/AudiobooksScreen';
 import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
 import StoriesScreen from '../screens/Content/StoriesScreen';
+import BackgroundSoundScreen from '../screens/BackgroundSound/BackgroundSoundScreen';
+import BackgroundPlayerScreen from '../screens/BackgroundSound/BackgroundPlayerScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MiniPlayer from '../components/Shared/MiniPlayer';
 
 const Tab = createBottomTabNavigator();
-const LibStack = createNativeStackNavigator();
+const LibStack = createNativeStackNavigator<RootStackParamList>();
 
 const LibraryStack = () => (
     <LibStack.Navigator screenOptions={{ headerShown: false }}>
@@ -27,7 +29,9 @@ const LibraryStack = () => (
         <LibStack.Screen name={Screen.MEDITATION_CATALOG} component={MeditationCatalogScreen} />
         <LibStack.Screen name={Screen.AUDIOBOOKS} component={AudiobooksScreen} />
         <LibStack.Screen name={Screen.STORIES} component={StoriesScreen} />
+        <LibStack.Screen name={Screen.BACKGROUND_SOUND} component={BackgroundSoundScreen} />
         <LibStack.Screen name={Screen.AUDIOBOOK_PLAYER} component={AudiobookPlayerScreen} />
+        <LibStack.Screen name={Screen.BACKGROUND_PLAYER} component={BackgroundPlayerScreen} />
     </LibStack.Navigator>
 );
 

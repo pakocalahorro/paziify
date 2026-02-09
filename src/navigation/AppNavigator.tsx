@@ -11,6 +11,7 @@ import RegisterScreen from '../screens/Onboarding/RegisterScreen';
 import LoginScreen from '../screens/Onboarding/LoginScreen';
 import { TabNavigator } from './TabNavigator';
 // Immersive / Shared Screens
+// Immersive / Shared Screens
 import TransitionTunnel from '../screens/Meditation/TransitionTunnel';
 import BreathingTimer from '../screens/Meditation/BreathingTimer';
 import SessionEndScreen from '../screens/Meditation/SessionEndScreen';
@@ -20,6 +21,8 @@ import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
 import QuizScreen from '../screens/Academy/QuizScreen';
 import AcademyCourseDetailScreen from '../screens/Academy/AcademyCourseDetailScreen'; // Added
+import BackgroundSoundScreen from '../screens/BackgroundSound/BackgroundSoundScreen'; // New
+import BackgroundPlayerScreen from '../screens/BackgroundSound/BackgroundPlayerScreen'; // New
 import CompassScreen from '../screens/Sanctuary/CompassScreen';
 import ManifestoScreen from '../screens/Sanctuary/ManifestoScreen';
 import StoryDetailScreen from '../screens/Content/StoryDetailScreen';
@@ -68,6 +71,19 @@ const AppNavigatorContent = () => {
                         <Stack.Screen name={Screen.CBT_DETAIL} component={CBTDetailScreen} />
                         <Stack.Screen name={Screen.ACADEMY_COURSE_DETAIL} component={AcademyCourseDetailScreen} />
                         <Stack.Screen name={Screen.CBT_QUIZ} component={QuizScreen} />
+
+                        {/* Background Music Features */}
+                        <Stack.Screen
+                            name={Screen.BACKGROUND_SOUND}
+                            component={BackgroundSoundScreen}
+                            options={{ animation: 'fade_from_bottom' }}
+                        />
+                        <Stack.Screen
+                            name={Screen.BACKGROUND_PLAYER}
+                            component={BackgroundPlayerScreen}
+                            options={{ animation: 'fade' }}
+                        />
+
                         <Stack.Screen
                             name={Screen.PAYWALL}
                             component={PaywallScreen}

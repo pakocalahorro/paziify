@@ -29,15 +29,22 @@ const MiniPlayer = () => {
     });
 
     // 1. Hide if on Player Screen
-    if (currentRouteName === Screen.AUDIOBOOK_PLAYER) return null;
+    if (currentRouteName === Screen.AUDIOBOOK_PLAYER || currentRouteName === Screen.BACKGROUND_PLAYER) return null;
 
     if (!currentTrack) return null;
 
     const handlePress = () => {
-        navigation.navigate('LibraryTab', {
-            screen: Screen.AUDIOBOOK_PLAYER,
-            params: { audiobookId: currentTrack.id }
-        });
+        if (currentTrack.isInfinite) {
+            navigation.navigate('LibraryTab', {
+                screen: Screen.BACKGROUND_PLAYER,
+                params: { soundscapeId: currentTrack.id }
+            });
+        } else {
+            navigation.navigate('LibraryTab', {
+                screen: Screen.AUDIOBOOK_PLAYER,
+                params: { audiobookId: currentTrack.id }
+            });
+        }
     };
 
     // 2. Adjust bottom position to sit above TabBar
@@ -86,9 +93,11 @@ const MiniPlayer = () => {
                 </TouchableOpacity>
 
                 {/* Progress Bar (Optional thin line at bottom) */}
-                <View style={styles.progressBarBackground}>
-                    {/* Could add animated width based on progress here if desired */}
-                </View>
+                {!currentTrack.isInfinite && (
+                    <View style={styles.progressBarBackground}>
+                        {/* Could add animated width based on progress here if desired */}
+                    </View>
+                )}
             </BlurView>
         </View>
     );

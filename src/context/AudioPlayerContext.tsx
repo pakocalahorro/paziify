@@ -11,6 +11,7 @@ interface Track {
     cover: any; // ImageSource
     audioUrl: string;
     duration: number;
+    isInfinite?: boolean; // New
 }
 
 interface AudioPlayerContextType {
@@ -21,6 +22,7 @@ interface AudioPlayerContextType {
     duration: number;
     isBuffering: boolean;
     loadTrack: (track: Track, initialPosition?: number) => Promise<void>;
+    loadBinauralLayer: (url: string | null) => Promise<void>; // New
     play: () => Promise<void>;
     pause: () => Promise<void>;
     seekTo: (positionMillis: number) => Promise<void>;
@@ -36,8 +38,9 @@ const NIGHT_AMBIENCE_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/
 const DAY_AMBIENCE_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/soundscapes/mountains_rivers_water.mp3';
 
 export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { isNightMode, user } = useApp(); // Access night mode and user auth state
+    const { isNightMode, user } = useApp();
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [secondarySound, setSecondarySound] = useState<Audio.Sound | null>(null); // New: Binaural Layer
     const [ambienceSound, setAmbienceSound] = useState<Audio.Sound | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -45,117 +48,90 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const [duration, setDuration] = useState(0);
     const [isBuffering, setIsBuffering] = useState(false);
 
-    // State to track if meditation engine is active (managed by screens)
     const [isExternalAudioActive, setExternalAudioActive] = useState(false);
 
     const soundRef = useRef<Audio.Sound | null>(null);
+    const secondaryRef = useRef<Audio.Sound | null>(null);
     const ambienceRef = useRef<Audio.Sound | null>(null);
+    const isLoadingRef = useRef(false); // New: Track loading state to prevent ambience flash
     const isMounted = useRef(true);
 
-    // Initial configuration
     useEffect(() => {
         isMounted.current = true;
         setupAudioMode();
         return () => {
             isMounted.current = false;
-            // Cleanup on unmount (app close)
-            if (soundRef.current) {
-                soundRef.current.unloadAsync();
-            }
-            if (ambienceRef.current) {
-                ambienceRef.current.unloadAsync();
-            }
+            if (soundRef.current) soundRef.current.unloadAsync();
+            if (secondaryRef.current) secondaryRef.current.unloadAsync();
+            if (ambienceRef.current) ambienceRef.current.unloadAsync();
         };
     }, []);
 
-    // Sync refs
-    useEffect(() => {
-        soundRef.current = sound;
-    }, [sound]);
-
-    useEffect(() => {
-        ambienceRef.current = ambienceSound;
-    }, [ambienceSound]);
+    useEffect(() => { soundRef.current = sound; }, [sound]);
+    useEffect(() => { secondaryRef.current = secondarySound; }, [secondarySound]);
+    useEffect(() => { ambienceRef.current = ambienceSound; }, [ambienceSound]);
 
     const activeUrlRef = useRef<string | null>(null);
 
-    // Consolidated Ambience Logic with Concurrency Safety
+    // Existing Ambience Logic...
     useEffect(() => {
-        let isCurrentEffect = true; // Flag to track if this effect execution is still valid
-
+        let isCurrentEffect = true;
         const manageAmbience = async () => {
-            const shouldPlayAmbience = !isPlaying && !isExternalAudioActive;
+            // Only play ambience if:
+            // 1. No main track is playing
+            // 2. No external audio (meditation) is active
+            // 3. We are NOT currently loading a track (prevent gap race condition)
+            // 4. We are NOT buffering (prevent noise during buffer)
+            const shouldPlayAmbience = !isPlaying && !isExternalAudioActive && !isLoadingRef.current && !isBuffering;
             const targetUrl = isNightMode ? NIGHT_AMBIENCE_URL : DAY_AMBIENCE_URL;
 
-            // 1. Check if we need to switch tracks (because mode changed)
             if (activeUrlRef.current && activeUrlRef.current !== targetUrl) {
-                // Unload current sound because it doesn't match the new mode
                 if (ambienceRef.current) {
                     try {
                         await ambienceRef.current.stopAsync();
                         await ambienceRef.current.unloadAsync();
-                    } catch (e) {
-                        console.log('Error unloading previous ambience:', e);
-                    }
+                    } catch (e) { console.log('Error unloading previous ambience:', e); }
                     if (isCurrentEffect) setAmbienceSound(null);
                 }
                 activeUrlRef.current = null;
             }
 
-            if (!isCurrentEffect) return; // Exit if effect was cleaned up during unload
+            if (!isCurrentEffect) return;
 
-            // 2. Manage Playback
             if (shouldPlayAmbience) {
                 if (!ambienceRef.current && !activeUrlRef.current) {
-                    // Load the target sound ONLY if we don't have one and we aren't tracking one
                     try {
                         const { sound: newAmbience } = await Audio.Sound.createAsync(
                             { uri: targetUrl },
                             { shouldPlay: true, isLooping: true, volume: 0.3 }
                         );
-
                         if (isCurrentEffect) {
                             setAmbienceSound(newAmbience);
                             activeUrlRef.current = targetUrl;
                         } else {
-                            // If effect was cancelled while loading, unload immediately
                             await newAmbience.unloadAsync();
                         }
-                    } catch (error) {
-                        console.log('Error loading ambience (expected if offline):', error);
-                    }
+                    } catch (error) { console.log('Error loading ambience:', error); }
                 } else if (ambienceRef.current) {
-                    // Sound IS loaded (and presumably matches targetUrl if we didn't unload it above)
                     try {
                         const status = await ambienceRef.current.getStatusAsync();
-                        if (status.isLoaded && !status.isPlaying) {
-                            await ambienceRef.current.playAsync();
-                        }
-                    } catch (e) {
-                        console.log("Error checking status:", e);
-                    }
+                        if (status.isLoaded && !status.isPlaying) await ambienceRef.current.playAsync();
+                    } catch (e) { }
                 }
             } else {
-                // Should be paused/stopped
                 if (ambienceRef.current) {
                     try {
                         const status = await ambienceRef.current.getStatusAsync();
-                        if (status.isLoaded && status.isPlaying) {
-                            await ambienceRef.current.pauseAsync();
-                        }
+                        if (status.isLoaded && status.isPlaying) await ambienceRef.current.pauseAsync();
                     } catch (e) { }
                 }
             }
         };
-
         manageAmbience();
+        return () => { isCurrentEffect = false; };
+    }, [isNightMode, isPlaying, isExternalAudioActive, ambienceSound, isBuffering]);
 
-        return () => {
-            isCurrentEffect = false; // Cleanup: Mark this execution as stale
-        };
-    }, [isNightMode, isPlaying, isExternalAudioActive, ambienceSound]);
-
-    // Auto-save position
+    // Auto-save position (only for regular tracks, not infinite ones ideally, but harmless)
     useEffect(() => {
         if (isPlaying && currentTrack) {
             const interval = setInterval(() => {
@@ -175,24 +151,27 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 shouldDuckAndroid: true,
                 allowsRecordingIOS: false,
             });
-        } catch (error) {
-            console.error('Error setting audio mode:', error);
-        }
+        } catch (error) { console.error('Error setting audio mode:', error); }
     };
 
     const loadTrack = async (track: Track, initialPosition: number = 0) => {
-        // If same track, just toggle play if requested, or do nothing
-        if (currentTrack?.id === track.id && sound) {
-            return;
-        }
+        if (currentTrack?.id === track.id && sound) return;
 
-        // Pause multi-layer engine if it's playing
+        isLoadingRef.current = true; // Mark as loading start
         await audioEngineService.pauseAll();
 
+        // Explicitly stop ambience to be safe
+        if (ambienceRef.current) {
+            try {
+                await ambienceRef.current.pauseAsync();
+            } catch (e) { }
+        }
+
         try {
-            // Unload previous
-            if (sound) {
-                await sound.unloadAsync();
+            if (sound) await sound.unloadAsync();
+            if (secondarySound) {
+                await secondarySound.unloadAsync(); // Unload binaural if changing track
+                setSecondarySound(null);
             }
 
             setCurrentTrack(track);
@@ -202,49 +181,64 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
             const { sound: newSound, status } = await Audio.Sound.createAsync(
                 { uri: track.audioUrl },
-                { shouldPlay: false, positionMillis: initialPosition },
+                { shouldPlay: false, positionMillis: initialPosition, isLooping: !!track.isInfinite },
                 onPlaybackStatusUpdate
             );
 
             setSound(newSound);
-
-            // Auto-play
             await newSound.playAsync();
         } catch (error) {
             console.error('Error loading track:', error);
+        } finally {
+            isLoadingRef.current = false; // Mark as loading end
         }
+    };
+
+    // New: Load Layer for Mixing
+    const loadBinauralLayer = async (url: string | null) => {
+        if (secondarySound) {
+            await secondarySound.unloadAsync();
+            setSecondarySound(null);
+        }
+
+        if (!url) return;
+
+        try {
+            const { sound: newLayer } = await Audio.Sound.createAsync(
+                { uri: url },
+                { shouldPlay: isPlaying, isLooping: true, volume: 0.5 }
+            );
+            setSecondarySound(newLayer);
+        } catch (error) { console.error('Error loading binaural layer:', error); }
     };
 
     const onPlaybackStatusUpdate = (status: any) => {
         if (!isMounted.current) return;
-
         if (status.isLoaded) {
             setPosition(status.positionMillis);
             setDuration(status.durationMillis || 0);
             setIsPlaying(status.isPlaying);
             setIsBuffering(status.isBuffering);
-
-            if (status.didJustFinish) {
+            if (status.didJustFinish && !status.isLooping) {
                 setIsPlaying(false);
                 setPosition(0);
-                if (currentTrack) {
-                    savePlaybackPosition(currentTrack.id, 0, status.durationMillis || 0);
-                }
+                if (currentTrack) savePlaybackPosition(currentTrack.id, 0, status.durationMillis || 0);
             }
         }
     };
 
     const play = async () => {
         if (sound) {
-            // Pause meditation engine to be safe
             await audioEngineService.pauseAll();
             await sound.playAsync();
+            if (secondarySound) await secondarySound.playAsync(); // Play layer
         }
     };
 
     const pause = async () => {
         if (sound) {
             await sound.pauseAsync();
+            if (secondarySound) await secondarySound.pauseAsync(); // Pause layer
         }
     };
 
@@ -269,10 +263,10 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     const closePlayer = async () => {
-        if (sound) {
-            await sound.unloadAsync();
-        }
+        if (sound) await sound.unloadAsync();
+        if (secondarySound) await secondarySound.unloadAsync(); // Cleanup layer
         setSound(null);
+        setSecondarySound(null);
         setCurrentTrack(null);
         setIsPlaying(false);
         setPosition(0);
@@ -288,6 +282,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 duration,
                 isBuffering,
                 loadTrack,
+                loadBinauralLayer,
                 play,
                 pause,
                 seekTo,

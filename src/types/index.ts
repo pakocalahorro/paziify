@@ -8,6 +8,8 @@ export enum Screen {
     MEDITATION_CATALOG = 'MEDITATION_CATALOG',
     AUDIOBOOKS = 'AUDIOBOOKS',
     AUDIOBOOK_PLAYER = 'AUDIOBOOK_PLAYER',
+    BACKGROUND_SOUND = 'BACKGROUND_SOUND', // Catalog
+    BACKGROUND_PLAYER = 'BACKGROUND_PLAYER', // Immersive Player
     STORIES = 'STORIES',
     STORY_DETAIL = 'STORY_DETAIL',
     TRANSITION_TUNNEL = 'TRANSITION_TUNNEL',
@@ -167,6 +169,8 @@ export type RootStackParamList = {
     [Screen.MEDITATION_CATALOG]: undefined;
     [Screen.AUDIOBOOKS]: undefined;
     [Screen.AUDIOBOOK_PLAYER]: { audiobookId: string };
+    [Screen.BACKGROUND_SOUND]: undefined;
+    [Screen.BACKGROUND_PLAYER]: { soundscapeId: string };
     [Screen.STORIES]: undefined;
     [Screen.STORY_DETAIL]: { storyId: string };
     [Screen.TRANSITION_TUNNEL]: { sessionId?: string };
