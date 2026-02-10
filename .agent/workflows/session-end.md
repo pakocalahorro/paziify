@@ -40,14 +40,16 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
    - **Obligatorio**: Actualizar `walkthrough.md` con un resumen técnico acumulativo de los logros.
    - **Condicional**: Si hubo cambios de entorno (scripts, build, etc.), actualizar `README.md`.
 
-4. **Guías Técnicas (Actualización en Cascada)** 
+4. **Guías Técnicas & README (Actualización en Cascada)** 
+    - **README**: El archivo `README.md` **DEBE** actualizarse con la nueva versión y el resumen de cambios destacados.
     - **Base de Datos**: Si hubo cambios en esquema/auth -> Actualizar `docs/guides/database.md`.
     - **Audio**: Si hubo cambios en voces, motor o auditoría -> Actualizar `docs/guides/audio.md`.
     - **Diseño**: Si hubo cambios visuales/Skia -> Actualizar `docs/guides/designs.md`.
     - **Manual de Usuario**: Si hubo cambios funcionales -> Actualizar `docs/guides/user_manual.md`.
 
 5. **Documentación Técnica & Funcional (OBLIGATORIO)**
-    - **Antes de cerrar**, revisa y actualiza los 4 pilares de documentación:
+    - **Antes de cerrar**, revisa y actualiza los 5 pilares de documentación:
+      - `README.md`: ¿La versión y el roadmap están al día?
       - `docs/guides/user_manual.md`: ¿Hay nuevas funciones o cambios de UX?
       - `docs/guides/audio.md`: ¿Nuevos parámetros de voz, cambios en el motor o auditoría?
       - `docs/guides/database.md`: ¿Cambió el esquema, RLS o diccionarios?

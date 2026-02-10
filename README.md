@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.3.0)
+# Paziify - AI Studio App (v2.5.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.3.0 (Academy & Cloud Sync)**, que introduce la arquitectura Offline-First y el módulo educativo completo.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.5.0 (Audio Automation & Professional CMS)**, que introduce la generación masiva de audio premium con SSML y un panel de administración transformado en CMS.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -29,45 +29,34 @@ View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2
 npx expo start --dev-client --tunnel
 ```
 
-### Generar APK Debug (Android)
-Para generar una build de desarrollo (`app-debug.apk`):
+---
 
-**Prerrequisitos**: Android Studio, JDK 17.
+## 📚 Documentación Maestra (docs/)
 
-Ejecuta en PowerShell:
-```powershell
-$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"; if (Test-Path "android") { cd android }; ./gradlew assembleDebug
-```
-El APK se generará en: `android/app/build/outputs/apk/debug/app-debug.apk`
+Paziify se rige por 4 pilares de documentación que deben estar siempre sincronizados:
+
+- **[Audio & Voces](docs/guides/audio.md)**: Parámetros de identidad (Gaia, Aria, Ziro, Éter), motor de síntesis SSML y auditoría de las 101 sesiones.
+- **[Diseño Visual (Oasis)](docs/guides/designs.md)**: Principios de diseño, orbes Skia, tipografía Oswald y jerarquía de imágenes (Admin > Local).
+- **[Base de Datos & Seguridad](docs/guides/database.md)**: Esquema de Supabase, diccionarios de datos y políticas RLS.
+- **[Manual de Usuario](docs/guides/user_manual.md)**: Guía de funcionalidades y manual del Panel Admin/CMS.
 
 ---
 
-## 📚 Documentación Oficial
+## 🛠️ Scripts y Herramientas (`scripts/`)
 
-Toda la documentación detallada se encuentra en la carpeta `docs/`:
-
-- **[Manual de Usuario](docs/guides/user_manual.md)**: Guía completa de funcionalidades, incluyendo la nueva **Academia**, el sistema de **Temas Visuales** y la **Sincronización Cloud**.
-- **[Base de Datos](docs/guides/database.md)**: Esquema de Supabase, políticas RLS y diccionarios de datos (Cursos, Módulos, Lecciones).
-- **[Diseño y Audio](docs/guides/designs_audio.md)**: Arquitectura del motor de audio multi-capa y sistema de diseño Skia + Oswald.
+- **`bulk_generate_scripts.py`**: [NEW] Migra guiones profesionales de `docs/scripts/` a texto plano para TTS.
+- **`generate_audiobook.py`**: [PREMIUM] Generador de audio con soporte **SSML Prosody** (pausas de 2s).
+- **`sync_sessions.js`**: Sincroniza metadatos de guiones con la base de datos `sessionsData.ts`.
 
 ---
 
-## 📋 Roadmap y Planes
+## 📋 Roadmap y Logros
 
-- **[NEW] Espacios Sonoros (v2.4.0)**: Paisajes inmersivos con mezcla binaural y efectos visuales Skia.
+- **[NEW] Audio Automation 101 (v2.5.0)**: Flujo completo de generación masiva con voces premium restauradas.
+- **[NEW] Professional CMS (v2.4.5)**: Panel Admin avanzado con gestión de media inteligente y filtros.
 - **Academy Implementation v2.3.0**: Módulo educativo completo con integración Supabase.
-- **Catalog Mastery v1.9.0**: Sincronización de 119 audios y diseño tipo Netflix.
-- **Expansión Contenido v1.2**: Audiobooks, Historias Reales y Glassmorphism.
+- **Catalog Mastery v1.9.0**: Diseño tipo Netflix y sincronización de 119 audios.
 
 ---
 
-## 🛠️ Workflows del Agente
-
-Automatizaciones disponibles en `.agent/workflows/`:
-
-- **`/catch-up`**: Sincroniza el estado mental del agente con el proyecto (requiere lectura de docs).
-- **`/session-end`**: Documentación automática y cierre de sesión (requiere actualización de docs).
-
----
-
-**Última actualización:** 9 de Febrero de 2026 - **Versión v2.3.0** (Academy Implementation)
+**Última actualización:** 10 de Febrero de 2026 - **Versión v2.5.0** (Audio Automation & CMS)
