@@ -7,9 +7,11 @@ export interface Soundscape {
     color: string;
     image: string; // New: Background image URL
     recommendedFor: string[];
+    isPremium: boolean;
 }
 
 const SB_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/soundscapes/';
+const SB_BINAURAL_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/binaurals/';
 const SB_IMG_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/';
 
 export const SOUNDSCAPES: Soundscape[] = [
@@ -20,8 +22,9 @@ export const SOUNDSCAPES: Soundscape[] = [
         audioFile: { uri: `${SB_URL}forest_meditation.mp3` },
         icon: 'leaf',
         color: '#4A6741',
-        image: `${SB_IMG_URL}forest-sunrise.webp`, // Hypothetical mapping based on "Forest"
+        image: `${SB_IMG_URL}mindfulness_tecnica_008_monitorizacion-abierta.webp`,
         recommendedFor: ['mindfulness', 'mañana'],
+        isPremium: false,
     },
     {
         id: 'atlantic_loop',
@@ -30,28 +33,31 @@ export const SOUNDSCAPES: Soundscape[] = [
         audioFile: { uri: `${SB_URL}atlantic_loop.mp3` },
         icon: 'water',
         color: '#1A1A2E',
-        image: `${SB_IMG_URL}ocean-calm.webp`,
+        image: `${SB_IMG_URL}calmasos_tecnica_014_calma-oceanica.webp`,
         recommendedFor: ['sueño', 'noche'],
+        isPremium: false,
     },
     {
         id: 'bird_relaxation',
         name: 'Jardín de Aves',
         description: 'Canto de pájaros y naturaleza',
-        audioFile: { uri: `${SB_URL}bird_relaxtion.mp3` },
-        icon: 'rainy',
+        audioFile: { uri: `${SB_URL}bird_relaxtion.mp3` }, // Manteniendo errata del storage
+        icon: 'paw',
         color: '#4A90E2',
-        image: `${SB_IMG_URL}nature-birds.webp`,
+        image: `${SB_IMG_URL}calmasos_tecnica_001_respiracion-4-7-8.webp`,
         recommendedFor: ['sueño', 'ansiedad', 'foco'],
+        isPremium: false,
     },
     {
         id: 'deep_meditative',
         name: 'Estado Profundo',
         description: 'Pad ambiental profundo',
         audioFile: { uri: `${SB_URL}deep_meditative_state.mp3` },
-        icon: 'water',
+        icon: 'wifi',
         color: '#2DD4BF',
-        image: `${SB_IMG_URL}deep-focus.webp`,
+        image: `${SB_IMG_URL}calmasos_tecnica_013_s-o-s-rescate-de-panico.webp`,
         recommendedFor: ['relajación', 'meditación'],
+        isPremium: false,
     },
     {
         id: 'meditation_bowls',
@@ -60,8 +66,9 @@ export const SOUNDSCAPES: Soundscape[] = [
         audioFile: { uri: `${SB_URL}meditation_bowls.mp3` },
         icon: 'notifications',
         color: '#00B4D8',
-        image: `${SB_IMG_URL}tibetan-bowls.webp`,
+        image: `${SB_IMG_URL}calmasos_tecnica_002_respiracion-cuadrada-box-breathing-.webp`,
         recommendedFor: ['foco', 'energía'],
+        isPremium: false,
     },
     {
         id: 'tibetan_bowl',
@@ -70,38 +77,31 @@ export const SOUNDSCAPES: Soundscape[] = [
         audioFile: { uri: `${SB_URL}tibetan_singing_bowl.mp3` },
         icon: 'notifications-circle',
         color: '#ADB5BD',
-        image: `${SB_IMG_URL}tibetan-monk.webp`,
+        image: `${SB_IMG_URL}resiliencia_tecnica_010_visualizacion-negativa.webp`,
         recommendedFor: ['calma', 'meditación'],
+        isPremium: false,
     },
     {
         id: 'ethereal_voices',
         name: 'Voces Etéreas',
         description: 'Voces suaves del santuario',
         audioFile: { uri: `${SB_URL}sanctuary_ethereal_voices.mp3` },
-        icon: 'flame',
+        icon: 'cloud',
         color: '#FF6B35',
-        image: `${SB_IMG_URL}ethereal-light.webp`,
-        recommendedFor: ['cozy', 'invierno'],
-    },
-    {
-        id: 'athmo_motion',
-        name: 'Cosmos',
-        description: 'Pad de movimiento y relax',
-        audioFile: { uri: `${SB_URL}athmo_motion_pad.mp3` },
-        icon: 'planet',
-        color: '#8A2BE2',
-        image: `${SB_IMG_URL}cosmos-stars.webp`,
-        recommendedFor: ['relajación', 'sueño'],
+        image: `${SB_IMG_URL}resiliencia_eter_092_gratitud-radical.webp`,
+        recommendedFor: ['relajación', 'paz'],
+        isPremium: false,
     },
     {
         id: 'lotus_peace',
         name: 'Paz de Loto',
-        description: 'Nemaavla Lotus - Calma pura',
+        description: 'Calma pura y espiritual',
         audioFile: { uri: `${SB_URL}nemaavla_lotus.mp3` },
         icon: 'rose',
         color: '#9B59B6',
-        image: `${SB_IMG_URL}lotus-flower.webp`,
+        image: `${SB_IMG_URL}resiliencia_tecnica_011_gratitud-recableado.webp`,
         recommendedFor: ['meditación', 'espiritualidad'],
+        isPremium: false,
     },
     {
         id: 'moon_stretched',
@@ -110,18 +110,20 @@ export const SOUNDSCAPES: Soundscape[] = [
         audioFile: { uri: `${SB_URL}synodic_moon_stretched.mp3` },
         icon: 'moon',
         color: '#87CEEB',
-        image: `${SB_IMG_URL}moon-night.webp`,
+        image: `${SB_IMG_URL}sueno_eter_113_respiracion-de-la-luna-chandra-bhedana-.webp`,
         recommendedFor: ['paz', 'calma'],
+        isPremium: false,
     },
     {
         id: 'wind_chimes',
         name: 'Viento Suave',
-        description: 'Chimes, aves y naturaleza viva',
+        description: 'Chimes y naturaleza viva',
         audioFile: { uri: `${SB_URL}wind_chimes_birds_squirrel.mp3` },
         icon: 'musical-notes',
         color: '#27AE60',
-        image: `${SB_IMG_URL}wind-chimes.webp`,
+        image: `${SB_IMG_URL}mindfulness_aria_074_mindfulness-en-los-sonidos.webp`,
         recommendedFor: ['naturaleza', 'mindfulness'],
+        isPremium: false,
     },
     {
         id: 'sirens_call_a',
@@ -130,28 +132,108 @@ export const SOUNDSCAPES: Soundscape[] = [
         audioFile: { uri: `${SB_URL}bigvegie_sirens_call_a.mp3` },
         icon: 'pulse',
         color: '#4A90E2',
-        image: `${SB_IMG_URL}underwater-blue.webp`,
+        image: `${SB_IMG_URL}mindfulness_aria_071_escaner-corporal-para-el-dia.webp`,
         recommendedFor: ['sueño', 'visualización'],
+        isPremium: false,
     },
     {
         id: 'sirens_call_b',
         name: 'Profundidad Marina',
-        description: 'Variante B del ambiente acuático',
+        description: 'Ambiente acuático profundo',
         audioFile: { uri: `${SB_URL}bigvegie_sirens_call_b.mp3` },
         icon: 'infinite',
         color: '#2C3E50',
-        image: `${SB_IMG_URL}deep-ocean.webp`,
+        image: `${SB_IMG_URL}mindfulness_aria_075_consciencia-de-las-sensaciones-el-mapa-vivo-.webp`,
         recommendedFor: ['meditación', 'expansión'],
+        isPremium: false,
     },
     {
-        id: 'meditative_motion',
-        name: 'Flujo Continuo',
-        description: 'Pad rítmico para meditar',
-        audioFile: { uri: `${SB_URL}meditative_athmo_motionpad.mp3` },
-        icon: 'heart',
-        color: '#FF9F43',
-        image: `${SB_IMG_URL}warm-light.webp`,
-        recommendedFor: ['relajación', 'paz'],
+        id: 'mountain_river',
+        name: 'Montaña y Río',
+        description: 'Agua fluyendo entre montañas',
+        audioFile: { uri: `${SB_URL}mountains_rivers_water.mp3` },
+        icon: 'mountain',
+        color: '#27AE60',
+        image: `${SB_IMG_URL}sueno_eter_112_el-lago-de-la-calma.webp`,
+        recommendedFor: ['naturaleza', 'paz'],
+        isPremium: false,
+    },
+    {
+        id: 'night_crickets',
+        name: 'Noche de Grillos',
+        description: 'Serenata nocturna en el campo',
+        audioFile: { uri: `${SB_URL}night_cricket_ambience.mp3` },
+        icon: 'moon',
+        color: '#1A1A2E',
+        image: `${SB_IMG_URL}sueno_eter_110_preparacion-para-el-ensueno.webp`,
+        recommendedFor: ['sueño', 'noche'],
+        isPremium: false,
+    },
+    {
+        id: 'daylight',
+        name: 'Luz del Día',
+        description: 'Claridad mental y energía solar',
+        audioFile: { uri: `${SB_URL}daylight.mp3` },
+        icon: 'sunny',
+        color: '#FFCC00',
+        image: `${SB_IMG_URL}mindfulness_tecnica_009_notacion-mental.webp`,
+        recommendedFor: ['mañana', 'energía'],
+        isPremium: true,
+    },
+    {
+        id: 'dunes',
+        name: 'Dunas de Arena',
+        description: 'Viento cálido del desierto',
+        audioFile: { uri: `${SB_URL}dunes.mp3` },
+        icon: 'sunny-outline',
+        color: '#EDC9AF',
+        image: `${SB_IMG_URL}resiliencia_tecnica_007_dicotomia-de-control.webp`,
+        recommendedFor: ['paz', 'calma'],
+        isPremium: true,
+    },
+    {
+        id: 'wandering',
+        name: 'Vagabundeo',
+        description: 'Mente libre y expansión',
+        audioFile: { uri: `${SB_URL}wandering.mp3` },
+        icon: 'walk',
+        color: '#A29BFE',
+        image: `${SB_IMG_URL}mindfulness_aria_076_consciencia-del-estado-mental.webp`,
+        recommendedFor: ['creatividad', 'exploración'],
+        isPremium: true,
+    },
+    {
+        id: 'slow_world',
+        name: 'Mundo Lento',
+        description: 'Relajación profunda global',
+        audioFile: { uri: `${SB_URL}slow_world_relax.mp3` },
+        icon: 'timer',
+        color: '#636E72',
+        image: `${SB_IMG_URL}resiliencia_tecnica_005_amor-fati.webp`,
+        recommendedFor: ['relajación', 'no-doing'],
+        isPremium: true,
+    },
+    {
+        id: 'snow_thawing',
+        name: 'Nieve Derretida',
+        description: 'Sonido suave de deshielo',
+        audioFile: { uri: `${SB_URL}snow_thawing.mp3` },
+        icon: 'snow',
+        color: '#DFE6E9',
+        image: `${SB_IMG_URL}sueno_eter_111_la-nube-de-la-distension.webp`,
+        recommendedFor: ['invierno', 'paz'],
+        isPremium: true,
+    },
+    {
+        id: 'relaxing_bg',
+        name: 'Fondo Relax',
+        description: 'Música ambiental suave',
+        audioFile: { uri: `${SB_URL}sounds_relaxing-backgroundmusic.mp3` },
+        icon: 'musical-note',
+        color: '#74B9FF',
+        image: `${SB_IMG_URL}resiliencia_eter_091_la-sala-de-espera.webp`,
+        recommendedFor: ['fondo', 'lectura'],
+        isPremium: true,
     },
 ];
 
@@ -159,111 +241,84 @@ export interface BinauralWave {
     id: string;
     name: string;
     frequency: string;
-    description: string;
-    audioFile: any;
-    icon: string;
     color: string;
-    recommendedFor: string[];
+    audioFile: any;
 }
 
 export const BINAURAL_WAVES: BinauralWave[] = [
     {
-        id: '432hz',
-        name: '432 Hz',
-        frequency: '432 Hz',
-        description: 'Armonía universal',
-        audioFile: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/binaurals/432hz.mp3' },
-        icon: 'pulse',
-        color: '#D4AF37',
-        recommendedFor: ['meditación general'],
-    },
-    {
-        id: '528hz',
-        name: '528 Hz',
-        frequency: '528 Hz',
-        description: 'Transformación y sanación',
-        audioFile: null, // Pending upload
-        icon: 'pulse',
-        color: '#50C878',
-        recommendedFor: ['meditación profunda'],
-    },
-    {
         id: 'alpha_waves',
         name: 'Ondas Alpha',
-        frequency: '8-12 Hz',
-        description: 'Relajación consciente',
-        audioFile: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/binaurals/Alpha_waves.mp3' },
-        icon: 'pulse',
+        frequency: '8-13 Hz',
         color: '#2DD4BF',
-        recommendedFor: ['foco', 'creatividad'],
+        audioFile: { uri: `${SB_BINAURAL_URL}Alpha_waves.mp3` }
+    },
+    {
+        id: 'beta_waves',
+        name: 'Ondas Beta',
+        frequency: '13-30 Hz',
+        color: '#F59E0B',
+        audioFile: { uri: `${SB_BINAURAL_URL}binaural_beta.mp3` }
     },
     {
         id: 'theta_waves',
         name: 'Ondas Theta',
         frequency: '4-8 Hz',
-        description: 'Meditación profunda',
-        audioFile: null,
-        icon: 'pulse',
-        color: '#4A90E2',
-        recommendedFor: ['sueño', 'visualización'],
+        color: '#A855F7',
+        audioFile: { uri: `${SB_BINAURAL_URL}binaural_theta.mp3` }
     },
     {
         id: 'delta_waves',
         name: 'Ondas Delta',
         frequency: '0.5-4 Hz',
-        description: 'Sueño profundo',
-        audioFile: null,
-        icon: 'pulse',
-        color: '#1A1A2E',
-        recommendedFor: ['insomnio'],
+        color: '#3B82F6',
+        audioFile: { uri: `${SB_BINAURAL_URL}binaural_delta.mp3` }
     },
+    {
+        id: 'gamma_waves',
+        name: 'Ondas Gamma',
+        frequency: '30-100 Hz',
+        color: '#10B981',
+        audioFile: { uri: `${SB_BINAURAL_URL}binaural_gamma.mp3` }
+    },
+    {
+        id: '432hz',
+        name: 'Sintonía 432Hz',
+        frequency: '432 Hz',
+        color: '#6366F1',
+        audioFile: { uri: `${SB_BINAURAL_URL}432hz.mp3` }
+    },
+    {
+        id: 'solfeggio_396',
+        name: 'Solfeggio 396Hz',
+        frequency: '396 Hz',
+        color: '#EF4444',
+        audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_396hz.mp3` }
+    },
+    {
+        id: '528hz',
+        name: 'Solfeggio 528Hz',
+        frequency: '528 Hz',
+        color: '#EC4899',
+        audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_528hz.mp3` }
+    },
+    {
+        id: 'solfeggio_639',
+        name: 'Solfeggio 639Hz',
+        frequency: '639 Hz',
+        color: '#8B5CF6',
+        audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_639hz.mp3` }
+    },
+    {
+        id: 'solfeggio_963',
+        name: 'Solfeggio 963Hz',
+        frequency: '963 Hz',
+        color: '#D946EF',
+        audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_963hz.mp3` }
+    }
 ];
 
-export interface Element {
-    id: string;
-    name: string;
-    description: string;
-    audioFile: any;
-    icon: string;
-    color: string;
-    behavior: string;
-}
-
-export const ELEMENTS: Element[] = [
-    {
-        id: 'tibetan_bowls',
-        name: 'Campanas Tibetanas',
-        description: 'Cada 3-5 min (aleatorio)',
-        audioFile: null,
-        icon: 'notifications',
-        color: '#D4AF37',
-        behavior: 'random_3_5_min',
-    },
-    {
-        id: 'singing_bowls',
-        name: 'Cuencos Cantores',
-        description: 'Cada 5-7 min',
-        audioFile: null,
-        icon: 'notifications-circle',
-        color: '#50C878',
-        behavior: 'random_5_7_min',
-    },
-    {
-        id: 'gong',
-        name: 'Gong',
-        description: 'Inicio/Fin de sesión',
-        audioFile: null,
-        icon: 'disc',
-        color: '#FF6B35',
-        behavior: 'start_end',
-    },
-    {
-        id: 'chimes',
-        name: 'Chimes',
-        description: 'Cada 2-3 min',
-        audioFile: null,
-        icon: 'musical-notes',
-        color: '#2DD4BF',
-        behavior: 'random_2_3_min',
-    },
+export const ELEMENTS: any[] = [
+    // Temporarily disabled until storage sync
 ];
+

@@ -41,7 +41,7 @@ interface SessionCardProps {
     index?: number;
 }
 
-const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard' | 'poster' | 'wide' }> = ({
+const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard' | 'poster' | 'wide' | 'hero' }> = ({
     session,
     onPress,
     onFavoritePress,
@@ -55,7 +55,11 @@ const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard
     const isLocked = session.isPlus && !isPlusMember;
     const catKey = session.category.toLowerCase();
     const fallbackImage = SESSION_ASSETS[catKey] || SESSION_ASSETS['default'];
-    const imageSource = session.thumbnailUrl ? { uri: session.thumbnailUrl } : (typeof fallbackImage === 'string' ? { uri: fallbackImage } : fallbackImage);
+
+    // Priority: session.thumbnailUrl (dynamic) > session.image (passed from catalog) > fallback
+    const imageSource = (session.thumbnailUrl || session.image)
+        ? { uri: session.thumbnailUrl || session.image }
+        : (typeof fallbackImage === 'string' ? { uri: fallbackImage } : fallbackImage);
 
     const getCategoryDetails = (category: string) => {
         const cat = category.toLowerCase();

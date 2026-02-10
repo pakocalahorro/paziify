@@ -6,7 +6,7 @@ from google.cloud import texttospeech
 # Configuration
 CREDENTIALS_PATH = Path('paziify-7a576ff2d494.json').absolute()
 
-# Voice Personas Configuration
+# Voice Personas Configuration (MATCHING audio.md PREMIUM SPECS)
 VOICE_PERSONAS = {
     'aria': { # Mindfulness & Calm
         'language_code': 'es-ES',
@@ -27,14 +27,14 @@ VOICE_PERSONAS = {
         'name': 'es-ES-Studio-F',
         'ssml_gender': texttospeech.SsmlVoiceGender.MALE,
         'rate': 0.75,
-        'pitch': -3.5
+        'pitch': 0.0 # Studio doesn't support pitch shifts nicely, so we keep 0 per audio.md
     },
-    'gaia': { # Kids & Energy
+    'gaia': { # Kids (DULCE/INFANTIL)
         'language_code': 'es-ES',
-        'name': 'es-ES-Wavenet-H',
+        'name': 'es-ES-Wavenet-C',
         'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
-        'rate': 0.75,
-        'pitch': -4.0
+        'rate': 0.80,
+        'pitch': 3.5
     }
 }
 
@@ -47,8 +47,12 @@ def setup_credentials():
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(CREDENTIALS_PATH)
     return True
 
+def clean_for_ssml(text):
+    """Basic cleaning to avoid SSML errors."""
+    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
 def generate_audio(text_file, output_file, persona='aria'):
-    """Generates audio from text using a specific persona, handling long texts by chunking."""
+    """Generates audio from text using a specific persona, with SSML Prosody support."""
     
     if persona not in VOICE_PERSONAS:
         print(f"❌ Error: Persona '{persona}' not found. Available: {', '.join(VOICE_PERSONAS.keys())}")
@@ -65,43 +69,27 @@ def generate_audio(text_file, output_file, persona='aria'):
         print(f"❌ Error: Input file not found: {text_file}")
         return
 
-    # Check for empty text
     if not text.strip():
         print("❌ Error: Input text file is empty.")
         return
 
-    # Chunking Logic
-    MAX_CHARS = 4500 # Safety margin below 5000
+    # Chunking Logic (preserving paragraph structure for SSML)
+    MAX_CHARS = 4000 
     chunks = []
-    
-    # Simple chunking by splitting on double newlines or periods to respect sentences
-    # Refined approach: accumulate sentences until limit
     current_chunk = ""
     paragraphs = text.replace('\r\n', '\n').split('\n')
     
     for paragraph in paragraphs:
-        if len(current_chunk) + len(paragraph) + 1 < MAX_CHARS:
+        if len(current_chunk) + len(paragraph) + 10 < MAX_CHARS:
             current_chunk += paragraph + "\n"
         else:
-            # If paragraph itself is too huge (rare), splitting by period
-            if len(paragraph) > MAX_CHARS:
-                sentences = paragraph.split('. ')
-                for sentence in sentences:
-                    if len(current_chunk) + len(sentence) + 2 < MAX_CHARS:
-                        current_chunk += sentence + ". "
-                    else:
-                        if current_chunk: chunks.append(current_chunk)
-                        current_chunk = sentence + ". "
-            else:
-                if current_chunk: chunks.append(current_chunk)
-                current_chunk = paragraph + "\n"
+            if current_chunk: chunks.append(current_chunk)
+            current_chunk = paragraph + "\n"
     
     if current_chunk:
         chunks.append(current_chunk)
 
-    print(f"🎙️ Generating audio with persona: {persona.upper()} ({config['name']})...")
-    print(f"   Input Length: {len(text)} chars")
-    print(f"   Chunks: {len(chunks)}")
+    print(f"🎙️ Generating PREMIUM audio with persona: {persona.upper()} ({config['name']})...")
     
     combined_audio = b""
     
@@ -109,9 +97,21 @@ def generate_audio(text_file, output_file, persona='aria'):
         for i, chunk in enumerate(chunks):
             if not chunk.strip(): continue
             
-            print(f"   Processing chunk {i+1}/{len(chunks)} ({len(chunk)} chars)...")
+            print(f"   Processing chunk {i+1}/{len(chunks)}...")
             
-            synthesis_input = texttospeech.SynthesisInput(text=chunk)
+            # WRAP IN SSML PROSODY
+            # We add breaks (silence) between paragraphs automatically to sound more "spiritual"
+            inner_text = clean_for_ssml(chunk).replace('\n', '\n<break time="2000ms"/>\n')
+            
+            ssml_text = f"""
+            <speak>
+            <prosody rate="{config['rate']}" pitch="{config['pitch']}st">
+            {inner_text}
+            </prosody>
+            </speak>
+            """
+            
+            synthesis_input = texttospeech.SynthesisInput(ssml=ssml_text)
             
             voice = texttospeech.VoiceSelectionParams(
                 language_code=config['language_code'],
@@ -120,9 +120,7 @@ def generate_audio(text_file, output_file, persona='aria'):
             )
 
             audio_config = texttospeech.AudioConfig(
-                audio_encoding=texttospeech.AudioEncoding.MP3,
-                speaking_rate=config['rate'],
-                pitch=config['pitch']
+                audio_encoding=texttospeech.AudioEncoding.MP3
             )
             
             response = client.synthesize_speech(
@@ -139,13 +137,13 @@ def generate_audio(text_file, output_file, persona='aria'):
         with open(output_path, 'wb') as out:
             out.write(combined_audio)
             
-        print(f"✅ Success! Audio saved to: {output_path}")
+        print(f"✅ Success! Premium Audio saved to: {output_path}")
         
     except Exception as e:
         print(f"❌ Error during synthesis: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Paziify Manual Audio Generator")
+    parser = argparse.ArgumentParser(description="Paziify Premium Audio Generator")
     parser.add_argument("input", help="Path to input .txt file")
     parser.add_argument("output", help="Path to output .mp3 file")
     parser.add_argument("--persona", choices=VOICE_PERSONAS.keys(), default="aria", 

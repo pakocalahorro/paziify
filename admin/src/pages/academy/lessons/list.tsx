@@ -1,4 +1,4 @@
-import { List, useTable, EditButton, ShowButton, DeleteButton, FilterDropdown, useSelect } from "@refinedev/antd";
+import { List, useTable, TagField, EditButton, ShowButton, DeleteButton, FilterDropdown, useSelect } from "@refinedev/antd";
 import { Table, Space, Select } from "antd";
 
 export const AcademyLessonList = () => {
@@ -40,8 +40,8 @@ export const AcademyLessonList = () => {
                 <Table.Column dataIndex="duration" title="Duration" />
                 <Table.Column
                     dataIndex="is_premium"
-                    title="Premium"
-                    render={(val) => val ? "⭐️" : "🆓"}
+                    title="Plus"
+                    render={(value) => <TagField value={value ? "Yes" : "No"} color={value ? "gold" : "default"} />}
                 />
                 <Table.Column
                     title="Actions"

@@ -129,18 +129,21 @@ Paziify ahora cuenta con un Panel de Administración robusto para gestionar el c
 - **Validación Automática**: El sistema verifica que los archivos se suban correctamente antes de guardar.
 - **Reproducción**: Los audios subidos aparecen inmediatamente en la app móvil.
 
-### 🧘 Gestión de Meditaciones (Nuevo v2.1)
+### 🧘 Gestión de Meditaciones (CMS Paziify v2.4)
 - **Vista Visual**: El listado muestra las portadas reales en lugar de IDs, facilitando la identificación.
-- **Filtros Inteligentes**:
-    - Haz clic en el icono de **embudo** en las columnas "Category" o "Guide" para filtrar el catálogo rápidamente.
-- **Edición Completa**:
+- **Filtros Inteligentes (Power Search)**:
+    - Haz clic en el icono de **embudo** en las columnas "Category" o "Guide" para filtrar el catálogo rápidamente. Ideal para auditorías masivas.
+- **Edición Completa (JSONB Direct)**:
     - **Cambio de Guía**: Asigna sesiones a Aria, Ziro, Éter o Gaia.
-    - **Categorización**: Mueve sesiones entre categorías (ej: de Calma SOS a Sueño).
-    - **Reemplazo de Archivos**: Sube nuevas versiones de voz o portadas sin perder el ID de la sesión.
+    - **Categorización**: Mueve sesiones entre categorías de forma instantánea.
+    - **Control Técnico**: Gestión de `breathing_pattern` y `audio_layers` sin tocar código.
+- **MediaUploader Inteligente**:
+    - Sube nuevas versiones de voz o portadas con pre-visualización.
+    - El sistema detecta archivos existentes y gestiona el reemplazo en Supabase Storage, manteniendo los buckets limpios.
 
-### 🖼️ Notas sobre Imágenes
+### 🖼️ Notas sobre Imágenes & Estética
 - El panel espera imágenes verticales (2:3) para mantener la consistencia estética "Glassmorphic Zen".
-- Si subes una imagen, la app móvil la priorizará automáticamente sobre las imágenes predefinidas.
+- **Prioridad de Carga**: Si subes una imagen desde el Admin, la app móvil la priorizará automáticamente sobre las imágenes predefinidas de categoría.
 
 ---
 

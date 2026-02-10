@@ -20,11 +20,12 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
    - Comparar ultima version de Git con las ultimas notas de sesion e informar si coincide todo o hay diferencias
 
 3. **Visión de Producto & Guías (LECTURA OBLIGATORIA)**
-   - **Imprescindible**: Leer los 3 pilares de documentación para entender el estado actual:
-     - `docs/guides/user_manual.md`: Funcionalidad y UX (v2.x).
-     - `docs/guides/database.md`: Datos, esquema y seguridad RLS.
-     - `docs/guides/designs_audio.md`: Sistema de diseño Skia e identidad de audio.
-   - Esto garantiza que no reinventemos la rueda ni rompamos la consistencia.
+    - **Imprescindible**: Leer los 4 pilares de documentación para entender el estado actual:
+      - `docs/guides/user_manual.md`: Funcionalidad y UX (v2.x).
+      - `docs/guides/audio.md`: Arquitectura del motor, guías premium y auditoría.
+      - `docs/guides/database.md`: Datos, esquema y seguridad RLS.
+      - `docs/guides/designs.md`: Sistema de diseño Skia e identidad visual.
+    - Esto garantiza que no reinventemos la rueda ni rompamos la consistencia.
 
 
 

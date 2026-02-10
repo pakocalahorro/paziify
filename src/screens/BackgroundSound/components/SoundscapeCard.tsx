@@ -21,6 +21,9 @@ interface Props {
 }
 
 const SoundscapeCard: React.FC<Props> = ({ item, onPress }) => {
+    // Debug URL if needed
+    // console.log(`Card ${item.name} image:`, item.image);
+
     return (
         <TouchableOpacity
             style={styles.card}
@@ -31,6 +34,7 @@ const SoundscapeCard: React.FC<Props> = ({ item, onPress }) => {
                 source={{ uri: item.image }}
                 style={styles.image}
                 imageStyle={{ borderRadius: 20 }}
+                onError={(e) => console.log(`Error loading image for ${item.name}:`, e.nativeEvent.error)}
             >
                 {/* Gradient Overlay for text readability */}
                 <LinearGradient

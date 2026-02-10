@@ -20,7 +20,7 @@ export const useSessions = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.SESSIONS],
         queryFn: sessionsService.getAll,
-        staleTime: 1000 * 60 * 60, // 1 hour (Catalog rarely changes)
+        staleTime: 1000 * 60 * 5, // 5 minutes (was 1 hour)
     });
 };
 
@@ -29,7 +29,7 @@ export const useAudiobooks = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.AUDIOBOOKS],
         queryFn: audiobooksService.getAll,
-        staleTime: 1000 * 60 * 5, // 5 minutes to allow fresher updates
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 };
 
@@ -38,7 +38,7 @@ export const useStories = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.STORIES],
         queryFn: storiesService.getAll,
-        staleTime: 1000 * 60 * 60, // 1 hour
+        staleTime: 1000 * 60 * 5, // 5 minutes (was 1 hour)
     });
 };
 

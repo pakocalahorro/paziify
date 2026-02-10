@@ -68,44 +68,8 @@ class AudioEngineService {
         await this.initialize();
         await this.unloadAll();
 
+        // 1. Capa Crítica: Voz (Si falla, lanzamos error para que BreathingTimer muestre alerta)
         try {
-            // Capa 2: Soundscape
-            if (config.soundscape) {
-                const soundscape = SOUNDSCAPES.find(s => s.id === config.soundscape);
-                if (soundscape && soundscape.audioFile) {
-                    const { sound } = await Audio.Sound.createAsync(
-                        soundscape.audioFile,
-                        { shouldPlay: false, volume: this.volumes.soundscape, isLooping: true }
-                    );
-                    this.soundscapeSound = sound;
-                }
-            }
-
-            // Capa 3: Binaurales
-            if (config.binaural) {
-                const binaural = BINAURAL_WAVES.find(b => b.id === config.binaural);
-                if (binaural && binaural.audioFile) {
-                    const { sound } = await Audio.Sound.createAsync(
-                        binaural.audioFile,
-                        { shouldPlay: false, volume: this.volumes.binaural, isLooping: true }
-                    );
-                    this.binauralSound = sound;
-                }
-            }
-
-            // Capa 4: Elementos
-            if (config.elements) {
-                const element = ELEMENTS.find(e => e.id === config.elements);
-                if (element && element.audioFile) {
-                    const { sound } = await Audio.Sound.createAsync(
-                        element.audioFile,
-                        { shouldPlay: false, volume: this.volumes.elements, isLooping: true }
-                    );
-                    this.elementsSound = sound;
-                }
-            }
-
-            // Capa 1 (NEW): Pre-recorded voice track (for background execution)
             if (config.voiceTrack) {
                 const { sound } = await Audio.Sound.createAsync(
                     { uri: config.voiceTrack },
@@ -123,8 +87,58 @@ class AudioEngineService {
                 console.log('Voice track loaded:', config.voiceTrack);
             }
         } catch (error) {
-            console.error('Error loading session:', error);
-            throw error;
+            console.error('Critical Error: Voice track failed to load:', error);
+            throw error; // Re-throw to trigger offline/connection alert
+        }
+
+        // 2. Capas Secundarias: Resilientes (Si fallan, la sesión continúa en silencio de fondo)
+
+        // Soundscape
+        try {
+            if (config.soundscape) {
+                const soundscape = SOUNDSCAPES.find(s => s.id === config.soundscape);
+                if (soundscape && soundscape.audioFile) {
+                    const { sound } = await Audio.Sound.createAsync(
+                        soundscape.audioFile,
+                        { shouldPlay: false, volume: this.volumes.soundscape, isLooping: true }
+                    );
+                    this.soundscapeSound = sound;
+                }
+            }
+        } catch (error) {
+            console.warn('Optional Layer Failed (Soundscape):', error);
+        }
+
+        // Binaurales
+        try {
+            if (config.binaural) {
+                const binaural = BINAURAL_WAVES.find(b => b.id === config.binaural);
+                if (binaural && binaural.audioFile) {
+                    const { sound } = await Audio.Sound.createAsync(
+                        binaural.audioFile,
+                        { shouldPlay: false, volume: this.volumes.binaural, isLooping: true }
+                    );
+                    this.binauralSound = sound;
+                }
+            }
+        } catch (error) {
+            console.warn('Optional Layer Failed (Binaural):', error);
+        }
+
+        // Elementos
+        try {
+            if (config.elements) {
+                const element = ELEMENTS.find(e => e.id === config.elements);
+                if (element && element.audioFile) {
+                    const { sound } = await Audio.Sound.createAsync(
+                        element.audioFile,
+                        { shouldPlay: false, volume: this.volumes.elements, isLooping: true }
+                    );
+                    this.elementsSound = sound;
+                }
+            }
+        } catch (error) {
+            console.warn('Optional Layer Failed (Elements):', error);
         }
     }
 

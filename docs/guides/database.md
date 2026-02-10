@@ -168,6 +168,11 @@ CREATE POLICY "Solo dueño gestiona favoritos" ON user_favorites_content
 -- Perfiles y Logs
 CREATE POLICY "Dueño gestiona sus datos" ON profiles FOR ALL USING (auth.uid() = id);
 CREATE POLICY "Dueño gestiona sus logs" ON meditation_logs FOR ALL USING (auth.uid() = user_id);
+
+-- Storage / Almacenamiento (Fix 2026-02-10)
+-- Se han habilitado políticas de lectura pública y subida autenticada para los buckets de gestión masiva.
+CREATE POLICY "Lectura pública de assets" ON storage.objects FOR SELECT USING (bucket_id IN ('meditation-voices', 'meditation-thumbnails', 'audiobooks'));
+CREATE POLICY "Admin gestiona storage" ON storage.objects FOR ALL USING (auth.role() = 'authenticated');
 ```
 
 ---

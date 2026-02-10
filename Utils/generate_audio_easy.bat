@@ -38,7 +38,7 @@ set "PERSONA=aria"
 set /p "PERSONA=Elige guia (aria, ziro, eter, gaia) [default: aria]: "
 
 :: Definir directorio de salida fijo
-set "OUTPUT_DIR=C:\Mis Cosas\Proyectos\paziify-audio\audiobooks"
+set "OUTPUT_DIR=C:\Mis Cosas\Proyectos\paziify-files"
 for %%F in ("%FILE_PATH%") do set "FILENAME=%%~nF"
 set "OUTPUT_FILE=%OUTPUT_DIR%\%FILENAME%.mp3"
 
@@ -48,7 +48,7 @@ echo Input: "%FILE_PATH%"
 echo Output: "%OUTPUT_FILE%"
 echo Guia: %PERSONA%
 echo.
-
+cd..
 python scripts/generate_audiobook.py "%FILE_PATH%" "%OUTPUT_FILE%" --persona %PERSONA%
 
 if %ERRORLEVEL% EQU 0 (

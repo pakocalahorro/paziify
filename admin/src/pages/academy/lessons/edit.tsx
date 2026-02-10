@@ -1,12 +1,11 @@
 import { Edit, useForm } from "@refinedev/antd";
-import { Form, Input, Select, Upload, Checkbox, Button } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Form, Input, Select, Checkbox } from "antd";
 import { supabaseClient } from "../../../providers/supabase-client";
 import { useState, useEffect } from "react";
+import { MediaUploader } from "../../../components/media/MediaUploader";
 
 export const AcademyLessonEdit = () => {
-    const { form, formProps, saveButtonProps, onFinish } = useForm();
-    const [audioUrl, setAudioUrl] = useState<string>("");
+    const { form, formProps, saveButtonProps } = useForm();
 
     // Fetch modules
     const [modules, setModules] = useState<{ value: string, label: string }[]>([]);
@@ -21,53 +20,15 @@ export const AcademyLessonEdit = () => {
         fetchModules();
     }, []);
 
-    useEffect(() => {
-        if (formProps.initialValues) {
-            if (formProps.initialValues.audio_url) {
-                setAudioUrl(formProps.initialValues.audio_url);
-            }
-        }
-    }, [formProps.initialValues]);
-
-    const handleAudioUpload = async (options: any) => {
-        const { onSuccess, onError, file } = options;
-        try {
-            const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-            const fileName = `${Date.now()}-${sanitizedName}`;
-
-            const { data, error } = await supabaseClient.storage
-                .from("academy-voices")
-                .upload(fileName, file, { cacheControl: "3600", upsert: false });
-
-            if (error) throw error;
-
-            const { data: publicUrlData } = supabaseClient.storage
-                .from("academy-voices")
-                .getPublicUrl(fileName);
-
-            const url = publicUrlData.publicUrl;
-            setAudioUrl(url);
-            form?.setFieldValue("audio_url", url);
-            onSuccess("ok");
-        } catch (err) {
-            console.error("Audio Upload error:", err);
-            onError({ err });
-        }
+    const handleAudioSuccess = (url: string) => {
+        form?.setFieldValue("audio_url", url);
     };
 
-    const handleOnFinish = async (values: any) => {
-        const currentAudioUrl = audioUrl || form?.getFieldValue("audio_url") || values.audio_url;
-        const finalValues = {
-            ...values,
-            audio_url: currentAudioUrl,
-        };
-        const { file_upload, ...rest } = finalValues;
-        await onFinish(rest);
-    };
+    const initialAudioUrl = formProps.initialValues?.audio_url;
 
     return (
         <Edit saveButtonProps={saveButtonProps}>
-            <Form {...formProps} form={form} onFinish={handleOnFinish} layout="vertical">
+            <Form {...formProps} form={form} layout="vertical">
                 <Form.Item label="Course Module" name="module_id" rules={[{ required: true }]}>
                     <Select options={modules} />
                 </Form.Item>
@@ -96,17 +57,21 @@ export const AcademyLessonEdit = () => {
                     <Input type="number" />
                 </Form.Item>
 
-                <Form.Item label="Premium Lesson" name="is_premium" valuePropName="checked">
-                    <Checkbox>Premium (Locked)</Checkbox>
+                <Form.Item label="Is Premium" name="is_premium" valuePropName="checked">
+                    <Checkbox>Available for Plus members only</Checkbox>
                 </Form.Item>
 
-                <Form.Item label="Replace Audio" name="file_upload">
-                    <Upload.Dragger customRequest={handleAudioUpload} maxCount={1} showUploadList={false}>
-                        <p className="ant-upload-drag-icon"><UploadOutlined /></p>
-                        <p className="ant-upload-text">Replace MP3 (academy-voices)</p>
-                    </Upload.Dragger>
+                <Form.Item label="Audio URL" name="audio_url">
+                    <Input readOnly />
                 </Form.Item>
-                {audioUrl && <div style={{ marginTop: 5, fontSize: 12 }}>Current Audio: {audioUrl}</div>}
+
+                <MediaUploader
+                    bucket="academy-voices"
+                    label="Replace Lesson Audio"
+                    accept="audio/*"
+                    initialUrl={initialAudioUrl}
+                    onUploadSuccess={handleAudioSuccess}
+                />
             </Form>
         </Edit>
     );

@@ -36,13 +36,13 @@ import {
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList, Session } from '../../types';
 import { theme } from '../../constants/theme';
+import { IMAGES, SESSION_ASSETS } from '../../constants/images';
 import SessionCard from '../../components/SessionCard';
 import SessionPreviewModal from '../../components/SessionPreviewModal';
 // import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData'; // Removed static
 import { MeditationSession } from '../../data/sessionsData'; // Keep type
 import { sessionsService, adaptSession } from '../../services/contentService'; // Import service
 import { useSessions } from '../../hooks/useContent'; // Import hook
-import { IMAGES } from '../../constants/images';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import CategoryRow from '../../components/CategoryRow';
 
@@ -137,19 +137,7 @@ const GUIDES = [
     },
 ];
 
-const SESSION_ASSETS: Record<string, string> = {
-    'calmasos': IMAGES.SESSION_PEACE,
-    'sueno': 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=800&q=80',
-    'mindfulness': IMAGES.SESSION_JOY,
-    'resiliencia': IMAGES.SESSION_MOTIVATION,
-    'despertar': IMAGES.SESSION_ENERGY,
-    'rendimiento': IMAGES.SESSION_FOCUS,
-    'salud': 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=800&q=80',
-    'habitos': IMAGES.SESSION_ROUTINE,
-    'emocional': 'https://images.unsplash.com/photo-1516589174184-c685eb32140a?w=800&q=80',
-    'kids': 'https://images.unsplash.com/photo-1536640712247-c7553ee84681?w=800&q=80',
-    'default': IMAGES.SESSION_PEACE,
-};
+// SESSION_ASSETS moved to constants/images.ts
 
 const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
@@ -203,13 +191,18 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const convertToSession = (medSession: MeditationSession): Session => {
         const categoryKey = medSession.category.toLowerCase();
         const catInfo = CATEGORIES.find(c => c.key === categoryKey);
+
+        // Dynamic image from DB has priority, then static assets by category, then default
+        const dynamicThumbnail = medSession.thumbnailUrl;
+        const staticAsset = SESSION_ASSETS[categoryKey] || SESSION_ASSETS['default'];
+
         return {
             id: medSession.id,
             title: medSession.title,
             duration: medSession.durationMinutes,
             category: catInfo ? catInfo.label : medSession.category,
             isPlus: medSession.isPremium,
-            image: SESSION_ASSETS[categoryKey] || SESSION_ASSETS['default'],
+            image: dynamicThumbnail || staticAsset,
             thumbnailUrl: medSession.thumbnailUrl,
             creatorName: medSession.creatorName,
         };

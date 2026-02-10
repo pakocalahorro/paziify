@@ -29,6 +29,12 @@ import { AcademyLessonEdit } from "./pages/academy/lessons/edit";
 import { MeditationSessionList } from "./pages/meditation-sessions/list";
 import { MeditationSessionCreate } from "./pages/meditation-sessions/create";
 import { MeditationSessionEdit } from "./pages/meditation-sessions/edit";
+import { SoundscapeList } from "./pages/soundscapes/list";
+import { SoundscapeCreate } from "./pages/soundscapes/create";
+import { SoundscapeEdit } from "./pages/soundscapes/edit";
+import { RealStoriesList } from "./pages/real-stories/list";
+import { RealStoriesCreate } from "./pages/real-stories/create";
+import { RealStoriesEdit } from "./pages/real-stories/edit";
 
 import "@refinedev/antd/dist/reset.css";
 
@@ -78,6 +84,20 @@ function App() {
                     create: "/academy/lessons/create",
                     edit: "/academy/lessons/edit/:id",
                     meta: { label: "Lecciones" }
+                  },
+                  {
+                    name: "real_stories",
+                    list: "/real-stories",
+                    create: "/real-stories/create",
+                    edit: "/real-stories/edit/:id",
+                    meta: { label: "Relatos Reales" }
+                  },
+                  {
+                    name: "soundscapes",
+                    list: "/soundscapes",
+                    create: "/soundscapes/create",
+                    edit: "/soundscapes/edit/:id",
+                    meta: { label: "Música Fondo" }
                   }
                 ]}
               >
@@ -127,6 +147,16 @@ function App() {
                       <Route index element={<AcademyLessonList />} />
                       <Route path="create" element={<AcademyLessonCreate />} />
                       <Route path="edit/:id" element={<AcademyLessonEdit />} />
+                    </Route>
+                    <Route path="/soundscapes">
+                      <Route index element={<SoundscapeList />} />
+                      <Route path="create" element={<SoundscapeCreate />} />
+                      <Route path="edit/:id" element={<SoundscapeEdit />} />
+                    </Route>
+                    <Route path="/real-stories">
+                      <Route index element={<RealStoriesList />} />
+                      <Route path="create" element={<RealStoriesCreate />} />
+                      <Route path="edit/:id" element={<RealStoriesEdit />} />
                     </Route>
                     <Route path="*" element={<AuthPage type="login" />} />
                   </Route>

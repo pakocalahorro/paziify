@@ -15,18 +15,31 @@ OUTPUT_DIR = Path('assets/voice-tracks')
 SCHEDULES_DIR = Path('assets/voice-tracks')
 SSML_CHAR_LIMIT = 4500  # Conservative limit (Google limit is 5000)
 
+# Voice Configurations (Matching ORIGINAL PREMIUM settings)
 VOICE_CONFIG = {
-    'es-ES-Wavenet-C': {
+    'Aria': {
         'language_code': 'es-ES',
-        'name': 'es-ES-Wavenet-C',
-        'speaking_rate': 0.70,
+        'name': 'es-ES-Wavenet-F', # F5: Mature & Airy
+        'speaking_rate': 0.72,
+        'pitch': -3.0
+    },
+    'Gaia': {
+        'language_code': 'es-ES',
+        'name': 'es-ES-Wavenet-H', # F6: Earthy & Deep
+        'speaking_rate': 0.75,
+        'pitch': -4.0
+    },
+    'Ziro': {
+        'language_code': 'es-ES',
+        'name': 'es-ES-Neural2-G', # M2: Steady & Grounded
+        'speaking_rate': 0.75,
         'pitch': -2.5
     },
-    'es-ES-Wavenet-B': {
+    'Eter': {
         'language_code': 'es-ES',
-        'name': 'es-ES-Wavenet-B',
+        'name': 'es-ES-Studio-F', # M1: Deep & Serene (Studio Male)
         'speaking_rate': 0.75,
-        'pitch': -3.0
+        'pitch': 0 # Studio doesn't support pitch shifts in the same way via API config
     }
 }
 
@@ -38,8 +51,13 @@ def setup_credentials():
     print(f"✅ Credentials loaded from: {CREDENTIALS_PATH}")
     return True
 
-def create_ssml_chunk(cues, start_time):
-    ssml_parts = ['<speak>']
+def create_ssml_chunk(cues, start_time, config):
+    # Wrapping in prosody for "Spiritual Flow"
+    ssml_parts = ['<speak>', f'<prosody rate="{config["speaking_rate"]}"']
+    if 'Studio' not in config['name']:
+        ssml_parts.append(f' pitch="{config["pitch"]}st"')
+    ssml_parts.append('>')
+    
     last_time = start_time
     for cue in cues:
         silence_duration = (cue['time'] - last_time) * 1000
@@ -47,10 +65,12 @@ def create_ssml_chunk(cues, start_time):
             ssml_parts.append(f'<break time="{int(silence_duration)}ms"/>')
         ssml_parts.append(cue['text'])
         last_time = cue['time']
+    
+    ssml_parts.append('</prosody>')
     ssml_parts.append('</speak>')
     return ''.join(ssml_parts)
 
-def generate_voice_track(schedule_file, voice_style='calm'):
+def generate_voice_track(schedule_file, guide_name='Aria'):
     with open(schedule_file, 'r', encoding='utf-8') as f:
         schedule = json.load(f)
     
@@ -62,53 +82,23 @@ def generate_voice_track(schedule_file, voice_style='calm'):
         print(f"   ⏩ Skipping: {output_file.name}")
         return None
 
-    print(f"\n🎙️  Generating: {title} ({session_id})")
+    print(f"\n🎙️  Generating PREMIUM Track: {title} ({session_id}) by {guide_name}")
     print(f"   Total cues: {len(schedule['schedule'])}")
 
-    voice_name = 'es-ES-Wavenet-C' if voice_style == 'calm' else 'es-ES-Wavenet-B'
-    voice_config = VOICE_CONFIG[voice_name]
+    voice_config = VOICE_CONFIG.get(guide_name, VOICE_CONFIG['Aria'])
     client = texttospeech.TextToSpeechClient()
 
-    # Split schedule into chunks based on character limit
-    batches = []
-    current_batch = []
-    current_chars = 15  # <speak></speak> + base
-    last_time_in_batch = 0
-    
-    # We need to preserve the timeline, so each batch starts with the silence from the end of previous batch
-    global_last_time = 0
-    
-    for cue in schedule['schedule']:
-        # Estimate size of this cue entry in SSML
-        silence_ms = (cue['time'] - global_last_time) * 1000
-        cue_ssml = f'<break time="{int(silence_ms)}ms"/>{cue["text"]}'
-        
-        if len(current_batch) > 0 and (current_chars + len(cue_ssml) > SSML_CHAR_LIMIT):
-            # Batch is full, finish it
-            batches.append({'cues': current_batch, 'start_time': global_last_time - last_time_in_batch})
-            current_batch = []
-            current_chars = 15
-            # We don't Reset global_last_time, but we need to track relative start for the chunk
-            last_time_in_batch = 0 # Dummy reset for relative calc
-        
-        current_batch.append(cue)
-        current_chars += len(cue_ssml)
-        # global_last_time = cue['time'] # Handled in loop
-
-    if current_batch:
-        batches.append({'cues': current_batch, 'start_time': 0}) # Logic below is cleaner
-
-    # Actually, a simpler batching:
+    # Split schedule into batches based on character limit
     batches = []
     temp_batch = []
-    temp_chars = 20
+    temp_chars = 40 # Base SSML overhead
     last_t = 0
     for cue in schedule['schedule']:
         cue_str = f'<break time="{int((cue["time"]-last_t)*1000)}ms"/>{cue["text"]}'
         if temp_batch and (temp_chars + len(cue_str) > SSML_CHAR_LIMIT):
             batches.append(temp_batch)
             temp_batch = []
-            temp_chars = 20
+            temp_chars = 40
         temp_batch.append(cue)
         temp_chars += len(cue_str)
         last_t = cue['time']
@@ -122,13 +112,13 @@ def generate_voice_track(schedule_file, voice_style='calm'):
     
     for i, batch in enumerate(batches):
         print(f"   Synthesizing batch {i+1}/{len(batches)}...")
-        ssml = create_ssml_chunk(batch, abs_last_time)
+        ssml = create_ssml_chunk(batch, abs_last_time, voice_config)
         
         synthesis_input = texttospeech.SynthesisInput(ssml=ssml)
         voice = texttospeech.VoiceSelectionParams(language_code=voice_config['language_code'], name=voice_config['name'])
-        audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3, 
-                                              speaking_rate=voice_config['speaking_rate'], 
-                                              pitch=voice_config['pitch'])
+        
+        # Audio config (Rate and Pitch are now handled via SSML Prosody for better flow)
+        audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
         
         response = client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
         full_audio.extend(response.audio_content)

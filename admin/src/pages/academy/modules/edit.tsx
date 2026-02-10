@@ -1,58 +1,19 @@
 import { Edit, useForm } from "@refinedev/antd";
-import { Form, Input, Select, Upload, Button } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { supabaseClient } from "../../../providers/supabase-client";
-import { useState, useEffect } from "react";
+import { Form, Input, Select, Checkbox } from "antd";
+import { MediaUploader } from "../../../components/media/MediaUploader";
 
 export const AcademyModuleEdit = () => {
-    const { form, formProps, saveButtonProps, onFinish } = useForm();
-    const [imageUrl, setImageUrl] = useState<string>("");
+    const { form, formProps, saveButtonProps } = useForm();
 
-    useEffect(() => {
-        if (formProps.initialValues) {
-            setImageUrl(formProps.initialValues.image_url);
-        }
-    }, [formProps.initialValues]);
-
-    const handleImageUpload = async (options: any) => {
-        const { onSuccess, onError, file } = options;
-        try {
-            const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-            const fileName = `${Date.now()}-${sanitizedName}`;
-
-            const { data, error } = await supabaseClient.storage
-                .from("academy-thumbnails")
-                .upload(fileName, file, { cacheControl: "3600", upsert: false });
-
-            if (error) throw error;
-
-            const { data: publicUrlData } = supabaseClient.storage
-                .from("academy-thumbnails")
-                .getPublicUrl(fileName);
-
-            const url = publicUrlData.publicUrl;
-            setImageUrl(url);
-            form?.setFieldValue("image_url", url);
-            onSuccess("ok");
-        } catch (err) {
-            console.error("Image Upload error:", err);
-            onError({ err });
-        }
+    const handleImageSuccess = (url: string) => {
+        form?.setFieldValue("image_url", url);
     };
 
-    const handleOnFinish = async (values: any) => {
-        const currentImageUrl = imageUrl || form?.getFieldValue("image_url") || values.image_url;
-        const finalValues = {
-            ...values,
-            image_url: currentImageUrl,
-        };
-        const { image_upload, ...rest } = finalValues;
-        await onFinish(rest);
-    };
+    const initialImageUrl = formProps.initialValues?.image_url;
 
     return (
         <Edit saveButtonProps={saveButtonProps}>
-            <Form {...formProps} form={form} onFinish={handleOnFinish} layout="vertical">
+            <Form {...formProps} form={form} layout="vertical">
                 <Form.Item label="Title" name="title" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
@@ -86,13 +47,20 @@ export const AcademyModuleEdit = () => {
                 <Form.Item label="Duration Label" name="duration" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
-                <Form.Item label="Replace Cover Image" name="image_upload">
-                    <Upload.Dragger customRequest={handleImageUpload} maxCount={1} showUploadList={false}>
-                        <p className="ant-upload-drag-icon"><UploadOutlined /></p>
-                        <p className="ant-upload-text">Click or drag file to replace cover</p>
-                    </Upload.Dragger>
+                <Form.Item label="Is Premium" name="is_premium" valuePropName="checked">
+                    <Checkbox>Available for Plus members only</Checkbox>
                 </Form.Item>
-                {imageUrl && <img src={imageUrl} alt="Cover" style={{ maxWidth: '200px', marginTop: 10 }} />}
+
+                <Form.Item label="Image URL" name="image_url">
+                    <Input readOnly />
+                </Form.Item>
+
+                <MediaUploader
+                    bucket="academy-thumbnails"
+                    label="Replace Module Cover"
+                    initialUrl={initialImageUrl}
+                    onUploadSuccess={handleImageSuccess}
+                />
             </Form>
         </Edit>
     );

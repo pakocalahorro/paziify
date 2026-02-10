@@ -21,6 +21,7 @@ import Animated, {
     Extrapolate
 } from 'react-native-reanimated';
 import { theme } from '../constants/theme';
+import { SESSION_ASSETS } from '../constants/images';
 import { MeditationSession } from '../data/sessionsData';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -38,25 +39,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onStart, guideAvatar }) => {
     const insets = useSafeAreaInsets();
     const scrollY = useSharedValue(0);
-    // ... existing code ...
-    <View style={styles.creatorAvatar}>
-        {guideAvatar ? (
-            <Image
-                source={{ uri: guideAvatar }}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode="cover"
-            />
-        ) : (
-            <>
-                <LinearGradient
-                    colors={[session.color || '#2DD4BF', '#000']}
-                    style={StyleSheet.absoluteFill}
-                />
-                <Ionicons name="person" size={24} color="#FFF" />
-            </>
-        )}
-    </View>
-
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
             scrollY.value = event.contentOffset.y;
@@ -65,7 +47,13 @@ const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onS
 
     if (!session) return null;
 
-    const bgImage = session.thumbnailUrl ? { uri: session.thumbnailUrl } : null;
+    const imageUrl = session.thumbnailUrl || (session as any).image;
+    const catKey = (session.category || 'default').toLowerCase();
+    const fallbackImage = (SESSION_ASSETS as any)[catKey] || (SESSION_ASSETS as any)['default'];
+
+    const bgImage = imageUrl
+        ? { uri: imageUrl }
+        : (typeof fallbackImage === 'string' ? { uri: fallbackImage } : fallbackImage);
     const HEADER_HEIGHT = SCREEN_HEIGHT * 0.45;
 
     const headerImageStyle = useAnimatedStyle(() => {

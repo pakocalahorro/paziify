@@ -1,202 +1,161 @@
 import { Edit, useForm } from "@refinedev/antd";
-import { Form, Input, Checkbox, Upload, Button, Select } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { supabaseClient } from "../../providers/supabase-client";
+import { Form, Input, Select, Checkbox, Tabs, InputNumber, Divider, Typography } from "antd";
+import { MediaUploader } from "../../components/media/MediaUploader";
+
+const { Text } = Typography;
 
 export const MeditationSessionEdit = () => {
-    const { formProps, saveButtonProps, form, onFinish } = useForm();
+    const { formProps, saveButtonProps, form } = useForm();
 
-    const handleAudioUpload = async (options: any) => {
-        console.log("🎤 Starting Meditation Audio Upload...");
-        const { onSuccess, onError, file } = options;
-        try {
-            const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-            const fileName = `${Date.now()}-${sanitizedName}`;
+    const handleThumbnailSuccess = (url: string) => {
+        form?.setFieldValue("thumbnail_url", url);
+    };
 
-            // GUESSING BUCKET NAME: meditation-audio (if fails, user will see error)
-            const { data, error } = await supabaseClient.storage
-                .from("meditation-audio")
-                .upload(fileName, file, { cacheControl: "3600", upsert: false });
+    const handleVoiceSuccess = (url: string) => {
+        form?.setFieldValue("voice_url", url);
+    };
 
-            if (error) throw error;
+    const initialThumbnail = formProps.initialValues?.thumbnail_url;
+    const initialVoice = formProps.initialValues?.voice_url;
 
-            const { data: publicUrlData } = supabaseClient.storage
-                .from("meditation-audio")
-                .getPublicUrl(fileName);
+    const tabItems = [
+        {
+            key: "1",
+            label: "Contenido Básico",
+            children: (
+                <>
+                    <Form.Item label="Título" name="title" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Slogan / Descripción Corta" name="description">
+                        <Input.TextArea rows={3} />
+                    </Form.Item>
+                    <Form.Item label="Categoría" name="category" rules={[{ required: true }]}>
+                        <Select
+                            options={[
+                                { label: 'Calma SOS', value: 'calmasos' },
+                                { label: 'Meditación', value: 'meditacion' },
+                                { label: 'Respiración', value: 'respiracion' },
+                                { label: 'Cuentos', value: 'cuentos' },
+                                { label: 'Resiliencia', value: 'resiliencia' },
+                                { label: 'Rendimiento', value: 'rendimiento' },
+                                { label: 'Paziify Kids', value: 'kids' },
+                                { label: 'Despertar', value: 'despertar' },
+                                { label: 'Mindfulness', value: 'mindfulness' },
+                                { label: 'Sueño', value: 'sueno' },
+                            ]}
+                        />
+                    </Form.Item>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <Form.Item label="Duración (Minutos)" name="duration_minutes" style={{ flex: 1 }}>
+                            <InputNumber min={0} style={{ width: '100%' }} />
+                        </Form.Item>
+                        <Form.Item label="Nivel de Dificultad" name="difficulty_level" style={{ flex: 1 }}>
+                            <Select
+                                options={[
+                                    { label: 'Principiante', value: 'principiante' },
+                                    { label: 'Intermedio', value: 'intermedio' },
+                                    { label: 'Avanzado', value: 'avanzado' },
+                                ]}
+                            />
+                        </Form.Item>
+                    </div>
+                    <Form.Item label="Tags de Estado de Ánimo" name="mood_tags">
+                        <Select mode="tags" placeholder="pánico, estrés, sueño..." />
+                    </Form.Item>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <Form.Item label="Premium" name="is_premium" valuePropName="checked">
+                            <Checkbox>Solo para miembros Plus</Checkbox>
+                        </Form.Item>
+                        <Form.Item label="Es Técnica" name="is_technical" valuePropName="checked">
+                            <Checkbox>Requiere guía visual técnica</Checkbox>
+                        </Form.Item>
+                    </div>
+                </>
+            )
+        },
+        {
+            key: "2",
+            label: "Configuración de Audio y Medios",
+            children: (
+                <>
+                    <Form.Item label="Thumbnail URL" name="thumbnail_url">
+                        <Input readOnly />
+                    </Form.Item>
+                    <MediaUploader
+                        bucket="meditation-thumbnails"
+                        label="Miniatura de la Sesión"
+                        initialUrl={initialThumbnail}
+                        onUploadSuccess={handleThumbnailSuccess}
+                    />
 
-            console.log("🎤 Audio URL set:", publicUrlData.publicUrl);
-            form?.setFieldValue("voice_url", publicUrlData.publicUrl);
-            onSuccess("ok");
-        } catch (err) {
-            console.error("Audio Upload error:", err);
-            onError({ err });
-            alert("Upload Failed. Check bucket name 'meditation-audio'?");
+                    <Divider />
+
+                    <Form.Item label="Voice URL (Audio principal)" name="voice_url">
+                        <Input readOnly />
+                    </Form.Item>
+                    <MediaUploader
+                        bucket="meditation-voices"
+                        label="Audio de la Guía"
+                        accept="audio/*"
+                        initialUrl={initialVoice}
+                        onUploadSuccess={handleVoiceSuccess}
+                    />
+
+                    <Divider />
+
+                    <Text strong>Configuración Inicial de Sonido (JSON)</Text>
+                    <Form.Item name={["audio_config", "defaultSoundscape"]} label="Paisaje Sonoro Inicial">
+                        <Input placeholder="bird_relaxation" />
+                    </Form.Item>
+                </>
+            )
+        },
+        {
+            key: "3",
+            label: "Respiración y Metadatos",
+            children: (
+                <>
+                    <Text strong>Patrón de Respiración (Segundos)</Text>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                        <Form.Item label="Inhalar" name={["breathing_config", "inhale"]} style={{ flex: 1 }}>
+                            <InputNumber min={0} style={{ width: '100%' }} />
+                        </Form.Item>
+                        <Form.Item label="Mantener" name={["breathing_config", "hold"]} style={{ flex: 1 }}>
+                            <InputNumber min={0} style={{ width: '100%' }} />
+                        </Form.Item>
+                        <Form.Item label="Exhalar" name={["breathing_config", "exhale"]} style={{ flex: 1 }}>
+                            <InputNumber min={0} style={{ width: '100%' }} />
+                        </Form.Item>
+                        <Form.Item label="Pausa Post" name={["breathing_config", "holdPost"]} style={{ flex: 1 }}>
+                            <InputNumber min={0} style={{ width: '100%' }} />
+                        </Form.Item>
+                    </div>
+
+                    <Divider />
+
+                    <Text strong>Metadatos Científicos (JSON)</Text>
+                    <Form.Item label="Beneficios Científicos" name={["metadata", "scientific_benefits"]} style={{ marginTop: '8px' }}>
+                        <Input.TextArea rows={4} />
+                    </Form.Item>
+                    <Form.Item label="Nombre del Guía" name="creator_name">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Credenciales del Guía" name={["metadata", "creator_credentials"]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Habilitar Sincronización Visual" name={["metadata", "visual_sync_enabled"]} valuePropName="checked">
+                        <Checkbox>Sincronización del Orbe de Respiración</Checkbox>
+                    </Form.Item>
+                </>
+            )
         }
-    };
-
-    const handleImageUpload = async (options: any) => {
-        console.log("🖼️ Starting Meditation Image Upload...");
-        const { onSuccess, onError, file } = options;
-        try {
-            const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-            const fileName = `${Date.now()}-${sanitizedName}`;
-
-            // GUESSING BUCKET NAME: meditation-thumbnails
-            const { data, error } = await supabaseClient.storage
-                .from("meditation-thumbnails")
-                .upload(fileName, file, { cacheControl: "3600", upsert: false });
-
-            if (error) throw error;
-
-            const { data: publicUrlData } = supabaseClient.storage
-                .from("meditation-thumbnails")
-                .getPublicUrl(fileName);
-
-            console.log("🖼️ Image URL set:", publicUrlData.publicUrl);
-            form?.setFieldValue("thumbnail_url", publicUrlData.publicUrl);
-            onSuccess("ok");
-        } catch (err) {
-            console.error("Image Upload error:", err);
-            onError({ err });
-            alert("Upload Failed. Check bucket name 'meditation-thumbnails'?");
-        }
-    };
-
-    const handleOnFinish = (values: any) => {
-        console.log("Submitting form with values:", values);
-        const { file_upload, image_upload, ...rest } = values;
-        return onFinish(rest);
-    };
-
-    const normFile = (e: any) => {
-        if (Array.isArray(e)) return e;
-        return e?.fileList;
-    };
-
-    const formPropsWithHandler = {
-        ...formProps,
-        onFinish: handleOnFinish,
-    };
+    ];
 
     return (
         <Edit saveButtonProps={saveButtonProps}>
-            <Form
-                {...formPropsWithHandler}
-                form={form}
-                layout="vertical"
-                onFinishFailed={(errorInfo) => {
-                    console.log('Failed:', errorInfo);
-                    alert("Form validation failed: " + JSON.stringify(errorInfo));
-                }}
-            >
-                <Form.Item
-                    label="Title"
-                    name="title"
-                    rules={[{ required: true }]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    label="Description"
-                    name="description"
-                >
-                    <Input.TextArea rows={3} />
-                </Form.Item>
-                <Form.Item
-                    label="Slug (ID)"
-                    name="slug"
-                    rules={[{ required: true }]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Category"
-                    name="category"
-                    initialValue="calmasos"
-                    rules={[{ required: true }]}
-                >
-                    <Select>
-                        <Select.Option value="calmasos">Calmasos (SOS)</Select.Option>
-                        <Select.Option value="meditacion">Meditación</Select.Option>
-                        <Select.Option value="respiracion">Respiración</Select.Option>
-                        <Select.Option value="cuentos">Cuentos</Select.Option>
-                        <Select.Option value="resiliencia">Resiliencia</Select.Option>
-                        <Select.Option value="rendimiento">Rendimiento</Select.Option>
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    label="Guide (Narrator)"
-                    name="creator_name"
-                    initialValue="Aria"
-                    rules={[{ required: true }]}
-                >
-                    <Select>
-                        <Select.Option value="Aria">Aria</Select.Option>
-                        <Select.Option value="Ziro">Ziro</Select.Option>
-                        <Select.Option value="Éter">Éter</Select.Option>
-                        <Select.Option value="Gaia">Gaia</Select.Option>
-                    </Select>
-                </Form.Item>
-                <Form.Item
-                    label="Is Premium"
-                    name="is_plus"
-                    valuePropName="checked"
-                >
-                    <Checkbox>Plus Member Only</Checkbox>
-                </Form.Item>
-
-                {/* VISIBLE URL FIELDS */}
-                <Form.Item name="voice_url" label="Current Voice URL">
-                    <Input />
-                </Form.Item>
-                <Form.Item name="thumbnail_url" label="Current Thumbnail URL">
-                    <Input />
-                </Form.Item>
-
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" size="large" block style={{ backgroundColor: '#fa541c' }}>
-                        DEBUG GUARDAR (Manual)
-                    </Button>
-                </Form.Item>
-
-                {/* Uploads */}
-                <Form.Item
-                    label="Replace Voice (.mp3)"
-                    name="file_upload"
-                    valuePropName="fileList"
-                    getValueFromEvent={normFile}
-                >
-                    <Upload.Dragger
-                        name="file"
-                        customRequest={handleAudioUpload}
-                        listType="picture"
-                        maxCount={1}
-                        accept="audio/*"
-                    >
-                        <p className="ant-upload-drag-icon"><UploadOutlined /></p>
-                        <p className="ant-upload-text">Replace Voice (meditation-audio)</p>
-                    </Upload.Dragger>
-                </Form.Item>
-
-                <Form.Item
-                    label="Replace Thumbnail (.png/.jpg)"
-                    name="image_upload"
-                    valuePropName="fileList"
-                    getValueFromEvent={normFile}
-                >
-                    <Upload.Dragger
-                        name="file"
-                        customRequest={handleImageUpload}
-                        listType="picture"
-                        maxCount={1}
-                        accept="image/*"
-                    >
-                        <p className="ant-upload-drag-icon"><UploadOutlined /></p>
-                        <p className="ant-upload-text">Replace Thumbnail (meditation-thumbnails)</p>
-                    </Upload.Dragger>
-                </Form.Item>
+            <Form {...formProps} layout="vertical">
+                <Tabs defaultActiveKey="1" items={tabItems} />
             </Form>
         </Edit>
     );

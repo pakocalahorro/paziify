@@ -29,7 +29,7 @@ if "%FILE_PATH%"=="" goto error
 echo.
 echo Procesando...
 echo.
-
+cd..
 python scripts/img_to_webp.py "%FILE_PATH%"
 
 if %ERRORLEVEL% NEQ 0 (

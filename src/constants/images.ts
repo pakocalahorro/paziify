@@ -26,3 +26,17 @@ export const IMAGES = {
     LIB_STORIES: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1000&q=80', // Deep forest path
     LIB_ACADEMY: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1000&q=80', // Cosmos/Wisdom
 };
+
+export const SESSION_ASSETS: Record<string, string> = {
+    'calmasos': IMAGES.SESSION_PEACE,
+    'sueno': 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=800&q=80',
+    'mindfulness': IMAGES.SESSION_JOY,
+    'resiliencia': IMAGES.SESSION_MOTIVATION,
+    'despertar': IMAGES.SESSION_ENERGY,
+    'rendimiento': IMAGES.SESSION_FOCUS,
+    'salud': 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=800&q=80',
+    'habitos': IMAGES.SESSION_ROUTINE,
+    'emocional': 'https://images.unsplash.com/photo-1516589174184-c685eb32140a?w=800&q=80',
+    'kids': 'https://images.unsplash.com/photo-1536640712247-c7553ee84681?w=800&q=80',
+    'default': IMAGES.SESSION_PEACE,
+};

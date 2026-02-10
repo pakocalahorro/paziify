@@ -1,5 +1,5 @@
 import { Create, useForm } from "@refinedev/antd";
-import { Form, Input, Select, Upload, Button } from "antd";
+import { Form, Input, Select, Checkbox, Upload, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { supabaseClient } from "../../../providers/supabase-client";
 import { useState } from "react";
@@ -25,7 +25,6 @@ export const AcademyModuleCreate = () => {
                 .getPublicUrl(fileName);
 
             const url = publicUrlData.publicUrl;
-            console.log("🖼️ Cover URL uploaded:", url);
             setImageUrl(url);
             form?.setFieldValue("image_url", url);
             onSuccess("ok");
@@ -40,21 +39,16 @@ export const AcademyModuleCreate = () => {
         const finalValues = {
             ...values,
             image_url: currentImageUrl,
-            is_published: true // Default to true
+            is_published: true, // Default to published for now
         };
         const { image_upload, ...rest } = finalValues;
         await onFinish(rest);
     };
 
-    const normFile = (e: any) => {
-        if (Array.isArray(e)) return e;
-        return e?.fileList;
-    };
-
     return (
         <Create saveButtonProps={saveButtonProps}>
             <Form {...formProps} form={form} onFinish={handleOnFinish} layout="vertical">
-                <Form.Item label="ID (Slug)" name="id" rules={[{ required: true }]} help="Unique identifier (e.g., 'anxiety_101')">
+                <Form.Item label="ID (Slug)" name="id" rules={[{ required: true }]} help="Unique (e.g., 'anxiety_basics')">
                     <Input />
                 </Form.Item>
                 <Form.Item label="Title" name="title" rules={[{ required: true }]}>
@@ -88,27 +82,18 @@ export const AcademyModuleCreate = () => {
                     />
                 </Form.Item>
                 <Form.Item label="Duration Label" name="duration" rules={[{ required: true }]}>
-                    <Input placeholder="e.g. '5 Días' or '4 Lecciones'" />
+                    <Input placeholder="e.g. 5 Lessons" />
                 </Form.Item>
-
-                <Form.Item
-                    label="Cover Image"
-                    name="image_upload"
-                    valuePropName="fileList"
-                    getValueFromEvent={normFile}
-                    rules={[{ required: true, message: "Please upload a cover image" }]}
-                >
-                    <Upload.Dragger
-                        name="file"
-                        customRequest={handleImageUpload}
-                        listType="picture"
-                        maxCount={1}
-                        accept="image/*"
-                    >
+                <Form.Item label="Is Premium" name="is_premium" valuePropName="checked">
+                    <Checkbox>Available for Plus members only</Checkbox>
+                </Form.Item>
+                <Form.Item label="Cover Image" name="image_upload">
+                    <Upload.Dragger customRequest={handleImageUpload} maxCount={1} showUploadList={false}>
                         <p className="ant-upload-drag-icon"><UploadOutlined /></p>
-                        <p className="ant-upload-text">Upload to academy-thumbnails</p>
+                        <p className="ant-upload-text">Click or drag file to upload cover</p>
                     </Upload.Dragger>
                 </Form.Item>
+                {imageUrl && <img src={imageUrl} alt="Cover" style={{ maxWidth: '200px', marginTop: 10 }} />}
             </Form>
         </Create>
     );

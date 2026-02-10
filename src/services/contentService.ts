@@ -36,12 +36,15 @@ export const adaptSession = (dbSession: MeditationSessionContent): MeditationSes
         practiceInstruction: dbSession.metadata?.practice_instruction || 'Sigue la voz y relájate.',
         creatorName: dbSession.creator_name,
         audioLayers: {
-            voiceTrack: dbSession.audio_config?.voiceTrack,
-            defaultSoundscape: dbSession.audio_config?.defaultSoundscape || 'rain',
-            defaultBinaural: dbSession.audio_config?.defaultBinaural || 'alpha',
+            // Prioritize dedicated voice_url column (updated by Admin Panel) 
+            // over the structured JSON config for direct compatibility
+            voiceTrack: dbSession.voice_url || dbSession.audio_config?.voiceTrack,
+            defaultSoundscape: dbSession.audio_config?.defaultSoundscape || undefined,
+            defaultBinaural: dbSession.audio_config?.defaultBinaural || undefined,
             defaultElements: undefined, // DB doesn't have this yet
             postSilence: dbSession.audio_config?.postSilence || 0
         },
+
         breathingPattern: {
             inhale: dbSession.breathing_config?.inhale || 4,
             hold: dbSession.breathing_config?.hold || 0,
@@ -136,8 +139,85 @@ export const sessionsService = {
     }
 };
 
+// Adapter for Soundscapes
+export const adaptSoundscape = (dbSoundscape: any): any => {
+    return {
+        ...dbSoundscape,
+        id: dbSoundscape.slug || dbSoundscape.id, // Use slug for navigation consistency if available
+        image: dbSoundscape.image_url,
+        audioFile: { uri: dbSoundscape.audio_url },
+        recommendedFor: dbSoundscape.recommended_for || [],
+        isPremium: dbSoundscape.is_premium || false,
+    };
+};
+
+export const soundscapesService = {
+    /**
+     * Obtener todos los paisajes sonoros con fallback local
+     */
+    async getAll(): Promise<any[]> {
+        try {
+            console.log('Fetching all soundscapes from Supabase...');
+            const { data, error } = await supabase
+                .from('soundscapes')
+                .select('*')
+                .order('name', { ascending: true });
+
+            if (error) {
+                console.error('Supabase error fetching soundscapes:', error);
+                throw error;
+            }
+
+            if (data && data.length > 0) {
+                console.log(`Successfully fetched ${data.length} soundscapes from DB.`);
+                return data.map(adaptSoundscape);
+            }
+
+            console.log('No soundscapes found in DB, using local fallback.');
+            // Fallback si la tabla está vacía
+            const { SOUNDSCAPES } = require('../data/soundscapesData');
+            return SOUNDSCAPES;
+        } catch (error) {
+            console.log('Error fetching soundscapes (usando local):', error);
+            const { SOUNDSCAPES } = require('../data/soundscapesData');
+            return SOUNDSCAPES;
+        }
+    },
+
+    /**
+     * Obtener por ID
+     */
+    async getById(id: string): Promise<any | null> {
+        try {
+            console.log(`Fetching soundscape by ID/Slug: ${id}...`);
+            const { data, error } = await supabase
+                .from('soundscapes')
+                .select('*')
+                .or(`id.eq.${id},slug.eq.${id}`)
+                .maybeSingle();
+
+            if (error) {
+                console.error('Supabase error fetching soundscape by ID:', error);
+                return null;
+            }
+
+            if (data) {
+                console.log(`Found soundscape in DB: ${data.name}`);
+                return adaptSoundscape(data);
+            }
+
+            console.log(`Soundscape ${id} not found in DB, checking local fallback...`);
+            const { SOUNDSCAPES } = require('../data/soundscapesData');
+            const local = SOUNDSCAPES.find((s: any) => s.id === id);
+            return local || null;
+        } catch (err) {
+            console.error('Error in getById:', err);
+            return null;
+        }
+    }
+};
+
 export const audiobooksService = {
-    /** ... */
 
     async getAll(): Promise<Audiobook[]> {
         const { data, error } = await supabase

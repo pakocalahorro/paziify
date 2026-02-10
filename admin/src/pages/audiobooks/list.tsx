@@ -35,8 +35,8 @@ export const AudiobookList = () => {
                 <Table.Column dataIndex="category" title="Category" />
                 <Table.Column
                     dataIndex="is_premium"
-                    title="Premium"
-                    render={(value) => <TagField value={value ? "Plus" : "Free"} color={value ? "gold" : "default"} />}
+                    title="Plus"
+                    render={(value) => <TagField value={value ? "Yes" : "No"} color={value ? "gold" : "default"} />}
                 />
                 <Table.Column
                     title="Actions"

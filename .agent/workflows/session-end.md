@@ -41,16 +41,18 @@ Este workflow se ejecuta al finalizar una sesión de trabajo para documentar tod
    - **Condicional**: Si hubo cambios de entorno (scripts, build, etc.), actualizar `README.md`.
 
 4. **Guías Técnicas (Actualización en Cascada)** 
-   - **Base de Datos**: Si hubo cambios en esquema/auth -> Actualizar `docs/guides/database.md`.
-   - **Diseño/Audio**: Si hubo cambios visuales/sonoros -> Actualizar `docs/guides/designs_audio.md`.
-   - **Manual de Usuario**: Si hubo cambios funcionales -> Actualizar `docs/guides/user_manual.md`.
+    - **Base de Datos**: Si hubo cambios en esquema/auth -> Actualizar `docs/guides/database.md`.
+    - **Audio**: Si hubo cambios en voces, motor o auditoría -> Actualizar `docs/guides/audio.md`.
+    - **Diseño**: Si hubo cambios visuales/Skia -> Actualizar `docs/guides/designs.md`.
+    - **Manual de Usuario**: Si hubo cambios funcionales -> Actualizar `docs/guides/user_manual.md`.
 
 5. **Documentación Técnica & Funcional (OBLIGATORIO)**
-   - **Antes de cerrar**, revisa y actualiza los 3 pilares de documentación:
-     - `docs/guides/user_manual.md`: ¿Hay nuevas funciones o cambios de UX?
-     - `docs/guides/database.md`: ¿Cambió el esquema, RLS o diccionarios?
-     - `docs/guides/designs_audio.md`: ¿Nuevos componentes Skia, fuentes o assets de audio?
-   - *Validación*: El usuario debe confirmar que estos docs reflejan la realidad v2.x del proyecto.
+    - **Antes de cerrar**, revisa y actualiza los 4 pilares de documentación:
+      - `docs/guides/user_manual.md`: ¿Hay nuevas funciones o cambios de UX?
+      - `docs/guides/audio.md`: ¿Nuevos parámetros de voz, cambios en el motor o auditoría?
+      - `docs/guides/database.md`: ¿Cambió el esquema, RLS o diccionarios?
+      - `docs/guides/designs.md`: ¿Nuevos componentes Skia, fuentes o assets visuales?
+    - *Validación*: El usuario debe confirmar que estos docs reflejan la realidad v2.x del proyecto.
 
 6. **Control de Versiones y Commit**
    - **Verificación**: Comparar versión en `package.json` vs el último `git tag`.

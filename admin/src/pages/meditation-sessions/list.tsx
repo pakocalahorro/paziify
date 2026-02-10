@@ -1,13 +1,45 @@
 import { List, useTable, TagField, EditButton, DeleteButton } from "@refinedev/antd";
-import { Table, Space } from "antd";
+import { Table, Space, Form, Input, Button } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 
 export const MeditationSessionList = () => {
-    const { tableProps } = useTable({
+    const { tableProps, searchFormProps } = useTable({
         resource: "meditation_sessions_content",
+        onSearch: (params: any) => {
+            const filters = [];
+            if (params.title) {
+                filters.push({
+                    field: "title",
+                    operator: "contains",
+                    value: params.title,
+                });
+            }
+            return filters;
+        },
     });
 
     return (
         <List>
+            <Form
+                {...searchFormProps}
+                layout="inline"
+                onFinish={(values) => searchFormProps.onFinish?.(values)}
+                style={{ marginBottom: "16px", display: "flex", justifyContent: "flex-end" }}
+            >
+                <Form.Item name="title">
+                    <Input
+                        placeholder="Buscar por título..."
+                        prefix={<SearchOutlined />}
+                        allowClear
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Button type="primary" htmlType="submit">
+                        Buscar
+                    </Button>
+                </Form.Item>
+            </Form>
+
             <Table {...tableProps} rowKey="id">
                 <Table.Column
                     dataIndex="thumbnail_url"
@@ -46,9 +78,9 @@ export const MeditationSessionList = () => {
                 />
                 <Table.Column dataIndex="slug" title="Slug" />
                 <Table.Column
-                    dataIndex="is_plus"
-                    title="Premium"
-                    render={(value) => <TagField value={value ? "Plus" : "Free"} color={value ? "gold" : "default"} />}
+                    dataIndex="is_premium"
+                    title="Plus"
+                    render={(value) => <TagField value={value ? "Yes" : "No"} color={value ? "gold" : "default"} />}
                 />
                 <Table.Column
                     title="Actions"

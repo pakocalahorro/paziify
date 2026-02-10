@@ -1,4 +1,4 @@
-import { DateField, List, useTable, EditButton, ShowButton, DeleteButton } from "@refinedev/antd";
+import { DateField, List, useTable, EditButton, TagField, DeleteButton } from "@refinedev/antd";
 import { Table, Space, Image } from "antd";
 
 export const AcademyModuleList = () => {
@@ -19,6 +19,11 @@ export const AcademyModuleList = () => {
                 <Table.Column dataIndex="category" title="Category" />
                 <Table.Column dataIndex="author" title="Author" />
                 <Table.Column dataIndex="duration" title="Duration" />
+                <Table.Column
+                    dataIndex="is_premium"
+                    title="Plus"
+                    render={(value) => <TagField value={value ? "Yes" : "No"} color={value ? "gold" : "default"} />}
+                />
                 <Table.Column
                     title="Actions"
                     dataIndex="actions"
