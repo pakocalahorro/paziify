@@ -604,7 +604,10 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
             setCountdownValue(3);
             setTimeout(() => {
                 setSessionState('COMPLETED');
-                navigation.navigate(Screen.SESSION_END);
+                navigation.navigate(Screen.SESSION_END, {
+                    sessionId: sessionRef.current?.id || 'unknown',
+                    durationMinutes: sessionRef.current?.durationMinutes || 1
+                });
             }, 2000);
         }
     }, [sessionState]);

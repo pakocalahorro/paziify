@@ -23,8 +23,9 @@ export enum Screen {
     CBT_QUIZ = 'CBT_QUIZ', // Added
     COMMUNITY = 'COMMUNITY',
     PAYWALL = 'PAYWALL',
+    SESSION_DETAIL = 'SESSION_DETAIL',
     COMPASS = 'COMPASS',
-    MANIFESTO = 'MANIFESTO',
+    SPIRITUAL_PRELOADER = 'SPIRITUAL_PRELOADER',
 }
 
 export interface UserState {
@@ -41,6 +42,9 @@ export interface UserState {
     isPlusMember: boolean;
     totalMinutes?: number;
     lastSessionDate?: string;
+    lastEntryDate?: string; // New: To track daily ritual
+    lifeMode?: 'growth' | 'healing'; // New: To persist selection
+    lastSelectedBackgroundUri?: string; // New: To persist chosen image
     completedLessons?: string[];
     favoriteSessionIds?: string[];
     completedSessionIds?: string[];
@@ -52,6 +56,9 @@ export interface UserState {
         quietHoursStart: string; // "22:00"
         quietHoursEnd: string;   // "07:00"
     };
+    dailyGoalMinutes?: number;
+    weeklyGoalMinutes?: number;
+    hasAcceptedMonthlyChallenge?: boolean;
 }
 
 export interface Session {
@@ -113,6 +120,7 @@ export interface RealStory {
     is_premium: boolean;
     source_platform?: string;
     source_attribution?: string;
+    thumbnail_url?: string;
 }
 
 export interface MeditationSessionContent {
@@ -175,7 +183,8 @@ export type RootStackParamList = {
     [Screen.STORY_DETAIL]: { storyId: string };
     [Screen.TRANSITION_TUNNEL]: { sessionId?: string };
     [Screen.BREATHING_TIMER]: { sessionId: string };
-    [Screen.SESSION_END]: undefined;
+    [Screen.SESSION_END]: { sessionId: string; durationMinutes: number };
+    [Screen.SESSION_DETAIL]: { sessionId: string };
     [Screen.PROFILE]: undefined;
     [Screen.WEEKLY_REPORT]: undefined;
     [Screen.CBT_ACADEMY]: undefined;
@@ -185,7 +194,7 @@ export type RootStackParamList = {
     [Screen.COMMUNITY]: undefined;
     [Screen.PAYWALL]: undefined;
     [Screen.COMPASS]: undefined;
-    [Screen.MANIFESTO]: { mode: 'healing' | 'growth' };
+    [Screen.SPIRITUAL_PRELOADER]: undefined;
     MainTabs: { mode?: 'healing' | 'growth' } | undefined;
 };
 

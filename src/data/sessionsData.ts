@@ -14,7 +14,7 @@ export interface MeditationSession {
   durationMinutes: number;
 
   // Categorización
-  category: 'ansiedad' | 'despertar' | 'sueno' | 'mindfulness' | 'resiliencia' | 'salud' | 'rendimiento' | 'emocional' | 'kids' | 'habitos' | 'calmasos';
+  category: 'despertar' | 'sueno' | 'mindfulness' | 'resiliencia' | 'salud' | 'rendimiento' | 'emocional' | 'kids' | 'habitos' | 'calmasos';
   moodTags: string[];
   timeOfDay: 'mañana' | 'tarde' | 'noche' | 'cualquiera';
   difficultyLevel: 'principiante' | 'intermedio' | 'avanzado';

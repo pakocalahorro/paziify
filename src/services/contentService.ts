@@ -574,3 +574,50 @@ export const favoritesService = {
         return stories || [];
     },
 };
+
+export const contentService = {
+    /**
+     * Get a random background image from Supabase based on user intention (Sanar vs Crecer)
+     */
+    async getRandomCategoryImage(mode: 'healing' | 'growth'): Promise<string | null> {
+        // Updated to strictly match audited categories in audio.md and Supabase
+        const targetCategories = mode === 'healing'
+            ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
+            : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
+
+        try {
+            // Priority 1: Sessions with valid thumbnails
+            const { data: sessions, error: sessionsError } = await supabase
+                .from('meditation_sessions_content')
+                .select('thumbnail_url')
+                .in('category', targetCategories)
+                .not('thumbnail_url', 'is', null)
+                .neq('thumbnail_url', '')
+                .limit(20);
+
+            if (!sessionsError && sessions && sessions.length > 0) {
+                const randomIndex = Math.floor(Math.random() * sessions.length);
+                return sessions[randomIndex].thumbnail_url;
+            }
+
+            // Priority 2: Audiobooks with valid images if no sessions found
+            const { data: audiobooks, error: audiobooksError } = await supabase
+                .from('audiobooks')
+                .select('image_url')
+                .in('category', targetCategories)
+                .not('image_url', 'is', null)
+                .neq('image_url', '')
+                .limit(20);
+
+            if (!audiobooksError && audiobooks && audiobooks.length > 0) {
+                const randomIndex = Math.floor(Math.random() * audiobooks.length);
+                return (audiobooks[randomIndex] as any).image_url;
+            }
+
+            return null;
+        } catch (error) {
+            console.error('Error fetching random category image:', error);
+            return null;
+        }
+    }
+};

@@ -182,7 +182,15 @@ const BackgroundPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    if (!soundscape) return null;
+    if (!soundscape || loadingSoundscape) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <BackgroundWrapper nebulaMode="growth" />
+                <ActivityIndicator size="large" color="#2DD4BF" />
+                <Text style={{ color: '#FFF', marginTop: 20, opacity: 0.6 }}>Armonizando ambiente...</Text>
+            </View>
+        );
+    }
 
     const togglePlay = () => {
         if (isPlaying) pause();

@@ -21,11 +21,13 @@ import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
 import QuizScreen from '../screens/Academy/QuizScreen';
 import AcademyCourseDetailScreen from '../screens/Academy/AcademyCourseDetailScreen'; // Added
-import BackgroundSoundScreen from '../screens/BackgroundSound/BackgroundSoundScreen'; // New
-import BackgroundPlayerScreen from '../screens/BackgroundSound/BackgroundPlayerScreen'; // New
+import BackgroundSoundScreen from '../screens/BackgroundSound/BackgroundSoundScreen';
+import BackgroundPlayerScreen from '../screens/BackgroundSound/BackgroundPlayerScreen';
 import CompassScreen from '../screens/Sanctuary/CompassScreen';
-import ManifestoScreen from '../screens/Sanctuary/ManifestoScreen';
+import SpiritualPreloader from '../screens/Sanctuary/SpiritualPreloader';
 import StoryDetailScreen from '../screens/Content/StoryDetailScreen';
+import SessionDetailScreen from '../screens/Meditation/SessionDetailScreen';
+import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
 
 import { View, ActivityIndicator } from 'react-native';
 
@@ -59,8 +61,8 @@ const AppNavigatorContent = () => {
                     </>
                 ) : (
                     <>
+                        <Stack.Screen name={Screen.SPIRITUAL_PRELOADER} component={SpiritualPreloader} />
                         <Stack.Screen name={Screen.COMPASS} component={CompassScreen} />
-                        <Stack.Screen name={Screen.MANIFESTO} component={ManifestoScreen} />
                         <Stack.Screen name="MainTabs" component={TabNavigator} />
                         <Stack.Screen name={Screen.NOTIFICATION_SETTINGS} component={NotificationSettings} />
                         <Stack.Screen name={Screen.STORY_DETAIL} component={StoryDetailScreen} />
@@ -71,6 +73,8 @@ const AppNavigatorContent = () => {
                         <Stack.Screen name={Screen.CBT_DETAIL} component={CBTDetailScreen} />
                         <Stack.Screen name={Screen.ACADEMY_COURSE_DETAIL} component={AcademyCourseDetailScreen} />
                         <Stack.Screen name={Screen.CBT_QUIZ} component={QuizScreen} />
+                        <Stack.Screen name={Screen.AUDIOBOOK_PLAYER} component={AudiobookPlayerScreen} />
+                        <Stack.Screen name={Screen.SESSION_DETAIL} component={SessionDetailScreen} />
 
                         {/* Background Music Features */}
                         <Stack.Screen

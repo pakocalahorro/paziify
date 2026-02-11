@@ -1,72 +1,44 @@
 ---
-description: Guardar el progreso de la sesión actual
+description: Guardar el progreso de la sesión actual (Protocolo de Alta Fidelidad)
 ---
 
-# Workflow: Session End
+# Workflow: Session End (Protocolo v3.0) 🛡️
 
-Este workflow se ejecuta al finalizar una sesión de trabajo para documentar todo lo realizado.
+Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecuta para garantizar que **ni un solo detalle técnico o visual** se pierda entre versiones.
 
-## Pasos:
+## Pasos Obligatorios:
 
-1. **Revisar el trabajo realizado (VISION HOLÍSTICA)**
-   - **CRÍTICO: Leer `task.md` y `walkthrough.md` completos** para identificar todas las tareas marcadas como `[x]` y los hitos registrados en esta sesión.
-   - **Historial de Chat**: Revisar los mensajes del usuario para recordar objetivos mayores (ej. "Implementar X", "Refactorizar Y").
-   - **Archivos Modificados**: Usar `git status` como apoyo secundario.
+### 1. Auditoría de Fidelidad Total (INVESTIGACIÓN PROFUNDA) 🔍
+   - **Línea a Línea**: Leer toda la conversación del chat. Identificar:
+     - **Métricas Visuales**: Tiempos (ms), opacidades, pesos de fuente, colores hex, letter-spacing.
+     - **Lógica de Flujo**: Condiciones de navegación (`if/else`), triggers diarios, resets de estado.
+     - **Refinamientos Estéticos**: Cambios en "feeling", glassmorphism, efectos de partículas.
+     - **Bug Fixes Específicos**: Registrar la causa raíz y la solución técnica exacta (no solo el título).
+   - **Cotejo de Artefactos**: Leer `task.md` y `walkthrough.md` previos. Cada `[x]` debe tener una explicación técnica en la nota de sesión.
 
-
-2. **Crear nota de sesión** si ya existe una nota en el mismo dia se crea otra nueva con otro nombre indicando los nuevos cambios.
+### 2. Creación de la Nota de Sesión (Registro Histórico) 📝
    - Archivo: `docs/sessions/YYYY-MM-DD_descripcion.md`
-   - Formato:
-     ```markdown
-     # Sesión [Fecha] - [Título]
-     
-     ## Resumen
-     [Descripción breve]
-     
-     ## Logros
-     - [Lista de logros]
-     
-     ## Problemas
-     - [Problemas encontrados]
-     
-     ## Próximos Pasos
-     - [Tareas pendientes]
-     
-     ## Progreso
-     [Estado del milestone actual]
-     ```
+   - **Requisito**: Si hay cambios masivos, dividir por "Hitos Críticos" (ej: Hito 1: Flujo Espiritual, Hito 2: Cloud Sync).
+   - **Detalle Técnico**: Incluir snippets de lógica crítica o configuraciones de Supabase/Storage si fueron modificadas.
 
-3. **Walkthrough & Infraestructura**
-   - **Obligatorio**: Actualizar `walkthrough.md` con un resumen técnico acumulativo de los logros.
-   - **Condicional**: Si hubo cambios de entorno (scripts, build, etc.), actualizar `README.md`.
+### 3. Sincronización en Cascada de Documentos de Ayuda (OBLIGATORIO) 🌊
+   Para cada cambio identificado en el paso 1, **DEBES** actualizar el manual correspondiente:
+   - **`walkthrough.md`**: El "Documento Maestro". Debe ser una radiografía técnica 1:1 de los hitos de hoy.
+   - **`README.md`**: Actualizar Versión (vX.X.X), Resumen de novedades y Roadmap.
+   - **`docs/guides/user_manual.md`**: Actualizar capturas de pasos, flujos de usuario y advertencias de uso.
+   - **`docs/guides/database.md`**: Detallar nuevas columnas, triggers, RLS y cambios en diccionarios JSONB.
+   - **`docs/guides/designs.md`**: Registrar nuevos componentes Skia/Reanimated, principios estéticos y paletas de color.
+   - **`docs/guides/audio.md`**: Actualizar parámetros TTS, motor de mezcla o auditoría de catálogo.
 
-4. **Guías Técnicas & README (Actualización en Cascada)** 
-    - **README**: El archivo `README.md` **DEBE** actualizarse con la nueva versión y el resumen de cambios destacados.
-    - **Base de Datos**: Si hubo cambios en esquema/auth -> Actualizar `docs/guides/database.md`.
-    - **Audio**: Si hubo cambios en voces, motor o auditoría -> Actualizar `docs/guides/audio.md`.
-    - **Diseño**: Si hubo cambios visuales/Skia -> Actualizar `docs/guides/designs.md`.
-    - **Manual de Usuario**: Si hubo cambios funcionales -> Actualizar `docs/guides/user_manual.md`.
+### 4. Reconciliación Cruzada (Double Check) ✅
+   - Pregúntate: "¿Si pierdo el chat ahora mismo, podría reconstruir exactamente el comportamiento de la app leyendo estos documentos?"
+   - Si la respuesta es NO, vuelve al paso 3.
+   - **CEO Audit Vision**: Verificar que el "alma" del cambio (ej: el motivo espiritual de una pausa de 3.5s) esté documentado, no solo la variable `TIMEOUT = 3500`.
 
-5. **Documentación Técnica & Funcional (OBLIGATORIO)**
-    - **Antes de cerrar**, revisa y actualiza los 5 pilares de documentación:
-      - `README.md`: ¿La versión y el roadmap están al día?
-      - `docs/guides/user_manual.md`: ¿Hay nuevas funciones o cambios de UX?
-      - `docs/guides/audio.md`: ¿Nuevos parámetros de voz, cambios en el motor o auditoría?
-      - `docs/guides/database.md`: ¿Cambió el esquema, RLS o diccionarios?
-      - `docs/guides/designs.md`: ¿Nuevos componentes Skia, fuentes o assets visuales?
-    - *Validación*: El usuario debe confirmar que estos docs reflejan la realidad v2.x del proyecto.
+### 5. Consolidación de Git 💾
+   - **Versión**: Actualizar `package.json` coherente con la magnitud de los cambios.
+   - **Commit**: Mensaje descriptivo y profesional.
+   - **Tagging (VITAL)**: Crear `git tag vX.X.X` coincidente. Sin tag, la sesión no se considera cerrada técnicamente.
 
-6. **Control de Versiones y Commit**
-   - **Verificación**: Comparar versión en `package.json` vs el último `git tag`.
-   - **Decisión**: 
-     - Si los cambios son menores/fix -> Mantener versión o patch (+0.0.1).
-     - Si son nuevas features -> Minor (+0.1.0).
-     - Si es refactor mayor -> Major (+1.0.0).
-   - **Commit**: Crear commit con mensaje descriptivo (ej: `feat: ...`, `fix: ...`).
-   - **Tagging (CRÍTICO)**: Generar SIEMPRE el tag correspondiente (ej: `git tag v1.2.0`) para mantener sincronía.
-
-## Ubicaciones de Documentos:
-
-- **Sesiones:** `docs/sessions/`
-- **Workflows:** `.agent/workflows/`
-- **Guias:** `docs/guides/`
+---
+*Este protocolo es innegociable para asegurar la continuidad del proyecto Paziify.*

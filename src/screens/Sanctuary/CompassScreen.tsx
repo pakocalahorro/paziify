@@ -29,6 +29,8 @@ import { RootStackParamList, Screen } from '../../types';
 import PortalBackground from '../../components/Sanctuary/PortalBackground';
 import StarCore from '../../components/Sanctuary/StarCore';
 import * as Haptics from 'expo-haptics';
+import { useApp } from '../../context/AppContext';
+import { contentService } from '../../services/contentService';
 
 const { width, height } = Dimensions.get('window');
 const THRESHOLD = 160;
@@ -39,7 +41,25 @@ const CompassScreen = () => {
 
     // Interaction State
     const translateY = useSharedValue(0);
+    const touchScale = useSharedValue(1); // Added for pulse effect
     const [isNavigating, setIsNavigating] = useState(false);
+    const [backgrounds, setBackgrounds] = useState<{ healing: string | null; growth: string | null }>({
+        healing: null,
+        growth: null
+    });
+
+    const { setLastSelectedBackgroundUri, markEntryAsDone, updateUserState } = useApp();
+
+    React.useEffect(() => {
+        const loadBgs = async () => {
+            const [h, g] = await Promise.all([
+                contentService.getRandomCategoryImage('healing'),
+                contentService.getRandomCategoryImage('growth')
+            ]);
+            setBackgrounds({ healing: h as string, growth: g as string });
+        };
+        loadBgs();
+    }, []);
 
     const progress = useDerivedValue(() => {
         // -1 (Drag Up -> Healing) to 1 (Drag Down -> Growth)
@@ -51,14 +71,35 @@ const CompassScreen = () => {
         );
     });
 
-    const navigateToMode = (mode: 'healing' | 'growth') => {
+
+
+    const navigateToMode = async (mode: 'healing' | 'growth') => {
         if (isNavigating) return;
         setIsNavigating(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        navigation.navigate(Screen.MANIFESTO, { mode });
+
+        // 1. Use already loaded background for this session
+        const bgUri = backgrounds[mode];
+        if (bgUri) {
+            setLastSelectedBackgroundUri(bgUri); // Context state
+        }
+
+        // 2. Mark ritual as done for today and persist mode + specific image
+        updateUserState({
+            lastEntryDate: new Date().toISOString().split('T')[0],
+            lifeMode: mode,
+            lastSelectedBackgroundUri: bgUri || undefined
+        });
+
+        // 3. Go directly to Home (MainTabs)
+        navigation.replace('MainTabs', { mode });
     };
 
     const gesture = Gesture.Pan()
+        .onBegin(() => {
+            touchScale.value = withSpring(1.5, { damping: 10, stiffness: 100 });
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+        })
         .onUpdate((event) => {
             translateY.value = event.translationY;
 
@@ -68,6 +109,7 @@ const CompassScreen = () => {
             }
         })
         .onEnd(() => {
+            touchScale.value = withSpring(1);
             if (translateY.value < -THRESHOLD) {
                 runOnJS(navigateToMode)('growth');
             } else if (translateY.value > THRESHOLD) {
@@ -75,6 +117,9 @@ const CompassScreen = () => {
             } else {
                 translateY.value = withSpring(0, { damping: 15, stiffness: 100 });
             }
+        })
+        .onFinalize(() => {
+            touchScale.value = withSpring(1);
         });
 
     useFocusEffect(
@@ -88,7 +133,7 @@ const CompassScreen = () => {
     const starAnimatedStyle = useAnimatedStyle(() => ({
         transform: [
             { translateY: translateY.value },
-            { scale: interpolate(Math.abs(translateY.value), [0, THRESHOLD], [1, 1.5], Extrapolation.CLAMP) }
+            { scale: interpolate(Math.abs(translateY.value), [0, THRESHOLD], [1, 1.5], Extrapolation.CLAMP) * touchScale.value }
         ],
         opacity: interpolate(Math.abs(translateY.value), [THRESHOLD - 20, THRESHOLD], [1, 0], Extrapolation.CLAMP)
     }));
@@ -109,7 +154,11 @@ const CompassScreen = () => {
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
             {/* Full Screen Immersive Background */}
-            <PortalBackground progress={progress} />
+            <PortalBackground
+                progress={progress}
+                healingImage={backgrounds.healing || undefined}
+                growthImage={backgrounds.growth || undefined}
+            />
 
             <GestureDetector gesture={gesture}>
                 <View style={[styles.mainContainer, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 40 }]}>

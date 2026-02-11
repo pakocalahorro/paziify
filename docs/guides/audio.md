@@ -21,7 +21,8 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 *   **Sincronización Quirúrgica**: 
     - **Compensación Aditiva**: El motor visual suma dinámicamente el tiempo de voz para evitar la desincronización por "drift".
     - **Offset de Anticipación**: Adelanto visual de 350ms respecto al audio para una respuesta intuitiva.
-*   **Protocolo de Nomenclatura ASCII**: Todos los archivos y URLs deben ser 100% ASCII (ej. `sueno` en lugar de `sueño`) para evitar errores en la nube.
+*   **Protocolo de Nomenclatura ASCII**: Todos los archivos y URLs deben ser 100% ASCII (ej. `sueno`, `lluvia`, `bosque`, `cosmos`). Hemos estandarizado los paisajes sonoros para evitar errores de carga.
+*   **Security Hardening (RLS)**: Los buckets de audio (`meditation-voices`, `audiobooks`, `soundscapes`) cuentan con políticas RLS de lectura protegida para garantizar la integridad del contenido.
 
 ### Reproductor Global y Persistencia (`AudioPlayerContext.tsx`)
 Para audiolibros e historias:
@@ -218,4 +219,4 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
    - **Gaia**: 100% OK (Identidad Infantil/Dulce aplicada).
 
 ---
-*Última revisión: 10 de Febrero de 2026 - Guía Consolidada v2.5*
+*Última revisión: 11 de Febrero de 2026 - Versión 2.6.5 (Spiritual & Security Audit)*

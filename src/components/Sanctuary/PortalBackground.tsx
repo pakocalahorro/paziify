@@ -13,9 +13,11 @@ const { width, height } = Dimensions.get('window');
 
 interface PortalBackgroundProps {
     progress: SharedValue<number>; // -1 (Healing) to 1 (Growth)
+    healingImage?: string;
+    growthImage?: string;
 }
 
-const PortalBackground: React.FC<PortalBackgroundProps> = ({ progress }) => {
+const PortalBackground: React.FC<PortalBackgroundProps> = ({ progress, healingImage, growthImage }) => {
     // Opacity for Growth Portal (Upper half / Drag down)
     const growthStyle = useAnimatedStyle(() => ({
         opacity: interpolate(progress.value, [0, 1], [0, 1], Extrapolation.CLAMP),
@@ -36,7 +38,7 @@ const PortalBackground: React.FC<PortalBackgroundProps> = ({ progress }) => {
             {/* Growth World - Radiant Energy */}
             <Animated.View style={[StyleSheet.absoluteFill, growthStyle]}>
                 <Image
-                    source={{ uri: IMAGES.ACADEMY_HERO || 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&q=80&w=1000' }}
+                    source={{ uri: growthImage || IMAGES.ACADEMY_HERO || 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&q=80&w=1000' }}
                     style={styles.image}
                     resizeMode="cover"
                 />
@@ -46,7 +48,7 @@ const PortalBackground: React.FC<PortalBackgroundProps> = ({ progress }) => {
             {/* Healing World - Deep Nature */}
             <Animated.View style={[StyleSheet.absoluteFill, healingStyle]}>
                 <Image
-                    source={{ uri: IMAGES.DAY }}
+                    source={{ uri: healingImage || IMAGES.DAY }}
                     style={styles.image}
                     resizeMode="cover"
                 />

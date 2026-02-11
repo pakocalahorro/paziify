@@ -1,4 +1,4 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.0.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.6.5) 🔐
 
 Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La seguridad y la escalabilidad son los pilares de este diseño, con un enfoque centrado en la privacidad mediante **Row Level Security (RLS)**.
 
@@ -7,209 +7,60 @@ Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase 
 ## 1. Principio de Seguridad: Row Level Security (RLS) 🛡️
 
 En Paziify, la privacidad es una característica innegociable. Todas las tablas tienen RLS activado.
-
-- **Aislamiento Total**: Cada registro está vinculado a un `user_id` (o ID de perfil) que referencia a `auth.users`.
-- **Validación en Servidor**: Las políticas de PostgreSQL impiden que un usuario acceda o manipule datos que no le pertenecen.
+- **Aislamiento Total**: Cada registro está vinculado a un `user_id` que referencia a `auth.users`.
 
 ---
 
 ## 2. Diccionario de Datos (Esquema Public)
 
-### 1. Tablas Core (Meditación)
-
-### `meditation_sessions_content` 🧘
-Nueva tabla para gestionar la lógica de las sesiones de meditación (v1.4).
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `id` | UUID (PK) | Identificador único |
-| `slug` | TEXT | Identificador corto (ej: `box_breathing`) |
-| `audio_layers` | JSONB | Configuración de capas (Voces, Paisajes, Ondas) |
-| `breathing_config` | JSONB | Tiempos de inhalación, exhalación y retención |
-| `is_plus` | BOOLEAN | Acceso premium |
-
-### `profiles`
-Extensión del perfil de usuario para gamificación y personalización.
+### `profiles` (Personalización & Cloud Sync) ☁️
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `id` | UUID (PK) | Referencia a `auth.users.id` |
 | `full_name` | TEXT | Nombre completo del usuario |
 | `avatar_url` | TEXT | URL de la imagen de perfil |
 | `streak` | INTEGER | Racha actual de días consecutivos |
-| `resilience_score` | INTEGER | Puntuación acumulada de bienestar (0-100) |
+| `resilience_score` | INTEGER | Puntuación de bienestar (0-100) |
 | `is_plus_member` | BOOLEAN | Estado de suscripción premium |
+| `has_accepted_monthly_challenge` | BOOLEAN | Estado del Reto de 30 días |
+| `daily_goal_minutes` | INTEGER | Meta diaria (recalibra analíticas) |
+| `weekly_goal_minutes` | INTEGER | Meta semanal (recalibra analíticas) |
+| `life_mode` | TEXT | Enfoque actual: 'growth' o 'healing' |
+| `last_selected_background_uri` | TEXT | Fondo místico de la Brújula |
+| `last_entry_date` | TEXT | Fecha del último ritual (YYYY-MM-DD) |
+| `favorite_session_ids` | JSONB | IDs favoritos (100% Cloud Sync) |
+| `completed_session_ids` | JSONB | Historial de sesiones (100% Cloud Sync) |
+| `notification_settings` | JSONB | Ajustes y recordatorios (100% Cloud Sync) |
 
-### `meditation_logs`
-Histórico de sesiones completadas.
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `id` | UUID (PK) | Identificador único del log |
-| `user_id` | UUID (FK) | Relación con el usuario |
-| `session_id` | TEXT | ID de la sesión (ej: `anx_box`) |
-| `duration_minutes` | INTEGER | Minutos meditados en esa sesión |
-
-### `community_posts`
-Espacio social para reflexiones y apoyo.
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `user_id` | UUID (FK) | Creador del post |
-| `content` | TEXT | Reflexión escrita |
-| `mood_index` | INTEGER | Estado de ánimo asociado |
-| `likes_count`| INTEGER | Apoyo recibido ("Paz") |
-
-### `audiobooks` 📚
-Catálogo de audiolibros de dominio público.
+### `meditation_sessions_content` 🧘
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `id` | UUID (PK) | Identificador único |
-| `title` | TEXT | Título de la obra |
-| `author` | TEXT | Autor |
-| `audio_url` | TEXT | URL del archivo MP3 en Storage |
-| `duration_minutes` | INTEGER | Duración en minutos |
-| `category` | TEXT | Categoría (anxiety, growth, etc.) |
-| `is_premium` | BOOLEAN | Control de acceso Plus |
+| `slug` | TEXT | Identificador corto (ej: `box_breathing`) |
+| `audio_layers` | JSONB | Configuración de Voces, Paisajes, Ondas |
+| `breathing_config` | JSONB | Tiempos de inhalación/exhalación |
+| `is_plus` | BOOLEAN | Control de acceso premium |
 
-### `real_stories` 🌟
-Testimonios reales y artículos de inspiración.
+### `real_stories` 🌟 (Historias Maestras)
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `id` | UUID (PK) | Identificador único |
 | `title` | TEXT | Título de la historia |
-| `content` | TEXT | Cuerpo del texto (soporta Markdown) |
-| `content` | TEXT | Cuerpo del texto (soporta Markdown) |
-| `image_url` | TEXT | Portada representativa |
-| `character_name` | TEXT | Nombre del protagonista (Mentes Maestras) |
-| `character_role` | TEXT | Rol/Profesión del protagonista |
-| `transformation_theme` | TEXT | Tema principal (Ansiedad, Resiliencia, etc.) |
-| `reading_time_minutes` | INTEGER | Tiempo de lectura estimado |
-| `tags` | ARRAY | Etiquetas temáticas |
-| `created_at` | TIMESTAMPTZ | Fecha de creación (ordenación) |
-
-### `user_favorites_content` ⭐
-Sistema unificado de marcadores para la biblioteca.
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `user_id` | UUID (FK) | Dueño del favorito |
-| `content_id` | UUID (FK) | ID del audiolibro o historia |
-| `content_type`| TEXT | 'audiobook' o 'story' |
+| `content` | TEXT | Texto editorial (Markdown) |
+| `image_url` | TEXT | Portada representativa (WebP) |
+| `character_name` | TEXT | Protagonista (ej: Steve Jobs) |
+| `character_role` | TEXT | Profesión/Rol |
+| `transformation_theme` | TEXT | Ansiedad, Resiliencia, etc. |
 
 ---
 
-## 3. Esquema Educativo (Academia v2.3) 🎓
-
-La infraestructura de la Academia es relacional y jerárquica.
-
-### `courses`
-Catálogo de cursos disponibles.
-| Campo | Tipo | Descripción |
+## 3. Almacenamiento (Supabase Storage) ☁️
+| Bucket | Contenido | Política |
 | :--- | :--- | :--- |
-| `id` | UUID (PK) | Identificador único |
-| `title` | TEXT | Título del curso (ej: Autoconfianza) |
-| `category_id` | TEXT | Categoría (anxiety, growth, etc.) |
-| `description` | TEXT | Resumen del curso |
-| `image_url` | TEXT | Portada del curso |
-| `is_published`| BOOLEAN | Control de visibilidad |
-
-### `modules`
-Agrupación lógica de lecciones.
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `id` | UUID (PK) | Identificador único |
-| `course_id` | UUID (FK) | Curso al que pertenece |
-| `title` | TEXT | Título del módulo |
-| `order_index` | INTEGER | Orden de aparición |
-
-### `lessons`
-Unidad mínima de contenido.
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `id` | UUID (PK) | Identificador único |
-| `module_id` | UUID (FK) | Módulo padre |
-| `title` | TEXT | Título de la lección |
-| `content_text`| TEXT | Contenido educativo (Markdown) |
-| `audio_url` | TEXT | URL del audio guía TTS |
-| `duration_min`| INTEGER | Estimación de tiempo |
-| `order_index` | INTEGER | Secuencia de aprendizaje |
-
-### `user_course_progress` 📊
-Rastreo de avance del estudiante.
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `user_id` | UUID (FK) | Estudiante |
-| `course_id` | UUID (FK) | Curso en progreso |
-| `lesson_id` | UUID (FK) | Última lección completada |
-| `is_completed`| BOOLEAN | ¿Curso finalizado? |
-| `completed_at`| TIMESTAMPTZ | Fecha de graduación |
+| `meditation-voices` | Voces 101 sesiones | Public Read |
+| `meditation-thumbnails`| Portadas IA / WebP | Public Read |
+| `audiobooks` | Archivos MP3 narrados | Public Read |
+| `soundscapes` | Ambientes infinitos | Public Read |
 
 ---
-
-## 4. Políticas de Seguridad (RLS) 🔐
-
-```sql
--- Contenido Público / Educativo
-CREATE POLICY "Lectura pública" ON courses FOR SELECT USING (true);
-CREATE POLICY "Lectura pública" ON modules FOR SELECT USING (true);
-CREATE POLICY "Lectura pública" ON lessons FOR SELECT USING (true);
-
--- Progreso del Estudiante (Privado)
-CREATE POLICY "Dueño gestiona su progreso" ON user_course_progress
-  FOR ALL USING (auth.uid() = user_id);
-
--- Contenido Público (Lectura para todos)
-CREATE POLICY "Lectura pública" ON audiobooks FOR SELECT USING (true);
-CREATE POLICY "Lectura pública" ON real_stories FOR SELECT USING (true);
--- Permisos de escritura para 'real_stories' habilitados en desarrollo para población de datos
-CREATE POLICY "Escritura pública (Dev)" ON real_stories FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modificación pública (Dev)" ON real_stories FOR DELETE USING (true);
-
--- Favoritos (Privacidad total por usuario)
-CREATE POLICY "Solo dueño gestiona favoritos" ON user_favorites_content
-  FOR ALL USING (auth.uid() = user_id);
-
--- Perfiles y Logs
-CREATE POLICY "Dueño gestiona sus datos" ON profiles FOR ALL USING (auth.uid() = id);
-CREATE POLICY "Dueño gestiona sus logs" ON meditation_logs FOR ALL USING (auth.uid() = user_id);
-
--- Storage / Almacenamiento (Fix 2026-02-10)
--- Se han habilitado políticas de lectura pública y subida autenticada para los buckets de gestión masiva.
-CREATE POLICY "Lectura pública de assets" ON storage.objects FOR SELECT USING (bucket_id IN ('meditation-voices', 'meditation-thumbnails', 'audiobooks'));
-CREATE POLICY "Admin gestiona storage" ON storage.objects FOR ALL USING (auth.role() = 'authenticated');
-```
-
----
-
-## 5. Automatizaciones y Triggers ⚡
-
-### Creación Automática de Perfil
-Cada registro en `auth.users` dispara la creación de un perfil en `public.profiles` mediante el trigger `on_auth_user_created`. 
-*   **Fix 2026-01-29**: Se ha robustecido la función pl/pgsql para manejar metadatos de Google (`raw_user_meta_data`) y asignar nombres/avatares por defecto si faltan, evitando errores de "Perfil no encontrado".
-
----
-
-## 6. Almacenamiento (Supabase Storage) ☁️
-Paziify utiliza buckets públicos para servir contenido multimedia optimizado:
-
-| Bucket | Contenido | Política de Acceso |
-| :--- | :--- | :--- |
-| `audiobooks` | Archivos MP3 de audiolibros | Public Read |
-| `binaurals` | Frecuencias binaurales (.mp3) | Public Read |
-| `soundscapes` | Ambientes de fondo (lluvia, bosque) | Public Read |
-| `images` | Assets UI estáticos | Public Read |
-| `meditation-voices` | Voces pre-grabadas de las 101 sesiones | Public Read |
-| `meditation-thumbnails`| Imágenes IA de las 101 sesiones | Public Read |
-| `academy-assets` | Portadas de cursos y lecciones | Public Read |
-
-> [!TIP]
-> Para detalles sobre la organización de las 101 sesiones y la estrategia de "Zero Local Media", consulta la **[Guía de Arquitectura de Contenido v2.0](./content_architecture_expansion.md)**.
-
----
-
-## 7. Buenas Prácticas 🚀
-
-1.  **Derecho al Olvido**: Todas las claves foráneas hacia `user_id` utilizan `ON DELETE CASCADE`.
-2.  **Consultas Seguras**: Utilizar siempre el servicio `contentService` y `academyService` (v2.3) para interactuar con estas tablas.
-3.  **Optimización**: Se recomienda el uso de índices sobre `category` y `content_type` para búsquedas rápidas en catálogos grandes.
-4.  **Estrategia Offline**: La aplicación utiliza `React Query` con persistencia en disco (`AsyncStorage`) para cachear todas las respuestas de lectura por 24 horas, permitiendo el funcionamiento sin conexión.
-5.  **Integridad Educativa**: El backend no valida el orden secuencial de lecciones (se maneja en frontend para UX), pero sí asegura que el `user_id` sea consistente.
-
----
-*Última revisión: 9 de Febrero de 2026 - Milestone 3: Academy Implementation (v2.3.0)*
+*Última revisión: 11 de Febrero de 2026 - Milestone 4: Sincronización Total & RLS Hardening (v2.6.5)*

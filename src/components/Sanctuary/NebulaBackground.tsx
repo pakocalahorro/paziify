@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import { StyleSheet, View, Dimensions, Animated, Easing } from 'react-native';
+import { StyleSheet, View, Dimensions, Animated, Easing, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 
 const { width, height } = Dimensions.get('window');
 
 interface NebulaBackgroundProps {
     mode?: 'healing' | 'growth';
+    customBackgroundImage?: string;
 }
 
 const PARTICLE_COUNT = 35;
 
-const NebulaBackground: React.FC<NebulaBackgroundProps> = ({ mode = 'healing' }) => {
+const NebulaBackground: React.FC<NebulaBackgroundProps> = ({ mode = 'healing', customBackgroundImage }) => {
     const layer1X = useRef(new Animated.Value(0)).current;
     const layer1Y = useRef(new Animated.Value(0)).current;
     const layer2X = useRef(new Animated.Value(0)).current;
@@ -34,7 +36,7 @@ const NebulaBackground: React.FC<NebulaBackgroundProps> = ({ mode = 'healing' })
             duration: Math.random() * 5000 + 4000,
             delay: Math.random() * 5000,
         }));
-    }, [mode]);
+    }, []);
 
     useEffect(() => {
         const createLoop = (val: Animated.Value, to: number, duration: number) => {
@@ -82,7 +84,18 @@ const NebulaBackground: React.FC<NebulaBackgroundProps> = ({ mode = 'healing' })
 
     return (
         <View style={styles.container}>
-            <LinearGradient colors={colors} style={StyleSheet.absoluteFillObject} />
+            {customBackgroundImage ? (
+                <>
+                    <Image
+                        source={{ uri: customBackgroundImage }}
+                        style={StyleSheet.absoluteFillObject}
+                        resizeMode="cover"
+                    />
+                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                </>
+            ) : (
+                <LinearGradient colors={colors} style={StyleSheet.absoluteFillObject} />
+            )}
 
             {/* Nebula Layers */}
             <Animated.View style={[styles.nebulaLayer, { transform: [{ translateX: layer1X }, { translateY: layer1Y }], opacity: pulseOpacity }]}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     View,
     Text,
@@ -6,13 +6,21 @@ import {
     StyleSheet,
     ScrollView,
     Alert,
+    Dimensions,
+    StatusBar,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
+import { analyticsService, UserStats, DailyActivity } from '../../services/analyticsService';
+import ResilienceTree from '../../components/Profile/ResilienceTree';
+import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+
+const { width } = Dimensions.get('window');
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -25,352 +33,536 @@ interface Props {
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState, signOut } = useApp();
+    const { userState, signOut, user, isGuest, updateUserState, isNightMode } = useApp();
+    const [stats, setStats] = useState<UserStats | null>(null);
+    const [dailyActivity, setDailyActivity] = useState<DailyActivity[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [dominantMode, setDominantMode] = useState<'healing' | 'growth' | 'neutral'>('neutral');
 
-    const chartData = [20, 35, 45, 30, 50, 65, 55, 70, 85];
+    const visualMode = userState.lifeMode || (isNightMode ? 'healing' : 'growth');
+
+    useEffect(() => {
+        const loadStats = async () => {
+            if (user?.id) {
+                setLoading(true);
+                const fetchedStats = await analyticsService.getUserStats(user.id);
+                const distribution = await analyticsService.getCategoryDistribution(user.id);
+                const activity = await analyticsService.getWeeklyActivity(user.id);
+
+                setStats(fetchedStats);
+                setDailyActivity(activity);
+
+                // Determine dominant mode for Aura
+                const healingCount = distribution
+                    .filter(d => ['anxiety', 'sleep', 'health', 'wellness', 'stress', 'ansiedad', 'sueño', 'salud'].includes(d.category))
+                    .reduce((acc, curr) => acc + curr.count, 0);
+
+                const growthCount = distribution
+                    .filter(d => ['professional', 'growth', 'career', 'relationships', 'leadership', 'success', 'carrera', 'exito'].includes(d.category))
+                    .reduce((acc, curr) => acc + curr.count, 0);
+
+                if (healingCount > growthCount) setDominantMode('healing');
+                else if (growthCount > healingCount) setDominantMode('growth');
+                else setDominantMode('neutral');
+
+                setLoading(false);
+            } else if (isGuest) {
+                setLoading(false);
+            }
+        };
+
+        loadStats();
+    }, [user, isGuest]);
+
+    const displayStats = useMemo(() => stats || {
+        totalMinutes: 0,
+        sessionsCount: 0,
+        currentStreak: userState.streak || 0,
+        resilienceScore: userState.resilienceScore || 50
+    }, [stats, userState]);
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.headerSpacer} />
-                    <Text style={styles.headerTitle}>Tu Resiliencia</Text>
-                    <TouchableOpacity
-                        style={styles.settingsButton}
-                        onPress={() => navigation.navigate(Screen.NOTIFICATION_SETTINGS)}
-                    >
-                        <Ionicons name="settings-outline" size={20} color={theme.colors.textMuted} />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Resilience Score Circle */}
-                <View style={styles.scoreContainer}>
-                    <View style={styles.scoreCircle}>
-                        <Text style={styles.scoreValue}>{userState.resilienceScore}</Text>
-                        <Text style={styles.scoreLabel}>Excelente</Text>
-                    </View>
-                    <Text style={styles.scoreDescription}>
-                        Tu línea base ha mejorado un{' '}
-                        <Text style={styles.scoreHighlight}>12%</Text> este mes.
-                    </Text>
-
-                    {!userState.isPlusMember && (
+        <View style={styles.root}>
+            <BackgroundWrapper nebulaMode={visualMode === 'healing' ? 'healing' : 'growth'} />
+            <StatusBar barStyle="light-content" />
+            <View style={[styles.container, { paddingTop: insets.top }]}>
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <View style={styles.headerSpacer} />
+                        <Text style={styles.headerTitle}>Tu Evolución</Text>
                         <TouchableOpacity
-                            style={styles.premiumBadge}
-                            onPress={() => navigation.navigate(Screen.PAYWALL)}
+                            style={styles.settingsButton}
+                            onPress={() => navigation.navigate(Screen.NOTIFICATION_SETTINGS)}
                         >
-                            <Ionicons name="sparkles" size={14} color="#000" />
-                            <Text style={styles.premiumBadgeText}>DESCUBRIR PLUS</Text>
+                            <Ionicons name="settings-outline" size={22} color={theme.colors.textMain} />
                         </TouchableOpacity>
-                    )}
-                </View>
+                    </View>
 
-                {/* Mood Improvement Chart */}
-                <TouchableOpacity
-                    style={styles.chartCard}
-                    onPress={() => navigation.navigate(Screen.WEEKLY_REPORT)}
-                    activeOpacity={0.8}
-                >
-                    <View style={styles.chartHeader}>
-                        <Text style={styles.chartTitle}>Mejora del Ánimo</Text>
-                        <View style={styles.chartBadge}>
-                            <Ionicons name="trending-up" size={12} color={theme.colors.primary} />
-                            <Text style={styles.chartBadgeText}>+12%</Text>
+                    {/* Resilience Tree Section */}
+                    <BlurView intensity={40} tint="dark" style={styles.treeSection}>
+                        <TouchableOpacity
+                            style={styles.infoIconContainer}
+                            onPress={() => Alert.alert("Tu Florecer Mensual", "Cada día que meditas enciendes una nueva luz en tu árbol. Completa el ciclo de 30 días para integrar el hábito de la paz y mejorar tu equilibrio emocional.")}
+                        >
+                            <Ionicons name="information-circle-outline" size={20} color="rgba(255,255,255,0.5)" />
+                        </TouchableOpacity>
+
+                        <ResilienceTree
+                            daysPracticed={displayStats.currentStreak} // Using streak for now as 'days in month'
+                            size={250}
+                            isGuest={isGuest}
+                        />
+                        <View style={styles.treeLabels}>
+                            <Text style={styles.treeScore}>{displayStats.currentStreak}/30</Text>
+                            <Text style={styles.treeSubtext}>Días de Calma este mes</Text>
                         </View>
-                        <Ionicons name="chevron-forward" size={16} color={theme.colors.textMuted} />
+                        {isGuest && (
+                            <TouchableOpacity
+                                style={styles.guestCTA}
+                                onPress={() => navigation.navigate(Screen.WELCOME)}
+                            >
+                                <Text style={styles.guestCTAText}>Regístrate para el Reto Mensual</Text>
+                                <Ionicons name="arrow-forward" size={14} color={theme.colors.accent} />
+                            </TouchableOpacity>
+                        )}
+                    </BlurView>
+
+                    {/* SECCIÓN DE PROPÓSITO */}
+                    <View style={styles.sectionHeader}>
+                        <View style={styles.titleWithInfo}>
+                            <Text style={styles.sectionTitle}>Tu Propósito</Text>
+                            <TouchableOpacity onPress={() => Alert.alert("Tu Propósito", "Ajusta tus metas diarias y semanales para que se adapten a tu ritmo de vida actual.")}>
+                                <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
+                            </TouchableOpacity>
+                        </View>
+                        <Ionicons name="compass-outline" size={18} color={theme.colors.primary} />
                     </View>
 
-                    {/* Simple Bar Chart */}
-                    <View style={styles.chart}>
-                        {chartData.map((heightVal, index) => (
-                            <View key={index} style={styles.barContainer}>
-                                <View style={[styles.bar, { height: `${heightVal}%` }]} />
+                    <BlurView intensity={20} tint="dark" style={styles.goalPanel}>
+                        <View style={styles.goalRow}>
+                            <View>
+                                <Text style={styles.goalLabel}>META DIARIA</Text>
+                                <View style={styles.goalValueContainer}>
+                                    <TouchableOpacity
+                                        onPress={() => updateUserState({ dailyGoalMinutes: Math.max((userState.dailyGoalMinutes || 20) - 5, 5) })}
+                                        style={styles.goalButton}
+                                    >
+                                        <Ionicons name="remove" size={20} color="#FFF" />
+                                    </TouchableOpacity>
+                                    <Text style={styles.goalValue}>{userState.dailyGoalMinutes || 20}m</Text>
+                                    <TouchableOpacity
+                                        onPress={() => updateUserState({ dailyGoalMinutes: (userState.dailyGoalMinutes || 20) + 5 })}
+                                        style={styles.goalButton}
+                                    >
+                                        <Ionicons name="add" size={20} color="#FFF" />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        ))}
+                            <View style={styles.goalDivider} />
+                            <View>
+                                <Text style={styles.goalLabel}>META SEMANAL</Text>
+                                <View style={styles.goalValueContainer}>
+                                    <TouchableOpacity
+                                        onPress={() => updateUserState({ weeklyGoalMinutes: Math.max((userState.weeklyGoalMinutes || 150) - 10, 30) })}
+                                        style={styles.goalButton}
+                                    >
+                                        <Ionicons name="remove" size={20} color="#FFF" />
+                                    </TouchableOpacity>
+                                    <Text style={styles.goalValue}>{userState.weeklyGoalMinutes || 150}m</Text>
+                                    <TouchableOpacity
+                                        onPress={() => updateUserState({ weeklyGoalMinutes: (userState.weeklyGoalMinutes || 150) + 10 })}
+                                        style={styles.goalButton}
+                                    >
+                                        <Ionicons name="add" size={20} color="#FFF" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </BlurView>
+
+                    {/* Estadísticas de Camino de Paz */}
+                    <View style={styles.sectionHeader}>
+                        <View style={styles.titleWithInfo}>
+                            <Text style={styles.sectionTitle}>Tu Camino de Paz</Text>
+                            <TouchableOpacity onPress={() => Alert.alert("Tu Camino", "Aquí puedes ver el tiempo total que has dedicado a tu bienestar y tu constancia acumulada.")}>
+                                <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
-                    <View style={styles.chartLabels}>
-                        <Text style={styles.chartLabel}>Hace 30 días</Text>
-                        <Text style={styles.chartLabel}>Hoy</Text>
-                    </View>
-                </TouchableOpacity>
+                    <View style={styles.statsBento}>
+                        <View style={styles.bentoRow}>
+                            <BlurView intensity={15} tint="light" style={styles.bentoSmall}>
+                                <Text style={styles.bentoLabel}>Presencia Total</Text>
+                                <Text style={styles.bentoValue}>{Math.round(displayStats.totalMinutes / 60)}h</Text>
+                                <Text style={styles.bentoSubtitle}>Tiempo dedicado</Text>
+                            </BlurView>
+                            <BlurView intensity={15} tint="light" style={styles.bentoSmall}>
+                                <Text style={styles.bentoLabel}>Constancia</Text>
+                                <Text style={styles.bentoValue}>{displayStats.currentStreak}</Text>
+                                <Text style={styles.bentoSubtitle}>Días en Calma</Text>
+                            </BlurView>
+                        </View>
 
-                {/* Badges */}
-                <View style={styles.badgesSection}>
-                    <Text style={styles.sectionTitle}>Insignias</Text>
+                        <BlurView intensity={10} tint="dark" style={styles.bentoWide}>
+                            <View style={styles.bentoWideHeader}>
+                                <View style={styles.titleWithInfo}>
+                                    <View>
+                                        <Text style={styles.bentoLabel}>Tu Ritmo de Calma</Text>
+                                        <Text style={styles.bentoSubtitle}>Tu evolución semanal</Text>
+                                    </View>
+                                    <TouchableOpacity onPress={() => Alert.alert("Ritmo de Calma", "Este gráfico muestra cómo distribuyes tu práctica a lo largo de la semana. Te ayuda a identificar tus mejores días para meditar.")}>
+                                        <Ionicons name="information-circle-outline" size={14} color="rgba(255,255,255,0.4)" style={{ marginLeft: 6, marginTop: -15 }} />
+                                    </TouchableOpacity>
+                                </View>
+                                <Ionicons name="pulse" size={18} color={theme.colors.primary} />
+                            </View>
+                            <View style={styles.miniChart}>
+                                {dailyActivity.map((day, i) => {
+                                    const goal = userState.dailyGoalMinutes || 20;
+                                    const percent = Math.min((day.minutes / goal) * 100, 100);
+                                    return (
+                                        <View key={i} style={styles.barContainer}>
+                                            <View style={[
+                                                styles.miniBar,
+                                                {
+                                                    height: `${Math.max(10, percent)}%`, // At least 10% height
+                                                    backgroundColor: percent >= 100 ? theme.colors.primary : theme.colors.accent
+                                                }
+                                            ]} />
+                                            <Text style={styles.barLabel}>{day.day.charAt(0)}</Text>
+                                        </View>
+                                    );
+                                })}
+                                {dailyActivity.length === 0 && (
+                                    <Text style={{ color: 'rgba(255,255,255,0.2)', fontSize: 10, textAlign: 'center', width: '100%' }}>Comienza a meditar para ver tu ritmo</Text>
+                                )}
+                            </View>
+                        </BlurView>
+                    </View>
+
+                    {/* Badges Section */}
+                    <View style={styles.sectionHeader}>
+                        <View style={styles.titleWithInfo}>
+                            <Text style={styles.sectionTitle}>Esencias de Calma</Text>
+                            <TouchableOpacity onPress={() => Alert.alert("Esencias", "Son cualidades que vas integrando en tu vida a través de tu compromiso con la meditación.")}>
+                                <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity onPress={() => {/* Show all */ }}>
+                            <Text style={styles.seeAll}>Ver todas</Text>
+                        </TouchableOpacity>
+                    </View>
+
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.badgesList}
                     >
-                        {/* Badge 1 */}
                         <View style={styles.badgeCard}>
-                            <View style={[styles.badgeIcon, { backgroundColor: `${theme.colors.primary}20` }]}>
-                                <Ionicons name="sunny" size={20} color={theme.colors.primary} />
+                            <View style={[styles.badgeIcon, { backgroundColor: `${theme.colors.primary}30` }]}>
+                                <Ionicons name="leaf" size={24} color={theme.colors.primary} />
                             </View>
-                            <View>
-                                <Text style={styles.badgeTitle}>Calma Matutina</Text>
-                                <Text style={styles.badgeSubtitle}>Racha de 7 días</Text>
-                            </View>
+                            <Text style={styles.badgeLabel}>Pionero</Text>
                         </View>
-
-                        {/* Badge 2 */}
                         <View style={styles.badgeCard}>
-                            <View style={[styles.badgeIcon, { backgroundColor: 'rgba(59, 130, 246, 0.2)' }]}>
-                                <Ionicons name="boat" size={20} color="#3B82F6" />
+                            <View style={[styles.badgeIcon, { backgroundColor: `${theme.colors.accent}30` }]}>
+                                <Ionicons name="flame" size={24} color={theme.colors.accent} />
                             </View>
-                            <View>
-                                <Text style={styles.badgeTitle}>El Ancla</Text>
-                                <Text style={styles.badgeSubtitle}>30 Días</Text>
-                            </View>
+                            <Text style={styles.badgeLabel}>Fuego Interior</Text>
                         </View>
-
-                        {/* Badge 3 - Locked */}
-                        <View style={[styles.badgeCard, styles.badgeCardLocked]}>
-                            <View style={[styles.badgeIcon, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
-                                <Ionicons name="lock-closed" size={20} color="rgba(255, 255, 255, 0.4)" />
+                        <View style={[styles.badgeCard, { opacity: 0.4 }]}>
+                            <View style={[styles.badgeIcon, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+                                <Ionicons name="medal-outline" size={24} color="#FFF" />
                             </View>
-                            <View>
-                                <Text style={styles.badgeTitle}>Maestro Zen</Text>
-                                <Text style={styles.badgeSubtitle}>???</Text>
-                            </View>
+                            <Text style={styles.badgeLabel}>???</Text>
                         </View>
                     </ScrollView>
-                </View>
 
-                {/* Privacy Note */}
-                <View style={styles.privacyNote}>
-                    <Ionicons name="lock-closed" size={10} color={theme.colors.textMuted} />
-                    <Text style={styles.privacyText}>
-                        Tus datos están encriptados y son privados.
-                    </Text>
-                </View>
-
-                {/* Logout Button */}
-                <TouchableOpacity
-                    style={styles.logoutButton}
-                    onPress={() => {
-                        Alert.alert(
-                            "Cerrar Sesión",
-                            "¿Estás seguro de que quieres salir?",
-                            [
-                                { text: "Cancelar", style: "cancel" },
-                                { text: "Salir", style: "destructive", onPress: signOut }
-                            ]
-                        );
-                    }}
-                >
-                    <Text style={styles.logoutText}>Cerrar Sesión</Text>
-                </TouchableOpacity>
-            </ScrollView>
+                    {/* Actions */}
+                    <View style={styles.actionsContainer}>
+                        {!isGuest && (
+                            <TouchableOpacity
+                                style={styles.logoutButton}
+                                onPress={() => {
+                                    Alert.alert(
+                                        "Cerrar Sesión",
+                                        "¿Estás seguro de que quieres salir?",
+                                        [
+                                            { text: "Cancelar", style: "cancel" },
+                                            { text: "Salir", style: "destructive", onPress: signOut }
+                                        ]
+                                    );
+                                }}
+                            >
+                                <Ionicons name="log-out-outline" size={20} color={theme.colors.textMuted} />
+                                <Text style={styles.logoutText}>Cerrar Sesión</Text>
+                            </TouchableOpacity>
+                        )}
+                        <Text style={styles.versionText}>Paziify v2.5.0 • Oasis Design</Text>
+                    </View>
+                </ScrollView>
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: '#000',
+    },
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
     },
     scrollContent: {
-        padding: theme.spacing.lg,
-        paddingBottom: 40,
+        paddingHorizontal: theme.spacing.lg,
+        paddingBottom: 100,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: theme.spacing.xl,
+        height: 60,
     },
     headerSpacer: {
-        width: 40,
+        width: 44,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
+        fontSize: 20,
+        fontWeight: '800',
         color: theme.colors.textMain,
+        letterSpacing: 0.5,
     },
     settingsButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    scoreContainer: {
+    treeSection: {
         alignItems: 'center',
-        marginBottom: theme.spacing.xxl,
-    },
-    scoreCircle: {
-        width: 200,
-        height: 200,
-        borderRadius: 100,
-        borderWidth: 6,
-        borderColor: theme.colors.primary,
-        backgroundColor: `${theme.colors.primary}10`,
+        marginVertical: theme.spacing.lg,
         justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: theme.spacing.md,
+        padding: 20,
+        borderRadius: 30,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        overflow: 'hidden',
     },
-    scoreValue: {
-        fontSize: 48,
-        fontWeight: '700',
+    treeLabels: {
+        marginTop: 10,
+        alignItems: 'center',
+    },
+    treeScore: {
+        fontSize: 42,
+        fontWeight: '900',
         color: theme.colors.textMain,
     },
-    scoreLabel: {
+    treeSubtext: {
         fontSize: 12,
-        fontWeight: '700',
-        color: theme.colors.primary,
+        fontWeight: '600',
+        color: theme.colors.textMuted,
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
-    scoreDescription: {
-        fontSize: 14,
-        color: theme.colors.textMuted,
-        textAlign: 'center',
-        maxWidth: 200,
-        marginTop: theme.spacing.sm,
-    },
-    scoreHighlight: {
-        color: theme.colors.primary,
-        fontWeight: '700',
-    },
-    chartCard: {
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.xl,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        padding: theme.spacing.lg,
-        marginBottom: theme.spacing.lg,
-    },
-    chartHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: theme.spacing.md,
-    },
-    chartTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: theme.colors.textMain,
-    },
-    chartBadge: {
+    guestCTA: {
+        marginTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        paddingHorizontal: theme.spacing.sm,
-        paddingVertical: 4,
-        borderRadius: theme.borderRadius.sm,
-    },
-    chartBadgeText: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: theme.colors.primary,
-    },
-    chart: {
-        height: 120,
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-between',
-        gap: 2,
-    },
-    barContainer: {
-        flex: 1,
-        height: '100%',
-        backgroundColor: `${theme.colors.primary}20`,
-        borderTopLeftRadius: 2,
-        borderTopRightRadius: 2,
-        justifyContent: 'flex-end',
-    },
-    bar: {
-        width: '100%',
-        backgroundColor: theme.colors.primary,
-        borderTopLeftRadius: 2,
-        borderTopRightRadius: 2,
-    },
-    chartLabels: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: theme.spacing.sm,
-    },
-    chartLabel: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: theme.colors.textMuted,
-        textTransform: 'uppercase',
-    },
-    badgesSection: {
-        marginBottom: theme.spacing.xl,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: theme.colors.textMain,
-        marginBottom: theme.spacing.md,
-    },
-    badgesList: {
-        gap: theme.spacing.md,
-    },
-    badgeCard: {
-        width: 140,
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.xl,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        padding: theme.spacing.md,
-        gap: theme.spacing.sm,
-    },
-    badgeCardLocked: {
-        opacity: 0.5,
-    },
-    badgeIcon: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    badgeTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: theme.colors.textMain,
-    },
-    badgeSubtitle: {
-        fontSize: 12,
-        color: theme.colors.textMuted,
-        marginTop: 2,
-    },
-    privacyNote: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-    },
-    privacyText: {
-        fontSize: 10,
-        color: theme.colors.textMuted,
-    },
-    premiumBadge: {
-        backgroundColor: theme.colors.accent,
-        flexDirection: 'row',
-        alignItems: 'center',
+        gap: 8,
+        backgroundColor: 'rgba(212, 175, 55, 0.1)',
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
-        marginTop: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(212, 175, 55, 0.2)',
+    },
+    guestCTAText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: theme.colors.accent,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: theme.spacing.md,
+        marginTop: theme.spacing.lg,
+    },
+    titleWithInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 6,
     },
-    premiumBadgeText: {
-        color: '#000',
-        fontSize: 12,
+    infoIconContainer: {
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        zIndex: 10,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '900',
+        color: 'rgba(255,255,255,0.6)',
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+    },
+    goalPanel: {
+        borderRadius: 20,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        marginBottom: theme.spacing.lg,
+        overflow: 'hidden',
+    },
+    goalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    goalLabel: {
+        fontSize: 9,
         fontWeight: '800',
+        color: 'rgba(255,255,255,0.4)',
         letterSpacing: 1,
+        marginBottom: 6,
+        textAlign: 'center',
+    },
+    goalValueContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    goalValue: {
+        fontSize: 18,
+        fontWeight: '900',
+        color: '#FFF',
+        minWidth: 45,
+        textAlign: 'center',
+    },
+    goalButton: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    goalDivider: {
+        width: 1,
+        height: 40,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    statsBento: {
+        gap: theme.spacing.md,
+        marginBottom: theme.spacing.xxl,
+    },
+    bentoRow: {
+        flexDirection: 'row',
+        gap: theme.spacing.md,
+    },
+    bentoSmall: {
+        flex: 1,
+        borderRadius: theme.borderRadius.xl,
+        padding: theme.spacing.lg,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        overflow: 'hidden',
+    },
+    bentoWide: {
+        borderRadius: theme.borderRadius.xl,
+        padding: theme.spacing.lg,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        overflow: 'hidden',
+    },
+    bentoLabel: {
+        fontSize: 10,
+        fontWeight: '900',
+        color: 'rgba(255,255,255,0.3)',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 8,
+    },
+    bentoValue: {
+        fontSize: 28,
+        fontWeight: '900',
+        color: theme.colors.textMain,
+    },
+    bentoSubtitle: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.4)',
+        marginTop: 2,
+    },
+    bentoWideHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 20,
+    },
+    miniChart: {
+        flexDirection: 'row',
+        height: 60,
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        paddingHorizontal: 5,
+    },
+    barContainer: {
+        alignItems: 'center',
+        gap: 6,
+    },
+    miniBar: {
+        width: 8,
+        borderRadius: 4,
+    },
+    barLabel: {
+        fontSize: 9,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.2)',
+    },
+    seeAll: {
+        fontSize: 12,
+        color: theme.colors.primary,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+    },
+    badgesList: {
+        gap: theme.spacing.md,
+        paddingRight: 40,
+    },
+    badgeCard: {
+        alignItems: 'center',
+        gap: 8,
+        width: 100,
+    },
+    badgeIcon: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    badgeLabel: {
+        fontSize: 11,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.5)',
+        textAlign: 'center',
+    },
+    actionsContainer: {
+        marginTop: theme.spacing.xxl,
+        alignItems: 'center',
+        gap: 16,
     },
     logoutButton: {
-        marginTop: theme.spacing.xl,
-        alignSelf: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
         paddingVertical: 12,
         paddingHorizontal: 24,
     },
@@ -378,7 +570,11 @@ const styles = StyleSheet.create({
         color: theme.colors.textMuted,
         fontSize: 14,
         fontWeight: '600',
-        textDecorationLine: 'underline',
+    },
+    versionText: {
+        fontSize: 10,
+        color: theme.colors.textMuted,
+        opacity: 0.5,
     },
 });
 

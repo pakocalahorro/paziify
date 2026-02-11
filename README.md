@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.5.0) 🚀
+# Paziify - AI Studio App (v2.6.5) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.5.0 (Audio Automation & Professional CMS)**, que introduce la generación masiva de audio premium con SSML y un panel de administración transformado en CMS.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.6.5 (Spiritual Flow & Total Cloud Sync)**, una evolución integral que redefine la experiencia del usuario con un flujo de navegación simplificado, estética de cristal avanzada (Perfil 3.0) y persistencia total en la nube.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -52,11 +52,14 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ## 📋 Roadmap y Logros
 
+- **[NEW] Spiritual Flow (v2.6.5)**: Implementación de `SpiritualPreloader` y navegación simplificada de fricción cero.
+- **[NEW] Profile 3.0 (v2.6.5)**: Rediseño integral con Glassmorphism, objetivos dinámicos y Árbol de Resiliencia orgánico.
+- **[NEW] Total Cloud Sync (v2.6.5)**: Persistencia 100% en Supabase (Favoritos, Historial y Ajustes en JSONB).
+- **[NEW] Monthly Challenge (v2.6.0)**: Motor de compromiso con Reto de 30 días y 30 luces de progreso.
 - **[NEW] Audio Automation 101 (v2.5.0)**: Flujo completo de generación masiva con voces premium restauradas.
-- **[NEW] Professional CMS (v2.4.5)**: Panel Admin avanzado con gestión de media inteligente y filtros.
 - **Academy Implementation v2.3.0**: Módulo educativo completo con integración Supabase.
 - **Catalog Mastery v1.9.0**: Diseño tipo Netflix y sincronización de 119 audios.
 
 ---
 
-**Última actualización:** 10 de Febrero de 2026 - **Versión v2.5.0** (Audio Automation & CMS)
+**Última actualización:** 11 de Febrero de 2026 - **Versión v2.6.5** (Spiritual Flow & Total Cloud Sync)

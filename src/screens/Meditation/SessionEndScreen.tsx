@@ -14,23 +14,29 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
+import { analyticsService } from '../../services/analyticsService';
 
 type SessionEndScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     Screen.SESSION_END
 >;
 
+type SessionEndScreenRouteProp = RouteProp<RootStackParamList, Screen.SESSION_END>;
+
 interface Props {
     navigation: SessionEndScreenNavigationProp;
 }
 
 const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
-    const { userState, updateUserState } = useApp();
+    const route = useRoute<SessionEndScreenRouteProp>();
+    const { sessionId, durationMinutes } = route.params;
+    const { user, userState, updateUserState } = useApp();
     const [selectedMood, setSelectedMood] = useState<number>(3); // Default to middle/calm
     const [isSharing, setIsSharing] = useState(false);
     const [comment, setComment] = useState('');
@@ -41,13 +47,21 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
         }
     }, []);
 
-    const handleFinish = () => {
-        // Update user stats on finish
+    const handleFinish = async () => {
+        // 1. Record in Supabase (Permanent)
+        if (user?.id) {
+            try {
+                await analyticsService.recordSession(user.id, sessionId, durationMinutes, selectedMood + 1);
+            } catch (error) {
+                console.error("Failed to record session in Supabase:", error);
+            }
+        }
+
+        // 2. Update local state (UI Responsiveness)
         const now = new Date();
         const lastSession = userState.lastSessionDate ? new Date(userState.lastSessionDate) : null;
         let newStreak = userState.streak;
 
-        // Simple streak logic for demo
         if (!lastSession || (now.getTime() - lastSession.getTime() > 24 * 60 * 60 * 1000)) {
             newStreak += 1;
         }
@@ -57,7 +71,7 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
             isDailySessionDone: true,
             lastSessionDate: now.toISOString(),
             resilienceScore: Math.min(userState.resilienceScore + (selectedMood >= 3 ? 3 : 1), 100),
-            totalMinutes: (userState.totalMinutes || 0) + 1,
+            totalMinutes: (userState.totalMinutes || 0) + durationMinutes,
         });
 
         navigation.navigate('MainTabs');

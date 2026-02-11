@@ -240,8 +240,10 @@ export const SOUNDSCAPES: Soundscape[] = [
 export interface BinauralWave {
     id: string;
     name: string;
+    description?: string; // Optional description
     frequency: string;
     color: string;
+    icon: string; // Added for UI compatibility
     audioFile: any;
 }
 
@@ -249,71 +251,91 @@ export const BINAURAL_WAVES: BinauralWave[] = [
     {
         id: 'alpha_waves',
         name: 'Ondas Alpha',
+        description: 'Foco y creatividad',
         frequency: '8-13 Hz',
         color: '#2DD4BF',
+        icon: 'pulse',
         audioFile: { uri: `${SB_BINAURAL_URL}Alpha_waves.mp3` }
     },
     {
         id: 'beta_waves',
         name: 'Ondas Beta',
+        description: 'Alerta y concentración',
         frequency: '13-30 Hz',
         color: '#F59E0B',
+        icon: 'flash',
         audioFile: { uri: `${SB_BINAURAL_URL}binaural_beta.mp3` }
     },
     {
         id: 'theta_waves',
         name: 'Ondas Theta',
+        description: 'Relajación profunda',
         frequency: '4-8 Hz',
         color: '#A855F7',
+        icon: 'water',
         audioFile: { uri: `${SB_BINAURAL_URL}binaural_theta.mp3` }
     },
     {
         id: 'delta_waves',
         name: 'Ondas Delta',
+        description: 'Sueño reparador',
         frequency: '0.5-4 Hz',
         color: '#3B82F6',
+        icon: 'moon',
         audioFile: { uri: `${SB_BINAURAL_URL}binaural_delta.mp3` }
     },
     {
         id: 'gamma_waves',
         name: 'Ondas Gamma',
+        description: 'Alto rendimiento mental',
         frequency: '30-100 Hz',
         color: '#10B981',
+        icon: 'speedometer',
         audioFile: { uri: `${SB_BINAURAL_URL}binaural_gamma.mp3` }
     },
     {
         id: '432hz',
         name: 'Sintonía 432Hz',
+        description: 'Frecuencia de la naturaleza',
         frequency: '432 Hz',
         color: '#6366F1',
+        icon: 'earth',
         audioFile: { uri: `${SB_BINAURAL_URL}432hz.mp3` }
     },
     {
         id: 'solfeggio_396',
         name: 'Solfeggio 396Hz',
+        description: 'Liberación de miedos',
         frequency: '396 Hz',
         color: '#EF4444',
+        icon: 'shield-checkmark',
         audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_396hz.mp3` }
     },
     {
         id: '528hz',
         name: 'Solfeggio 528Hz',
+        description: 'Transformación y milagros',
         frequency: '528 Hz',
         color: '#EC4899',
+        icon: 'heart',
         audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_528hz.mp3` }
     },
     {
         id: 'solfeggio_639',
         name: 'Solfeggio 639Hz',
+        description: 'Conexión y relaciones',
         frequency: '639 Hz',
         color: '#8B5CF6',
+        icon: 'people',
         audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_639hz.mp3` }
     },
     {
         id: 'solfeggio_963',
         name: 'Solfeggio 963Hz',
+        description: 'Conciencia superior',
         frequency: '963 Hz',
         color: '#D946EF',
+        icon: 'infinite',
         audioFile: { uri: `${SB_BINAURAL_URL}solfeggio_963hz.mp3` }
     }
 ];

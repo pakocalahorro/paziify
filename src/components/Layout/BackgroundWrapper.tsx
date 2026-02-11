@@ -10,12 +10,19 @@ interface Props {
 }
 
 const BackgroundWrapper: React.FC<Props> = ({ children, nebulaMode = 'healing' }) => {
-    const { isNightMode } = useApp();
+    const { isNightMode, userState } = useApp();
+
+    // If there is a custom background selected in Compass, it should override everything
+    // We use NebulaBackground as the base container for custom images because it supports blurring and overlays
+    const showCustomBackground = !!userState.lastSelectedBackgroundUri;
 
     return (
         <View style={StyleSheet.absoluteFill}>
-            {isNightMode ? (
-                <NebulaBackground mode={nebulaMode} />
+            {showCustomBackground || isNightMode ? (
+                <NebulaBackground
+                    mode={userState.lifeMode || nebulaMode}
+                    customBackgroundImage={userState.lastSelectedBackgroundUri}
+                />
             ) : (
                 <SunriseBackground />
             )}

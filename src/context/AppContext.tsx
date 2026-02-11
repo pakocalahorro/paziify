@@ -21,6 +21,10 @@ interface AppContextType {
     signOut: () => Promise<void>;
     signInWithGoogle: () => Promise<void>;
     toggleFavorite: (sessionId: string) => void;
+    lastSelectedBackgroundUri: string | null;
+    setLastSelectedBackgroundUri: (uri: string | null) => void;
+    isFirstEntryOfDay: boolean;
+    markEntryAsDone: () => void;
 }
 
 const defaultUserState: UserState = {
@@ -41,7 +45,8 @@ const defaultUserState: UserState = {
         notificationQuietMode: true,
         quietHoursStart: "22:00",
         quietHoursEnd: "07:00",
-    }
+    },
+    hasAcceptedMonthlyChallenge: false,
 };
 
 const STORAGE_KEY = '@paziify_user_state';
@@ -59,6 +64,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isNightMode, setIsNightMode] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [lastSelectedBackgroundUri, setLastSelectedBackgroundUri] = useState<string | null>(null);
+    const [isFirstEntryOfDay, setIsFirstEntryOfDay] = useState(false);
+
+    // Track first entry of the day
+    useEffect(() => {
+        const checkFirstEntry = () => {
+            const today = new Date().toISOString().split('T')[0];
+            if (userState.lastEntryDate !== today) {
+                setIsFirstEntryOfDay(true);
+            } else {
+                setIsFirstEntryOfDay(false);
+            }
+        };
+        if (!isLoading) {
+            checkFirstEntry();
+        }
+    }, [userState.lastEntryDate, isLoading]);
+
+    const markEntryAsDone = () => {
+        const today = new Date().toISOString().split('T')[0];
+        updateUserState({ lastEntryDate: today });
+    };
 
     // Initial session and auth listener
     useEffect(() => {
@@ -120,6 +147,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         resilienceScore: data.resilience_score || 50,
                         isPlusMember: data.is_plus_member || false,
                         isRegistered: true,
+                        hasAcceptedMonthlyChallenge: data.has_accepted_monthly_challenge || false,
+                        dailyGoalMinutes: data.daily_goal_minutes || prev.dailyGoalMinutes || 20,
+                        weeklyGoalMinutes: data.weekly_goal_minutes || prev.weeklyGoalMinutes || 150,
+                        lifeMode: data.life_mode || prev.lifeMode,
+                        lastSelectedBackgroundUri: data.last_selected_background_uri || prev.lastSelectedBackgroundUri,
+                        lastEntryDate: data.last_entry_date || prev.lastEntryDate,
+                        favoriteSessionIds: data.favorite_session_ids || prev.favoriteSessionIds || [],
+                        completedSessionIds: data.completed_session_ids || prev.completedSessionIds || [],
+                        settings: data.notification_settings || prev.settings,
                     }));
                 }
             }
@@ -128,12 +164,31 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         loadProfile();
     }, [user]);
 
-    // Save user state to AsyncStorage whenever it changes
+    // Save user state to AsyncStorage and Supabase whenever it changes
     useEffect(() => {
         if (!isLoading && !userState.isGuest) {
             const saveUserState = async () => {
                 try {
+                    // Local save
                     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userState));
+
+                    // Supabase sync (critical flags, goals, and mode)
+                    if (user) {
+                        await supabase
+                            .from('profiles')
+                            .update({
+                                has_accepted_monthly_challenge: userState.hasAcceptedMonthlyChallenge,
+                                daily_goal_minutes: userState.dailyGoalMinutes,
+                                weekly_goal_minutes: userState.weeklyGoalMinutes,
+                                life_mode: userState.lifeMode,
+                                last_selected_background_uri: userState.lastSelectedBackgroundUri,
+                                last_entry_date: userState.lastEntryDate,
+                                favorite_session_ids: userState.favoriteSessionIds,
+                                completed_session_ids: userState.completedSessionIds,
+                                notification_settings: userState.settings
+                            })
+                            .eq('id', user.id);
+                    }
                 } catch (error) {
                     console.error('Error saving user state:', error);
                 }
@@ -141,7 +196,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
             saveUserState();
         }
-    }, [userState, isLoading]);
+    }, [
+        userState.hasAcceptedMonthlyChallenge,
+        userState.dailyGoalMinutes,
+        userState.weeklyGoalMinutes,
+        userState.lifeMode,
+        userState.lastSelectedBackgroundUri,
+        userState.lastEntryDate,
+        userState.favoriteSessionIds,
+        userState.completedSessionIds,
+        userState.settings,
+        isLoading
+    ]);
 
     // Determine night mode based on real time
     useEffect(() => {
@@ -216,6 +282,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 signOut,
                 signInWithGoogle,
                 toggleFavorite,
+                lastSelectedBackgroundUri,
+                setLastSelectedBackgroundUri,
+                isFirstEntryOfDay,
+                markEntryAsDone,
             }}
         >
             {children}
