@@ -19,7 +19,7 @@ El viaje del usuario se basa en la transición suave y la preparación mental.
   - **Psicología**: El árbol nace con un **15% de base visual** para evitar el sesgo de "tabula rasa".
 - **ZenMeters**: Medidores circulares de cristal esmerilado que escalan dinámicamente con las metas del perfil.
 - **Purpose Modal**: Interface de cristal inmersivo con **copa de árbol redondeada y realista**, buscando la máxima calidez orgánica.
-- **Botón "Reto Paziify"**: Diseño en oro con **texto en blanco puro** (`#FFFFFF`) para legibilidad premium. Incluye **micro-animación de escala (1.05x)** al presionar.
+- **Botón "Reto Paziify"**: Diseño en oro con **texto en blanco puro** (`#FFFFFF`) para legibilidad premium. El botón es **dinámico**: cambia a "Reto Activado" y actualiza su micro-animación al confirmar el compromiso.
 
 ---
 

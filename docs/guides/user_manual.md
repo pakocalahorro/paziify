@@ -69,7 +69,7 @@ Paziify ahora te permite personalizar completamente la atmósfera visual de tus 
 - **ZenMeters Dinámicos**: Indicadores circulares de progreso que se ajustan en tiempo real según las metas (minutos/día) definidas en tu perfil.
 - **Sugerencias Inteligentes**: El contenido se adapta a tu modo (Sanar/Crecer) y a la hora del día (Día/Noche).
 - **Capa Editorial (`SessionDetailScreen`)**: Al seleccionar contenido del Bento o la Dosis Diaria, accederás a una vista previa con el nombre del guía, duración y descripción mística antes de comenzar.
-- **Botón Reto Paziify**: Acceso directo en la cabecera (texto blanco sobre oro) para activar y seguir el reto de 30 días.
+- **Botón Reto Paziify**: Acceso directo en la cabecera (texto blanco sobre oro). Es un elemento **dinámico**: cambia a "Reto Activado" una vez has aceptado el desafío de 30 días.
 
 ---
 

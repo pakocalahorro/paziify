@@ -17,7 +17,7 @@ Esta sesión marca la culminación de la visión **Premium & Cloud-Native** supe
 - **Bento Grid Vision**: Implementación de imágenes reales WebP para las tarjetas de contenido (Academia, Historias, Música).
 - **Capa Editorial (`SessionDetailScreen`)**: Nueva jerarquía informativa que permite previsualizar detalles técnicos y artísticos de la sesión antes del "Play".
 - **ZenMeters Dinámicos**: Sensores visuales de progreso calibrados en tiempo real según las metas de minutos del perfil.
-- **Botón Reto Paziify**: Acceso directo con diseño en oro y **texto blanco puro** para máximo contraste visual.
+- **Botón Reto Paziify**: Acceso directo con diseño en oro y **texto blanco puro** (`#FFFFFF`) para máximo contraste. El botón es **dinámico**: cambia su estado visual y texto a "Reto Activado" tras la aceptación del compromiso.
 
 ## 👤 Hito 3: Perfil 3.0 & Árbol de Resiliencia
 - **Estética Glassmorphism**: Rediseño integral basado en `BlurView` y transparencias.
