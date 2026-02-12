@@ -76,7 +76,7 @@ const BentoCard: React.FC<BentoCardProps> = ({
                     <View style={styles.iconSophisticatedContainer}>
                         <View style={[styles.iconGlow, { backgroundColor: accentColor }]} />
                         <BlurView intensity={30} tint="light" style={styles.iconGlass}>
-                            <Ionicons name={icon} size={44} color="#FFF" style={styles.mainIcon} />
+                            <Ionicons name={icon} size={24} color="#FFF" style={styles.mainIcon} />
                         </BlurView>
                     </View>
                 )}
@@ -210,23 +210,23 @@ const styles = StyleSheet.create({
         textShadowRadius: 5,
     },
     iconSophisticatedContainer: {
-        width: 90,
-        height: 90,
+        width: 60,
+        height: 60,
         justifyContent: 'center',
         alignItems: 'center',
     },
     iconGlow: {
         position: 'absolute',
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        opacity: 0.4,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        opacity: 0.3,
         transform: [{ scale: 1.5 }],
     },
     iconGlass: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1.5,

@@ -25,7 +25,7 @@ interface CourseCardProps {
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.75;
-const CARD_HEIGHT = CARD_WIDTH * 1.5;
+const CARD_HEIGHT = CARD_WIDTH * 1.35;
 
 // Fallback font for measuring roughly
 const fontFamily = Platform.select({ ios: "AvenirNext-CondensedBold", default: "serif" });

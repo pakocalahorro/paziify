@@ -21,10 +21,10 @@ const PurposeModal: React.FC<PurposeModalProps> = ({ isVisible, onAccept, onClos
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                         <Ionicons name="close" size={24} color="rgba(255,255,255,0.5)" />
                     </TouchableOpacity>
-                    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
                         <View style={styles.header}>
                             <View style={styles.treeWrapper}>
-                                <ResilienceTree daysPracticed={12} size={160} isGuest={false} />
+                                <ResilienceTree daysPracticed={12} size={110} isGuest={false} />
                             </View>
                             <Text style={styles.title}>Tu Propósito en Paziify</Text>
                             <Text style={styles.subtitle}>Acepta el reto para transformar tu vida y la de los demás.</Text>
@@ -99,14 +99,14 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.1)',
     },
     scrollContent: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: 16,
+        paddingBottom: 24,
         alignItems: 'center',
     },
     header: {
         alignItems: 'center',
-        marginBottom: 32,
-        marginTop: 20,
+        marginBottom: 12,
+        marginTop: 10,
     },
     closeButton: {
         position: 'absolute',
@@ -116,57 +116,57 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     treeWrapper: {
-        height: 160,
-        marginBottom: 16,
+        height: 110,
+        marginBottom: 10,
     },
     title: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: '900',
         color: '#FFF',
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: 4,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 13,
         color: 'rgba(255,255,255,0.6)',
         textAlign: 'center',
         paddingHorizontal: 12,
-        lineHeight: 20,
+        lineHeight: 18,
     },
     itemsContainer: {
         width: '100%',
-        gap: 24,
-        marginBottom: 40,
+        gap: 8,
+        marginBottom: 16,
     },
     item: {
         flexDirection: 'row',
         alignItems: 'flex-start',
     },
     iconCircle: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: 12,
     },
     itemTexts: {
         flex: 1,
     },
     itemTitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '700',
         color: '#FFF',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     itemDescription: {
-        fontSize: 13,
+        fontSize: 11,
         color: 'rgba(255,255,255,0.5)',
-        lineHeight: 18,
+        lineHeight: 16,
     },
     button: {
         backgroundColor: '#FFF',
-        paddingVertical: 16,
+        paddingVertical: 10,
         paddingHorizontal: 32,
         borderRadius: 20,
         flexDirection: 'row',
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
         color: theme.colors.background,
     },
     footerNote: {
-        marginTop: 24,
-        fontSize: 12,
+        marginTop: 12,
+        fontSize: 10,
         color: 'rgba(255,255,255,0.3)',
         fontStyle: 'italic',
         textAlign: 'center',

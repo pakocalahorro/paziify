@@ -1,39 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
     View,
     Text,
-    TouchableOpacity,
     StyleSheet,
-    ScrollView,
-    ImageBackground,
-    Dimensions,
+    FlatList,
+    TextInput,
+    TouchableOpacity,
     Animated,
+    Dimensions,
+    Image,
     StatusBar,
+    ImageBackground,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
-    Canvas,
-    Circle,
-    Blur,
-    Group,
-    RadialGradient,
-    vec
-} from '@shopify/react-native-skia';
-import {
-    useSharedValue,
-    withRepeat,
-    withTiming,
-    Easing,
-    useDerivedValue
-} from 'react-native-reanimated';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
+import { useApp } from '../../context/AppContext';
 import { IMAGES } from '../../constants/images';
-import NoiseBackground from '../../components/Sanctuary/NoiseBackground';
+import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import SoundWaveHeader from '../../components/SoundWaveHeader';
+
+const { width } = Dimensions.get('window');
+const ITEM_WIDTH = width * 0.75;
+const EMPTY_ITEM_SIZE = (width - ITEM_WIDTH) / 2;
 
 type LibraryScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -44,219 +37,256 @@ interface Props {
     navigation: LibraryScreenNavigationProp;
 }
 
-const { width } = Dimensions.get('window');
-
-const BacklitSilhouette: React.FC = () => {
-    const pulse = useSharedValue(0.4);
-
-    useEffect(() => {
-        pulse.value = withRepeat(
-            withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-            -1,
-            true
-        );
-    }, []);
-
-    const glowOpacity = useDerivedValue(() => pulse.value * 0.6);
-    const glowRadiusVal = useDerivedValue(() => 60 + pulse.value * 40);
-
-    return (
-        <View style={styles.silhouetteContainer}>
-            <Canvas style={styles.silhouetteCanvas}>
-                <Group>
-                    <Circle cx={80} cy={80} r={glowRadiusVal}>
-                        <RadialGradient
-                            c={vec(80, 80)}
-                            r={glowRadiusVal}
-                            colors={['rgba(45, 212, 191, 0.5)', 'transparent']}
-                        />
-                        <Blur blur={25} />
-                    </Circle>
-                </Group>
-            </Canvas>
-            <View style={styles.silhouetteIconWrapper}>
-                <Ionicons name="body-outline" size={60} color="rgba(45, 212, 191, 0.4)" style={styles.silhouetteIcon} />
-            </View>
-        </View>
-    );
-};
-
-interface LibrarySectionProps {
-    icon: keyof typeof Ionicons.glyphMap;
+interface LibraryCategory {
+    id: string;
     title: string;
     description: string;
-    count: string;
+    icon: keyof typeof Ionicons.glyphMap;
     image: any;
     color: string;
-    onPress: () => void;
-    index: number;
+    count: string;
+    screen: Screen;
 }
 
-const LibrarySection: React.FC<LibrarySectionProps> = ({
-    icon,
-    title,
-    description,
-    count,
-    image,
-    color,
-    onPress,
-    index,
-}) => {
+const CATEGORIES: LibraryCategory[] = [
+    {
+        id: 'meditation',
+        title: 'Meditación',
+        description: 'Guías de presencia y mindfulness para el día a día.',
+        icon: 'flower-outline',
+        image: IMAGES.LIB_MEDITATION,
+        color: '#2DD4BF',
+        count: 'SESIONES',
+        screen: Screen.MEDITATION_CATALOG,
+    },
+    {
+        id: 'ambient',
+        title: 'Música & Ambientes',
+        description: 'Paisajes sonoros para enfocar, dormir o simplemente estar.',
+        icon: 'headset-outline',
+        image: IMAGES.LIB_AMBIENT,
+        color: '#8B5CF6',
+        count: 'SONIDOS',
+        screen: Screen.BACKGROUND_SOUND,
+    },
+    {
+        id: 'audiobooks',
+        title: 'Audiolibros',
+        description: 'Clásicos de la sabiduría para expandir tu conciencia.',
+        icon: 'book-outline',
+        image: IMAGES.LIB_BOOKS,
+        color: '#FB7185',
+        count: 'BIBLIOTECA',
+        screen: Screen.AUDIOBOOKS,
+    },
+    {
+        id: 'stories',
+        title: 'Historias Reales',
+        description: 'Relatos de superación y resiliencia humana.',
+        icon: 'sparkles-outline',
+        image: IMAGES.LIB_STORIES,
+        color: '#FBBF24',
+        count: 'LECTURAS',
+        screen: Screen.STORIES,
+    }
+];
+
+const LibraryScreen: React.FC<Props> = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
+    const { userState } = useApp();
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+    // Animations
+    const scrollX = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const searchAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 800,
-            delay: index * 100,
             useNativeDriver: true,
         }).start();
     }, []);
 
-    return (
-        <Animated.View style={[styles.sectionWrapper, {
-            opacity: fadeAnim,
-            transform: [{
-                translateY: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [30, 0]
-                })
-            }]
-        }]}>
-            <TouchableOpacity style={styles.sectionCard} onPress={onPress} activeOpacity={0.9}>
-                <ImageBackground
-                    source={typeof image === 'string' ? { uri: image } : image}
-                    style={styles.sectionImage}
-                    resizeMode="cover"
-                >
-                    <LinearGradient
-                        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.75)']}
-                        style={StyleSheet.absoluteFill}
-                    />
-                    <View style={styles.sectionContent}>
-                        <View style={styles.topInfo}>
-                            <BlurView intensity={20} tint="dark" style={styles.categoryBadge}>
-                                <Ionicons name={icon} size={14} color={color} />
-                                <Text style={[styles.categoryText, { color }]}>{count}</Text>
-                            </BlurView>
-                        </View>
+    const toggleSearch = () => {
+        const toValue = isSearchExpanded ? 0 : 1;
+        Animated.spring(searchAnim, {
+            toValue,
+            useNativeDriver: false,
+            friction: 8,
+            tension: 40
+        }).start();
+        setIsSearchExpanded(!isSearchExpanded);
+        if (isSearchExpanded) setSearchQuery('');
+    };
 
-                        <View style={styles.sectionInfo}>
-                            <Text style={styles.sectionTitle}>{title}</Text>
-                            <Text style={styles.sectionDescription}>{description}</Text>
-                        </View>
+    const carouselData = useMemo(() => {
+        return [{ id: 'empty-left' }, ...CATEGORIES, { id: 'empty-right' }];
+    }, []);
+
+    const renderHeader = () => (
+        <View style={styles.headerContent}>
+            <View style={styles.header}>
+                <View style={styles.headerRow}>
+                    <View style={styles.headerLeft}>
+                        <TouchableOpacity
+                            style={styles.backBtnAbsolute}
+                            onPress={() => navigation.goBack()}
+                        >
+                            <Ionicons name="arrow-back" size={20} color="#FFF" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.searchToggleBtn}
+                            onPress={toggleSearch}
+                        >
+                            <Ionicons
+                                name={isSearchExpanded ? "close-outline" : "search-outline"}
+                                size={20}
+                                color={isSearchExpanded ? "#2DD4BF" : "#FFF"}
+                            />
+                        </TouchableOpacity>
                     </View>
-                </ImageBackground>
-            </TouchableOpacity>
-        </Animated.View>
+
+                    <View style={styles.headerTitleContainer}>
+                        <Text style={styles.headerTitleInline}>Biblioteca de Calma</Text>
+                    </View>
+
+                    <View style={styles.headerIconContainer}>
+                        <Ionicons name="library-outline" size={24} color="#2DD4BF" />
+                    </View>
+                </View>
+            </View>
+
+            {/* Search Bar */}
+            <Animated.View style={[
+                styles.searchBaseContainer,
+                {
+                    height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 60] }),
+                    opacity: searchAnim,
+                    marginBottom: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 15] }),
+                    overflow: 'hidden'
+                }
+            ]}>
+                <View style={styles.searchWrapper}>
+                    <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Buscar en la biblioteca..."
+                        placeholderTextColor="rgba(255,255,255,0.3)"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                </View>
+            </Animated.View>
+        </View>
     );
-};
 
-import { useApp } from '../../context/AppContext';
-import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+    const renderCategoryCard = (item: LibraryCategory, index: number) => {
+        const inputRange = [
+            (index - 2) * ITEM_WIDTH,
+            (index - 1) * ITEM_WIDTH,
+            (index) * ITEM_WIDTH,
+        ];
 
-const LibraryScreen: React.FC<Props> = ({ navigation }) => {
-    const insets = useSafeAreaInsets();
-    const { isNightMode } = useApp();
+        const translateY = scrollX.interpolate({
+            inputRange,
+            outputRange: [50, 0, 50],
+            extrapolate: 'clamp',
+        });
+        const scale = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.9, 1, 0.9],
+            extrapolate: 'clamp',
+        });
+
+        return (
+            <View style={{ width: ITEM_WIDTH }}>
+                <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
+                    <TouchableOpacity
+                        activeOpacity={0.9}
+                        onPress={() => navigation.navigate(item.screen as any)}
+                        style={styles.cardContainer}
+                    >
+                        <ImageBackground
+                            source={typeof item.image === 'string' ? { uri: item.image } : item.image}
+                            style={styles.cardImage}
+                            imageStyle={{ borderRadius: 32 }}
+                        >
+                            <LinearGradient
+                                colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.8)']}
+                                style={styles.cardGradient}
+                            />
+
+                            <View style={styles.cardContent}>
+                                <View style={styles.cardTopRow}>
+                                    <BlurView intensity={20} tint="dark" style={styles.badge}>
+                                        <Ionicons name={item.icon} size={14} color={item.color} />
+                                        <Text style={[styles.badgeText, { color: item.color }]}>{item.count}</Text>
+                                    </BlurView>
+                                </View>
+
+                                <View style={styles.cardInfo}>
+                                    <Text style={styles.cardTitle}>{item.title}</Text>
+                                    <Text style={styles.cardDesc}>{item.description}</Text>
+
+                                    <View style={styles.actionButton}>
+                                        <Text style={styles.actionText}>EXPLORAR</Text>
+                                        <Ionicons name="arrow-forward" size={14} color="#000" />
+                                    </View>
+                                </View>
+                            </View>
+                        </ImageBackground>
+                    </TouchableOpacity>
+                </Animated.View>
+            </View>
+        );
+    };
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
 
-            {/* Premium Background */}
-            {/* Premium Background */}
+            {/* Background */}
             <View style={StyleSheet.absoluteFill}>
                 <BackgroundWrapper nebulaMode="healing" />
+                <LinearGradient
+                    colors={['rgba(2, 6, 23, 0.3)', 'rgba(2, 6, 23, 0.8)']}
+                    style={StyleSheet.absoluteFill}
+                />
             </View>
 
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.headerRow}>
-                        <View style={styles.headerTextContainer}>
-                            <Text style={styles.headerLabel}>CENTRO DE</Text>
-                            <View style={styles.headerTop}>
-                                <Text style={styles.headerTitle}>Inspiración</Text>
-                            </View>
-                        </View>
-                        <BacklitSilhouette />
-                    </View>
-                    <Text style={styles.headerSubtitle}>
-                        Tu santuario personal para la calma y el crecimiento consciente.
-                    </Text>
+            <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+                {renderHeader()}
+
+                <View style={styles.carouselContainer}>
+                    <SoundWaveHeader title="Tu Santuario" accentColor="#2DD4BF" />
+
+                    <Animated.FlatList
+                        showsHorizontalScrollIndicator={false}
+                        horizontal
+                        data={carouselData}
+                        keyExtractor={(item: any) => item.id}
+                        contentContainerStyle={[styles.flatListContent, { paddingBottom: insets.bottom + 80 }]}
+                        snapToInterval={ITEM_WIDTH}
+                        decelerationRate="fast"
+                        bounces={false}
+                        onScroll={Animated.event(
+                            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                            { useNativeDriver: true }
+                        )}
+                        scrollEventThrottle={16}
+                        renderItem={({ item, index }) => {
+                            if (item.id === 'empty-left' || item.id === 'empty-right') {
+                                return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                            }
+                            return renderCategoryCard(item as LibraryCategory, index);
+                        }}
+                    />
                 </View>
-
-                {/* Grid-like sections */}
-                <LibrarySection
-                    index={0}
-                    icon="flower-outline"
-                    title="Meditación"
-                    description="Guías de presencia y mindfulness para el día a día."
-                    count="SESIONES"
-                    image={IMAGES.LIB_MEDITATION}
-                    color="#2DD4BF"
-                    onPress={() => navigation.navigate(Screen.MEDITATION_CATALOG)}
-                />
-
-                <LibrarySection
-                    index={1}
-                    icon="headset-outline"
-                    title="Música & Ambientes"
-                    description="Paisajes sonoros para enfocar, dormir o simplemente estar."
-                    count="SONIDOS"
-                    image={IMAGES.LIB_ACADEMY} // Placeholder, maybe use specific image if available
-                    color="#8B5CF6"
-                    onPress={() => navigation.navigate(Screen.BACKGROUND_SOUND)}
-                />
-
-                <LibrarySection
-                    index={2}
-                    icon="book-outline"
-                    title="Audiolibros"
-                    description="Clásicos de la sabiduría para expandir tu conciencia."
-                    count="BIBLIOTECA"
-                    image={IMAGES.LIB_BOOKS}
-                    color="#FB7185"
-                    onPress={() => navigation.navigate(Screen.AUDIOBOOKS)}
-                />
-
-                <LibrarySection
-                    index={2}
-                    icon="sparkles-outline"
-                    title="Historias Reales"
-                    description="Relatos de superación y resiliencia humana."
-                    count="LECTURAS"
-                    image={IMAGES.LIB_STORIES}
-                    color="#FBBF24"
-                    onPress={() => navigation.navigate(Screen.STORIES)}
-                />
-
-                {/* Academy Link - Redesigned */}
-                <TouchableOpacity
-                    style={styles.academyCard}
-                    onPress={() => navigation.navigate(Screen.CBT_ACADEMY)}
-                    activeOpacity={0.8}
-                >
-                    <ImageBackground source={{ uri: IMAGES.LIB_ACADEMY }} style={styles.academyImg}>
-                        <BlurView intensity={40} tint="dark" style={styles.academyBlur}>
-                            <View style={styles.academyIcon}>
-                                <Ionicons name="school" size={20} color="#FFF" />
-                            </View>
-                            <View style={styles.academyText}>
-                                <Text style={styles.academyTitle}>Academia TCC</Text>
-                                <Text style={styles.academyDescription}>
-                                    Domina tu mente con técnicas científicas avanzadas.
-                                </Text>
-                            </View>
-                            <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.5)" />
-                        </BlurView>
-                    </ImageBackground>
-                </TouchableOpacity>
-            </ScrollView>
+            </Animated.View>
         </View>
     );
 };
@@ -266,103 +296,112 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#020617',
     },
+    headerContent: {
+        zIndex: 10,
+    },
     header: {
-        marginBottom: 35,
-        paddingHorizontal: 10,
+        marginBottom: 8,
+        paddingHorizontal: 20,
+        marginTop: 10,
     },
     headerRow: {
         flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
     },
-    headerTextContainer: {
-        flex: 1,
-    },
-    silhouetteContainer: {
-        width: 140,
-        height: 140,
-        marginTop: -20,
-        marginRight: -20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    silhouetteCanvas: {
-        width: 160,
-        height: 160,
-        position: 'absolute',
-    },
-    silhouetteIconWrapper: {
-        width: 80,
-        height: 80,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    silhouetteIcon: {
-        zIndex: 2,
-    },
-    silhouetteInner: {
-        display: 'none',
-    },
-    headerLabel: {
-        fontSize: 11,
-        fontWeight: '800',
-        color: '#2DD4BF',
-        letterSpacing: 3,
-        marginBottom: 4,
-    },
-    headerTop: {
+    headerLeft: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
     },
-    headerTitle: {
-        fontSize: 36,
-        fontWeight: '900',
-        color: '#FFFFFF',
-        letterSpacing: -1,
+    backBtnAbsolute: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
     },
-    searchBtn: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.04)',
+    searchToggleBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    headerSubtitle: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.45)',
-        fontWeight: '500',
-        lineHeight: 24,
-    },
-    scrollView: {
+    headerTitleContainer: {
         flex: 1,
+        alignItems: 'center',
+        paddingHorizontal: 8,
     },
-    scrollContent: {
+    headerTitleInline: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: 0.5,
+        textAlign: 'center',
+    },
+    headerIconContainer: {
+        width: 36,
+        height: 36,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    searchBaseContainer: {
         paddingHorizontal: 20,
     },
-    sectionWrapper: {
-        marginBottom: 24,
+    searchWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        height: 48,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
-    sectionCard: {
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        color: '#FFF',
+        fontSize: 15,
+    },
+    carouselContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        paddingBottom: 40,
+    },
+    flatListContent: {
+        alignItems: 'center',
+    },
+    cardContainer: {
+        height: ITEM_WIDTH * 1.4,
+        marginHorizontal: 0,
         borderRadius: 32,
-        overflow: 'hidden',
-        height: 220,
         backgroundColor: '#111',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 10,
     },
-    sectionImage: {
+    cardImage: {
         flex: 1,
     },
-    sectionContent: {
+    cardGradient: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 32,
+    },
+    cardContent: {
         flex: 1,
         padding: 24,
         justifyContent: 'space-between',
     },
-    topInfo: {
+    cardTopRow: {
         flexDirection: 'row',
     },
-    categoryBadge: {
+    badge: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 12,
@@ -370,73 +409,46 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         overflow: 'hidden',
         gap: 6,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(255,255,255,0.1)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: 'rgba(255,255,255,0.2)',
     },
-    categoryText: {
+    badgeText: {
         fontSize: 10,
         fontWeight: '900',
         letterSpacing: 1.5,
     },
-    sectionInfo: {
-        gap: 6,
+    cardInfo: {
+        gap: 12,
     },
-    sectionTitle: {
-        fontSize: 28,
-        fontWeight: '800',
+    cardTitle: {
+        fontSize: 32,
+        fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: -0.5,
+        letterSpacing: -1,
     },
-    sectionDescription: {
+    cardDesc: {
         fontSize: 14,
         color: 'rgba(255,255,255,0.6)',
         fontWeight: '500',
         lineHeight: 20,
     },
-    academyCard: {
-        marginTop: 10,
-        borderRadius: 32,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        height: 120,
-    },
-    academyImg: {
-        flex: 1,
-    },
-    academyBlur: {
-        flex: 1,
+    actionButton: {
+        backgroundColor: '#FFFFFF',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
-        backgroundColor: 'rgba(0,0,0,0.3)',
-    },
-    academyIcon: {
-        width: 50,
-        height: 50,
-        borderRadius: 16,
-        backgroundColor: 'rgba(45, 212, 191, 0.2)',
         justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(45, 212, 191, 0.3)',
+        paddingVertical: 12,
+        borderRadius: 16,
+        marginTop: 8,
+        gap: 8,
     },
-    academyText: {
-        flex: 1,
-        marginLeft: 16,
-    },
-    academyTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#FFFFFF',
-        marginBottom: 4,
-    },
-    academyDescription: {
-        fontSize: 13,
-        color: 'rgba(255,255,255,0.5)',
-        fontWeight: '500',
-    },
+    actionText: {
+        color: '#000',
+        fontSize: 12,
+        fontWeight: '900',
+        letterSpacing: 1,
+    }
 });
 
 export default LibraryScreen;

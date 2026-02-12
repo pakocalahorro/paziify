@@ -33,10 +33,34 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 
 ---
 
-## 4. Paleta de Color Bio-Luminiscente
-- **Healing**: Emerald Green / Cyan / Deep Obsidian.
-- **Growth**: Solar Orange / Golden White / Deep Obsidian.
+## 4. Identidad Corporativa y Catálogos Unificados 🏗️⚖️
+- **Arquitectura Unificada**: Biblioteca, Academia y Audiolibros comparten el `SoundWaveHeader` y el sistema de carrusel centrado.
+- **Jerarquía de Espacios**: Uso de `ITEM_WIDTH = width * 0.75` y ratio **1.35** para coherencia visual absoluta.
+- **Tipografía Skia (v2.7.0)**: Uso del motor Skia para títulos de tarjetas con efectos procedimentales:
+  - **Hollow**: Trazo fino para Ansiedad (`strokeWidth: 1.5`).
+  - **Duotone**: Relleno vibrante y trazo de contraste para Salud.
+  - **Glow**: Aura luminosa para Familia y Crecimiento.
+
+---
+
+## 5. El Menú Flotante (CustomTabBar) 🛸
+- **Concepto**: Isla de cristal suspendida sobre el `insets.bottom`.
+- **Interacción**: Orbe respiratorio central (`StarCore`) con feedback visual basado en el `life_mode` del usuario.
+- **Glassmorphism**: Intensidad de 65 con bordes de 1.5px tipo "Joyaría".
+
+---
+
+## 6. Paleta de Color Bio-Luminiscente
+- **Healing**: Emerald Green (`#2DD4BF`) / Cyan / Deep Obsidian.
+- **Growth**: Solar Yellow (`#FBBF24`) / Golden White / Deep Obsidian.
 - **Tipografía**: **Oswald** (Headings) para autoridad espiritual y **Inter/System** para lectura técnica.
 
 ---
-*Última revisión: 11 de Febrero de 2026 - CEO Audit Vision v2.6.5 (Final Release)*
+
+## 7. Optimización de Safe Areas
+- **Top Safe Area**: Cristal de seguridad de intensidad 90 en Home.
+- **Bottom Safe Area**: Elevación dinámica de carruseles a **+100px** para evitar solapes con el menú flotante.
+
+---
+
+*Última revisión: 12 de Febrero de 2026 - Master Audit v2.7.0 (Unified Experience)*

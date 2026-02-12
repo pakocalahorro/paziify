@@ -263,7 +263,7 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
             </Animated.ScrollView>
 
             {/* Footer Action */}
-            <View style={[styles.footerAction, { paddingBottom: Math.max(20, insets.bottom + 10) }]}>
+            <View style={[styles.footerAction, { paddingBottom: Math.max(30, insets.bottom + 25) }]}>
                 <TouchableOpacity
                     activeOpacity={0.8}
                     style={[styles.startBtn, { backgroundColor: session.color || theme.colors.primary }]}

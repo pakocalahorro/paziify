@@ -27,7 +27,7 @@ interface AudiobookCardProps {
 const { width } = Dimensions.get('window');
 // Card dimensions for Large Mode
 const CARD_WIDTH = width * 0.75;
-const CARD_HEIGHT = CARD_WIDTH * 1.5; // Aspect ratio for poster
+const CARD_HEIGHT = CARD_WIDTH * 1.35; // Aspect ratio for poster
 
 const BOOK_COVERS: Record<string, any> = {
     'Meditations': 'https://images.unsplash.com/photo-1506126613408-eca67ad4844a?w=400&q=80',

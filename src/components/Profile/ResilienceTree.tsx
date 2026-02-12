@@ -8,7 +8,6 @@ import {
     Circle,
     LinearGradient,
     vec,
-    Blur,
     Shadow,
 } from '@shopify/react-native-skia';
 import Animated, {
@@ -16,8 +15,61 @@ import Animated, {
     withTiming,
     useDerivedValue,
     Easing,
+    SharedValue,
 } from 'react-native-reanimated';
 import { theme } from '../../constants/theme';
+
+// 🎄 CONFIGURACIÓN MAESTRA DEL ROBLE ESPIRITUAL
+export const TREE_CONFIG = {
+    baseOffset: 10,
+    trunkBaseWidth: 0.12,   // Base ancha como en la imagen
+    trunkTopWidth: 0.03,    // Se estrecha arriba
+    trunkHeight: 0.38,      // % de la altura total
+    maxDepth: 5,            // Profundidad para densidad (5-6)
+    branchShrink: 0.78,     // Cuánto se achica cada rama
+    spreadBase: 0.45,       // Ángulo de apertura (radianes)
+    orbSize: 3,             // Tamaño de las luces
+};
+
+// Helper para calcular punto en curva Bézier cuadrática (para seguir el crecimiento)
+const getBezierPoint = (t: number, p0: number[], p1: number[], p2: number[]) => {
+    'worklet';
+    const invT = 1 - t;
+    return {
+        x: invT * invT * p0[0] + 2 * invT * t * p1[0] + t * t * p2[0],
+        y: invT * invT * p0[1] + 2 * invT * t * p1[1] + t * t * p2[1],
+    };
+};
+
+interface BloomProps {
+    index: number;
+    points: number[][];
+    growAnim: SharedValue<number>;
+    isActive: boolean;
+    colors: { accent: string; primary: string };
+}
+
+const Bloom: React.FC<BloomProps> = ({ index, points, growAnim, isActive, colors }) => {
+    const pos = useDerivedValue(() => getBezierPoint(growAnim.value, points[0], points[1], points[2]));
+
+    return (
+        <Circle
+            cx={pos.value.x}
+            cy={pos.value.y}
+            r={3 * growAnim.value}
+            color={isActive ? "#FFF" : "rgba(255,255,255,0.05)"}
+        >
+            {isActive && (
+                <Shadow dx={0} dy={0} blur={8} color={index % 2 === 0 ? colors.accent : colors.primary} />
+            )}
+            <LinearGradient
+                start={vec(0, 0)}
+                end={vec(10, 10)}
+                colors={isActive ? ["#FFF", "rgba(255,255,255,0.8)"] : ["rgba(255,255,255,0.1)", "transparent"]}
+            />
+        </Circle>
+    );
+};
 
 interface ResilienceTreeProps {
     daysPracticed?: number;
@@ -26,184 +78,117 @@ interface ResilienceTreeProps {
 }
 
 const ResilienceTree: React.FC<ResilienceTreeProps> = ({ daysPracticed = 0, size = 250, isGuest = false }) => {
-    // Growth factor (0.2 to 1) based on days practiced in the month (0 to 30)
-    // Ensures the tree grows as the month progresses
-    const targetGrowth = isGuest ? 0.4 : 0.2 + (Math.min(daysPracticed / 30, 1) * 0.8);
+    const targetGrowth = isGuest ? 0.35 : 0.2 + (Math.min(daysPracticed / 30, 1) * 0.8);
     const growth = useSharedValue(0.1);
 
     useEffect(() => {
         growth.value = withTiming(targetGrowth, {
-            duration: 2000,
-            easing: Easing.out(Easing.back(1.5)),
+            duration: 2500,
+            easing: Easing.out(Easing.exp),
         });
     }, [targetGrowth]);
 
-    // Calculate tree structure (recursive-like but flattened for Skia performance)
-    const treeElements = useMemo(() => {
-        const centerX = size / 2;
-        const baseY = size - 50;
+    const treeData = useMemo(() => {
+        const cx = size / 2;
+        const by = size - TREE_CONFIG.baseOffset;
+        const branches: { path: any; depth: number; points: number[][] }[] = [];
+        const blooms: { points: number[][] }[] = [];
 
-        // Trunk - Slightly curved
+        // 1. DIBUJO DEL TRONCO (Potente y curvo)
         const trunkPath = Skia.Path.Make();
-        trunkPath.moveTo(centerX, baseY + 20);
-        trunkPath.quadTo(centerX + 5, baseY - (size * 0.2), centerX, baseY - (size * 0.45));
+        const bw = size * TREE_CONFIG.trunkBaseWidth;
+        const tw = size * TREE_CONFIG.trunkTopWidth;
+        const th = size * TREE_CONFIG.trunkHeight;
 
-        // Roots (Rounded with quadTo)
-        const roots: { path: any }[] = [];
-        const addRoot = (startX: number, startY: number, angle: number, length: number, depth: number) => {
-            if (depth > 2) return;
-            const endX = startX + Math.cos(angle) * length;
-            const endY = startY + Math.sin(angle) * length;
+        // Base
+        trunkPath.moveTo(cx - bw / 2, by);
+        // Lado izquierdo curvo
+        trunkPath.quadTo(cx - bw / 3, by - th * 0.5, cx - tw / 2, by - th);
+        // Parte superior
+        trunkPath.lineTo(cx + tw / 2, by - th);
+        // Lado derecho curvo
+        trunkPath.quadTo(cx + bw / 3, by - th * 0.5, cx + bw / 2, by);
+        trunkPath.close();
 
-            const ctrlX = startX + Math.cos(angle - 0.2) * (length * 0.5);
-            const ctrlY = startY + Math.sin(angle - 0.2) * (length * 0.5);
-
-            const path = Skia.Path.Make();
-            path.moveTo(startX, startY);
-            path.quadTo(ctrlX, ctrlY, endX, endY);
-            roots.push({ path });
-
-            addRoot(endX, endY, angle + 0.5, length * 0.6, depth + 1);
-            addRoot(endX, endY, angle - 0.5, length * 0.6, depth + 1);
-        };
-
-        // Radial roots
-        for (let i = 0; i < 5; i++) {
-            const angle = Math.PI / 3 + (i * Math.PI / 9);
-            addRoot(centerX, baseY + 5, angle, 25, 0);
-        }
-
-        // Branches (Organic with quadTo)
-        const branches: { path: any; delay: number }[] = [];
-
-        const addBranch = (startX: number, startY: number, angle: number, length: number, depth: number, curveDir: number) => {
-            if (depth > 4) return;
-
-            // Calculate end point
-            const endX = startX + Math.cos(angle) * length;
-            const endY = startY + Math.sin(angle) * length;
-
-            // Control point for quadratic curve to create a rounded look
-            const ctrlAngle = angle + (0.3 * curveDir);
-            const ctrlX = startX + Math.cos(ctrlAngle) * (length * 0.5);
-            const ctrlY = startY + Math.sin(ctrlAngle) * (length * 0.5);
-
-            const path = Skia.Path.Make();
-            path.moveTo(startX, startY);
-            path.quadTo(ctrlX, ctrlY, endX, endY);
-
-            branches.push({ path, delay: depth });
-
-            const factor = 0.72;
-            const spread = 0.5;
-
-            // Adjust angles at higher depths to "pull" them inwards and round the canopy
-            const inwardPull = depth > 2 ? (centerX - endX) * 0.001 : 0;
-
-            addBranch(endX, endY, angle - spread + inwardPull, length * factor, depth + 1, -1);
-            addBranch(endX, endY, angle + spread + inwardPull, length * factor, depth + 1, 1);
-
-            if (depth < 2) {
-                addBranch(endX, endY, angle + inwardPull, length * 0.5, depth + 2, 0);
+        // 2. GENERADOR RECURSIVO (L-System con arcos)
+        const generate = (x: number, y: number, angle: number, len: number, depth: number) => {
+            if (depth > TREE_CONFIG.maxDepth) {
+                blooms.push({ points: [[x, y], [x, y], [x, y]] }); // Placeholder for tip
+                return;
             }
+
+            // Calculamos dos ramas
+            const angles = [angle - TREE_CONFIG.spreadBase - (Math.random() * 0.2), angle + TREE_CONFIG.spreadBase + (Math.random() * 0.2)];
+
+            angles.forEach(ang => {
+                const ex = x + Math.cos(ang) * len;
+                const ey = y + Math.sin(ang) * len;
+
+                // Punto de control para la curva (arqueada hacia afuera)
+                const midX = x + (ex - x) * 0.5 + (Math.cos(ang + 0.4) * 10);
+                const midY = y + (ey - y) * 0.5 + (Math.sin(ang + 0.4) * 10);
+
+                const p = Skia.Path.Make();
+                p.moveTo(x, y);
+                p.quadTo(midX, midY, ex, ey);
+
+                branches.push({ path: p, depth, points: [[x, y], [midX, midY], [ex, ey]] });
+
+                // Si es el último nivel, el bloom va aquí
+                if (depth === TREE_CONFIG.maxDepth) {
+                    blooms.push({ points: [[x, y], [midX, midY], [ex, ey]] });
+                }
+
+                generate(ex, ey, ang, len * TREE_CONFIG.branchShrink, depth + 1);
+            });
         };
 
-        // Multi-level organic branching
-        // Low
-        addBranch(centerX, baseY - (size * 0.15), -Math.PI / 2 - 1.1, size * 0.14, 1, -1);
-        addBranch(centerX, baseY - (size * 0.15), -Math.PI / 2 + 1.1, size * 0.14, 1, 1);
+        // Iniciamos el crecimiento desde el final del tronco
+        // Varias ramas principales para densidad
+        generate(cx, by - th, -Math.PI / 2 - 0.5, size * 0.18, 1);
+        generate(cx, by - th, -Math.PI / 2 + 0.5, size * 0.18, 1);
+        generate(cx, by - th * 0.8, -Math.PI / 2 - 1.2, size * 0.15, 2);
+        generate(cx, by - th * 0.8, -Math.PI / 2 + 1.2, size * 0.15, 2);
 
-        // Mid
-        addBranch(centerX, baseY - (size * 0.3), -Math.PI / 2 - 0.7, size * 0.18, 0, -1);
-        addBranch(centerX, baseY - (size * 0.3), -Math.PI / 2 + 0.7, size * 0.18, 0, 1);
-
-        // Crown - Lowered and restricted to prevent hitting "ceiling"
-        addBranch(centerX, baseY - (size * 0.45), -Math.PI / 2 - 0.3, size * 0.18, 0, -1);
-        addBranch(centerX, baseY - (size * 0.45), -Math.PI / 2 + 0.3, size * 0.18, 0, 1);
-
-        return { trunkPath, branches, roots };
+        return { trunkPath, branches, blooms };
     }, [size]);
-
-    // Animated values for drawing
-    const bloomRadius = useDerivedValue(() => 4 * growth.value);
 
     return (
         <View style={[styles.container, { width: size, height: size }]}>
             <Canvas style={styles.canvas}>
-                {/* Trunk */}
                 <Group opacity={growth}>
-                    {/* Roots - Subtle glow */}
-                    {treeElements.roots.map((root, index) => (
-                        <Path
-                            key={`root-${index}`}
-                            path={root.path}
-                            color="rgba(255,255,255,0.5)"
-                            style="stroke"
-                            strokeWidth={4 - index}
-                            strokeCap="round"
-                        >
-                            <Shadow dx={0} dy={0} blur={4} color="rgba(255,255,255,0.2)" />
-                        </Path>
-                    ))}
-
-                    {/* Trunk - Stronger glow */}
-                    <Path
-                        path={treeElements.trunkPath}
-                        color="rgba(255,255,255,0.95)"
-                        style="stroke"
-                        strokeWidth={10}
-                        strokeCap="round"
-                    >
-                        <Shadow dx={0} dy={0} blur={8} color="rgba(255,255,255,0.4)" />
+                    {/* Trunk */}
+                    <Path path={treeData.trunkPath} color="white">
+                        <Shadow dx={0} dy={0} blur={10} color="rgba(255,255,255,0.4)" />
                     </Path>
 
-                    {/* Branches - Enhanced luminosity */}
-                    {treeElements.branches.map((branch, index) => (
+                    {/* Branches */}
+                    {treeData.branches.map((b, i) => (
                         <Path
-                            key={index}
-                            path={branch.path}
-                            color="rgba(255,255,255,0.85)"
+                            key={`branch-${i}`}
+                            path={b.path}
+                            color="rgba(255,255,255,0.7)"
                             style="stroke"
-                            strokeWidth={Math.max(1.5, 4 - (branch.delay * 0.6))}
+                            strokeWidth={Math.max(0.7, 3 - b.depth * 0.5)}
                             strokeCap="round"
-                        >
-                            <Shadow dx={0} dy={0} blur={3} color="rgba(255,255,255,0.3)" />
-                        </Path>
+                            start={0}
+                            end={growth}
+                        />
                     ))}
 
-                    {/* Blooms (Circles at the end of branches) */}
-                    {treeElements.branches.map((branch, index) => {
-                        const lastPoint = branch.path.getLastPt();
-                        // Bloom status based on days practiced (1 light per day)
-                        // Limiting to 30 active blooms for the monthly challenge
-                        const isActive = isGuest ? (index < 5) : (index < daysPracticed);
-
-                        if (index >= 31) return null; // Ensure we only show ~30 lights for the month
-
+                    {/* Lights / Blooms */}
+                    {treeData.blooms.map((bloom, i) => {
+                        const isActive = isGuest ? (i % 5 === 0) : (i < daysPracticed * 2);
+                        if (i > 100) return null; // Cap for performance
                         return (
-                            <Circle
-                                key={`bloom-${index}`}
-                                cx={lastPoint.x}
-                                cy={lastPoint.y}
-                                r={bloomRadius}
-                                color={isActive ? "#FFF" : "rgba(255,255,255,0.05)"}
-                            >
-                                {isActive && (
-                                    <Shadow
-                                        dx={0}
-                                        dy={0}
-                                        blur={8}
-                                        color={index % 3 === 0 ? theme.colors.accent : theme.colors.primary}
-                                    />
-                                )}
-                                <LinearGradient
-                                    start={vec(lastPoint.x - 5, lastPoint.y - 5)}
-                                    end={vec(lastPoint.x + 5, lastPoint.y + 5)}
-                                    colors={isActive
-                                        ? [index % 3 === 0 ? theme.colors.accent : "#FFF", "#FFF"]
-                                        : ["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-                                />
-                            </Circle>
+                            <Bloom
+                                key={`bloom-${i}`}
+                                index={i}
+                                points={bloom.points}
+                                growAnim={growth}
+                                isActive={isActive}
+                                colors={{ accent: theme.colors.accent, primary: theme.colors.primary }}
+                            />
                         );
                     })}
                 </Group>
@@ -213,15 +198,8 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({ daysPracticed = 0, size
 };
 
 const styles = StyleSheet.create({
-    container: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    canvas: {
-        flex: 1,
-        width: '100%',
-        height: '100%',
-    },
+    container: { justifyContent: 'center', alignItems: 'center' },
+    canvas: { flex: 1, width: '100%', height: '100%' },
 });
 
 export default ResilienceTree;

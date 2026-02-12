@@ -19,6 +19,7 @@ import BackgroundSoundScreen from '../screens/BackgroundSound/BackgroundSoundScr
 import BackgroundPlayerScreen from '../screens/BackgroundSound/BackgroundPlayerScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MiniPlayer from '../components/Shared/MiniPlayer';
+import CustomTabBar from './CustomTabBar';
 
 const Tab = createBottomTabNavigator();
 const LibStack = createNativeStackNavigator<RootStackParamList>();
@@ -35,27 +36,12 @@ const LibraryStack = () => (
 );
 
 export const TabNavigator = () => {
-    const insets = useSafeAreaInsets();
-
     return (
         <>
             <Tab.Navigator
+                tabBar={(props) => <CustomTabBar {...props} />}
                 screenOptions={{
                     headerShown: false,
-                    tabBarStyle: {
-                        backgroundColor: theme.colors.surface,
-                        borderTopWidth: 1,
-                        borderTopColor: 'rgba(255, 255, 255, 0.05)',
-                        height: 60 + insets.bottom,
-                        paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
-                        paddingTop: 8,
-                    },
-                    tabBarActiveTintColor: theme.colors.primary,
-                    tabBarInactiveTintColor: theme.colors.textMuted,
-                    tabBarLabelStyle: {
-                        fontSize: 12,
-                        fontWeight: '600',
-                    },
                 }}
             >
                 <Tab.Screen

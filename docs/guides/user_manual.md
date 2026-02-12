@@ -28,43 +28,26 @@ Hemos transformado la Brújula Interior en una experiencia interactiva mágica d
 
 ---
 
-## 3. La Nueva Biblioteca Unificada 📚
-**Pantalla:** `LibraryScreen` -> Hubs de Contenido
-La Biblioteca es ahora un portal visualmente coherente con tres pilares fundamentales que comparten la estética "Glassmorphic Zen":
-
-### 🧘 Sesiones de Meditación (Experiencia v2.0)
-- **Navegación Intuitiva (Estilo Netflix)**: Explora el contenido mediante filas horizontales deslizables organizadas por temáticas. Usa el botón "Ver Todo" debajo de cada título para entrar en una vista de lista vertical detallada de esa categoría.
-- **Jerarquía Visual Clara**:
-    - **DESTACADOS**: Sección superior con "Meditaciones Técnicas" (Core), "Sesiones Rápidas" (Poster) y "Mejor Valoradas" (Wide).
-    - **EXPLORA POR CATEGORÍAS**: Sección general con las 10 áreas temáticas.
-- **Separadores "Soundwave"**: Líneas de energía ondulatorias generadas proceduralmente (Skia) que "respiran" y dividen las secciones. Los títulos utilizan un efecto de **Retroiluminación (Backlit)** para máxima legibilidad sobre el fondo animado.
-- **Contenido Fresco (Smart Shuffle)**: Cada vez que abres la app, el orden de las sesiones técnicas y categorías cambia sutilmente para que siempre descubras algo nuevo.
-- **Categorización Maestra (10 Temáticas)**: El catálogo ahora se organiza en 10 áreas reales del bienestar: *Calma SOS, Mindfulness, Sueño, Resiliencia, Rendimiento, Despertar, Salud, Hábitos, Emocional* y *Niños*.
-- **Identidad de Guías**: Disfruta de la personalidad vocal única de nuestros 4 guías (Aria, Ziro, Éter y Gaia).
-- **Tarjetas de Cristal**: Diseño transparente con fondos inmersivos que se integran con el ambiente.
-- **Guía Háptica**: Vibraciones inteligentes para meditar sin mirar la pantalla (Doble pulso al inhalar, Vibración profunda al exhalar).
-- **Motor de Audio Multi-Capa**: Personaliza tu experiencia mezclando Voz, Paisaje Sonoro y Ondas Binaurales.
-- **Sincronización Grado Médico (v1.8.0)**: El orbe y las instrucciones de voz ahora respiran al unísono con una precisión de 16ms.
-
-#### 🎨 Sistema de Temas Visuales (v1.7.0)
-Paziify ahora te permite personalizar completamente la atmósfera visual de tus sesiones de meditación:
-- **4 Temas Únicos** con fondos de alta calidad (1920x1080):
-  - 🌌 **Cosmos Místico**: Nebulosa espacial verde/azul.
-  - ⛩️ **Templo Zen**: Interior minimalista, tonos cálidos.
-  - 🌲 **Bosque Místico**: Bosque al amanecer, orbe verde natural.
-  - 💧 **Cueva Cristalina**: Cueva natural con gotas y orbe cian refrescante.
+## 3. Identidad Corporativa Unificada (Biblioteca y Academia) 📚⚖️
+**Pantalla:** `LibraryScreen` / `CBTAcademyScreen` / `AudiobooksScreen`
+Paziify v2.7 introduce un lenguaje visual unificado para todos sus catálogos, eliminando la fricción de navegación:
+- **Diseño Maestro de Catálogo**: Todas las bibliotecas (Meditación, Academia, Audiolibros) utilizan ahora el sistema **Soundwave Carousel**.
+- **SoundWaveHeader**: Una cabecera rítmica que "respira" mientras exploras tu santuario.
+- **Tarjetas Optimizadas**: Carátulas con ratio **1.35** que permiten una mayor visibilidad del contenido en pantallas verticales.
+- **Tipografía Skia**: Títulos artísticos dinámicos que cambian según el "vibe" de la categoría (Hollow, Glow, Duotone).
 
 ---
 
-## 4. El Reproductor Premium 💎
-**Componente:** `AudiobookPlayer` / `MeditationPlayer` / `MiniPlayer`
-- **Mini Player**: Nuevo componente flotante que te acompaña mientras exploras la app, permitiendo control total sin interrupciones.
-- **Glassmorphism**: Controles transparentes que flotan sobre portadas artísticas.
-- **Retroiluminación Dinámica**: El fondo del reproductor se adapta a los colores de la sesión.
+## 4. El Menú de Navegación Flotante 🛸💎
+**Componente:** `CustomTabBar`
+Hemos rediseñado el Menú Principal para ser una **Isla de Cristal** ergonómica:
+- **Efecto Orbital (Santuario)**: El botón central late orgánicamente y muestra el núcleo de tu energía actual (Sanar/Crecer).
+- **Navegación Ergonómica**: El menú flota sobre el contenido y se ajusta automáticamente a las áreas seguras de tu dispositivo (Safe Areas).
+- **Glassmorphism 3.0**: Blur de alta intensidad para una legibilidad perfecta sobre cualquier fondo nebula.
 
 ---
 
-## 5. El Panel de Control Adaptativo (Home 3.0)
+## 5. El Reproductor Premium y Mini Player 💎
 - **Bento Grid Vision**: La Home se organiza ahora en una cuadrícula de cristal estética que utiliza **imágenes reales** como fondo de las tarjetas (Academia, Historias, Música).
 - **ZenMeters Dinámicos**: Indicadores circulares de progreso que se ajustan en tiempo real según las metas (minutos/día) definidas en tu perfil.
 - **Sugerencias Inteligentes**: El contenido se adapta a tu modo (Sanar/Crecer) y a la hora del día (Día/Noche).

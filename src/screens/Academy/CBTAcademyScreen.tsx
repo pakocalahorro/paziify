@@ -131,7 +131,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
     // Derived stats
     const activeStats = useMemo(() => {
         const cats = new Set(modules.map(c => c.category));
-        return Object.keys(CATEGORY_CONFIG).filter(cat => cats.has(cat));
+        return Object.keys(CATEGORY_CONFIG).filter(cat => cats.has(cat as any));
     }, [modules]);
 
     const availableCategories = useMemo(() => {
@@ -268,7 +268,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                     {renderHeader()}
 
                     {/* Carousel */}
-                    <View style={styles.carouselContainer}>
+                    <View style={[styles.carouselContainer, { marginBottom: insets.bottom + 100 }]}>
                         <SoundWaveHeader title="Elige tu curso" accentColor="#FB7185" />
                         {filteredCourses.length === 0 ? (
                             <View style={styles.emptyState}>

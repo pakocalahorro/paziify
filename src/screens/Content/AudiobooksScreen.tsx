@@ -435,7 +435,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     {renderHeader()}
 
                     {/* Carousel Area */}
-                    <View style={styles.carouselContainer}>
+                    <View style={[styles.carouselContainer, { marginBottom: insets.bottom + 100 }]}>
                         {loading && !isRefetching ? (
                             <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 50 }} />
                         ) : filteredAudiobooks.length === 0 ? (
@@ -501,7 +501,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                                                     onPress={handleAudiobookPress}
                                                     isPlusMember={isPlusMember}
                                                     isLargeCard={true}
-                                                    guide={ALL_GUIDES.find(g => (item.narrator || '').toLowerCase().includes(g.name.toLowerCase()))}
+                                                    guide={ALL_GUIDES.find(g => ((item as Audiobook).narrator || '').toLowerCase().includes(g.name.toLowerCase()))}
                                                 />
                                             </Animated.View>
                                         </View>
@@ -718,6 +718,33 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
+    },
+    // Silhouette Styles
+    silhouetteContainer: {
+        width: 160,
+        height: 160,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
+    silhouetteCanvas: {
+        width: 160,
+        height: 160,
+        position: 'absolute',
+    },
+    silhouetteIconWrapper: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: 'rgba(2, 6, 23, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(251, 113, 133, 0.2)',
+    },
+    silhouetteIcon: {
+        opacity: 0.8,
     },
 });
 

@@ -157,9 +157,16 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
 
             <BackgroundWrapper nebulaMode={visualMode === 'healing' ? 'healing' : 'growth'} />
 
+            {/* BARRA DE CRISTAL FIJA (TOP SAFE AREA) */}
+            <BlurView
+                intensity={90}
+                tint="dark"
+                style={[styles.safeHeaderBlur, { height: insets.top }]}
+            />
+
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
+                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 100 }]}
             >
                 <PurposeModal
                     isVisible={showPurposeModal}
@@ -358,7 +365,15 @@ const styles = StyleSheet.create({
         backgroundColor: '#020617',
     },
     scrollContent: {
-        paddingBottom: 40,
+        // paddingBottom moved to inline for dynamic insets
+    },
+    safeHeaderBlur: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        backgroundColor: 'rgba(2, 6, 23, 0.5)', // Added base opacity
     },
     header: {
         paddingHorizontal: 20,

@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.6.5) 🚀
+# Paziify - AI Studio App (v2.7.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.6.5 (Spiritual Flow & Total Cloud Sync)**, una evolución integral que redefine la experiencia del usuario con un flujo de navegación simplificado, estética de cristal avanzada (Perfil 3.0) y persistencia total en la nube.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.7.0 (Unified Branding & Safe Area Mastery)**, una evolución que consolida la identidad corporativa unificando todos los catálogos y blinda la experiencia visual con una gestión avanzada de áreas seguras y un nuevo sistema de navegación flotante.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -50,8 +50,7 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
-## 📋 Roadmap y Logros
-
+- **[NEW] Unified Branding & UI Mastery (v2.7.0)**: Unificación visual de Biblioteca, Academia y Audiolibros. Sistema de navegación flotante con `StarCore` y tipografía premium Skia.
 - **[NEW] Spiritual Flow (v2.6.5)**: Implementación de `SpiritualPreloader` y navegación simplificada de fricción cero.
 - **[NEW] Profile 3.0 (v2.6.5)**: Rediseño integral con Glassmorphism, objetivos dinámicos y Árbol de Resiliencia orgánico.
 - **[NEW] Total Cloud Sync (v2.6.5)**: Persistencia 100% en Supabase (Favoritos, Historial y Ajustes en JSONB).
@@ -62,4 +61,4 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
-**Última actualización:** 11 de Febrero de 2026 - **Versión v2.6.5** (Spiritual Flow & Total Cloud Sync)
+**Última actualización:** 12 de Febrero de 2026 - **Versión v2.7.0** (Unified Branding & Safe Area Mastery)

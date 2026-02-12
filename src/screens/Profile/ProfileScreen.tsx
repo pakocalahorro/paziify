@@ -41,6 +41,10 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
     const visualMode = userState.lifeMode || (isNightMode ? 'healing' : 'growth');
 
+    const dayLabels: Record<string, string> = {
+        '0': 'D', '1': 'L', '2': 'M', '3': 'X', '4': 'J', '5': 'V', '6': 'S'
+    };
+
     useEffect(() => {
         const loadStats = async () => {
             if (user?.id) {
@@ -222,6 +226,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                 {dailyActivity.map((day, i) => {
                                     const goal = userState.dailyGoalMinutes || 20;
                                     const percent = Math.min((day.minutes / goal) * 100, 100);
+
+                                    const dateObj = new Date(day.day.includes('T') ? day.day : `${day.day}T12:00:00`);
+                                    const dayNum = dateObj.getDay();
+                                    const label = dayLabels[dayNum.toString()];
+
                                     return (
                                         <View key={i} style={styles.barContainer}>
                                             <View style={[
@@ -231,7 +240,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                                     backgroundColor: percent >= 100 ? theme.colors.primary : theme.colors.accent
                                                 }
                                             ]} />
-                                            <Text style={styles.barLabel}>{day.day.charAt(0)}</Text>
+                                            <Text style={styles.barLabel}>{label}</Text>
                                         </View>
                                     );
                                 })}

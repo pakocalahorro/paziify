@@ -20,11 +20,12 @@ export const IMAGES = {
     LEAF_BG: 'https://images.unsplash.com/photo-1516528387618-afa90b13e000?w=800&q=80',
     ACADEMY_HERO: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1000&q=80',
 
-    // Library Premium Photos (Vibrant Nature based on theme)
-    LIB_MEDITATION: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1000&q=80', // Peaceful beach/ocean
-    LIB_BOOKS: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1000&q=80', // Nature wisdom
-    LIB_STORIES: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1000&q=80', // Deep forest path
-    LIB_ACADEMY: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1000&q=80', // Cosmos/Wisdom
+    // Library Premium Photos (Official Supabase Assets)
+    LIB_MEDITATION: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/library_thumbnails/meditation_sessions.webp',
+    LIB_BOOKS: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/library_thumbnails/audiobooks.webp',
+    LIB_STORIES: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/library_thumbnails/true_stories.webp',
+    LIB_AMBIENT: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/library_thumbnails/music_atmospheres.webp',
+    LIB_ACADEMY: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/library_thumbnails/music_atmospheres.webp', // Alias for backward compatibility
 };
 
 export const SESSION_ASSETS: Record<string, string> = {

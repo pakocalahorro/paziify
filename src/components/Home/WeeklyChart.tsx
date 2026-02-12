@@ -29,6 +29,11 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({ data, color }) => {
                     const label = dayLabels[dayNum.toString()];
                     const heightPercent = Math.max((item.minutes / maxMinutes) * 100, 10); // Min 10% for visibility
 
+                    const today = new Date();
+                    const isToday = dateObj.getDate() === today.getDate() &&
+                        dateObj.getMonth() === today.getMonth() &&
+                        dateObj.getFullYear() === today.getFullYear();
+
                     return (
                         <View key={index} style={styles.columnContainer}>
                             <View style={styles.barContainer}>
@@ -48,7 +53,8 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({ data, color }) => {
                             </View>
                             <Text style={[
                                 styles.dayText,
-                                item.minutes > 0 && { color: '#FFF', fontWeight: '900' }
+                                item.minutes > 0 && { color: 'rgba(255,255,255,0.6)' },
+                                isToday && { color: color, fontWeight: '900', fontSize: 11 }
                             ]}>
                                 {label}
                             </Text>

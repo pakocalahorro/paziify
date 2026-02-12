@@ -8,6 +8,8 @@ import {
     Group,
     SweepGradient,
     vec,
+    Shadow,
+    Blur,
 } from '@shopify/react-native-skia';
 import Animated, {
     useSharedValue,
@@ -53,7 +55,7 @@ const ZenMeter: React.FC<ZenMeterProps> = ({ progress, size = 150, label = "ZEN"
                     r={radius}
                     style="stroke"
                     strokeWidth={strokeWidth}
-                    color="rgba(255,255,255,0.05)"
+                    color="rgba(255,255,255,0.15)"
                 />
 
                 {/* Progress Ring */}
@@ -64,6 +66,7 @@ const ZenMeter: React.FC<ZenMeterProps> = ({ progress, size = 150, label = "ZEN"
                         strokeWidth={strokeWidth}
                         strokeCap="round"
                     >
+                        <Shadow dx={0} dy={0} blur={6} color={theme.colors.primary} />
                         <SweepGradient
                             c={vec(center, center)}
                             colors={[theme.colors.primary, theme.colors.accent, theme.colors.primary]}
