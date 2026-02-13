@@ -7,8 +7,8 @@ import {
     Dimensions,
     ImageBackground,
     Animated,
-    Image,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -58,8 +58,8 @@ const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard
 
     // Priority: session.thumbnailUrl (dynamic) > session.image (passed from catalog) > fallback
     const imageSource = (session.thumbnailUrl || session.image)
-        ? { uri: session.thumbnailUrl || session.image }
-        : (typeof fallbackImage === 'string' ? { uri: fallbackImage } : fallbackImage);
+        ? (session.thumbnailUrl || session.image)
+        : fallbackImage;
 
     const getCategoryDetails = (category: string) => {
         const cat = category.toLowerCase();
@@ -104,7 +104,9 @@ const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard
                 <Image
                     source={imageSource}
                     style={{ width: IMAGE_SIZE, height: IMAGE_SIZE, borderRadius: 12 }}
-                    resizeMode="cover"
+                    contentFit="cover"
+                    transition={200}
+                    cachePolicy="disk"
                 />
 
                 {/* Locked Badge (Mini) */}
@@ -180,7 +182,9 @@ const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard
                 <Image
                     source={imageSource}
                     style={StyleSheet.absoluteFill}
-                    resizeMode="cover"
+                    contentFit="cover"
+                    transition={200}
+                    cachePolicy="disk"
                 />
 
                 {/* Gradient Overlay for Text Readability */}
@@ -252,10 +256,12 @@ const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard
                     backgroundColor: 'rgba(255,255,255,0.05)',
                     position: 'relative'
                 }}>
-                    <Animated.Image
+                    <Image
                         source={imageSource}
                         style={StyleSheet.absoluteFill}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        transition={200}
+                        cachePolicy="disk"
                     />
 
                     {/* Duration Badge (Overlay on Image) */}
@@ -368,13 +374,15 @@ const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard
         >
             <BlurView intensity={60} tint="dark" style={styles.glassContainer}>
                 <View style={styles.mainContent}>
-                    <Animated.Image
+                    <Image
                         source={imageSource}
                         style={[
                             StyleSheet.absoluteFill,
-                            { opacity: imageOpacity }
+                            { opacity: imageOpacity as any }
                         ]}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        transition={200}
+                        cachePolicy="disk"
                     />
                     {/* Category indicator line */}
                     <LinearGradient

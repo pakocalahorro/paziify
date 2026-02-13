@@ -37,6 +37,20 @@
             "kotlinVersion": "2.1.0"
           }
         }
+      ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Paziify necesita acceso a la cámara para el escaneo de cardio y bio-feedback.",
+          "enableFrameProcessors": true
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Paziify necesita acceso a la cámara para el escaneo de cardio y bio-feedback.",
+          "microphonePermission": "Paziify necesita acceso al micrófono para sesiones guiadas interactivas."
+        }
       ]
     ],
     "extra": {

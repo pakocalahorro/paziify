@@ -4,10 +4,10 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
-    Image,
     Dimensions,
     Animated,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -84,8 +84,11 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                 {/* Main Card Image */}
                 <View style={[styles.largeImageWrapper, { borderColor: 'rgba(255,255,255,0.1)' }]}>
                     <Image
-                        source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
+                        source={coverSource}
                         style={styles.largeImage}
+                        contentFit="cover"
+                        transition={200}
+                        cachePolicy="disk"
                     />
                     {isLocked && (
                         <View style={styles.lockOverlayList}>
@@ -127,6 +130,8 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                                         <Image
                                             source={{ uri: guide.avatar }}
                                             style={styles.miniAvatar}
+                                            contentFit="cover"
+                                            cachePolicy="disk"
                                         />
                                     </View>
                                     <Text style={styles.guideNameMini}>{guide.name}</Text>
@@ -171,8 +176,11 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                     <View style={styles.content}>
                         <View style={styles.coverWrapper}>
                             <Image
-                                source={typeof coverSource === 'string' ? { uri: coverSource } : coverSource}
+                                source={coverSource}
                                 style={styles.coverImage}
+                                contentFit="cover"
+                                transition={200}
+                                cachePolicy="disk"
                             />
                             {isLocked && (
                                 <View style={styles.lockOverlay}>

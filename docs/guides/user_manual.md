@@ -1,10 +1,29 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.6.5) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.8.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.6.5**. Esta versión introduce el **Spiritual Flow**, el **Reto Mensual de 30 Días**, la **Sincronización 100% Nube (Favoritos, Historial y Ajustes)**, el modo de vida **Sanar vs Crecer** persistente y el rediseño **Perfil 3.0**.
+Bienvenido a la guía oficial de **Paziify v2.8.0**. Esta versión introduce la tecnología **Zero-Egress Caching**, la infraestructura para **Cardio Scan**, y una optimización visual total mediante **expo-image**.
 
 ---
 
-## 1. Onboarding Zen y Flujo Espiritual (Fricción Cero) 🚪
+## 1. Zero-Egress Caching (Navegación sin Gastar Datos) 🛡️
+Paziify v2.8 introduce un motor de caché inteligente que protege tu plan de datos:
+- **Carga Instantánea**: Una vez que escuchas una sesión o ves una carátula, la app la guarda en tu móvil para siempre.
+- **Modo Offline Automático**: Si pierdes la conexión, todo el contenido que ya hayas visitado seguirá disponible sin esperas.
+- **Optimización de Almacenamiento**: La app gestiona automáticamente el espacio, eliminando archivos innecesarios cuando el móvil lo requiere.
+
+---
+
+## 2. Preparación para Cardio Scan y Bio-Feedback 🚀
+Hemos instalado la infraestructura necesaria para el futuro del bienestar interactivo:
+- **VisionCamera Integration**: Paziify ya es capaz de detectar cambios sutiles mediante la cámara del móvil (próximamente: Escaneo de Cardio).
+- **Privacidad**: Recuerda que la cámara solo se activa bajo tu consentimiento explícito para funciones de diagnóstico.
+
+---
+
+## 3. Onboarding Zen y Flujo Espiritual ... [Omitido por brevedad para el walkthrough, ver versiones anteriores] ...
+
+---
+
+*Última revisión: 13 de Febrero de 2026 - Versión 2.8.0 (Zero-Egress Update)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen`
 
 Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspección:

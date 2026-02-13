@@ -7,6 +7,7 @@ import {
     Dimensions,
     Animated,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -105,17 +106,19 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember, scr
         >
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
                 <View style={styles.mainContent}>
-                    <Animated.Image
+                    <Image
                         source={{ uri: CATEGORY_ASSETS[story.category] || CATEGORY_ASSETS['growth'] }}
                         style={[
                             StyleSheet.absoluteFill,
-                            { opacity: imageOpacity }
+                            { opacity: imageOpacity as any }
                         ]}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        transition={200}
+                        cachePolicy="disk"
                     />
                     {/* Category indicator line */}
                     <LinearGradient
-                        colors={gradient}
+                        colors={gradient as [string, string, ...string[]]}
                         style={styles.categoryLine}
                     />
 

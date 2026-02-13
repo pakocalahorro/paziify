@@ -1,6 +1,7 @@
 import { Audio } from 'expo-av';
 import { supabase } from './supabaseClient';
 import { SOUNDSCAPES, BINAURAL_WAVES, ELEMENTS } from '../data/soundscapesData';
+import CacheService from './CacheService';
 
 export interface AudioConfig {
     voice?: any;
@@ -71,8 +72,11 @@ class AudioEngineService {
         // 1. Capa Crítica: Voz (Si falla, lanzamos error para que BreathingTimer muestre alerta)
         try {
             if (config.voiceTrack) {
+                // INTERCEPCIÓN DE CACHÉ (Zero-Egress)
+                const localUri = await CacheService.get(config.voiceTrack, 'audio');
+
                 const { sound } = await Audio.Sound.createAsync(
-                    { uri: config.voiceTrack },
+                    { uri: localUri },
                     {
                         shouldPlay: false,
                         volume: this.volumes.voice,
@@ -84,7 +88,7 @@ class AudioEngineService {
                     }
                 );
                 this.voiceTrackSound = sound;
-                console.log('Voice track loaded:', config.voiceTrack);
+                console.log('Voice track loaded (Cache/Local):', localUri);
             }
         } catch (error) {
             console.error('Critical Error: Voice track failed to load:', error);
@@ -348,32 +352,22 @@ class AudioEngineService {
     }
 
     /**
-     * Genera y carga la voz profesional mediante Vertex AI (Edge Function)
+     * [SAFETY SWITCH] Genera y carga la voz profesional (DESACTIVADO PARA PRODUCCIÓN)
+     * Ya no se utiliza Google Cloud TTS dinámico para ahorrar costes (99% ahorro).
      */
     async loadProVoice(text: string, cacheKey: string, voiceName: string = 'es-ES-Wavenet-C') {
+        // Bloqueo de seguridad: No llamar a servicios de pago si ya tenemos MP3 auditados
+        console.warn(`[SAFETY SWITCH] Intento de carga de TTS dinámico bloqueado para: ${cacheKey}. Por favor, use voiceTrack (MP3).`);
+        return;
+
+        /* Código Legacy (Desactivado)
         try {
             if (this.cueCache.has(cacheKey)) return;
-
-            const { data, error } = await supabase.functions.invoke('meditation-tts', {
-                body: {
-                    text,
-                    voice: voiceName,
-                    speed: 0.70, // Super espiritual y lento
-                    pitch: -2.5  // Resonante y profundo
-                },
-            });
-
-            if (error || !data.audioContent) throw new Error(error?.message || 'No audio content received');
-
-            const uri = `data:audio/mp3;base64,${data.audioContent}`;
-            const { sound } = await Audio.Sound.createAsync(
-                { uri },
-                { shouldPlay: false, volume: this.volumes.voice }
-            );
-            this.cueCache.set(cacheKey, sound);
+            // ... (resto del código)
         } catch (error) {
             console.error(`Error loading cue (${cacheKey}):`, error);
         }
+        */
     }
 
     /**

@@ -18,14 +18,29 @@ npx expo prebuild
 ```
 *Este comando genera la carpeta `/android` nativa si no existe.*
 
-### 3. Generación desde Terminal (Gradle)
-Para generar un APK de depuración rápidamente:
-```powershell
-cd android
-./gradlew assembleDebug
-```
+### 3. Solución: Build en "Sandbox" (Para rutas con espacios)
+
+Si el build falla por espacios en la ruta (ej. `Mis Cosas`), usa este protocolo:
+
+1. **Crear el Enlace**: Cierra VS Code y abre PowerShell como **Administrador**:
+   ```powershell
+   New-Item -ItemType Junction -Path "C:\Paziify" -Target "C:\Mis Cosas\Proyectos\Paziify"
+   ```
+
+2. **Ejecutar el Build**: En una terminal nueva:
+   ```powershell
+   cd C:\Paziify\android
+   $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+   .\gradlew assembleDebug
+   ```
+
+3. **Revertir**: Una vez generado el APK, borra el enlace (esto NO borra tus archivos):
+   ```powershell
+   Remove-Item "C:\Paziify"
+   ```
+
 El archivo resultante estará en:
-`android/app/build/outputs/apk/debug/app-debug.apk`
+`C:\Mis Cosas\Proyectos\Paziify\android\app\build\outputs\apk\debug\app-debug.apk`
 
 ### 4. Instalación en el Dispositivo
 Puedes arrastrar el APK al móvil o usar ADB:

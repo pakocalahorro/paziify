@@ -1,4 +1,4 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.6.5) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.8.0) 🔐
 
 Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La seguridad y la escalabilidad son los pilares de este diseño, con un enfoque centrado en la privacidad mediante **Row Level Security (RLS)**.
 
@@ -92,13 +92,14 @@ CREATE POLICY "Privacidad Total JSONB" ON profiles
 
 ---
 
-## 5. Almacenamiento (Supabase Storage) ☁️
-| Bucket | Contenido | Política |
-| :--- | :--- | :--- |
-| `meditation-voices` | Voces 101 sesiones (Estandarizadas ASCII) | Public Read |
-| `meditation-thumbnails`| Portadas IA / WebP | Public Read |
-| `audiobooks` | Archivos MP3 narrados | Public Read |
-| `soundscapes` | Ambientes infinitos (Bosque, Lluvia, Cosmos) | Public Read |
+## 5. Almacenamiento (Supabase Storage) & Optimización Zero-Egress ☁️
+
+| Bucket | Contenido | Política | Estrategia de Caché |
+| :--- | :--- | :--- | :--- |
+| `meditation-voices` | Voces 101 sesiones (ASCII) | Public Read | `Cache-Control: public, max-age=31536000` |
+| `meditation-thumbnails`| Portadas IA / WebP | Public Read | `Cache-Control: public, max-age=31536000` |
+| `audiobooks` | Archivos MP3 narrados | Public Read | Persistent Cache local |
+| `soundscapes` | Ambientes infinitos | Public Read | Volatile Cache local |
 
 ---
-*Última revisión: 11 de Febrero de 2026 - Milestone 4: Sincronización Total & RLS Hardening (v2.6.5)*
+*Última revisión: 13 de Febrero de 2026 - Milestone 5: Zero-Egress & Infraestructura Nativa (v2.8.0)*

@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.7.0) 🚀
+# Paziify - AI Studio App (v2.8.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.7.0 (Unified Branding & Safe Area Mastery)**, una evolución que consolida la identidad corporativa unificando todos los catálogos y blinda la experiencia visual con una gestión avanzada de áreas seguras y un nuevo sistema de navegación flotante.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.8.0 (Zero-Egress & Cardio Infrastructure)**, una actualización centrada en la autonomía total (caché offline) y la preparación para sensores biométricos mediante `VisionCamera`.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -50,6 +50,7 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
+- **[NEW] Zero-Egress Update (v2.8.0)**: Sistema de caché nativo para activos (MP3/WebP) e infraestructura para Cardio Scan (VisionCamera).
 - **[NEW] Unified Branding & UI Mastery (v2.7.0)**: Unificación visual de Biblioteca, Academia y Audiolibros. Sistema de navegación flotante con `StarCore` y tipografía premium Skia.
 - **[NEW] Spiritual Flow (v2.6.5)**: Implementación de `SpiritualPreloader` y navegación simplificada de fricción cero.
 - **[NEW] Profile 3.0 (v2.6.5)**: Rediseño integral con Glassmorphism, objetivos dinámicos y Árbol de Resiliencia orgánico.
@@ -61,4 +62,4 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
-**Última actualización:** 12 de Febrero de 2026 - **Versión v2.7.0** (Unified Branding & Safe Area Mastery)
+**Última actualización:** 13 de Febrero de 2026 - **Versión v2.8.0** (Zero-Egress & Cardio Infrastructure)

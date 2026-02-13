@@ -8,8 +8,8 @@ import {
     ScrollView,
     Dimensions,
     ImageBackground,
-    Image,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +20,7 @@ import Animated, {
     interpolate,
     Extrapolate
 } from 'react-native-reanimated';
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 import { theme } from '../constants/theme';
 import { SESSION_ASSETS } from '../constants/images';
 import { MeditationSession } from '../data/sessionsData';
@@ -108,10 +109,12 @@ const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onS
             onRequestClose={onClose}
         >
             <View style={styles.modalOverlay}>
-                <Animated.Image
-                    source={bgImage as any}
+                <AnimatedImage
+                    source={bgImage}
                     style={[styles.parallaxImage, headerImageStyle]}
-                    resizeMode="cover"
+                    contentFit="cover"
+                    transition={300}
+                    cachePolicy="disk"
                 />
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.5)', '#000']}
@@ -219,7 +222,8 @@ const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onS
                                                 <Image
                                                     source={{ uri: guideAvatar }}
                                                     style={{ width: '100%', height: '100%' }}
-                                                    resizeMode="cover"
+                                                    contentFit="cover"
+                                                    cachePolicy="disk"
                                                 />
                                             ) : (
                                                 <>
