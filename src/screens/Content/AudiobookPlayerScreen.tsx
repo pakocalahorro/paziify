@@ -67,7 +67,18 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const [showSleepTimer, setShowSleepTimer] = useState(false);
     const [sleepTimerSeconds, setSleepTimerSeconds] = useState<number | null>(null);
+    const [savedState, setSavedState] = useState<{ position: number; duration: number } | null>(null);
 
+    // Load saved position for visual display when not playing
+    useEffect(() => {
+        if (audiobook?.id) {
+            getPlaybackPosition(audiobook.id).then((pos) => {
+                if (pos) setSavedState(pos);
+            });
+        }
+    }, [audiobook]);
+
+    // Hooks moved to top
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -193,9 +204,10 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                     cover: coverSource,
                     audio_url: audiobook.audio_url, // Standardized property
                     duration: 0
-                }, startPosition);
+                }, startPosition, true);
 
-                await play();
+                // Replaced: await play(); 
+                // loadTrack(..., true) already handles playback with the fresh sound instance.
             } catch (err) {
                 console.error('Error toggling playback:', err);
             } finally {
@@ -239,7 +251,28 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         );
     }
 
-    const currentTrackProgress = duration > 0 ? position / duration : 0;
+    // Hooks moved to top
+    // [Fix 6] Smart Progress Logic
+    // If this book is REALLY playing, use global state.
+    // If not, use saved state to avoid showing Background Music progress.
+    const isCurrentBookActive = currentTrack?.id === audiobook?.id;
+
+    const displayPosition = isCurrentBookActive ? position : (savedState?.position || 0);
+    const displayDuration = isCurrentBookActive ? duration : (savedState?.duration || 1); // Avoid div by 0
+    const displayProgress = displayDuration > 0 ? displayPosition / displayDuration : 0;
+
+    const handleSeek = (val: number) => {
+        const targetMillis = val * displayDuration;
+        if (isCurrentBookActive) {
+            seekTo(targetMillis);
+        } else {
+            // Optional: If user slides while not playing, we could auto-play from there?
+            // For now, let's just update visual or ignore to keep it simple/safe.
+            // If we seek global context, it would seek the background music!
+            // So strictly ignore or loadTrack. Let's ignore to prevent accidental music jumps.
+            console.log('Seek ignored - Book not active');
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -291,15 +324,16 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                         style={styles.slider}
                         minimumValue={0}
                         maximumValue={1}
-                        value={currentTrackProgress}
-                        onSlidingComplete={(val) => seekTo(val * duration)}
+                        value={displayProgress}
+                        onSlidingComplete={handleSeek}
                         minimumTrackTintColor={theme.colors.primary}
                         maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
                         thumbTintColor={theme.colors.primary}
+                        disabled={!isCurrentBookActive && (!savedState || savedState.duration === 0)}
                     />
                     <View style={styles.timeContainer}>
-                        <Text style={styles.timeText}>{formatTime(position)}</Text>
-                        <Text style={styles.timeText}>{formatTime(duration)}</Text>
+                        <Text style={styles.timeText}>{formatTime(displayPosition)}</Text>
+                        <Text style={styles.timeText}>{formatTime(displayDuration)}</Text>
                     </View>
                 </View>
 

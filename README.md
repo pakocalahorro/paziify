@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.8.10) 🚀
+# Paziify - AI Studio App (v2.9.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.8.10 (Academy & Offline Mastery)**, centrada en la restauración del curso de Insomnio, la optimización masiva de activos de la Academia y la estabilización del protocolo Zero-Egress para resiliencia offline total.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.9.0 (Zero-Egress & Unified Categories)**, centrada en la independencia total de la red (Offline) y la integración dinámica con el Panel de Administración para Historias y Meditaciones.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -51,6 +51,7 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
+- **[NEW] Zero-Egress & Unified Categories (v2.9.0)**: Modo Offline total verificado. Unificación de categorías de Historias con el Panel Admin (adiós hardcode).
 - **[NEW] Academy & Offline Mastery (v2.8.10)**: Restauración de Insomnio, limpieza de 53 activos redundantes y protocolo Zero-Egress verificado.
 - **[NEW] Stability Hotfix (v2.8.2)**: Soluciona el crash al navegar a la biblioteca mediante `AnimatedImage` para `expo-image`.
 - **[NEW] Zero-Egress Update (v2.8.1)**: Sistema de caché nativo robusto e infraestructura para Cardio Scan.
@@ -62,5 +63,5 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
-**Última actualización:** 14 de Febrero de 2026 - **Versión v2.8.10** (Academy Mastery)
+**Última actualización:** 14 de Febrero de 2026 - **Versión v2.9.0** (Zero-Egress & Unified Categories)
 

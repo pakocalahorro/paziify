@@ -19,7 +19,7 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({ data, color }) => {
     };
 
     return (
-        <BlurView intensity={15} tint="dark" style={styles.glassContainer}>
+        <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
             <Text style={styles.title}>TU RITMO SEMANAL</Text>
             <View style={styles.chartArea}>
                 {data.map((item, index) => {
@@ -69,13 +69,13 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({ data, color }) => {
 const styles = StyleSheet.create({
     glassContainer: {
         width: '100%',
-        paddingVertical: 20,
+        paddingVertical: 12,
         paddingHorizontal: 15,
         borderRadius: 24,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
-        backgroundColor: 'rgba(2, 6, 23, 0.2)',
+        backgroundColor: 'rgba(2, 6, 23, 0.4)',
     },
     title: {
         fontSize: 10,
@@ -90,14 +90,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
-        height: 80,
+        height: 60,
     },
     columnContainer: {
         alignItems: 'center',
         flex: 1,
     },
     barContainer: {
-        height: 80,
+        height: 60,
         width: 12,
         backgroundColor: 'rgba(255,255,255,0.02)',
         borderRadius: 6,

@@ -185,7 +185,18 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
 
         try {
-            if (sound) await sound.unloadAsync();
+            if (sound) {
+                // [Fix 3] Force save position of current track before switching
+                try {
+                    const status = await sound.getStatusAsync();
+                    if (status.isLoaded && currentTrack && !currentTrack.isInfinite) {
+                        await savePlaybackPosition(currentTrack.id, status.positionMillis, status.durationMillis || 0);
+                    }
+                } catch (e) { console.log('Error saving position before switch:', e); }
+
+                sound.setOnPlaybackStatusUpdate(null);
+                await sound.unloadAsync();
+            }
             if (secondarySound) {
                 await secondarySound.unloadAsync();
                 setSecondarySound(null);
@@ -276,14 +287,29 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }, [sound, position]);
 
     const closePlayer = useCallback(async () => {
+        // [Fix 3] Save position on close
+        if (sound && currentTrack && !currentTrack.isInfinite) {
+            try {
+                const status = await sound.getStatusAsync();
+                if (status.isLoaded) {
+                    await savePlaybackPosition(currentTrack.id, status.positionMillis, status.durationMillis || 0);
+                }
+            } catch (e) { console.log('Error saving position on close:', e); }
+        }
+
         if (sound) await sound.unloadAsync();
         if (secondarySound) await secondarySound.unloadAsync();
+
+        // Restore Ambience? Or Silence?
+        // User requested: "Vuelve a sonar el Ambiente/Silencio de fondo?" -> YES.
+        // Ambience logic in useEffect will kick in automatically once isPlaying becomes false.
+
         setSound(null);
         setSecondarySound(null);
         setCurrentTrack(null);
         setIsPlaying(false);
         setPosition(0);
-    }, [sound, secondarySound]);
+    }, [sound, secondarySound, currentTrack]);
 
     return (
         <AudioPlayerContext.Provider

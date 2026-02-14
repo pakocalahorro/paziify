@@ -151,7 +151,7 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
 
                     <View style={styles.headerTitleContainer}>
-                        <Text style={styles.headerTitleInline}>Biblioteca de Calma</Text>
+                        <Text style={styles.headerTitleInline}>Biblioteca</Text>
                     </View>
 
                     <View style={styles.headerIconContainer}>
@@ -336,10 +336,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
     },
     headerTitleInline: {
-        fontSize: 16,
-        fontWeight: '800',
+        fontSize: 26,
+        fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: 0.5,
+        letterSpacing: -0.5,
         textAlign: 'center',
     },
     headerIconContainer: {

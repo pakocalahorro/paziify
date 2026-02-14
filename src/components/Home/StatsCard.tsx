@@ -14,7 +14,7 @@ interface StatsCardProps {
 
 const StatsCard: React.FC<StatsCardProps> = ({ title, value, unit, icon, color }) => {
     return (
-        <BlurView intensity={20} tint="dark" style={styles.container}>
+        <BlurView intensity={30} tint="dark" style={[styles.container, { backgroundColor: 'rgba(2, 6, 23, 0.4)' }]}>
             <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
                 <Ionicons name={icon} size={20} color={color} />
             </View>
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 15,
+        padding: 10,
         borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,

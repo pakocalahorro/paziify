@@ -1,6 +1,6 @@
 # Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.8.10) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.8.10** consolida la arquitectura de activos única para la Academia y la resiliencia offline total.
+Esta guía define el ADN visual de Paziify. La versión **v2.9.0** consolida la arquitectura de activos única para la Academia, la resiliencia offline total y la **Estandarización de Cabeceras**.
 
 ---
 
@@ -44,4 +44,16 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 
 ---
 
-*Última revisión: 14 de Febrero de 2026 - Academy Stability v2.8.10*
+
+---
+
+## 8. Estandarización de Cabeceras (v2.9.0) 📐
+Para reducir el ruido visual y mejorar la consistencia:
+- **Tipografía**: **26px ExtraBold** (Black) con `letter-spacing: -0.5`.
+- **Estructura**: `[Botón Atrás] [Título] [Icono Sección]` (Fila 1).
+- **Filtros**: Siempre debajo del título (Fila 2), como en la Biblioteca.
+- **Aplicación**: Implementado en Biblioteca, Audiolibros e Historias (eliminando las siluetas gigantes antiguas).
+
+---
+
+*Última revisión: 14 de Febrero de 2026 - Master Audit v2.9.0 (Zero-Egress & Unified Categories)*

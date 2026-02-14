@@ -8,6 +8,7 @@ import {
     ActivityIndicator,
     Alert,
 } from 'react-native';
+import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -40,6 +41,7 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
     const { lessonId } = route.params;
     const { userState, updateUserState } = useApp();
+    const { closePlayer } = useAudioPlayer(); // [Fix 5] Get global closePlayer
 
     const [lesson, setLesson] = useState<Lesson | null>(null);
     const [isLoadingLesson, setIsLoadingLesson] = useState(true);
@@ -118,6 +120,13 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
             await sound.pauseAsync();
             setIsPlaying(false);
         } else {
+            // [Fix 5] Close global audio (background/books) before playing lesson
+            try {
+                await closePlayer();
+            } catch (e) {
+                console.log('Error closing global audio:', e);
+            }
+
             await sound.playAsync();
             setIsPlaying(true);
         }

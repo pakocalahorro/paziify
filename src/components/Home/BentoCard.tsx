@@ -255,11 +255,11 @@ const styles = StyleSheet.create({
     },
     large: {
         width: '100%',
-        height: 170,
+        height: 145,
     },
     medium: {
         width: '48%',
-        height: 180,
+        height: 145,
     },
 });
 

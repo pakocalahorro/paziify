@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     },
     largeInfoCard: {
         position: 'absolute',
-        bottom: 16,
+        bottom: 80, // Lifted to avoid MiniPlayer overlap (was 16)
         left: 16,
         right: 16,
         padding: 16,

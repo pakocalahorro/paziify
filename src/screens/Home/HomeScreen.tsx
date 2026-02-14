@@ -166,7 +166,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 100 }]}
+                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 100 }]}
             >
                 <PurposeModal
                     isVisible={showPurposeModal}
@@ -249,6 +249,9 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
 
                 {/* BENTO GRID 3.0 */}
                 <View style={styles.gridSection}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>RECOMENDACIONES PAZIIFY</Text>
+                    </View>
                     <BentoGrid>
                         {/* Dosis Diaria - Large Card */}
                         <BentoCard
@@ -457,7 +460,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 30,
-        marginBottom: 30,
+        marginBottom: 15,
         paddingHorizontal: 20,
     },
     zenContainer: {
@@ -471,11 +474,11 @@ const styles = StyleSheet.create({
     statsRow: {
         flexDirection: 'row',
         paddingHorizontal: 15,
-        marginBottom: 20,
+        marginBottom: 15,
     },
     rhythmSection: {
         paddingHorizontal: 20,
-        marginBottom: 35,
+        marginBottom: 20,
     },
     statsLabels: {
         flex: 1,

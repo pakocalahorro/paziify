@@ -66,7 +66,7 @@ Disponemos de herramientas en la carpeta `scripts/` para mantener el catálogo o
 
 Este es el registro del estado de las sesiones tras la auditoría del 10 de febrero de 2026.
 
-### 🛑 Calma SOS (Guía: Aria)
+### 🛑 Calma SOS (Guía: Aria) camlasos
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Alivio de la Opresión en el Pecho | Aria | OK |
@@ -81,7 +81,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Sosiego de los Pensamientos | Aria | OK |
 | Técnica 5-4-3-2-1 (Anclaje Sensorial) | Aria | |
 
-### 🌅 Despertar y Energía (Guía: Ziro - REASIGNADO)
+### 🌅 Despertar y Energía (Guía: Ziro - REASIGNADO) despertar
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Activación de Dopamina Natural | Ziro | OK |
@@ -95,7 +95,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Superar la Niebla Mental | Ziro | OK |
 | Visualización de Éxito Diario | Ziro | OK |
 
-### 🧠 Inteligencia Emocional (Guía: Aria)
+### 🧠 Inteligencia Emocional (Guía: Aria) emocional
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Auto-responsabilidad | Aria | |
@@ -109,7 +109,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Observar la Ira (El Volcán) | Aria | |
 | Reconocer la Emoción | Aria | OK |
 
-### 🏃‍♂️ Hábitos y Estilo de Vida (Guía: Aria)
+### 🏃‍♂️ Hábitos y Estilo de Vida (Guía: Aria) habitos
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Caminar sin Prisa (Mindful Walking) | Aria | |
@@ -123,7 +123,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Valorar lo Pequeño (Mindfulness Diario) | Aria | |
 | Vivir con Minimalismo Mental | Aria | |
 
-### 🧸 Paziify Kids (Guía: Gaia)
+### 🧸 Paziify Kids (Guía: Gaia) kids
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Adiós al "Enfado Monstruo" | Gaia | |
@@ -137,7 +137,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | La Aventura del Aire (Respiración Mágica) | Gaia | |
 | Soy el Capitán de mi Barco | Gaia | |
 
-### 🧘 Mindfulness y Presencia (Guía: Aria)
+### 🧘 Mindfulness y Presencia (Guía: Aria) mindfulness
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Caminata Lenta Consciente | Aria | OK |
@@ -151,7 +151,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Presencia en el "Ahora" | Aria | OK |
 | Vipassana: El Cuerpo Revelado | Aria | OK |
 
-### ⚡ Rendimiento y Foco (Guía: Ziro)
+### ⚡ Rendimiento y Foco (Guía: Ziro) rendimiento
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Bloqueo de Distracciones | Ziro | OK |
@@ -165,7 +165,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Superar la Procrastinación | Ziro | OK |
 | Visión Periférica y Calma (Hakalau) | Ziro | OK |
 
-### 🛡️ Resiliencia y Poder Mental (Guía: Éter)
+### 🛡️ Resiliencia y Poder Mental (Guía: Éter) resiliencia
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Auto-compasión ante el Error | Éter | OK |
@@ -179,7 +179,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Previsualización de Dificultades (Pre-mortum) | Éter | OK |
 | Transformar el Fracaso (Resiliencia) | Éter | OK |
 
-### 🏥 Salud y Cuerpo (Guía: Aria)
+### 🏥 Salud y Cuerpo (Guía: Aria) salud
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | Alivio del Dolor (Escáner) | Aria | OK |
@@ -193,7 +193,7 @@ Este es el registro del estado de las sesiones tras la auditoría del 10 de febr
 | Respiración para la Digestión | Aria | |
 | Vitalidad Sistémica | Aria | |
 
-### 💤 Sueño y Descanso (Guía: Éter)
+### 💤 Sueño y Descanso (Guía: Éter) sueno
 | Sesión | Guía | Confirmado |
 | :--- | :--- | :--- |
 | 4-7-8 Nocturno (Hacia el Sueño) | Éter | OK |

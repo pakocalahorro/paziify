@@ -277,7 +277,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
 
                     <View style={styles.headerTitleContainer}>
                         <Text style={styles.headerTitleInline} numberOfLines={1}>
-                            Biblioteca de Sabiduría
+                            Audiolibros
                         </Text>
                     </View>
 
@@ -567,10 +567,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
     },
     headerTitleInline: {
-        fontSize: 16,
-        fontWeight: '800',
+        fontSize: 26,
+        fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: 0.5,
+        letterSpacing: -0.5,
         textAlign: 'center',
     },
     headerIconContainer: {

@@ -28,8 +28,37 @@ const MiniPlayer = () => {
         return state ? getRouteName(state.routes[state.index]) : '';
     });
 
-    // 1. Hide if on Player Screen
-    if (currentRouteName === Screen.AUDIOBOOK_PLAYER || currentRouteName === Screen.BACKGROUND_PLAYER) return null;
+    // 1. Smart Hide Logic [Refined]
+    // Only hide if we are on a Player Screen AND the content matches what is playing.
+    // Otherwise (e.g. reading a book while listening to music), show the player.
+
+    // We need to inspect route params. This is a bit tricky with nested navigators but doable.
+    const currentRouteParams = useNavigationState(state => {
+        const getParams = (route: any): any => {
+            if (!route) return null;
+            if (route.state && route.state.routes) {
+                return getParams(route.state.routes[route.state.index]);
+            }
+            return route.params;
+        };
+        return state ? getParams(state.routes[state.index]) : null;
+    });
+
+    if (currentRouteName === Screen.BACKGROUND_PLAYER) {
+        // For Background Player, we usually hide it because it's full screen.
+        // But strictly, if we are listening to a Book and looking at Background Player?
+        // Let's stick to hiding it on BackgroundPlayer as it has its own distinct UI/Logic usually.
+        return null;
+    }
+
+    if (currentRouteName === Screen.AUDIOBOOK_PLAYER && currentTrack) {
+        // Check if the audiobook being viewed is the one playing
+        const viewingAudiobookId = currentRouteParams?.audiobookId;
+        if (viewingAudiobookId === currentTrack.id) {
+            return null; // Hide MiniPlayer, let Big Player handle it
+        }
+        // If not matching (e.g. listening to music), SHOW MiniPlayer
+    }
 
     if (!currentTrack) return null;
 

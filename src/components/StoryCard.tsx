@@ -16,25 +16,8 @@ const AnimatedImage = Animated.createAnimatedComponent(Image);
 import { RealStory } from '../types';
 import { theme } from '../constants/theme';
 
-
-const CATEGORY_ASSETS: Record<string, any> = {
-    anxiety: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
-    ansiedad: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
-    health: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=400&q=80',
-    bienestar: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=400&q=80',
-    growth: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&q=80',
-    crecimiento: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&q=80',
-    relationships: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&q=80',
-    relaciones: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&q=80',
-    professional: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&q=80',
-    carrera: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&q=80',
-    sleep: 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=400&q=80',
-    sueño: 'https://images.unsplash.com/photo-1541480601022-2308c0f02487?w=400&q=80',
-    family: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=400&q=80',
-    familia: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=400&q=80',
-    children: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=400&q=80',
-    hijos: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=400&q=80',
-};
+import { CONTENT_CATEGORIES } from '../constants/categories'; // Import unified categories
+import { SESSION_ASSETS } from '../constants/images'; // Import shared assets
 
 interface StoryCardProps {
     story: RealStory;
@@ -52,27 +35,18 @@ const ITEM_SIZE = 180; // Approximate height + margin
 const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember, scrollY, index }) => {
     const isLocked = story.is_premium && !isPlusMember;
 
-    const getCategoryDetails = (category: string) => {
-        switch (category) {
-            case 'anxiety':
-                return { icon: 'sad-outline', color: '#FFA726', gradient: ['rgba(255, 167, 38, 0.2)', 'rgba(251, 140, 0, 0.4)'] };
-            case 'health':
-                return { icon: 'fitness-outline', color: '#66BB6A', gradient: ['rgba(102, 187, 106, 0.2)', 'rgba(67, 160, 71, 0.4)'] };
-            case 'growth':
-                return { icon: 'leaf-outline', color: '#646CFF', gradient: ['rgba(100, 108, 255, 0.2)', 'rgba(79, 86, 217, 0.4)'] };
-            case 'relationships':
-                return { icon: 'heart-outline', color: '#FF6B9D', gradient: ['rgba(255, 107, 157, 0.2)', 'rgba(196, 69, 105, 0.4)'] };
-            case 'professional':
-                return { icon: 'briefcase-outline', color: '#4FC3F7', gradient: ['rgba(79, 195, 247, 0.2)', 'rgba(41, 182, 246, 0.4)'] };
-            case 'sleep':
-                return { icon: 'moon-outline', color: '#9575CD', gradient: ['rgba(149, 117, 205, 0.2)', 'rgba(103, 58, 183, 0.4)'] };
-            case 'family':
-                return { icon: 'people-outline', color: '#FFB74D', gradient: ['rgba(255, 183, 77, 0.2)', 'rgba(245, 124, 0, 0.4)'] };
-            case 'children':
-                return { icon: 'happy-outline', color: '#F06292', gradient: ['rgba(240, 98, 146, 0.2)', 'rgba(233, 30, 99, 0.4)'] };
-            default:
-                return { icon: 'book-outline', color: '#646CFF', gradient: ['rgba(100, 108, 255, 0.2)', 'rgba(79, 86, 217, 0.4)'] };
-        }
+    const getCategoryDetails = (categoryKey: string) => {
+        const category = CONTENT_CATEGORIES.find(c => c.key === categoryKey) || CONTENT_CATEGORIES[0]; // Default to first if not found
+        const { icon, color } = category;
+
+        // Generate gradient based on color
+        // Simple opacity variation for glassmorphism effect
+        const gradient = [
+            `${color}33`, // 20% opacity (approx 33 hex)
+            `${color}66`  // 40% opacity (approx 66 hex)
+        ];
+
+        return { icon, color, gradient };
     };
 
     const { icon, color, gradient } = getCategoryDetails(story.category);
@@ -109,7 +83,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember, scr
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
                 <View style={styles.mainContent}>
                     <AnimatedImage
-                        source={{ uri: CATEGORY_ASSETS[story.category] || CATEGORY_ASSETS['growth'] }}
+                        source={SESSION_ASSETS[story.category] ? { uri: SESSION_ASSETS[story.category] } : { uri: SESSION_ASSETS['default'] }}
                         style={[
                             StyleSheet.absoluteFill,
                             { opacity: imageOpacity as any }

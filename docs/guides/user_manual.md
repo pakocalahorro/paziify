@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.8.10) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.9.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.8.10**. Esta versión introduce el **Academy Mastery**, la recuperación técnica del curso de Insomnio, y una optimización total de la biblioteca de audio de la Academia.
+Bienvenido a la guía oficial de **Paziify v2.9.0**. Esta versión introduce la **Unificación de Categorías**, permitiendo que el Panel Admin controle las Historias, y verifica el **Modo Offline Zero-Egress** para una experiencia sin interrupciones.
 
 ---
 
@@ -50,8 +50,17 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 ## 7. Panel de Administración (CMS Profesional) ⚙️
 **Acceso:** Panel Web dedicado.
 - **Gestión Total**: El contenido de la Academia, Audiolibros e Historias se gestiona ahora de forma profesional sin tocar código, permitiendo subidas masivas de media y edición de metadatos.
+- **Categorías Dinámicas (NUEVO v2.9)**: Ahora puedes crear/editar Historias con categorías estándar (`Rendimiento`, `Despertar`, etc.) y aparecerán automáticamente en la App.
 
 ---
-*Última revisión: 14 de Febrero de 2026 - Versión 2.8.10 (Academy Mastery)*
+
+## 8. Modo Offline "Zero-Egress" Total 🛡️
+- **Independencia de la Red**: La aplicación detecta si no tienes internet o si falla el servidor.
+- **Contenido Siempre Disponible**: Carga automáticamente versiones locales de alta calidad para Meditaciones, Historias y Paisajes Sonoros.
+- **Sin Pantallas en Blanco**: El sistema "Resiliencia" garantiza que siempre haya contenido que mostrar.
+
+
+---
+*Última revisión: 14 de Febrero de 2026 - Versión 2.9.0 (Zero-Egress & Unified Categories)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen`
 
