@@ -1,4 +1,4 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.8.10) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.9.0) 🔐
 
 Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.9.0** se enfoca en la consolidación del almacenamiento de la Academia, la resiliencia offline y la **Unificación de Categorías**.
 

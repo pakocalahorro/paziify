@@ -1,4 +1,4 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.8.10) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.9.0) 🎨
 
 Esta guía define el ADN visual de Paziify. La versión **v2.9.0** consolida la arquitectura de activos única para la Academia, la resiliencia offline total y la **Estandarización de Cabeceras**.
 

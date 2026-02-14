@@ -1,4 +1,97 @@
-# 🎙️ Guía Maestra de Audio - Paziify
+# 🎙️ Guía Maestra de Audio - Paziify (v2.9.0) 💎
+
+Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura, el catálogo auditado y los parámetros de identidad de los guías. La versión **v2.9.0** introduce la arquitectura **Zero-Egress** para la Academia y la estabilidad offline total.
+
+---
+
+## 1. Arquitectura del Motor de Audio
+
+El motor de audio de Paziify ha sido diseñado para ser inmersivo, multi-capa y personalizable.
+
+### Motor Multi-Capa (`AudioEngineService.ts`)
+Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
+1.  **Voice Track (Pre-grabado)**: Pistas de voz MP3 generadas con Google Cloud TTS para ejecución en segundo plano confiable.
+2.  **Guía Vocal (Dinámica)**: Instrucciones TTS en tiempo real para sesiones sin voice track.
+3.  **Soundscapes (Ambientes)**: Paisajes sonoros infinitos (lluvia, bosque) que pueden reproducirse solos o mezclados.
+4.  **Ondas Binaurales**: Frecuencias (Theta, Alpha, Gamma) inyectadas como capa secundaria para potenciar el enfoque o la relajación.
+
+### Implementaciones Técnicas (v2.9.0)
+*   **Zero-Egress Cache**: Todos los assets de la Academia ahora utilizan una estrategia de "Descarga Única". El archivo se descarga al dispositivo la primera vez y persiste indefinidamente, eliminando el consumo de datos futuro y permitiendo el uso offline.
+*   **Supabase Storage**: Todos los assets estáticos se sirven desde buckets dedicados (`meditation-voices`, `soundscapes`, `binaurals`, `audiobooks`, `academy-voices`).
+*   **Protocolo de Nomenclatura ASCII**: Todos los archivos y URLs deben ser 100% ASCII.
+*   **Security Hardening (RLS)**: Los buckets cuentan con polticas RLS de lectura pública protegida.
+
+### Reproductor Global y Persistencia (`AudioPlayerContext.tsx`)
+*   **MiniPlayer Inteligente**: Se oculta automáticamente al entrar en contextos inmersivos (como una lección de Academia activa) para evitar distracciones.
+*   **Persistencia de Estado**: El progreso se guarda localmente al milisegundo para permitir reanudar sesiones interrumpidas.
+
+---
+
+## 2. Identidad de los Guías (Parámetros Premium)
+
+A continuación se detallan los parámetros técnicos de Google Cloud TTS validados para mantener la calidad profesional de Paziify.
+
+### 📋Resumen de Guías (Identidad Restaurada)
+- **Aria (Femenina - Calm)**: `es-ES-Wavenet-F` | Pitch: -3.0 | Rate: 0.72 | *Meditación General*
+- **Gaia (Infantil - Dulce)**: `es-ES-Wavenet-C` | Pitch: +3.5 | Rate: 0.80 | *Paziify Kids*
+- **Ziro (Masculina - Power)**: `es-ES-Neural2-G` | Pitch: -2.5 | Rate: 0.75 | *Rendimiento y Foco*
+- **Éter (Masculina - Deep)**: `es-ES-Studio-F` | Pitch: 0.0 | Rate: 0.75 | *Sueño, Resiliencia y Academia*
+
+### SSML Prosody (Calidad Premium) 🎙️
+Para una experiencia meditativa superior, el motor de audio (`generate_audiobook.py` / `regenerate_insomnia.py`) utiliza etiquetas SSML:
+- **Pausas Automáticas**: Se insertan etiquetas `<break time="2000ms"/>` entre párrafos.
+- **Ritmo Espiritual**: Las tasas de habla (`speaking_rate`) se mantienen bajo estricto control (0.75 - 0.95 dependiendo del contexto).
+
+---
+
+## 3. Academia Paziify: Arquitectura Técnica (v2.9.0) 🎓
+
+La Academia ha migrado a un modelo de archivos puramente técnicos para garantizar estabilidad y cero errores 400.
+
+### Estructura de Archivos
+En lugar de nombres largos (`curso-insomnio-leccion-1-intro.mp3`), ahora usamos identificadores canónicos:
+- **Formato**: `{courseId}-{lessonIndex}.mp3`
+- **Ejemplo**: `insomnia-0.mp3`, `insomnia-1.mp3`, `stoic-5.mp3`.
+- **Total Archivos**: 60 archivos únicos (10 cursos x ~6 lecciones).
+
+### Gestión de Assets
+1. **Generación**: Scripts en `scripts/academy/` generan el audio usando la voz de **Éter**.
+2. **Subida**: Los archivos se suben al bucket `academy-voices` en la raíz.
+3. **Consumo**: La App construye la URL pública automáticamente: `${SUPABASE_URL}/.../academy-voices/{id}.mp3`.
+
+---
+
+## 4. Unificación de Categorías 🔗
+
+Para asegurar que el audio se indexe correctamente en el Panel Admin y la App, se usan las siguientes claves de categoría (Enum):
+
+| ID Categoría | Nombre Visible | Guía Principal |
+| :--- | :--- | :--- |
+| `calmasos` | Calma SOS | Aria |
+| `despertar` | Despertar | Ziro |
+| `emocional` | Inteligencia Emocional | Aria |
+| `habitos` | Hábitos | Aria |
+| `kids` | Paziify Kids | Gaia |
+| `mindfulness`| Mindfulness | Aria |
+| `rendimiento`| Rendimiento | Ziro |
+| `resiliencia`| Resiliencia | Éter |
+| `salud` | Salud | Aria |
+| `sueno` | Sueño | Éter |
+
+---
+
+## 5. Herramientas de Mantenimiento y Scripts
+
+Disponemos de herramientas en la carpeta `scripts/` para mantener el catálogo organizado:
+
+*   **`sync_sessions.js`**: Cruza los guiones con la base de datos.
+*   **`optimize_academy_assets.py`**: Limpieza forense de archivos no utilizados en la Academia.
+*   **`fix_academy_urls.py`**: Actualiza las referencias de datos a URLs absolutas.
+*   **`generate_audiobook.py`**: Motor de síntesis masiva.
+
+---
+
+*Última revisión: 14 de Febrero de 2026 - Versión 2.9.0 (Zero-Egress & Unified Categories)*
 
 Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura, el catálogo auditado y los parámetros de identidad de los guías.
 
