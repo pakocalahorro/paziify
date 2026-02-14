@@ -11,6 +11,8 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 import { RealStory } from '../types';
 import { theme } from '../constants/theme';
 
@@ -53,7 +55,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember, scr
     const getCategoryDetails = (category: string) => {
         switch (category) {
             case 'anxiety':
-                return { icon: 'frown-outline', color: '#FFA726', gradient: ['rgba(255, 167, 38, 0.2)', 'rgba(251, 140, 0, 0.4)'] };
+                return { icon: 'sad-outline', color: '#FFA726', gradient: ['rgba(255, 167, 38, 0.2)', 'rgba(251, 140, 0, 0.4)'] };
             case 'health':
                 return { icon: 'fitness-outline', color: '#66BB6A', gradient: ['rgba(102, 187, 106, 0.2)', 'rgba(67, 160, 71, 0.4)'] };
             case 'growth':
@@ -106,7 +108,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, isPlusMember, scr
         >
             <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
                 <View style={styles.mainContent}>
-                    <Image
+                    <AnimatedImage
                         source={{ uri: CATEGORY_ASSETS[story.category] || CATEGORY_ASSETS['growth'] }}
                         style={[
                             StyleSheet.absoluteFill,

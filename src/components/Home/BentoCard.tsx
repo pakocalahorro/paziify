@@ -5,8 +5,8 @@ import {
     Text,
     StyleProp,
     ViewStyle,
-    ImageBackground,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,7 +26,7 @@ interface BentoCardProps {
     style?: StyleProp<ViewStyle>;
     variant?: 'small' | 'wide' | 'tall' | 'full' | 'large' | 'medium';
     accentColor?: string;
-    backgroundImage?: string;
+    backgroundImage?: any;
     largeIcon?: boolean;
     ctaText?: string; // New prop
 }
@@ -104,18 +104,21 @@ const BentoCard: React.FC<BentoCardProps> = ({
                 style={styles.touchable}
             >
                 {backgroundImage ? (
-                    <ImageBackground
-                        source={{ uri: backgroundImage }}
-                        style={styles.backgroundImage}
-                        imageStyle={{ borderRadius: 24 }}
-                    >
+                    <View style={styles.touchable}>
+                        <Image
+                            source={backgroundImage}
+                            style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
+                            contentFit="cover"
+                            transition={500}
+                            cachePolicy="memory-disk"
+                        />
                         <LinearGradient
                             colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.85)']}
                             style={styles.gradientOverlay}
                         >
                             {renderContent()}
                         </LinearGradient>
-                    </ImageBackground>
+                    </View>
                 ) : (
                     <BlurView intensity={25} tint="dark" style={styles.blur}>
                         {renderContent()}

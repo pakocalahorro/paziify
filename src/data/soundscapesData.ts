@@ -1,5 +1,6 @@
 export interface Soundscape {
     id: string;
+    slug?: string; // Optional for DB mapping
     name: string;
     description: string;
     audioFile: any; // require() para archivos locales
@@ -152,7 +153,7 @@ export const SOUNDSCAPES: Soundscape[] = [
         name: 'Montaña y Río',
         description: 'Agua fluyendo entre montañas',
         audioFile: { uri: `${SB_URL}mountains_rivers_water.mp3` },
-        icon: 'mountain',
+        icon: 'mount-outline',
         color: '#27AE60',
         image: `${SB_IMG_URL}sueno_eter_112_el-lago-de-la-calma.webp`,
         recommendedFor: ['naturaleza', 'paz'],

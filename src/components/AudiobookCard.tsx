@@ -11,6 +11,8 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 import { Audiobook } from '../types';
 import { theme } from '../constants/theme';
 
@@ -55,7 +57,7 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
         switch (category) {
             case 'growth': return { color: '#646CFF', icon: 'leaf-outline' };
             case 'professional': return { color: '#4FC3F7', icon: 'briefcase-outline' };
-            case 'anxiety': return { color: '#FFA726', icon: 'frown-outline' };
+            case 'anxiety': return { color: '#FFA726', icon: 'sad-outline' };
             case 'health': return { color: '#66BB6A', icon: 'fitness-outline' };
             case 'sleep': return { color: '#9575CD', icon: 'moon-outline' };
             default: return { color: '#646CFF', icon: 'book-outline' };
@@ -83,7 +85,7 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
             >
                 {/* Main Card Image */}
                 <View style={[styles.largeImageWrapper, { borderColor: 'rgba(255,255,255,0.1)' }]}>
-                    <Image
+                    <AnimatedImage
                         source={coverSource}
                         style={styles.largeImage}
                         contentFit="cover"
@@ -127,7 +129,7 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                             {guide ? (
                                 <View style={styles.guideInfoRow}>
                                     <View style={styles.miniAvatarContainer}>
-                                        <Image
+                                        <AnimatedImage
                                             source={{ uri: guide.avatar }}
                                             style={styles.miniAvatar}
                                             contentFit="cover"
@@ -175,7 +177,7 @@ const AudiobookCard: React.FC<AudiobookCardProps> = ({
                 <View style={{ flex: 1 }}>
                     <View style={styles.content}>
                         <View style={styles.coverWrapper}>
-                            <Image
+                            <AnimatedImage
                                 source={coverSource}
                                 style={styles.coverImage}
                                 contentFit="cover"

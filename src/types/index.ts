@@ -176,20 +176,20 @@ export type RootStackParamList = {
     [Screen.LIBRARY]: undefined;
     [Screen.MEDITATION_CATALOG]: undefined;
     [Screen.AUDIOBOOKS]: undefined;
-    [Screen.AUDIOBOOK_PLAYER]: { audiobookId: string };
+    [Screen.AUDIOBOOK_PLAYER]: { audiobookId: string; audiobook?: Audiobook };
     [Screen.BACKGROUND_SOUND]: undefined;
-    [Screen.BACKGROUND_PLAYER]: { soundscapeId: string };
+    [Screen.BACKGROUND_PLAYER]: { soundscapeId: string; soundscape?: any };
     [Screen.STORIES]: undefined;
-    [Screen.STORY_DETAIL]: { storyId: string };
-    [Screen.TRANSITION_TUNNEL]: { sessionId?: string };
-    [Screen.BREATHING_TIMER]: { sessionId: string };
+    [Screen.STORY_DETAIL]: { storyId: string; story?: any };
+    [Screen.TRANSITION_TUNNEL]: { sessionId?: string; sessionData?: any };
+    [Screen.BREATHING_TIMER]: { sessionId: string; sessionData?: any };
     [Screen.SESSION_END]: { sessionId: string; durationMinutes: number };
-    [Screen.SESSION_DETAIL]: { sessionId: string };
+    [Screen.SESSION_DETAIL]: { sessionId: string; sessionData?: any };
     [Screen.PROFILE]: undefined;
     [Screen.WEEKLY_REPORT]: undefined;
     [Screen.CBT_ACADEMY]: undefined;
-    [Screen.ACADEMY_COURSE_DETAIL]: { courseId: string }; // Added
-    [Screen.CBT_DETAIL]: { lessonId: string };
+    [Screen.ACADEMY_COURSE_DETAIL]: { courseId: string; courseData?: any };
+    [Screen.CBT_DETAIL]: { lessonId: string; lessonData?: any };
     [Screen.CBT_QUIZ]: { courseId: string }; // Added for Quiz
     [Screen.COMMUNITY]: undefined;
     [Screen.PAYWALL]: undefined;

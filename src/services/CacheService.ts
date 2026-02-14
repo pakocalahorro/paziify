@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Crypto from 'expo-crypto';
 
 /**
@@ -79,9 +79,21 @@ class CacheService {
             // 2. Descargar si no existe (Cache Miss)
             // console.log(`Cache MISS: Downloading ${url} -> ${filename}`);
 
+            // Obtener el Anon Key para las descargas de Supabase
+            const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+            const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+            const isSupabaseUrl = supabaseUrl && url.includes(supabaseUrl);
+
             // Descarga atómica: Descargamos a un temporal y luego movemos
             const tempUri = `${localUri}.tmp`;
-            const downloadRes = await FileSystem.downloadAsync(url, tempUri);
+            const downloadOptions = isSupabaseUrl ? {
+                headers: {
+                    'apikey': supabaseAnonKey,
+                    'Authorization': `Bearer ${supabaseAnonKey}`
+                }
+            } : {};
+
+            const downloadRes = await FileSystem.downloadAsync(url, tempUri, downloadOptions);
 
             if (downloadRes.status !== 200) {
                 throw new Error(`Download failed with status ${downloadRes.status}`);

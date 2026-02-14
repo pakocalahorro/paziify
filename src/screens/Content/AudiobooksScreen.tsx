@@ -127,7 +127,7 @@ const ALL_GUIDES = [
 const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
     growth: { label: 'Crecimiento', icon: 'leaf-outline', color: '#646CFF' },
     professional: { label: 'Carrera', icon: 'briefcase-outline', color: '#4FC3F7' },
-    anxiety: { label: 'Ansiedad', icon: 'frown-outline', color: '#FFA726' },
+    anxiety: { label: 'Ansiedad', icon: 'sad-outline', color: '#FFA726' },
     health: { label: 'Salud', icon: 'fitness-outline', color: '#66BB6A' },
     family: { label: 'Familia', icon: 'people-outline', color: '#FFB74D' },
     children: { label: 'Niños', icon: 'happy-outline', color: '#F06292' },
@@ -245,7 +245,10 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
             navigation.navigate(Screen.PAYWALL);
             return;
         }
-        navigation.navigate(Screen.AUDIOBOOK_PLAYER as any, { audiobookId: audiobook.id });
+        navigation.navigate(Screen.AUDIOBOOK_PLAYER as any, {
+            audiobookId: audiobook.id,
+            audiobook: audiobook // Prop-Passing (Zero Egress 2.0)
+        });
     };
 
     const renderHeader = () => (

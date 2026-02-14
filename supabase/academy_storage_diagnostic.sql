@@ -1,0 +1,5 @@
+UPDATE public.audiobooks SET audio_url = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/audiobook-voices/1770491685685-Gaia_Cuando_deje_de_huir_de_mi.mp3' WHERE title ILIKE '%huir%';
+UPDATE public.audiobooks SET audio_url = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/audiobook-voices/1770481349324-Aria_El_d_a_que_dejo_de_aplazarse.mp3' WHERE title ILIKE '%aplazarse%';
+UPDATE public.audiobooks SET audio_url = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/audiobook-voices/1770402604229-CalmaSOS_Eter_01_El_hombre_que_olvido_respirar.mp3' WHERE title ILIKE '%olvido%';
+SELECT bucket_id, name, created_at FROM storage.objects WHERE (name ILIKE '%insom%' OR name ILIKE '%sueñ%' OR name ILIKE '%dormir%' OR name ILIKE '%ritmo%') AND bucket_id = 'academy-voices' ORDER BY created_at DESC;
+SELECT bucket_id, name, created_at FROM storage.objects WHERE (name ILIKE '%insom%' OR name ILIKE '%sueñ%' OR name ILIKE '%dormir%') AND bucket_id = 'meditation-voices' ORDER BY created_at DESC;

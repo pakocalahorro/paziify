@@ -611,7 +611,10 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                         const medData = sessions.find(s => s.id === selectedSession.id);
                         setSelectedSession(null);
                         if (medData) {
-                            navigation.navigate(Screen.BREATHING_TIMER, { sessionId: medData.id });
+                            navigation.navigate(Screen.BREATHING_TIMER, {
+                                sessionId: medData.id,
+                                sessionData: medData
+                            });
                         }
                     }}
                 />

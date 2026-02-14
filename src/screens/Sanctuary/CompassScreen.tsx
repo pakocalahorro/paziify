@@ -138,16 +138,25 @@ const CompassScreen = () => {
         opacity: interpolate(Math.abs(translateY.value), [THRESHOLD - 20, THRESHOLD], [1, 0], Extrapolation.CLAMP)
     }));
 
-    const labelStyle = (target: 'growth' | 'healing') => useAnimatedStyle(() => {
-        const op = target === 'growth'
-            ? interpolate(translateY.value, [-THRESHOLD, -50], [1, 0], Extrapolation.CLAMP)
-            : interpolate(translateY.value, [50, THRESHOLD], [0, 1], Extrapolation.CLAMP);
-
+    const growthLabelStyle = useAnimatedStyle(() => {
+        const op = interpolate(translateY.value, [-THRESHOLD, -50], [1, 0], Extrapolation.CLAMP);
         return {
             opacity: op,
-            transform: [{ translateY: target === 'growth' ? -20 * op : 20 * op }]
+            transform: [{ translateY: -20 * op }]
         };
     });
+
+    const healingLabelStyle = useAnimatedStyle(() => {
+        const op = interpolate(translateY.value, [50, THRESHOLD], [0, 1], Extrapolation.CLAMP);
+        return {
+            opacity: op,
+            transform: [{ translateY: 20 * op }]
+        };
+    });
+
+    const hintStyle = useAnimatedStyle(() => ({
+        opacity: 1 - Math.abs(progress.value) * 1.5
+    }));
 
     return (
         <GestureHandlerRootView style={styles.container}>
@@ -170,7 +179,7 @@ const CompassScreen = () => {
                     </View>
 
                     {/* Growth Portal Indicator */}
-                    <Animated.View pointerEvents="none" style={[styles.portalZone, styles.topZone, labelStyle('growth')]}>
+                    <Animated.View pointerEvents="none" style={[styles.portalZone, styles.topZone, growthLabelStyle]}>
                         <BlurView intensity={30} tint="light" style={styles.glassLabel}>
                             <Text style={[styles.labelTitle, { color: '#FBBF24' }]}>CRECER</Text>
                             <Text style={styles.labelDesc}>POTENCIAL ILIMITADO</Text>
@@ -183,7 +192,7 @@ const CompassScreen = () => {
                     </Animated.View>
 
                     {/* Healing Portal Indicator */}
-                    <Animated.View pointerEvents="none" style={[styles.portalZone, styles.bottomZone, labelStyle('healing')]}>
+                    <Animated.View pointerEvents="none" style={[styles.portalZone, styles.bottomZone, healingLabelStyle]}>
                         <BlurView intensity={30} tint="light" style={styles.glassLabel}>
                             <Text style={[styles.labelTitle, { color: '#2DD4BF' }]}>SANAR</Text>
                             <Text style={styles.labelDesc}>PAZ Y REGENERACIÓN</Text>
@@ -191,7 +200,7 @@ const CompassScreen = () => {
                     </Animated.View>
 
                     {/* Hint */}
-                    <Animated.View style={[styles.hintContainer, { opacity: useDerivedValue(() => 1 - Math.abs(progress.value) * 1.5) }]}>
+                    <Animated.View style={[styles.hintContainer, hintStyle]}>
                         <Text style={styles.hintText}>Desliza el núcleo de luz</Text>
                         <View style={styles.bounceDot} />
                     </Animated.View>

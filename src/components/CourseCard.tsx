@@ -191,10 +191,12 @@ const CourseCard: React.FC<CourseCardProps> = ({
         >
             {/* Main Card Image */}
             <View style={[styles.largeImageWrapper, { borderColor: 'rgba(255,255,255,0.1)' }]}>
-                <Image
-                    source={{ uri: course.image }}
-                    style={styles.largeImage}
-                />
+                {course.image && (
+                    <Image
+                        source={{ uri: course.image }}
+                        style={styles.largeImage}
+                    />
+                )}
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
                     style={StyleSheet.absoluteFill}

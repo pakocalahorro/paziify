@@ -12,6 +12,8 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 import { Session } from '../types';
 import { theme } from '../constants/theme';
 import { IMAGES } from '../constants/images';
@@ -374,7 +376,7 @@ const SessionCard: React.FC<SessionCardProps & { variant?: 'overlay' | 'standard
         >
             <BlurView intensity={60} tint="dark" style={styles.glassContainer}>
                 <View style={styles.mainContent}>
-                    <Image
+                    <AnimatedImage
                         source={imageSource}
                         style={[
                             StyleSheet.absoluteFill,

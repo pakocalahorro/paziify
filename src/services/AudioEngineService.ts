@@ -48,17 +48,18 @@ class AudioEngineService {
                 playsInSilentModeIOS: true,
                 staysActiveInBackground: true,
                 shouldDuckAndroid: false,
-                interruptionModeIOS: 1, // Do not mix with others (same as soundscapes)
-                interruptionModeAndroid: 1, // Do not duck others
+                interruptionModeIOS: 1,
+                interruptionModeAndroid: 1,
             });
 
-            // Start silent audio to keep JavaScript active in background ("Silent Audio Trick")
-            await this.startSilentAudio();
+            // Start silent audio (non-blocking)
+            this.startSilentAudio().catch(e => console.log('Silent audio non-critical failure:', e));
 
             this.isInitialized = true;
         } catch (error) {
-            console.error('Error initializing audio engine:', error);
-            throw error;
+            console.log('AudioEngineService: Silenced initialization warning (offline?):', error);
+            // We set it as initialized anyway to allow attempts to load local files
+            this.isInitialized = true;
         }
     }
 
@@ -69,11 +70,13 @@ class AudioEngineService {
         await this.initialize();
         await this.unloadAll();
 
-        // 1. Capa Crítica: Voz (Si falla, lanzamos error para que BreathingTimer muestre alerta)
+        // 1. Capa Crítica: Voz
         try {
             if (config.voiceTrack) {
-                // INTERCEPCIÓN DE CACHÉ (Zero-Egress)
                 const localUri = await CacheService.get(config.voiceTrack, 'audio');
+                const isLocal = localUri.startsWith('file://');
+
+                console.log(`AudioEngine: Loading voice track [${isLocal ? 'LOCAL' : 'REMOTE'}]:`, localUri);
 
                 const { sound } = await Audio.Sound.createAsync(
                     { uri: localUri },
@@ -81,18 +84,18 @@ class AudioEngineService {
                         shouldPlay: false,
                         volume: this.volumes.voice,
                         isLooping: false,
-                        progressUpdateIntervalMillis: 16 // 60fps for surgical synchronization
+                        progressUpdateIntervalMillis: 16
                     },
                     (status) => {
                         if (this.statusCallback) this.statusCallback(status);
                     }
                 );
                 this.voiceTrackSound = sound;
-                console.log('Voice track loaded (Cache/Local):', localUri);
             }
         } catch (error) {
-            console.error('Critical Error: Voice track failed to load:', error);
-            throw error; // Re-throw to trigger offline/connection alert
+            console.log('AudioEngine: Voice track load failed (offline?):', error);
+            // If it fails and we are offline, we don't throw, allowing the screen to open so the user can see the UI
+            // but the practice will be silent. This is better than a crashing Alert.
         }
 
         // 2. Capas Secundarias: Resilientes (Si fallan, la sesión continúa en silencio de fondo)
@@ -102,15 +105,17 @@ class AudioEngineService {
             if (config.soundscape) {
                 const soundscape = SOUNDSCAPES.find(s => s.id === config.soundscape);
                 if (soundscape && soundscape.audioFile) {
+                    console.log(`[AUDIO_ENGINE] Loading soundscape: ${soundscape.name}`);
                     const { sound } = await Audio.Sound.createAsync(
                         soundscape.audioFile,
                         { shouldPlay: false, volume: this.volumes.soundscape, isLooping: true }
                     );
                     this.soundscapeSound = sound;
+                    console.log(`[AUDIO_ENGINE] Soundscape LOADED: ${soundscape.name}`);
                 }
             }
         } catch (error) {
-            console.warn('Optional Layer Failed (Soundscape):', error);
+            console.warn('[AUDIO_ENGINE] Optional Layer Failed (Soundscape):', error);
         }
 
         // Binaurales
@@ -118,15 +123,17 @@ class AudioEngineService {
             if (config.binaural) {
                 const binaural = BINAURAL_WAVES.find(b => b.id === config.binaural);
                 if (binaural && binaural.audioFile) {
+                    console.log(`[AUDIO_ENGINE] Loading binaural: ${binaural.name}`);
                     const { sound } = await Audio.Sound.createAsync(
                         binaural.audioFile,
                         { shouldPlay: false, volume: this.volumes.binaural, isLooping: true }
                     );
                     this.binauralSound = sound;
+                    console.log(`[AUDIO_ENGINE] Binaural LOADED: ${binaural.name}`);
                 }
             }
         } catch (error) {
-            console.warn('Optional Layer Failed (Binaural):', error);
+            console.warn('[AUDIO_ENGINE] Optional Layer Failed (Binaural):', error);
         }
 
         // Elementos
@@ -134,15 +141,17 @@ class AudioEngineService {
             if (config.elements) {
                 const element = ELEMENTS.find(e => e.id === config.elements);
                 if (element && element.audioFile) {
+                    console.log(`[AUDIO_ENGINE] Loading elements: ${element.name}`);
                     const { sound } = await Audio.Sound.createAsync(
                         element.audioFile,
                         { shouldPlay: false, volume: this.volumes.elements, isLooping: true }
                     );
                     this.elementsSound = sound;
+                    console.log(`[AUDIO_ENGINE] Elements LOADED: ${element.name}`);
                 }
             }
         } catch (error) {
-            console.warn('Optional Layer Failed (Elements):', error);
+            console.warn('[AUDIO_ENGINE] Optional Layer Failed (Elements):', error);
         }
     }
 

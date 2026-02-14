@@ -36,7 +36,7 @@ Si el build falla por espacios en la ruta (ej. `Mis Cosas`), usa este protocolo:
 
 3. **Revertir**: Una vez generado el APK, borra el enlace (esto NO borra tus archivos):
    ```powershell
-   Remove-Item "C:\Paziify"
+   cmd /c rmdir "C:\Paziify"
    ```
 
 El archivo resultante estará en:

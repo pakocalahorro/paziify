@@ -82,8 +82,8 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                 setModules(data);
                 setErrorMsg(null);
             } catch (error: any) {
-                console.error('Failed to load academy modules', error);
-                setErrorMsg(error.message || JSON.stringify(error));
+                console.log('AcademyScreen: Failed to load academy modules (silenced):', error);
+                setErrorMsg('Error de conexión. Mostrando contenido local.');
             } finally {
                 setIsLoading(false);
             }
@@ -318,7 +318,10 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                                             <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
                                                 <CourseCard
                                                     course={item as AcademyModule}
-                                                    onPress={(course) => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, { courseId: course.id })}
+                                                    onPress={(course) => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                                                        courseId: course.id,
+                                                        courseData: course // Prop-Passing (Zero Egress 2.0)
+                                                    })}
                                                     isLargeCard={true}
                                                 />
                                             </Animated.View>

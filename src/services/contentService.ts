@@ -1,5 +1,14 @@
 import { supabase } from './supabaseClient';
 import { Audiobook, RealStory } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MEDITATION_SESSIONS } from '../data/sessionsData';
+
+const ICON_MAPPING: Record<string, string> = {
+    'mountain': 'mount-outline',
+    'frown-outline': 'sad-outline',
+};
+
+const mapIcon = (icon: string) => ICON_MAPPING[icon] || icon;
 
 /**
  * Audiobooks Service
@@ -10,7 +19,13 @@ import { MeditationSessionContent } from '../types';
 import { MeditationSession } from '../data/sessionsData'; // Keep this for UI compatibility
 
 // Adapter to convert DB V2 Content to Legacy UI Format
-export const adaptSession = (dbSession: MeditationSessionContent): MeditationSession => {
+export const adaptSession = (dbSession: any): MeditationSession => {
+    // [IDEMPOTENCY FIX] If it's already in UI format, return it as is
+    if (dbSession && (dbSession.durationMinutes !== undefined || dbSession.breathingPattern)) {
+        console.log('[adaptSession] Session already adapted, skipping.');
+        return dbSession as MeditationSession;
+    }
+
     return {
         id: dbSession.id,
         title: dbSession.title,
@@ -59,33 +74,51 @@ export const sessionsService = {
      * Get all sessions
      */
     async getAll(): Promise<MeditationSessionContent[]> {
-        const { data, error } = await supabase
-            .from('meditation_sessions_content')
-            .select('*')
-            .order('title', { ascending: true });
+        try {
+            console.log('[sessionsService] Fetching all sessions from Supabase...');
+            const { data, error } = await supabase
+                .from('meditation_sessions_content')
+                .select('*')
+                .order('title', { ascending: true });
 
-        if (error) {
-            console.error('Error fetching sessions:', error);
-            throw error;
+            if (error) {
+                console.log('[sessionsService] Supabase error (silenced):', error);
+                throw error;
+            }
+
+            if (data && data.length > 0) {
+                console.log(`[sessionsService] Successfully fetched ${data.length} sessions.`);
+                return data;
+            }
+
+            console.log('[sessionsService] No data from Supabase, returning empty...');
+            return [];
+        } catch (error) {
+            console.log('[sessionsService] Exception: Entrando en modo RESILIENCIA (usando fallback local)');
+            // Return local sessions directly as fallback - although they need to be MeditationSessionContent format
+            // but for simplicity in this V2 architecture, we use them as the base.
+            return MEDITATION_SESSIONS as any[];
         }
-        return data || [];
     },
 
     /**
      * Get session by ID (UUID)
      */
     async getById(id: string): Promise<MeditationSessionContent | null> {
-        const { data, error } = await supabase
-            .from('meditation_sessions_content')
-            .select('*')
-            .eq('id', id)
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('meditation_sessions_content')
+                .select('*')
+                .eq('id', id)
+                .single();
 
-        if (error) {
-            console.log('Error fetching session (offline?):', error);
-            return null;
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.log('Error fetching session (offline?), checking local fallback:', error);
+            const local = MEDITATION_SESSIONS.find((s: any) => s.id === id || s.legacy_id === id);
+            return local ? (local as any) : null;
         }
-        return data;
     },
 
     /**
@@ -145,6 +178,7 @@ export const adaptSoundscape = (dbSoundscape: any): any => {
         ...dbSoundscape,
         id: dbSoundscape.slug || dbSoundscape.id, // Use slug for navigation consistency if available
         image: dbSoundscape.image_url,
+        icon: mapIcon(dbSoundscape.icon),
         audioFile: { uri: dbSoundscape.audio_url },
         recommendedFor: dbSoundscape.recommended_for || [],
         isPremium: dbSoundscape.is_premium || false,
@@ -164,7 +198,7 @@ export const soundscapesService = {
                 .order('name', { ascending: true });
 
             if (error) {
-                console.error('Supabase error fetching soundscapes:', error);
+                console.log('Supabase error fetching soundscapes (silenced):', error);
                 throw error;
             }
 
@@ -185,11 +219,22 @@ export const soundscapesService = {
     },
 
     /**
-     * Obtener por ID
+     * Obtener por ID con prioridad local para Zero Egress
      */
     async getById(id: string): Promise<any | null> {
         try {
-            console.log(`Fetching soundscape by ID/Slug: ${id}...`);
+            // Priority 1: Check local data first (instant, no network needed)
+            console.log(`Checking local soundscape for ID/Slug: ${id}...`);
+            const { SOUNDSCAPES } = require('../data/soundscapesData');
+            const local = SOUNDSCAPES.find((s: any) => s.id === id || s.slug === id);
+
+            if (local) {
+                console.log(`Found local soundscape: ${local.name}`);
+                return local;
+            }
+
+            // Priority 2: Fetch from DB if not found locally (online mode)
+            console.log(`Local not found, fetching from DB/Slug: ${id}...`);
             const { data, error } = await supabase
                 .from('soundscapes')
                 .select('*')
@@ -197,7 +242,7 @@ export const soundscapesService = {
                 .maybeSingle();
 
             if (error) {
-                console.error('Supabase error fetching soundscape by ID:', error);
+                console.log('Supabase error fetching soundscape by ID (silenced):', error);
                 return null;
             }
 
@@ -206,10 +251,7 @@ export const soundscapesService = {
                 return adaptSoundscape(data);
             }
 
-            console.log(`Soundscape ${id} not found in DB, checking local fallback...`);
-            const { SOUNDSCAPES } = require('../data/soundscapesData');
-            const local = SOUNDSCAPES.find((s: any) => s.id === id);
-            return local || null;
+            return null;
         } catch (err) {
             console.error('Error in getById:', err);
             return null;
@@ -220,75 +262,85 @@ export const soundscapesService = {
 export const audiobooksService = {
 
     async getAll(): Promise<Audiobook[]> {
-        const { data, error } = await supabase
-            .from('audiobooks')
-            .select('*')
-            .order('is_featured', { ascending: false })
-            .order('created_at', { ascending: false });
+        try {
+            const { data, error } = await supabase
+                .from('audiobooks')
+                .select('*')
+                .order('is_featured', { ascending: false })
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.log('Error fetching audiobooks:', error);
-            throw error;
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.log('Exception in audiobooksService.getAll, using local fallback:', error);
+            const { LOCAL_AUDIOBOOKS } = require('../data/audiobooksData');
+            return LOCAL_AUDIOBOOKS;
         }
-
-        if (data && data.length > 0) return data;
-
-        return [];
     },
 
     /**
      * Get audiobooks by category
      */
     async getByCategory(category: string): Promise<Audiobook[]> {
-        const { data, error } = await supabase
-            .from('audiobooks')
-            .select('*')
-            .eq('category', category)
-            .order('is_featured', { ascending: false })
-            .order('created_at', { ascending: false });
+        try {
+            const { data, error } = await supabase
+                .from('audiobooks')
+                .select('*')
+                .eq('category', category)
+                .order('is_featured', { ascending: false })
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching audiobooks by category:', error);
-            throw error;
+            if (error) {
+                console.log('Error fetching audiobooks by category (silenced):', error);
+                return [];
+            }
+            return data || [];
+        } catch (error) {
+            console.log('Exception in audiobooksService.getByCategory (silenced):', error);
+            return [];
         }
-
-        return data || [];
     },
 
     /**
      * Get featured audiobooks
      */
     async getFeatured(): Promise<Audiobook[]> {
-        const { data, error } = await supabase
-            .from('audiobooks')
-            .select('*')
-            .eq('is_featured', true)
-            .order('created_at', { ascending: false });
+        try {
+            const { data, error } = await supabase
+                .from('audiobooks')
+                .select('*')
+                .eq('is_featured', true)
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching featured audiobooks:', error);
-            throw error;
+            if (error) {
+                console.log('Error fetching featured audiobooks (silenced):', error);
+                return [];
+            }
+            return data || [];
+        } catch (error) {
+            console.log('Exception in audiobooksService.getFeatured (silenced):', error);
+            return [];
         }
-
-        return data || [];
     },
 
     /**
      * Get audiobook by ID
      */
     async getById(id: string): Promise<Audiobook | null> {
-        const { data, error } = await supabase
-            .from('audiobooks')
-            .select('*')
-            .eq('id', id)
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('audiobooks')
+                .select('*')
+                .eq('id', id)
+                .single();
 
-        if (error) {
-            console.error('Error fetching audiobook:', error);
-            throw error;
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.log('Error fetching audiobook by ID, checking local fallback:', error);
+            const { LOCAL_AUDIOBOOKS } = require('../data/audiobooksData');
+            return LOCAL_AUDIOBOOKS.find((a: Audiobook) => a.id === id) || null;
         }
-
-        return data;
     },
 
     /**
@@ -302,8 +354,8 @@ export const audiobooksService = {
             .order('is_featured', { ascending: false });
 
         if (error) {
-            console.error('Error searching audiobooks:', error);
-            throw error;
+            console.log('Error searching audiobooks (silenced):', error);
+            return [];
         }
 
         return data || [];
@@ -320,97 +372,85 @@ export const storiesService = {
      * Get all stories
      */
     async getAll(): Promise<RealStory[]> {
-        const { data, error } = await supabase
-            .from('real_stories')
-            .select('*')
-            .order('is_featured', { ascending: false })
-            .order('created_at', { ascending: false });
+        try {
+            const { data, error } = await supabase
+                .from('real_stories')
+                .select('*')
+                .order('is_featured', { ascending: false })
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching stories:', error);
-            throw error;
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.log('Error fetching stories, using local fallback:', error);
+            const { MENTES_MAESTRAS_STORIES } = require('../data/realStories');
+            return MENTES_MAESTRAS_STORIES;
         }
-
-        if (data && data.length > 0) return data;
-
-        // Mock fallback if empty
-        return [
-            {
-                id: '1', title: 'El Renacer del Fénix', subtitle: 'Superando la Adversidad', story_text: '...',
-                category: 'growth', tags: ['resilience'], reading_time_minutes: 5, transformation_theme: 'Resilience',
-                is_featured: true, is_premium: false
-            },
-            {
-                id: '2', title: 'Calma en la Tormenta', subtitle: 'Ansiedad bajo control', story_text: '...',
-                category: 'anxiety', tags: ['peace'], reading_time_minutes: 7, transformation_theme: 'Peace',
-                is_featured: true, is_premium: false
-            },
-            {
-                id: '3', title: 'Liderazgo Consciente', subtitle: 'Gestionando equipos', story_text: '...',
-                category: 'leadership', tags: ['work'], reading_time_minutes: 6, transformation_theme: 'Leadership',
-                is_featured: false, is_premium: true
-            },
-            {
-                id: '4', title: 'Dormir Profundo', subtitle: 'Un viaje a los sueños', story_text: '...',
-                category: 'sleep', tags: ['rest'], reading_time_minutes: 10, transformation_theme: 'Sleep',
-                is_featured: false, is_premium: false
-            }
-        ];
     },
 
     /**
      * Get stories by category
      */
     async getByCategory(category: string): Promise<RealStory[]> {
-        const { data, error } = await supabase
-            .from('real_stories')
-            .select('*')
-            .eq('category', category)
-            .order('is_featured', { ascending: false })
-            .order('created_at', { ascending: false });
+        try {
+            const { data, error } = await supabase
+                .from('real_stories')
+                .select('*')
+                .eq('category', category)
+                .order('is_featured', { ascending: false })
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching stories by category:', error);
-            throw error;
+            if (error) {
+                console.log('Error fetching stories by category (silenced):', error);
+                return [];
+            }
+            return data || [];
+        } catch (error) {
+            console.log('Exception in storiesService.getByCategory (silenced):', error);
+            return [];
         }
-
-        return data || [];
     },
 
     /**
      * Get featured stories
      */
     async getFeatured(): Promise<RealStory[]> {
-        const { data, error } = await supabase
-            .from('real_stories')
-            .select('*')
-            .eq('is_featured', true)
-            .order('created_at', { ascending: false });
+        try {
+            const { data, error } = await supabase
+                .from('real_stories')
+                .select('*')
+                .eq('is_featured', true)
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching featured stories:', error);
-            throw error;
+            if (error) {
+                console.log('Error fetching featured stories (silenced):', error);
+                return [];
+            }
+            return data || [];
+        } catch (error) {
+            console.log('Exception in storiesService.getFeatured (silenced):', error);
+            return [];
         }
-
-        return data || [];
     },
 
     /**
      * Get story by ID
      */
     async getById(id: string): Promise<RealStory | null> {
-        const { data, error } = await supabase
-            .from('real_stories')
-            .select('*')
-            .eq('id', id)
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('real_stories')
+                .select('*')
+                .eq('id', id)
+                .single();
 
-        if (error) {
-            console.error('Error fetching story:', error);
-            throw error;
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.log('Error fetching story by ID, checking local fallback:', error);
+            const { MENTES_MAESTRAS_STORIES } = require('../data/realStories');
+            return MENTES_MAESTRAS_STORIES.find((s: any) => s.id === id) || null;
         }
-
-        return data;
     },
 
     /**
@@ -424,8 +464,8 @@ export const storiesService = {
             .order('is_featured', { ascending: false });
 
         if (error) {
-            console.error('Error searching stories:', error);
-            throw error;
+            console.log('Error searching stories (silenced):', error);
+            return [];
         }
 
         return data || [];
@@ -445,8 +485,7 @@ export const storiesService = {
             .insert(require('../data/realStories').MENTES_MAESTRAS_STORIES);
 
         if (error) {
-            console.error('Error populating stories:', error);
-            throw error;
+            console.log('Error populating stories (silenced):', error);
         }
     }
 };
@@ -470,8 +509,7 @@ export const favoritesService = {
             });
 
         if (error) {
-            console.error('Error adding to favorites:', error);
-            throw error;
+            console.log('Error adding to favorites (silenced):', error);
         }
     },
 
@@ -487,8 +525,7 @@ export const favoritesService = {
             .eq('content_id', contentId);
 
         if (error) {
-            console.error('Error removing from favorites:', error);
-            throw error;
+            console.log('Error removing from favorites (silenced):', error);
         }
     },
 
@@ -505,7 +542,7 @@ export const favoritesService = {
             .single();
 
         if (error && error.code !== 'PGRST116') {
-            console.error('Error checking favorite:', error);
+            console.log('Error checking favorite (silenced):', error);
             return false;
         }
 
@@ -513,65 +550,81 @@ export const favoritesService = {
     },
 
     /**
-     * Get user's favorite audiobooks
+     * Get user's favorite audiobooks with offline cache
      */
     async getFavoriteAudiobooks(userId: string): Promise<Audiobook[]> {
-        const { data, error } = await supabase
-            .from('user_favorites')
-            .select('content_id')
-            .eq('user_id', userId)
-            .eq('content_type', 'audiobook');
+        const CACHE_KEY = `@fav_audiobooks_${userId}`;
+        try {
+            const { data, error } = await supabase
+                .from('user_favorites')
+                .select('content_id')
+                .eq('user_id', userId)
+                .eq('content_type', 'audiobook');
 
-        if (error) {
-            console.error('Error fetching favorite audiobooks:', error);
+            if (error) throw error;
+
+            const ids = data.map(f => f.content_id);
+            if (ids.length === 0) {
+                await AsyncStorage.setItem(CACHE_KEY, JSON.stringify([]));
+                return [];
+            }
+
+            const { data: audiobooks, error: audiobooksError } = await supabase
+                .from('audiobooks')
+                .select('*')
+                .in('id', ids);
+
+            if (audiobooksError) throw audiobooksError;
+
+            if (audiobooks) {
+                await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(audiobooks));
+                return audiobooks;
+            }
             return [];
+        } catch (error) {
+            console.log('[favoritesService] Offline mode: Reading favorite audiobooks from cache');
+            const cached = await AsyncStorage.getItem(CACHE_KEY);
+            return cached ? JSON.parse(cached) : [];
         }
-
-        const ids = data.map(f => f.content_id);
-        if (ids.length === 0) return [];
-
-        const { data: audiobooks, error: audiobooksError } = await supabase
-            .from('audiobooks')
-            .select('*')
-            .in('id', ids);
-
-        if (audiobooksError) {
-            console.error('Error fetching audiobooks:', audiobooksError);
-            return [];
-        }
-
-        return audiobooks || [];
     },
 
     /**
-     * Get user's favorite stories
+     * Get user's favorite stories with offline cache
      */
     async getFavoriteStories(userId: string): Promise<RealStory[]> {
-        const { data, error } = await supabase
-            .from('user_favorites')
-            .select('content_id')
-            .eq('user_id', userId)
-            .eq('content_type', 'story');
+        const CACHE_KEY = `@fav_stories_${userId}`;
+        try {
+            const { data, error } = await supabase
+                .from('user_favorites')
+                .select('content_id')
+                .eq('user_id', userId)
+                .eq('content_type', 'story');
 
-        if (error) {
-            console.error('Error fetching favorite stories:', error);
+            if (error) throw error;
+
+            const ids = data.map(f => f.content_id);
+            if (ids.length === 0) {
+                await AsyncStorage.setItem(CACHE_KEY, JSON.stringify([]));
+                return [];
+            }
+
+            const { data: stories, error: storiesError } = await supabase
+                .from('real_stories')
+                .select('*')
+                .in('id', ids);
+
+            if (storiesError) throw storiesError;
+
+            if (stories) {
+                await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(stories));
+                return stories;
+            }
             return [];
+        } catch (error) {
+            console.log('[favoritesService] Offline mode: Reading favorite stories from cache');
+            const cached = await AsyncStorage.getItem(CACHE_KEY);
+            return cached ? JSON.parse(cached) : [];
         }
-
-        const ids = data.map(f => f.content_id);
-        if (ids.length === 0) return [];
-
-        const { data: stories, error: storiesError } = await supabase
-            .from('real_stories')
-            .select('*')
-            .in('id', ids);
-
-        if (storiesError) {
-            console.error('Error fetching stories:', storiesError);
-            return [];
-        }
-
-        return stories || [];
     },
 };
 
@@ -616,7 +669,7 @@ export const contentService = {
 
             return null;
         } catch (error) {
-            console.error('Error fetching random category image:', error);
+            console.log('Error fetching random category image (silenced):', error);
             return null;
         }
     }

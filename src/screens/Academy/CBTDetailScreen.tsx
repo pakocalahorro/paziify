@@ -4,10 +4,11 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
     ScrollView,
     ActivityIndicator,
+    Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +19,7 @@ import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { ACADEMY_LESSONS, Lesson } from '../../data/academyData';
 import { AcademyService } from '../../services/AcademyService';
+import CacheService from '../../services/CacheService';
 
 type CBTDetailScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -35,6 +37,7 @@ interface Props {
 }
 
 const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
+    const insets = useSafeAreaInsets();
     const { lessonId } = route.params;
     const { userState, updateUserState } = useApp();
 
@@ -69,14 +72,21 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         };
     }, [sound]);
 
-    // Load sound when audioSource is available
+    // Load sound when audio_url is available
     useEffect(() => {
         const loadAudio = async () => {
-            if (lesson?.audioSource) {
+            if (lesson?.audio_url) {
                 try {
                     setIsLoadingAudio(true);
+
+                    // Resolve local path from Cache (Zero-Egress)
+                    // lesson.audio_url can be a string (URL) or an object (require)
+                    const audioSource = typeof lesson.audio_url === 'string'
+                        ? { uri: await CacheService.get(lesson.audio_url, 'audio') }
+                        : lesson.audio_url;
+
                     const { sound: newSound } = await Audio.Sound.createAsync(
-                        lesson.audioSource,
+                        audioSource,
                         { shouldPlay: false }
                     );
                     // Setup callback for playback ended
@@ -88,7 +98,9 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                     });
                     setSound(newSound);
                 } catch (error) {
-                    console.error("Error loading sound:", error);
+                    console.error("[CBTDetail] Critical Error loading sound:", error);
+                    console.log("[CBTDetail] Problematic URL:", lesson.audio_url);
+                    setIsPlaying(false);
                 } finally {
                     setIsLoadingAudio(false);
                 }
@@ -96,7 +108,7 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         };
 
         loadAudio();
-    }, [lesson?.audioSource]);
+    }, [lesson?.audio_url]);
 
 
     const handlePlayPause = async () => {
@@ -146,8 +158,8 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
+        <View style={styles.container}>
+            <View style={[styles.header, { paddingTop: insets.top }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.textMain} />
                 </TouchableOpacity>
@@ -165,7 +177,7 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                 showsVerticalScrollIndicator={false}
             >
                 {/* Audio Player Section */}
-                {lesson.audioSource && (
+                {lesson.audio_url && (
                     <View style={styles.audioPlayerContainer}>
                         <View style={styles.audioIconContainer}>
                             <Ionicons name="headset" size={32} color={theme.colors.primary} />
@@ -211,7 +223,7 @@ const CBTDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 

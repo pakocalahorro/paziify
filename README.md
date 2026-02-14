@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.8.0) 🚀
+# Paziify - AI Studio App (v2.8.10) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.8.0 (Zero-Egress & Cardio Infrastructure)**, una actualización centrada en la autonomía total (caché offline) y la preparación para sensores biométricos mediante `VisionCamera`.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.8.10 (Academy & Offline Mastery)**, centrada en la restauración del curso de Insomnio, la optimización masiva de activos de la Academia y la estabilización del protocolo Zero-Egress para resiliencia offline total.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -44,22 +44,23 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ## 🛠️ Scripts y Herramientas (`scripts/`)
 
-- **`bulk_generate_scripts.py`**: [NEW] Migra guiones profesionales de `docs/scripts/` a texto plano para TTS.
+- **`regenerate_insomnia.py`**: [NEW] Motor de recuperación de audio para el curso de Insomnio (Voz Eter).
+- **`optimize_academy_assets.py`**: [NEW] Limpieza forense de archivos redundantes en el almacenamiento.
+- **`bulk_generate_scripts.py`**: Migra guiones profesionales de `docs/scripts/` a texto plano para TTS.
 - **`generate_audiobook.py`**: [PREMIUM] Generador de audio con soporte **SSML Prosody** (pausas de 2s).
-- **`sync_sessions.js`**: Sincroniza metadatos de guiones con la base de datos `sessionsData.ts`.
 
 ---
 
-- **[NEW] Zero-Egress Update (v2.8.0)**: Sistema de caché nativo para activos (MP3/WebP) e infraestructura para Cardio Scan (VisionCamera).
+- **[NEW] Academy & Offline Mastery (v2.8.10)**: Restauración de Insomnio, limpieza de 53 activos redundantes y protocolo Zero-Egress verificado.
+- **[NEW] Stability Hotfix (v2.8.2)**: Soluciona el crash al navegar a la biblioteca mediante `AnimatedImage` para `expo-image`.
+- **[NEW] Zero-Egress Update (v2.8.1)**: Sistema de caché nativo robusto e infraestructura para Cardio Scan.
 - **[NEW] Unified Branding & UI Mastery (v2.7.0)**: Unificación visual de Biblioteca, Academia y Audiolibros. Sistema de navegación flotante con `StarCore` y tipografía premium Skia.
 - **[NEW] Spiritual Flow (v2.6.5)**: Implementación de `SpiritualPreloader` y navegación simplificada de fricción cero.
-- **[NEW] Profile 3.0 (v2.6.5)**: Rediseño integral con Glassmorphism, objetivos dinámicos y Árbol de Resiliencia orgánico.
 - **[NEW] Total Cloud Sync (v2.6.5)**: Persistencia 100% en Supabase (Favoritos, Historial y Ajustes en JSONB).
 - **[NEW] Monthly Challenge (v2.6.0)**: Motor de compromiso con Reto de 30 días y 30 luces de progreso.
 - **[NEW] Audio Automation 101 (v2.5.0)**: Flujo completo de generación masiva con voces premium restauradas.
-- **Academy Implementation v2.3.0**: Módulo educativo completo con integración Supabase.
-- **Catalog Mastery v1.9.0**: Diseño tipo Netflix y sincronización de 119 audios.
 
 ---
 
-**Última actualización:** 13 de Febrero de 2026 - **Versión v2.8.0** (Zero-Egress & Cardio Infrastructure)
+**Última actualización:** 14 de Febrero de 2026 - **Versión v2.8.10** (Academy Mastery)
+

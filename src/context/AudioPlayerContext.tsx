@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import { savePlaybackPosition, getPlaybackPosition } from '../services/playbackStorage';
 import audioEngineService from '../services/AudioEngineService';
+import CacheService from '../services/CacheService';
 import { useApp } from './AppContext';
 
 interface Track {
@@ -9,7 +11,7 @@ interface Track {
     title: string;
     author: string;
     cover: any; // ImageSource
-    audioUrl: string;
+    audio_url: string; // Standardized from audioUrl
     duration: number;
     isInfinite?: boolean; // New
 }
@@ -105,7 +107,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                     try {
                         await ambienceRef.current.stopAsync();
                         await ambienceRef.current.unloadAsync();
-                    } catch (e) { console.log('Error unloading previous ambience:', e); }
+                    } catch (e) { console.log('Error unloading previous ambience (silenced):', e); }
                     if (isCurrentEffect) setAmbienceSound(null);
                 }
                 activeUrlRef.current = null;
@@ -116,8 +118,9 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
             if (shouldPlayAmbience) {
                 if (!ambienceRef.current && !activeUrlRef.current) {
                     try {
+                        const localUrl = await CacheService.get(targetUrl, 'audio');
                         const { sound: newAmbience } = await Audio.Sound.createAsync(
-                            { uri: targetUrl },
+                            { uri: localUrl },
                             { shouldPlay: true, isLooping: true, volume: 0.3 }
                         );
                         if (isCurrentEffect) {
@@ -166,7 +169,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 shouldDuckAndroid: true,
                 allowsRecordingIOS: false,
             });
-        } catch (error) { console.error('Error setting audio mode:', error); }
+        } catch (error) { console.log('Error setting audio mode (silenced):', error); }
     };
 
     const loadTrack = useCallback(async (track: Track, initialPosition: number = 0, shouldPlay: boolean = true) => {
@@ -193,8 +196,12 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
             setPosition(0);
             setDuration(0);
 
+            // Resolve local path from Cache
+            const localAudioUrl = await CacheService.get(track.audio_url, 'audio');
+            console.log('AudioPlayer: Resolved URL:', localAudioUrl.startsWith('file') ? 'LOCAL' : 'REMOTE');
+
             const { sound: newSound } = await Audio.Sound.createAsync(
-                { uri: track.audioUrl },
+                { uri: localAudioUrl },
                 { shouldPlay: false, positionMillis: initialPosition, isLooping: !!track.isInfinite },
                 onPlaybackStatusUpdate
             );
@@ -204,7 +211,12 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 await newSound.playAsync();
             }
         } catch (error) {
-            console.error('Error loading track:', error);
+            console.log('Error loading track (silenced error):', error);
+            Alert.alert(
+                'Error de Conexión',
+                'No se ha podido cargar el audio. Por favor, verifica tu conexión a internet para continuar.',
+                [{ text: 'Entendido' }]
+            );
         } finally {
             isLoadingRef.current = false;
         }
@@ -219,12 +231,13 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (!url) return;
 
         try {
+            const localUrl = await CacheService.get(url, 'audio');
             const { sound: newLayer } = await Audio.Sound.createAsync(
-                { uri: url },
+                { uri: localUrl },
                 { shouldPlay: isPlaying, isLooping: true, volume: 0.5 }
             );
             setSecondarySound(newLayer);
-        } catch (error) { console.error('Error loading binaural layer:', error); }
+        } catch (error) { console.log('Error loading binaural layer:', error); }
     }, [secondarySound, isPlaying]);
 
     const play = useCallback(async () => {

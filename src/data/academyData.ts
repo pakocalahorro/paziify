@@ -6,7 +6,7 @@ export interface Lesson {
     moduleId: string;
     isPlus: boolean;
     duration: string;
-    audioSource?: any; // Added for audio support
+    audio_url?: any; // Standardized from audioSource
 }
 
 export interface AcademyModule {
@@ -137,12 +137,13 @@ export const ACADEMY_LESSONS: Lesson[] = [
     // --- 1. PILOT COURSE: DOMINA TU ANSIEDAD (Complete) ---
     {
         id: 'anxiety-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/anxiety-1.mp3',
         moduleId: 'anxiety',
         title: 'Día 1: La Falsa Alarma',
         description: 'Entiende por qué sientes lo que sientes. La neurociencia del miedo.',
         duration: '10 min',
         isPlus: false,
-        audioSource: require('../../assets/academy/audio/lesson_1.mp3'),
+        audio_url: require('../../assets/academy/audio/lesson_1.mp3'),
         content: `
 # Día 1: La Falsa Alarma 🚨
 
@@ -164,12 +165,13 @@ Cuando sientas el nudo en el estómago, di en voz alta (o mentalmente):
     },
     {
         id: 'anxiety-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/anxiety-2.mp3',
         moduleId: 'anxiety',
         title: 'Día 2: El Ciclo del Pensamiento',
         description: 'Tus pensamientos no son hechos. Son hipótesis.',
         duration: '12 min',
         isPlus: false,
-        audioSource: require('../../assets/academy/audio/lesson_2.mp3'),
+        audio_url: require('../../assets/academy/audio/lesson_2.mp3'),
         content: `
 # Día 2: El Triángulo Cognitivo 🔺
 
@@ -190,12 +192,13 @@ Sé un **Detective**. Atrapa un pensamiento catastrófico hoy y pregúntale:
     },
     {
         id: 'anxiety-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/anxiety-3.mp3',
         moduleId: 'anxiety',
         title: 'Día 3: Surfeando la Ola',
         description: 'Aprende a no luchar contra la sensación física.',
         duration: '8 min',
         isPlus: true,
-        audioSource: require('../../assets/academy/audio/lesson_3.mp3'),
+        audio_url: require('../../assets/academy/audio/lesson_3.mp3'),
         content: `
 # Día 3: El Efecto del Oso Blanco 🐻‍❄️
 
@@ -213,12 +216,13 @@ Imagina que la ansiedad es una ola.
     },
     {
         id: 'anxiety-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/anxiety-4.mp3',
         moduleId: 'anxiety',
         title: 'Día 4: La Pausa Sagrada',
         description: 'Entre el estímulo y la respuesta, hay un espacio.',
         duration: '9 min',
         isPlus: true,
-        audioSource: require('../../assets/academy/audio/lesson_4.mp3'),
+        audio_url: require('../../assets/academy/audio/lesson_4.mp3'),
         content: `
 # Día 4: Tu Superpoder Oculto ⏸️
 
@@ -239,12 +243,13 @@ Ensancha tu espacio. Recupera tu libertad.
     },
     {
         id: 'anxiety-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/anxiety-5.mp3',
         moduleId: 'anxiety',
         title: 'Día 5: Tu Caja de Herramientas',
         description: 'Plan de crisis y graduación.',
         duration: '11 min',
         isPlus: true,
-        audioSource: require('../../assets/academy/audio/lesson_5.mp3'),
+        audio_url: require('../../assets/academy/audio/lesson_5.mp3'),
         content: `
 # Día 5: Plan de Crisis 🧰
 
@@ -265,6 +270,7 @@ Estás listo/a para tu **Examen Final**.
     // --- 2. FUNDAMENTOS TCC ---
     {
         id: 'basics-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/basics-1.mp3',
         moduleId: 'basics_intro',
         title: 'Lección 1: ¿Qué es la realidad?',
         description: 'El modelo cognitivo.',
@@ -289,6 +295,7 @@ Empieza a cuestionar tus gafas. ¿Es la realidad, o es mi filtro?
     },
     {
         id: 'basics-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/basics-2.mp3',
         moduleId: 'basics_intro',
         title: 'Lección 2: Pensamiento vs Hecho',
         description: 'Cómo distinguirlos.',
@@ -310,6 +317,7 @@ Escribe 3 cosas que te preocupan hoy. Luego marca cuáles son Hechos y cuáles s
     },
     {
         id: 'basics-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/basics-3.mp3',
         moduleId: 'basics_intro',
         title: 'Lección 3: Emociones Básicas',
         description: 'El lenguaje de tu cuerpo.',
@@ -330,6 +338,7 @@ No intentes matar al mensajero. Escucha el mensaje y la emoción se suavizará.
     },
     {
         id: 'basics-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/basics-4.mp3',
         moduleId: 'basics_intro',
         title: 'Lección 4: Conducta y Consecuencia',
         description: 'Rompiendo patrones.',
@@ -352,6 +361,7 @@ Para cambiar tu vida, a veces tienes que cambiar la Conducta (hacerlo con miedo)
     // --- 3. AUTOESTIMA DE ACERO ---
     {
         id: 'esteem-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/esteem-1.mp3',
         moduleId: 'self_esteem',
         title: 'Lección 1: El Crítico Interior',
         description: 'Identificando el sabotaje.',
@@ -373,6 +383,7 @@ Cuando empiece a hablar, dile: "Gracias por tu opinión, Gruñón, pero yo estoy
     },
     {
         id: 'esteem-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/esteem-2.mp3',
         moduleId: 'self_esteem',
         title: 'Lección 2: Orígenes de la Duda',
         description: '¿De quién es esa voz?',
@@ -391,6 +402,7 @@ Devuelve esa crítica a su dueño original. No te pertenece. Tú naciste valioso
     },
     {
         id: 'esteem-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/esteem-3.mp3',
         moduleId: 'self_esteem',
         title: 'Lección 3: Autocompasión Radical',
         description: 'Ser tu propio aliado.',
@@ -408,6 +420,7 @@ La autocompasión no es autolástima. Es tratarte con la misma amabilidad y apoy
     },
     {
         id: 'esteem-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/esteem-4.mp3',
         moduleId: 'self_esteem',
         title: 'Lección 4: Reescribiendo el Guion',
         description: 'Nuevas narrativas.',
@@ -430,6 +443,7 @@ Reescribe tu identidad basándote en la evidencia de tus éxitos.
     // --- 4. SUPERANDO EL DUELO ---
     {
         id: 'grief-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/grief-1.mp3',
         moduleId: 'grief',
         title: 'Lección 1: El Shock',
         description: 'Cuando el mundo se detiene.',
@@ -447,6 +461,7 @@ No te exijas "funcionar" ahora. Solo respira. Tu única tarea hoy es sobrevivir.
     },
     {
         id: 'grief-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/grief-2.mp3',
         moduleId: 'grief',
         title: 'Lección 2: La Negación',
         description: 'Mecanismos de defensa.',
@@ -467,6 +482,7 @@ Poco a poco, la realidad irá calando. Ten paciencia con tus ritmos.
     // I will fit Grief 3-5 and Insomnia 1-2 here.
     {
         id: 'grief-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/grief-3.mp3',
         moduleId: 'grief',
         title: 'Lección 3: Ira y Negociación',
         description: 'El fuego interior.',
@@ -485,6 +501,7 @@ Permite que la ira salga (escribe, grita en el coche, haz deporte). No la guarde
     },
     {
         id: 'grief-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/grief-4.mp3',
         moduleId: 'grief',
         title: 'Lección 4: La Tristeza Profunda',
         description: 'Honrar el dolor.',
@@ -502,6 +519,7 @@ Honra ese dolor. Llévalo contigo. No tienes que "superarlo" hoy. Solo tienes qu
     },
     {
         id: 'grief-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/grief-5.mp3',
         moduleId: 'grief',
         title: 'Lección 5: Aceptación',
         description: 'Construyendo el nuevo yo.',
@@ -520,6 +538,7 @@ Empezarás a sonreír de nuevo, y al principio te sentirás culpable. No lo haga
     // --- 5. ADIÓS AL INSOMNIO ---
     {
         id: 'insomnia-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/insomnia-1.mp3',
         moduleId: 'insomnia',
         title: 'Día 1: Ritmos Circadianos',
         description: 'Tu reloj interno.',
@@ -540,6 +559,7 @@ Dile a tu cerebro cuándo es de día y cuándo es de noche.
     },
     {
         id: 'insomnia-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/insomnia-2.mp3',
         moduleId: 'insomnia',
         title: 'Día 2: Higiene del Sueño',
         description: 'El santuario del descanso.',
@@ -558,6 +578,7 @@ Tu cerebro debe asociar: Almohada = Apagado.
     },
     {
         id: 'insomnia-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/insomnia-3.mp3',
         moduleId: 'insomnia',
         title: 'Día 3: Desactivar la Mente',
         description: 'Técnicas de "apagado".',
@@ -576,6 +597,7 @@ Dile a tu cerebro: "Ya está anotado. Mañana nos ocupamos. Ahora no puedo hacer
     },
     {
         id: 'insomnia-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/insomnia-4.mp3',
         moduleId: 'insomnia',
         title: 'Día 4: Pesadillas y Despertares',
         description: 'Volver a dormir.',
@@ -595,6 +617,7 @@ No te quedes en la cama peleando.
     },
     {
         id: 'insomnia-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/insomnia-5.mp3',
         moduleId: 'insomnia',
         title: 'Día 5: Relajación Progresiva',
         description: 'Escáner corporal profundo.',
@@ -613,6 +636,7 @@ Deja tu cuerpo pesado, hundido en el colchón.
     },
     {
         id: 'insomnia-6',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/insomnia-6.mp3',
         moduleId: 'insomnia',
         title: 'Día 6: La Cama es para Dormir',
         description: 'Reasociación cognitiva.',
@@ -631,6 +655,7 @@ Con el tiempo, tu cerebro volverá a asociar Cama = Placer y Descanso.
     },
     {
         id: 'insomnia-7',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/insomnia-7.mp3',
         moduleId: 'insomnia',
         title: 'Día 7: Tu Rutina Nocturna',
         description: 'Plan de mantenimiento.',
@@ -652,6 +677,7 @@ Repite esto cada noche. Tu cuerpo aprenderá que esta secuencia significa "es ho
     // --- 6. BURNOUT ---
     {
         id: 'burnout-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/burnout-1.mp3',
         moduleId: 'burnout',
         title: 'Lección 1: Señales de Alarma',
         description: 'Cansancio vs Agotamiento.',
@@ -671,6 +697,7 @@ Si estás aquí, para. Tu cuerpo te está gritando. Escúchalo.
     },
     {
         id: 'burnout-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/burnout-2.mp3',
         moduleId: 'burnout',
         title: 'Lección 2: Desconectar de Verdad',
         description: 'El derecho a no hacer nada.',
@@ -690,6 +717,7 @@ El "dolce far niente". Tu cerebro necesita esos espacios vacíos para regenerars
     },
     {
         id: 'burnout-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/burnout-3.mp3',
         moduleId: 'burnout',
         title: 'Lección 3: Límites Laborales',
         description: 'Decir no sin culpa.',
@@ -708,6 +736,7 @@ Al principio da miedo. Luego da respeto. La gente respeta a quien se respeta a s
     },
     {
         id: 'burnout-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/burnout-4.mp3',
         moduleId: 'burnout',
         title: 'Lección 4: Recuperación Activa',
         description: 'Qué te recarga energía.',
@@ -726,6 +755,7 @@ El equilibrio no se encuentra, se crea.
     },
     {
         id: 'burnout-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/burnout-5.mp3',
         moduleId: 'burnout',
         title: 'Lección 5: Rediseñando el Trabajo',
         description: 'Job crafting.',
@@ -746,6 +776,7 @@ Recupera el control. No eres un engranaje, eres el conductor.
     // --- 7. LIDERAZGO ---
     {
         id: 'lead-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/lead-1.mp3',
         moduleId: 'leadership',
         title: 'Lección 1: Estilos de Liderazgo',
         description: 'Conócete a ti mismo.',
@@ -763,6 +794,7 @@ No intentes imitar a Steve Jobs. Sé la mejor versión de ti mismo guiando a otr
     },
     {
         id: 'lead-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/lead-2.mp3',
         moduleId: 'leadership',
         title: 'Lección 2: Escucha Activa',
         description: 'Más allá de las palabras.',
@@ -783,6 +815,7 @@ Cuando alguien se siente realmente escuchado, baja sus defensas y la confianza s
     },
     {
         id: 'lead-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/lead-3.mp3',
         moduleId: 'leadership',
         title: 'Lección 3: Feedback Constructivo',
         description: 'Crecimiento, no crítica.',
@@ -802,6 +835,7 @@ Sé específico. Duro con el problema, suave con la persona.
     },
     {
         id: 'lead-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/lead-4.mp3',
         moduleId: 'leadership',
         title: 'Lección 4: Gestión de Conflictos',
         description: 'El conflicto como oportunidad.',
@@ -820,6 +854,7 @@ Busca el interés común debajo de la posición de cada uno.
     },
     {
         id: 'lead-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/lead-5.mp3',
         moduleId: 'leadership',
         title: 'Lección 5: Motivación de Equipos',
         description: 'Propósito compartido.',
@@ -837,6 +872,7 @@ Celebra los pequeños avances. Hazles sentir parte de algo grande.
     },
     {
         id: 'lead-6',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/lead-6.mp3',
         moduleId: 'leadership',
         title: 'Lección 6: Liderazgo Remoto',
         description: 'Conectar en la distancia.',
@@ -856,6 +892,7 @@ Debes ser intencional.
     // --- 8. CRIANZA CONSCIENTE ---
     {
         id: 'parent-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-1.mp3',
         moduleId: 'parenting',
         title: 'Lección 1: Tu Propia Calma',
         description: 'Co-regulación nerviosa.',
@@ -875,6 +912,7 @@ Estás modelando autocontrol. Eso es educar.
     },
     {
         id: 'parent-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-2.mp3',
         moduleId: 'parenting',
         title: 'Lección 2: Entender la Rabia',
         description: 'El cerebro del niño.',
@@ -892,6 +930,7 @@ Primero **CONECTA** (abrazo, validación), luego **REDIRIGE** (razonamiento).
     },
     {
         id: 'parent-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-3.mp3',
         moduleId: 'parenting',
         title: 'Lección 3: Límites con Amor',
         description: 'Firmeza y amabilidad.',
@@ -913,6 +952,7 @@ Firme en el límite, amable en la forma.
     },
     {
         id: 'parent-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-4.mp3',
         moduleId: 'parenting',
         title: 'Lección 4: Validar Emociones',
         description: 'Todas son bienvenidas.',
@@ -930,6 +970,7 @@ Validar la emoción no significa aceptar la conducta (pegar no vale).
     },
     {
         id: 'parent-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-5.mp3',
         moduleId: 'parenting',
         title: 'Lección 5: Juego y Conexión',
         description: 'El lenguaje del niño.',
@@ -949,6 +990,7 @@ Eso llena su "tanque de amor" y reduce los problemas de conducta.
     },
     {
         id: 'parent-6',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-6.mp3',
         moduleId: 'parenting',
         title: 'Lección 6: Autonomía',
         description: 'Dejar hacer para crecer.',
@@ -967,6 +1009,7 @@ La autoestima nace de sentirse capaz ('Soy útil').
     },
     {
         id: 'parent-7',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-7.mp3',
         moduleId: 'parenting',
         title: 'Lección 7: Conflictos entre Hermanos',
         description: 'Mediación.',
@@ -985,6 +1028,7 @@ Enséñales a negociar, no a ganar.
     },
     {
         id: 'parent-8',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/parent-8.mp3',
         moduleId: 'parenting',
         title: 'Lección 8: Autocuidado para Padres',
         description: 'Llenar tu propia taza.',
@@ -1004,6 +1048,7 @@ Un padre descansado es un mejor padre que uno mártir y amargado.
     // --- 9. MINDFULNESS NIÑOS ---
     {
         id: 'kids-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-1.mp3',
         moduleId: 'kids_mindfulness',
         title: '1: El Globo Mágico',
         description: 'Respiración abdominal.',
@@ -1021,6 +1066,7 @@ Vamos a hincharlo y deshincharlo 5 veces. Muy despacito.
     },
     {
         id: 'kids-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-2.mp3',
         moduleId: 'kids_mindfulness',
         title: '2: La Ranita Quieta',
         description: 'Atención plena.',
@@ -1038,6 +1084,7 @@ Si te viene un pensamiento "saltarín", déjalo pasar y vuelve a estar quieto.
     },
     {
         id: 'kids-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-3.mp3',
         moduleId: 'kids_mindfulness',
         title: '3: El Botón de Pausa',
         description: 'Parar y sentir.',
@@ -1056,6 +1103,7 @@ Ahora, ¿qué quieres hacer? ¿Seguimos jugando o necesitamos un abrazo?
     },
     {
         id: 'kids-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-4.mp3',
         moduleId: 'kids_mindfulness',
         title: '4: Superpoderes de Escucha',
         description: 'Sonidos lejanos.',
@@ -1073,6 +1121,7 @@ Ahora uno que esté dentro de la habitación (el reloj, tu respiración...).
     },
     {
         id: 'kids-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-5.mp3',
         moduleId: 'kids_mindfulness',
         title: '5: Escáner de Rayos X',
         description: 'Sintiendo el cuerpo.',
@@ -1090,6 +1139,7 @@ La la cara... ¿estás apretando los dientes? Suelta la mandíbula como si estuv
     },
     {
         id: 'kids-6',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-6.mp3',
         moduleId: 'kids_mindfulness',
         title: '6: La Montaña Fuerte',
         description: 'Postura y fortaleza.',
@@ -1107,6 +1157,7 @@ Aunque estés triste o enfadado (como una tormenta), tú eres fuerte como la mon
     },
     {
         id: 'kids-7',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-7.mp3',
         moduleId: 'kids_mindfulness',
         title: '7: Nubes en el Cielo',
         description: 'Observar pensamientos.',
@@ -1125,6 +1176,7 @@ Mira cómo pasan las nubes sin agarrarlas. Adiós nube.
     },
     {
         id: 'kids-8',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-8.mp3',
         moduleId: 'kids_mindfulness',
         title: '8: Corazón Amable',
         description: 'Enviando amor.',
@@ -1143,6 +1195,7 @@ Vamos a enviarle esa luz a:
     },
     {
         id: 'kids-9',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-9.mp3',
         moduleId: 'kids_mindfulness',
         title: '9: El Espagueti',
         description: 'Tensión y relajación.',
@@ -1161,6 +1214,7 @@ Te pones blandito, fofo y relajado. Muévete como un fideo cocido.
     },
     {
         id: 'kids-10',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/kids-10.mp3',
         moduleId: 'kids_mindfulness',
         title: '10: El Lugar Seguro',
         description: 'Visualización.',
@@ -1180,6 +1234,7 @@ Siempre que tengas miedo, puedes cerrar los ojos y venir aquí.
     // --- 10. TCC ADOLESCENTES ---
     {
         id: 'teens-1',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/teens-1.mp3',
         moduleId: 'teens_cbt',
         title: 'Lección 1: Tu Cerebro Hackeado',
         description: 'Neurociencia teen.',
@@ -1198,6 +1253,7 @@ No estás loco/a. Es biología. Ten paciencia contigo mismo/a.
     },
     {
         id: 'teens-2',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/teens-2.mp3',
         moduleId: 'teens_cbt',
         title: 'Lección 2: Drama vs Realidad',
         description: 'Pensamientos extremos.',
@@ -1217,6 +1273,7 @@ Cuando pienses en extremos, busca el gris.
     },
     {
         id: 'teens-3',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/teens-3.mp3',
         moduleId: 'teens_cbt',
         title: 'Lección 3: La Presión Social',
         description: 'Ser tú mismo.',
@@ -1234,6 +1291,7 @@ Sé tú. Es la única forma de encontrar a tu verdadera tribu.
     },
     {
         id: 'teens-4',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/teens-4.mp3',
         moduleId: 'teens_cbt',
         title: 'Lección 4: Ansiedad en Exámenes',
         description: 'Rendir bajo presión.',
@@ -1253,6 +1311,7 @@ Si te bloqueas:
     },
     {
         id: 'teens-5',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/teens-5.mp3',
         moduleId: 'teens_cbt',
         title: 'Lección 5: Redes Anti-Sociales',
         description: 'Comparación y FOMO.',
@@ -1270,6 +1329,7 @@ Si te hace sentir mal, deja de seguir (Unfollow terapéutico). Tu feed debe insp
     },
     {
         id: 'teens-6',
+        audio_url: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/academy-voices/teens-6.mp3',
         moduleId: 'teens_cbt',
         title: 'Lección 6: Tu Futuro',
         description: 'Metas y valores.',
@@ -1287,3 +1347,4 @@ Prueba cosas. Equivócate. El camino se hace andando.
 `
     },
 ];
+

@@ -65,13 +65,21 @@ const StoryDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        loadStory();
+        // [ZERO EGRESS] Use passed data if available to avoid service calls
+        if (route.params.story) {
+            console.log('[STORY_DETAIL] Using navigation story data (Zero Egress)');
+            setStory(route.params.story);
+            setLoading(false);
+        } else {
+            loadStory();
+        }
+
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 600,
             useNativeDriver: true,
         }).start();
-    }, [storyId]);
+    }, [storyId, route.params.story]);
 
     useEffect(() => {
         if (story && userState.id) {

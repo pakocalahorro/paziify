@@ -93,7 +93,10 @@ const AcademyCourseDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         return (
             <TouchableOpacity
                 style={[styles.lessonCard, isLocked && styles.lessonCardLocked]}
-                onPress={() => navigation.navigate(Screen.CBT_DETAIL, { lessonId: item.id })}
+                onPress={() => navigation.navigate(Screen.CBT_DETAIL, {
+                    lessonId: item.id,
+                    lessonData: item // Prop-Passing (Zero Egress 2.0)
+                })}
                 disabled={false} // Allow peeking or disabled? Let's allow clicking for now or implement lock.
             >
                 <View style={styles.lessonNumberBadge}>

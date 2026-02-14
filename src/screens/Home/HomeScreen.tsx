@@ -257,8 +257,11 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                             variant="large"
                             icon="sparkles"
                             ctaText="Entrar ahora"
-                            backgroundImage={recommendations?.daily?.thumbnail_url || "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800"}
-                            onPress={() => recommendations?.daily && navigation.navigate(Screen.SESSION_DETAIL, { sessionId: recommendations.daily.id })}
+                            backgroundImage={recommendations?.daily?.thumbnail_url || require('../../assets/meditation/webp-optimized/resiliencia_tecnica_010_base_v2_1770219645522.webp')}
+                            onPress={() => recommendations?.daily && navigation.navigate(Screen.SESSION_DETAIL, {
+                                sessionId: recommendations.daily.id,
+                                sessionData: recommendations.daily
+                            })}
                         >
                             <View style={{ position: 'absolute', top: 0, right: 0 }}>
                                 <BlurView intensity={40} tint="light" style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', overflow: 'hidden' }}>
@@ -274,8 +277,11 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                             icon="book"
                             largeIcon={true}
                             variant="medium"
-                            backgroundImage={recommendations?.stories?.thumbnail_url || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400"}
-                            onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, { storyId: recommendations.stories.id })}
+                            backgroundImage={recommendations?.stories?.thumbnail_url || require('../../assets/meditation/webp-optimized/resiliencia_eter_090_la-ciudadela-interior.webp')}
+                            onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, {
+                                storyId: recommendations.stories.id,
+                                story: recommendations.stories
+                            })}
                         />
 
                         {/* Sounds -> MÚSICA AMBIENTAL */}
@@ -286,7 +292,10 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                             largeIcon={true}
                             variant="medium"
                             backgroundImage={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
-                            onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, { soundscapeId: recommendations.sounds.id })}
+                            onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
+                                soundscapeId: recommendations.sounds.id,
+                                soundscape: recommendations.sounds
+                            })}
                         />
                     </BentoGrid>
                 </View>
@@ -303,7 +312,10 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
 
                     <TouchableOpacity
                         style={styles.featuredCard}
-                        onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, { courseId: recommendations.academy.id })}
+                        onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                            courseId: recommendations.academy.id,
+                            courseData: recommendations.academy
+                        })}
                     >
                         <Image
                             source={{ uri: typeof recommendations?.academy?.image === 'string' ? recommendations.academy.image : "https://images.unsplash.com/photo-1434031211b08-39916fcad442?w=800" }}
@@ -335,10 +347,13 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
 
                     <TouchableOpacity
                         style={styles.featuredCard}
-                        onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, { audiobookId: recommendations.audiobook.id })}
+                        onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
+                            audiobookId: recommendations.audiobook.id,
+                            audiobook: recommendations.audiobook
+                        })}
                     >
                         <Image
-                            source={{ uri: recommendations?.audiobook?.image_url || "https://images.unsplash.com/photo-1516589174184-c685eb6d2d2c?w=800" }}
+                            source={{ uri: recommendations?.audiobook?.image_url || 'https://paziify.app/placeholder-audiobook.jpg' }} // Fallback for audiobook cover
                             style={styles.featuredImage}
                         />
                         <LinearGradient

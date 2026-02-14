@@ -2,30 +2,29 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
     Text,
-    TouchableOpacity,
     StyleSheet,
-    ActivityIndicator,
-    Dimensions,
-    ImageBackground,
+    TouchableOpacity,
     Image,
-    StatusBar,
+    ActivityIndicator,
+    Alert,
+    Dimensions,
     Animated,
+    Modal,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import Slider from '@react-native-community/slider';
+import { BlurView } from 'expo-blur';
 import { Screen, RootStackParamList, Audiobook } from '../../types';
 import { theme } from '../../constants/theme';
 import { audiobooksService, favoritesService } from '../../services/contentService';
-import { getPlaybackPosition, savePlaybackSpeed, getPlaybackSpeed } from '../../services/playbackStorage';
-import SpeedControlModal from '../../components/SpeedControlModal';
-import SleepTimerModal from '../../components/SleepTimerModal';
-import { useApp } from '../../context/AppContext';
 import { useAudioPlayer } from '../../context/AudioPlayerContext';
+import { useApp } from '../../context/AppContext';
+import { savePlaybackPosition, getPlaybackPosition, savePlaybackSpeed, getPlaybackSpeed } from '../../services/playbackStorage';
+
+const { width } = Dimensions.get('window');
 
 type AudiobookPlayerScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -42,92 +41,70 @@ interface Props {
     route: AudiobookPlayerScreenRouteProp;
 }
 
-const { width } = Dimensions.get('window');
-
-const BOOK_COVERS: Record<string, any> = {
-    'Meditations': require('../../assets/covers/meditations.png'),
-    'The Conquest of Fear': require('../../assets/covers/conquest_fear.png'),
-    'Little Women': require('../../assets/covers/little_women.png'),
-    'As a Man Thinketh': require('../../assets/covers/mind_power.png'),
-    'anxiety': require('../../assets/covers/anxiety.png'),
-    'health': require('../../assets/covers/health.png'),
-    'growth': require('../../assets/covers/growth.png'),
-    'professional': require('../../assets/covers/professional.png'),
-};
-
 const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
-    const { audiobookId } = route.params as { audiobookId: string };
+    const { audiobookId } = route.params;
     const { userState } = useApp();
-
-    // Global Audio Context
     const {
-        sound,
         isPlaying,
         currentTrack,
         position,
         duration,
-        isBuffering,
         loadTrack,
         play,
         pause,
         seekTo,
         skipForward,
-        skipBackward
+        skipBackward,
+        sound
     } = useAudioPlayer();
 
     const [audiobook, setAudiobook] = useState<Audiobook | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // New features state
     const [isFavorite, setIsFavorite] = useState(false);
-    const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
-    const [showSpeedModal, setShowSpeedModal] = useState(false);
-    const [showSleepTimerModal, setShowSleepTimerModal] = useState(false);
+    const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1);
+    const [showSleepTimer, setShowSleepTimer] = useState(false);
     const [sleepTimerSeconds, setSleepTimerSeconds] = useState<number | null>(null);
 
-    const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Load audiobook metadata
+    const formatTime = (millis: number) => {
+        const totalSeconds = millis / 1000;
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
     useEffect(() => {
         const fetchAudiobook = async () => {
+            if (!audiobookId) return;
             try {
-                setLoading(true);
                 const data = await audiobooksService.getById(audiobookId);
                 if (!data) {
                     setError('Audiolibro no encontrado');
-                    return;
+                } else {
+                    setAudiobook(data);
                 }
-                setAudiobook(data);
-
-                // Get saved position for initial load
-                const savedPos = await getPlaybackPosition(data.id);
-                const initialPos = savedPos ? savedPos.position : 0;
-
-                // Removed auto-load. Track will be loaded on user interaction (Play button).
-                // Just ensuring we have the correct cover source for potential loading later.
-
             } catch (err) {
-                console.error('Error loading audiobook:', err);
-                setError('Error al cargar el audiolibro');
+                console.error('Error fetching audiobook:', err);
+                setError('Error de conexión');
             } finally {
                 setLoading(false);
             }
         };
 
-        if (audiobookId) {
-            // If we are already playing THIS track, just use current state, otherwise fetch and load
-            if (currentTrack?.id === audiobookId && audiobook === null) {
-                // We might need to fetch metadata just for UI labels/favorite status if not passed fully in context
-                // But for now let's re-fetch safely to ensure robust UI
-                fetchAudiobook();
-            } else {
-                fetchAudiobook();
-            }
+        // [ZERO EGRESS 2.0] Prioritize object passed via navigation
+        if (route.params.audiobook) {
+            console.log('[AUDIOBOOK_PLAYER] Using navigation audiobook data (Zero Egress)');
+            setAudiobook(route.params.audiobook);
+            setLoading(false);
+        } else if (audiobookId) {
+            fetchAudiobook();
         }
-    }, [audiobookId]);
+    }, [audiobookId, route.params.audiobook]);
 
     // Animation when loaded
     useEffect(() => {
@@ -185,11 +162,10 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         }
     };
 
-    // New logic: Only load/play when USER presses play
     const togglePlayback = async () => {
         if (!audiobook) return;
 
-        // Case 1: This track is already loaded in the global player
+        // Case 1: This track is already loaded
         if (currentTrack?.id === audiobook.id) {
             if (isPlaying) {
                 await pause();
@@ -197,26 +173,34 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                 await play();
             }
         }
-        // Case 2: Different track (or no track) is loaded. Load this one now.
+        // Case 2: New track
         else {
-            let rawCover = audiobook.image_url || BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../../assets/covers/growth.png');
-            const coverSource = typeof rawCover === 'string' ? { uri: rawCover } : rawCover;
+            setLoading(true);
+            try {
+                let coverSource = { uri: audiobook.image_url };
+                if (typeof audiobook.image_url === 'number') {
+                    coverSource = audiobook.image_url;
+                }
 
-            // Get saved position
-            const savedPos = await getPlaybackPosition(audiobook.id);
-            const initialPos = savedPos ? savedPos.position : 0;
+                const initialPos = await getPlaybackPosition(audiobook.id);
+                // Fix: Extract position from PlaybackPosition object or default to 0
+                const startPosition = initialPos?.position || 0;
 
-            await loadTrack({
-                id: audiobook.id,
-                title: audiobook.title,
-                author: audiobook.author,
-                cover: coverSource,
-                audioUrl: audiobook.audio_url || audiobook.audioUrl || '',
-                duration: 0
-            }, initialPos);
+                await loadTrack({
+                    id: audiobook.id,
+                    title: audiobook.title,
+                    author: audiobook.author,
+                    cover: coverSource,
+                    audio_url: audiobook.audio_url, // Standardized property
+                    duration: 0
+                }, startPosition);
 
-            // Wait a tiny bit for state update if needed, but loadTrack is async so should be good
-            await play();
+                await play();
+            } catch (err) {
+                console.error('Error toggling playback:', err);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -235,16 +219,9 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         }
     };
 
-    const formatTime = (millis: number): string => {
-        const totalSeconds = Math.floor(millis / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    };
-
     if (loading) {
         return (
-            <View style={[styles.container, styles.centerContent, { paddingTop: insets.top }]}>
+            <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
             </View>
         );
@@ -252,141 +229,200 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
 
     if (error || !audiobook) {
         return (
-            <View style={[styles.container, styles.centerContent, { paddingTop: insets.top }]}>
+            <View style={styles.errorContainer}>
                 <Ionicons name="alert-circle-outline" size={64} color={theme.colors.error} />
-                <Text style={styles.errorText}>{error || 'Audiolibro no encontrado'}</Text>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Text style={styles.backButtonText}>Volver</Text>
+                <Text style={styles.errorText}>{error || 'Error desconocido'}</Text>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.retryButton}>
+                    <Text style={styles.retryText}>Volver</Text>
                 </TouchableOpacity>
             </View>
         );
     }
 
-    let rawCover = audiobook.image_url || BOOK_COVERS[audiobook.title] || BOOK_COVERS[audiobook.category] || require('../../assets/covers/growth.png');
-    const coverSource = typeof rawCover === 'string' ? { uri: rawCover } : rawCover;
+    const currentTrackProgress = duration > 0 ? position / duration : 0;
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            {/* Background Image (Blurred) */}
+            <Image
+                source={typeof audiobook.image_url === 'number' ? audiobook.image_url : { uri: audiobook.image_url }}
+                style={StyleSheet.absoluteFill}
+                blurRadius={20}
+            />
+            <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
 
-            {/* Background Blur Artwork */}
-            <View style={StyleSheet.absoluteFill}>
-                <ImageBackground source={coverSource} style={styles.bgImage} blurRadius={40}>
-                    <LinearGradient
-                        colors={['rgba(5,8,16,0.6)', 'rgba(5,8,16,0.95)']}
-                        style={StyleSheet.absoluteFill}
+            <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+                {/* Header */}
+                <View style={[styles.header, { paddingTop: insets.top }]}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
+                        <Ionicons name="chevron-down" size={28} color="#FFF" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Audiolibro</Text>
+                    <TouchableOpacity onPress={toggleFavorite} style={styles.iconButton}>
+                        <Ionicons
+                            name={isFavorite ? "heart" : "heart-outline"}
+                            size={26}
+                            color={isFavorite ? theme.colors.primary : "#FFF"}
+                        />
+                    </TouchableOpacity>
+                </View>
+
+                {/* Cover Art */}
+                <View style={styles.coverContainer}>
+                    <Image
+                        source={typeof audiobook.image_url === 'number' ? audiobook.image_url : { uri: audiobook.image_url }}
+                        style={styles.coverImage}
+                        resizeMode="cover"
                     />
-                </ImageBackground>
-            </View>
-
-            {/* Header */}
-            <View style={[styles.navHeader, { paddingTop: insets.top }]}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-                    <Ionicons name="chevron-down" size={28} color="#FFFFFF" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>REPRODUCIENDO</Text>
-                <TouchableOpacity onPress={toggleFavorite} style={styles.iconButton}>
-                    <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={24} color={isFavorite ? '#FF6B9D' : '#FFFFFF'} />
-                </TouchableOpacity>
-            </View>
-
-            <Animated.View style={[styles.mainContent, { opacity: fadeAnim }]}>
-                {/* Artwork */}
-                <View style={styles.artworkWrapper}>
-                    <Image source={coverSource} style={styles.artworkImage} />
-                    <LinearGradient colors={['transparent', 'rgba(0,0,0,0.3)']} style={styles.artworkShadow} />
                 </View>
 
                 {/* Info */}
-                <View style={styles.infoWrapper}>
-                    <View style={styles.titleRow}>
-                        <Text style={styles.title} numberOfLines={2}>{audiobook.title}</Text>
-                        <Text style={styles.author}>de {audiobook.author}</Text>
-                    </View>
-                    <View style={styles.narratorRow}>
-                        <Ionicons name="mic-outline" size={14} color="rgba(255,255,255,0.4)" />
-                        <Text style={styles.narrator}>Voz por {audiobook.narrator}</Text>
+                <View style={styles.infoContainer}>
+                    <Text style={styles.title} numberOfLines={2}>{audiobook.title}</Text>
+                    <Text style={styles.author}>{audiobook.author}</Text>
+                    {audiobook.narrator && (
+                        <Text style={styles.narrator}>Narrado por {audiobook.narrator}</Text>
+                    )}
+                </View>
+
+                {/* Progress Slider */}
+                <View style={styles.sliderContainer}>
+                    <Slider
+                        style={styles.slider}
+                        minimumValue={0}
+                        maximumValue={1}
+                        value={currentTrackProgress}
+                        onSlidingComplete={(val) => seekTo(val * duration)}
+                        minimumTrackTintColor={theme.colors.primary}
+                        maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
+                        thumbTintColor={theme.colors.primary}
+                    />
+                    <View style={styles.timeContainer}>
+                        <Text style={styles.timeText}>{formatTime(position)}</Text>
+                        <Text style={styles.timeText}>{formatTime(duration)}</Text>
                     </View>
                 </View>
 
-                {/* Controls Area (Glass) */}
-                <BlurView intensity={30} tint="dark" style={styles.controlsGlass}>
-                    {/* Slider */}
-                    <View style={styles.sliderSection}>
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={0}
-                            maximumValue={duration}
-                            value={position}
-                            onSlidingComplete={seekTo}
-                            minimumTrackTintColor={theme.colors.primary}
-                            maximumTrackTintColor="rgba(255,255,255,0.1)"
-                            thumbTintColor="#FFFFFF"
+                {/* Controls */}
+                <View style={styles.controlsContainer}>
+                    <TouchableOpacity onPress={() => skipBackward()} style={styles.controlButton}>
+                        <Ionicons name="play-back" size={32} color="#FFF" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={togglePlayback} style={styles.playPauseButton}>
+                        <Ionicons
+                            name={isPlaying && currentTrack?.id === audiobook.id ? "pause" : "play"}
+                            size={48}
+                            color="#000"
+                            style={!isPlaying ? { marginLeft: 4 } : {}}
                         />
-                        <View style={styles.timeRow}>
-                            <Text style={styles.timeText}>{formatTime(position)}</Text>
-                            <Text style={styles.timeText}>{formatTime(duration)}</Text>
-                        </View>
-                    </View>
+                    </TouchableOpacity>
 
-                    {/* Main Actions */}
-                    <View style={styles.mainControls}>
-                        <TouchableOpacity onPress={skipBackward} style={styles.skipBtn}>
-                            <Ionicons name="refresh-outline" size={28} color="#FFFFFF" style={{ transform: [{ rotateY: '180deg' }] }} />
-                            <Text style={styles.skipLabel}>15</Text>
-                        </TouchableOpacity>
+                    <TouchableOpacity onPress={() => skipForward()} style={styles.controlButton}>
+                        <Ionicons name="play-forward" size={32} color="#FFF" />
+                    </TouchableOpacity>
+                </View>
 
-                        <TouchableOpacity
-                            onPress={togglePlayback}
-                            style={styles.playBtn}
-                            disabled={loading} // Only disable if fetching metadata
-                        >
-                            <LinearGradient colors={['#646CFF', '#4F56D9']} style={styles.playGradient}>
-                                {isBuffering ? (
-                                    <ActivityIndicator color="#FFFFFF" />
-                                ) : (
-                                    <Ionicons name={isPlaying ? "pause" : "play"} size={44} color="#FFFFFF" />
-                                )}
-                            </LinearGradient>
-                        </TouchableOpacity>
+                {/* Footer Options */}
+                <View style={styles.footerOptions}>
+                    <TouchableOpacity
+                        style={styles.optionItem}
+                        onPress={() => setShowSpeedMenu(true)}
+                    >
+                        <Ionicons name="speedometer-outline" size={20} color="#FFF" />
+                        <Text style={styles.optionText}>{playbackSpeed}x</Text>
+                    </TouchableOpacity>
 
-                        <TouchableOpacity onPress={skipForward} style={styles.skipBtn}>
-                            <Ionicons name="refresh-outline" size={28} color="#FFFFFF" />
-                            <Text style={styles.skipLabel}>15</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.optionItem}
+                        onPress={() => setShowSleepTimer(true)}
+                    >
+                        <Ionicons
+                            name="time-outline"
+                            size={20}
+                            color={sleepTimerSeconds ? theme.colors.primary : "#FFF"}
+                        />
+                        <Text style={[styles.optionText, sleepTimerSeconds ? { color: theme.colors.primary } : {}]}>
+                            {sleepTimerSeconds ? `${Math.ceil(sleepTimerSeconds / 60)}m` : 'Timer'}
+                        </Text>
+                    </TouchableOpacity>
 
-                    {/* Secondary Actions */}
-                    <View style={styles.footerActions}>
-                        <TouchableOpacity style={styles.actionBtn} onPress={() => setShowSpeedModal(true)}>
-                            <Ionicons name="speedometer-outline" size={20} color="rgba(255,255,255,0.6)" />
-                            <Text style={styles.actionLabel}>{playbackSpeed}x</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.actionBtn} onPress={() => setShowSleepTimerModal(true)}>
-                            <Ionicons name="moon-outline" size={20} color={sleepTimerSeconds ? '#FFA726' : 'rgba(255,255,255,0.6)'} />
-                            <Text style={[styles.actionLabel, sleepTimerSeconds ? { color: '#FFA726' } : undefined]}>
-                                {sleepTimerSeconds ? formatTime(sleepTimerSeconds * 1000) : 'Temporizador'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </BlurView>
+                    <TouchableOpacity style={styles.optionItem}>
+                        <Ionicons name="list-outline" size={20} color="#FFF" />
+                        <Text style={styles.optionText}>Capítulos</Text>
+                    </TouchableOpacity>
+                </View>
             </Animated.View>
 
-            {/* Modals */}
-            <SpeedControlModal
-                visible={showSpeedModal}
-                currentSpeed={playbackSpeed}
-                onClose={() => setShowSpeedModal(false)}
-                onSelectSpeed={handleSpeedChange}
-            />
-            <SleepTimerModal
-                visible={showSleepTimerModal}
-                onClose={() => setShowSleepTimerModal(false)}
-                onSetTimer={(minutes) => setSleepTimerSeconds(minutes * 60)}
-                activeTimer={sleepTimerSeconds}
-                onCancelTimer={() => setSleepTimerSeconds(null)}
-            />
+            {/* Speed Selection Modal */}
+            <Modal
+                visible={showSpeedMenu}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowSpeedMenu(false)}
+            >
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setShowSpeedMenu(false)}
+                >
+                    <BlurView intensity={60} tint="dark" style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Velocidad de Reproducción</Text>
+                        {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
+                            <TouchableOpacity
+                                key={speed}
+                                style={[styles.modalOption, playbackSpeed === speed && styles.modalOptionActive]}
+                                onPress={() => {
+                                    handleSpeedChange(speed);
+                                    setShowSpeedMenu(false);
+                                }}
+                            >
+                                <Text style={[styles.modalOptionText, playbackSpeed === speed && styles.modalOptionTextActive]}>
+                                    {speed}x {speed === 1 ? '(Normal)' : ''}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </BlurView>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* Sleep Timer Modal */}
+            <Modal
+                visible={showSleepTimer}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowSleepTimer(false)}
+            >
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setShowSleepTimer(false)}
+                >
+                    <BlurView intensity={60} tint="dark" style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Temporizador de Apagado</Text>
+                        {[
+                            { label: 'Desactivado', value: null },
+                            { label: '15 minutos', value: 15 * 60 },
+                            { label: '30 minutos', value: 30 * 60 },
+                            { label: '45 minutos', value: 45 * 60 },
+                            { label: '1 hora', value: 60 * 60 },
+                        ].map((option) => (
+                            <TouchableOpacity
+                                key={option.label}
+                                style={[styles.modalOption, sleepTimerSeconds === option.value && styles.modalOptionActive]}
+                                onPress={() => {
+                                    setSleepTimerSeconds(option.value);
+                                    setShowSleepTimer(false);
+                                }}
+                            >
+                                <Text style={[styles.modalOptionText, sleepTimerSeconds === option.value && styles.modalOptionTextActive]}>
+                                    {option.label}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </BlurView>
+                </TouchableOpacity>
+            </Modal>
         </View>
     );
 };
@@ -394,194 +430,187 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#050810',
+        backgroundColor: '#000',
     },
-    bgImage: {
-        width: '100%',
-        height: '100%',
-    },
-    centerContent: {
+    loadingContainer: {
+        flex: 1,
+        backgroundColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    navHeader: {
+    errorContainer: {
+        flex: 1,
+        backgroundColor: '#000',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 40,
+    },
+    errorText: {
+        color: '#FFF',
+        fontSize: 18,
+        textAlign: 'center',
+        marginTop: 20,
+        marginBottom: 30,
+    },
+    retryButton: {
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        backgroundColor: theme.colors.primary,
+        borderRadius: 20,
+    },
+    retryText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+    },
+    content: {
+        flex: 1,
+    },
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 24,
+        paddingHorizontal: 20,
         paddingBottom: 20,
-        zIndex: 10,
+    },
+    headerTitle: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+        opacity: 0.8,
     },
     iconButton: {
         width: 44,
         height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(255,255,255,0.08)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    headerTitle: {
-        fontSize: 12,
-        fontWeight: '900',
-        color: 'rgba(255,255,255,0.5)',
-        letterSpacing: 2,
-    },
-    mainContent: {
+    coverContainer: {
         flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: 30,
-        justifyContent: 'flex-start',
-        paddingBottom: 20,
-    },
-    artworkWrapper: {
-        width: width * 0.5,
-        height: width * 0.5,
+        maxHeight: width - 40,
+        width: width - 40,
+        alignSelf: 'center',
         borderRadius: 20,
         overflow: 'hidden',
-        elevation: 15,
+        elevation: 10,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        marginTop: 5,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.5,
+        shadowRadius: 20,
+        marginVertical: 40,
     },
-    artworkImage: {
+    coverImage: {
         width: '100%',
         height: '100%',
-        resizeMode: 'cover',
     },
-    artworkShadow: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    infoWrapper: {
+    infoContainer: {
+        paddingHorizontal: 40,
         alignItems: 'center',
-        marginTop: 10,
-        gap: 4,
-        marginBottom: 5,
-    },
-    titleRow: {
-        alignItems: 'center',
+        marginBottom: 30,
     },
     title: {
-        fontSize: 22,
-        fontWeight: '900',
-        color: '#FFFFFF',
+        color: '#FFF',
+        fontSize: 24,
+        fontWeight: 'bold',
         textAlign: 'center',
-        marginBottom: 2,
+        marginBottom: 8,
     },
     author: {
-        fontSize: 14,
-        color: 'rgba(255,255,255,0.6)',
-        fontWeight: '700',
-    },
-    narratorRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        marginTop: 2,
+        color: theme.colors.primary,
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 4,
     },
     narrator: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.4)',
-        fontWeight: '600',
+        color: '#FFF',
+        fontSize: 14,
+        opacity: 0.6,
     },
-    controlsGlass: {
-        width: '100%',
-        borderRadius: 28,
-        padding: 16,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        marginTop: 15,
-        marginBottom: 10,
-    },
-    sliderSection: {
-        width: '100%',
-        marginBottom: 24,
+    sliderContainer: {
+        paddingHorizontal: 30,
+        marginBottom: 30,
     },
     slider: {
         width: '100%',
         height: 40,
     },
-    timeRow: {
+    timeContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: 12,
+        paddingHorizontal: 16,
     },
     timeText: {
+        color: '#FFF',
         fontSize: 12,
-        color: 'rgba(255,255,255,0.4)',
-        fontWeight: '700',
+        opacity: 0.6,
     },
-    mainControls: {
+    controlsContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 30,
-    },
-    skipBtn: {
-        width: 50,
-        height: 50,
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative',
+        marginBottom: 50,
     },
-    skipLabel: {
-        position: 'absolute',
-        fontSize: 10,
-        fontWeight: '900',
-        color: '#FFFFFF',
-        top: 18,
+    controlButton: {
+        padding: 20,
     },
-    playBtn: {
-        width: 86,
-        height: 86,
-        borderRadius: 43,
-        overflow: 'hidden',
-        elevation: 8,
-    },
-    playGradient: {
-        flex: 1,
+    playPauseButton: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#FFF',
         justifyContent: 'center',
         alignItems: 'center',
+        marginHorizontal: 30,
     },
-    footerActions: {
+    footerOptions: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.1)',
-        paddingTop: 20,
+        paddingHorizontal: 20,
+        marginBottom: 30,
     },
-    actionBtn: {
-        flexDirection: 'row',
+    optionItem: {
         alignItems: 'center',
-        gap: 8,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 14,
+        opacity: 0.8,
     },
-    actionLabel: {
-        fontSize: 13,
-        color: 'rgba(255,255,255,0.6)',
-        fontWeight: '800',
+    optionText: {
+        color: '#FFF',
+        fontSize: 10,
+        marginTop: 4,
     },
-    errorText: {
-        color: '#FF6B6B',
-        fontSize: 16,
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '80%',
+        borderRadius: 20,
+        padding: 20,
+        overflow: 'hidden',
+    },
+    modalTitle: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
         textAlign: 'center',
-        paddingHorizontal: 40,
         marginBottom: 20,
     },
-    backButton: {
-        backgroundColor: theme.colors.primary,
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 15,
+    modalOption: {
+        paddingVertical: 15,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.1)',
     },
-    backButtonText: {
-        color: '#FFFFFF',
-        fontWeight: '800',
+    modalOptionActive: {
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    modalOptionText: {
+        color: '#FFF',
+        fontSize: 16,
+    },
+    modalOptionTextActive: {
+        color: theme.colors.primary,
+        fontWeight: 'bold',
     },
 });
 

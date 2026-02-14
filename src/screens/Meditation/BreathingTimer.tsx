@@ -264,22 +264,38 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
         const initSession = async () => {
             try {
                 const sessionId = (route.params as any)?.sessionId || 'anx_478';
+                const passedData = (route.params as any)?.sessionData;
+
+                console.log(`[BREATHING_TIMER] initSession ID: ${sessionId}`);
 
                 // Fetch dynamic session
-                const dbSession = await sessionsService.getById(sessionId);
                 let session;
 
-                if (dbSession) {
-                    session = adaptSession(dbSession);
+                if (passedData) {
+                    console.log('[BREATHING_TIMER] Data Source: Navigation (Zero Egress Pattern)');
+                    session = adaptSession(passedData);
                 } else {
-                    // Fallback to legacy look up if not found in DB
-                    const { MEDITATION_SESSIONS } = require('../../data/sessionsData');
-                    session = MEDITATION_SESSIONS.find((s: any) => s.id === sessionId);
+                    console.log('[BREATHING_TIMER] Data Source: DB Service (Attempting fetch)');
+                    const dbSession = await sessionsService.getById(sessionId);
+                    if (dbSession) {
+                        session = adaptSession(dbSession);
+                    } else {
+                        console.log('[BREATHING_TIMER] Data Source: Legacy Fallback');
+                        // Fallback to legacy look up if not found in DB
+                        const { MEDITATION_SESSIONS } = require('../../data/sessionsData');
+                        session = MEDITATION_SESSIONS.find((s: any) => s.id === sessionId);
+                    }
                 }
 
                 if (session) {
                     setCurrentSession(session);
                     sessionRef.current = session;
+
+                    // CRITICAL: Initialize Master Timer (Restored after regression)
+                    const durationInSeconds = session.durationMinutes * 60;
+                    totalDuration.current = durationInSeconds;
+                    setTimeLeft(durationInSeconds);
+                    console.log(`[BREATHING_TIMER] Timer initialized to ${durationInSeconds}s`);
 
                     const messages: Record<string, string> = {
                         inhale: 'Inhala',
@@ -329,12 +345,14 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     });
 
                     // Load audio layers
+                    console.log('[BREATHING_TIMER] Starting Audio Engine Load...');
                     await AudioEngineService.loadSession({
-                        voiceTrack: session.audioLayers.voiceTrack,
+                        voiceTrack: session.audioLayers?.voiceTrack,
                         soundscape: ss.id,
                         binaural: bw.id,
-                        elements: session.audioLayers.defaultElements,
+                        elements: session.audioLayers?.defaultElements,
                     });
+                    console.log('[BREATHING_TIMER] Audio Engine Load COMPLETED');
 
                     // Preload voice cues if needed
                     if (!isGuided && !session.audioLayers.voiceTrack) {
@@ -355,8 +373,8 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                 console.log('Error initializing session (expected if offline):', error);
                 Alert.alert(
                     'Error de Conexión',
-                    'No se pudo cargar el audio de la sesión. Por favor, verifica tu conexión a internet e inténtalo de nuevo.',
-                    [{ text: 'OK', onPress: () => navigation.goBack() }]
+                    'No se ha podido cargar el audio. Por favor, verifica tu conexión a internet para continuar.',
+                    [{ text: 'Entendido', onPress: () => navigation.goBack() }]
                 );
             }
         };

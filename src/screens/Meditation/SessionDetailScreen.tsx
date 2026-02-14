@@ -6,10 +6,10 @@ import {
     TouchableOpacity,
     ScrollView,
     Dimensions,
-    Image,
     StatusBar,
     ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,6 +31,7 @@ import { adaptSession } from '../../services/contentService';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.45;
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 type SessionDetailScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -52,9 +53,14 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     const { data: rawSession, isLoading } = useSessionDetail(sessionId);
 
     const session = useMemo(() => {
+        // [ZERO EGRESS] Prioritize data passed via navigation (Prop-Passing Pattern)
+        if (route.params.sessionData) {
+            console.log('[SESSION_DETAIL] Using navigation sessionData (Zero Egress)');
+            return adaptSession(route.params.sessionData);
+        }
         if (!rawSession) return null;
         return adaptSession(rawSession);
-    }, [rawSession]);
+    }, [rawSession, route.params.sessionData]);
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -132,10 +138,12 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            <Animated.Image
+            <AnimatedImage
                 source={bgImage as any}
                 style={[styles.parallaxImage, headerImageStyle]}
-                resizeMode="cover"
+                contentFit="cover"
+                transition={1000}
+                cachePolicy="memory-disk"
             />
             <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.5)', '#020617']}
@@ -267,7 +275,10 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                 <TouchableOpacity
                     activeOpacity={0.8}
                     style={[styles.startBtn, { backgroundColor: session.color || theme.colors.primary }]}
-                    onPress={() => navigation.navigate(Screen.BREATHING_TIMER, { sessionId: session.id })}
+                    onPress={() => navigation.navigate(Screen.BREATHING_TIMER, {
+                        sessionId: session.id,
+                        sessionData: route.params.sessionData || rawSession || session // Propagate data to the end of the chain
+                    })}
                 >
                     <Text style={styles.startBtnText}>Comenzar Práctica</Text>
                     <Ionicons name="play" size={20} color="#FFF" />

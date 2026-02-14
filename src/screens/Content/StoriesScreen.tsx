@@ -88,7 +88,7 @@ const BacklitSilhouette: React.FC = () => {
 
 const CATEGORIES = [
     { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
-    { id: 'anxiety', label: 'Ansiedad', icon: 'frown-outline', color: '#FFA726' },
+    { id: 'anxiety', label: 'Ansiedad', icon: 'sad-outline', color: '#FFA726' },
     { id: 'health', label: 'Bienestar', icon: 'fitness-outline', color: '#66BB6A' },
     { id: 'growth', label: 'Crecimiento', icon: 'leaf-outline', color: '#646CFF' },
     { id: 'relationships', label: 'Relaciones', icon: 'heart-outline', color: '#FF6B9D' },
@@ -154,7 +154,10 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
             navigation.navigate(Screen.PAYWALL);
             return;
         }
-        navigation.navigate(Screen.STORY_DETAIL, { storyId: story.id });
+        navigation.navigate(Screen.STORY_DETAIL, {
+            storyId: story.id,
+            story: story // Prop-Passing (Zero Egress 2.0)
+        });
     };
 
     const filteredStories = stories.filter(story => {

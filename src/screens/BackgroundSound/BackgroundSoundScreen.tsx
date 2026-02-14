@@ -81,7 +81,10 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
     }, [soundscapes, selectedTag]);
 
     const handlePress = (item: Soundscape) => {
-        navigation.navigate(Screen.BACKGROUND_PLAYER, { soundscapeId: item.id });
+        navigation.navigate(Screen.BACKGROUND_PLAYER, {
+            soundscapeId: item.id,
+            soundscape: item // Prop-Passing (Zero Egress 2.0)
+        });
     };
 
     const renderHeader = () => (

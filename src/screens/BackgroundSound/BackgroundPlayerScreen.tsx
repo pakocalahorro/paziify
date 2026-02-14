@@ -3,7 +3,6 @@ import {
     View,
     Text,
     StyleSheet,
-    ImageBackground,
     TouchableOpacity,
     StatusBar,
     ScrollView,
@@ -11,6 +10,7 @@ import {
     Alert,
     Animated
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -93,13 +93,22 @@ const BackgroundPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
         const fetchSoundscape = async () => {
             setLoadingSoundscape(true);
             try {
+                // [ZERO EGRESS 2.0] Prioritize object passed via navigation
+                if (route.params.soundscape) {
+                    console.log('BackgroundPlayerScreen: Using navigation soundscape (Zero Egress)');
+                    setSoundscape(route.params.soundscape);
+                    setLoadingSoundscape(false);
+                    return;
+                }
+
+                // Fallback: Fetch by ID (uses the new service-level fallback)
                 const data = await soundscapesService.getById(soundscapeId);
-                console.log('BackgroundPlayerScreen: Fetched soundscape:', data?.name);
+                console.log('BackgroundPlayerScreen: Fetched soundscape:', data?.name || 'Local Found');
                 if (data) {
                     setSoundscape(data);
                 }
-            } catch (error) {
-                console.error('Error in BackgroundPlayerScreen fetch:', error);
+            } catch (err) {
+                console.error('Error fetching soundscape:', err);
             } finally {
                 setLoadingSoundscape(false);
             }
@@ -137,7 +146,7 @@ const BackgroundPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
                 title: soundscape.name,
                 author: 'Paziify Ambientes',
                 cover: { uri: soundscape.image },
-                audioUrl: soundscape.audioFile?.uri,
+                audio_url: soundscape.audioFile?.uri,
                 duration: 0,
                 isInfinite: true
             }, 0, true); // shouldPlay = true
@@ -232,164 +241,170 @@ const BackgroundPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
             <View style={[StyleSheet.absoluteFill, { backgroundColor: soundscape.color || '#000' }]} />
 
-            <ImageBackground
+            {/* Optimized Background Image (expo-image for persistent cache) */}
+            <Image
                 source={{ uri: soundscape.image }}
                 style={StyleSheet.absoluteFill}
-                resizeMode="cover"
-                imageStyle={{ opacity: 0.6 }}
-            >
-                <Animated.View
-                    style={[
-                        StyleSheet.absoluteFill,
-                        { backgroundColor: getAuraColor(), opacity: auraOpacity }
-                    ]}
-                />
+                contentFit="cover"
+                transition={1000}
+                cachePolicy="memory-disk"
+            />
 
-                <View style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(0,0,0,${getBgOverlayOpacity()})` }]} />
+            <Animated.View
+                style={[
+                    StyleSheet.absoluteFill,
+                    { backgroundColor: getAuraColor(), opacity: auraOpacity }
+                ]}
+            />
 
-                <ParticleSystem mode={atmosphereMode as any} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(0,0,0,${getBgOverlayOpacity()})` }]} />
 
-                <View style={[styles.mainContent, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+            <ParticleSystem mode={atmosphereMode as any} />
 
-                    <View style={styles.header}>
-                        <TouchableOpacity
-                            onPress={() => navigation.goBack()}
-                            style={styles.iconBtn}
-                        >
-                            <Ionicons name="chevron-down" size={32} color="#FFF" />
-                        </TouchableOpacity>
+            <View style={[styles.mainContent, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
 
-                        <View style={styles.headerCenter}>
-                            <Text style={styles.headerTitle}>Ambiente Activo</Text>
-                            {timerSeconds !== null && (
-                                <Text style={styles.timerCountdown}>{formatTime(timerSeconds)}</Text>
-                            )}
-                        </View>
+                {/* Header */}
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        style={styles.iconBtn}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="chevron-down" size={32} color="#FFF" />
+                    </TouchableOpacity>
 
-                        <TouchableOpacity
-                            onPress={() => setIsTimerSelectorOpen(!isTimerSelectorOpen)}
-                            style={[styles.iconBtn, timerSeconds !== null && styles.iconBtnActive]}
-                        >
-                            <Ionicons
-                                name={timerSeconds !== null ? "timer" : "timer-outline"}
-                                size={28}
-                                color="#FFF"
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    {isTimerSelectorOpen && (
-                        <View style={styles.timerSelectorContainer}>
-                            <BlurView intensity={90} tint="dark" style={styles.timerSelector}>
-                                <Text style={styles.selectorTitle}>Temporizador de Enfoque</Text>
-                                <View style={styles.presetsGrid}>
-                                    {TIMER_PRESETS.map(mins => (
-                                        <TouchableOpacity
-                                            key={mins}
-                                            style={styles.presetOption}
-                                            onPress={() => handleSetTimer(mins)}
-                                        >
-                                            <Text style={styles.presetText}>{mins}m</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                    <TouchableOpacity
-                                        style={[styles.presetOption, { backgroundColor: 'rgba(255,0,0,0.2)' }]}
-                                        onPress={() => {
-                                            setTimerSeconds(null);
-                                            setIsTimerSelectorOpen(false);
-                                        }}
-                                    >
-                                        <Text style={[styles.presetText, { color: '#FF6B6B' }]}>Off</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </BlurView>
-                        </View>
-                    )}
-
-                    <View style={styles.centerInfo}>
-                        <Text style={styles.soundTitle}>{soundscape.name}</Text>
-                        <Text style={styles.soundDesc}>{soundscape.description}</Text>
-
-                        <TouchableOpacity
-                            style={styles.playBtn}
-                            onPress={togglePlay}
-                            activeOpacity={0.8}
-                        >
-                            <BlurView intensity={30} tint="light" style={styles.playBlur}>
-                                <Ionicons
-                                    name={isPlaying ? "pause" : "play"}
-                                    size={48}
-                                    color="#FFF"
-                                    style={{ marginLeft: isPlaying ? 0 : 4 }}
-                                />
-                            </BlurView>
-                        </TouchableOpacity>
-
-                        {activeBinaural && (
-                            <View style={styles.activeWaveIndicator}>
-                                <Ionicons name="pulse" size={16} color={activeBinaural.color} />
-                                <Text style={[styles.activeWaveText, { color: activeBinaural.color }]}>
-                                    {activeBinaural.name} Activo
-                                </Text>
-                            </View>
+                    <View style={styles.headerCenter}>
+                        <Text style={styles.headerTitle}>Ambiente Activo</Text>
+                        {timerSeconds !== null && (
+                            <Text style={styles.timerCountdown}>{formatTime(timerSeconds)}</Text>
                         )}
                     </View>
 
-                    <View style={styles.bottomControls}>
-                        <TouchableOpacity
-                            style={[styles.mixerBtn, isMixerOpen && styles.mixerBtnActive]}
-                            onPress={() => {
-                                setIsMixerOpen(!isMixerOpen);
-                                setIsTimerSelectorOpen(false);
-                            }}
-                        >
-                            <Ionicons name="options" size={24} color={isMixerOpen ? "#000" : "#FFF"} />
-                            <Text style={[styles.mixerText, { color: isMixerOpen ? "#000" : "#FFF" }]}>
-                                {isMixerOpen ? "Cerrar Mezclador" : "Mezclador Binaural"}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity
+                        style={[styles.iconBtn, timerSeconds !== null && styles.iconBtnActive]}
+                        onPress={() => setIsTimerSelectorOpen(!isTimerSelectorOpen)}
+                    >
+                        <Ionicons
+                            name={timerSeconds !== null ? "timer" : "timer-outline"}
+                            size={28}
+                            color="#FFF"
+                        />
+                    </TouchableOpacity>
+                </View>
 
-                    {isMixerOpen && (
-                        <BlurView intensity={80} tint="dark" style={styles.mixerSheet}>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mixerList}>
-                                {BINAURAL_WAVES.map((wave) => {
-                                    const isActive = activeBinauralId === wave.id;
-                                    const isAvailable = !!wave.audioFile;
-
-                                    return (
-                                        <TouchableOpacity
-                                            key={wave.id}
-                                            style={[
-                                                styles.waveCard,
-                                                isActive && { borderColor: wave.color, backgroundColor: 'rgba(255,255,255,0.1)' },
-                                                !isAvailable && { opacity: 0.3 }
-                                            ]}
-                                            onPress={() => {
-                                                if (isAvailable) {
-                                                    setActiveBinauralId(isActive ? null : wave.id);
-                                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                                }
-                                            }}
-                                            disabled={!isAvailable}
-                                        >
-                                            <View style={[styles.waveIcon, { backgroundColor: isActive ? wave.color : '#333' }]}>
-                                                <Ionicons name="pulse" size={20} color="#FFF" />
-                                            </View>
-                                            <Text style={styles.waveName}>{wave.name}</Text>
-                                            <Text style={styles.waveFreq}>{wave.frequency}</Text>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-                            </ScrollView>
+                {/* Timer Selector */}
+                {isTimerSelectorOpen && (
+                    <View style={styles.timerSelectorContainer}>
+                        <BlurView intensity={90} tint="dark" style={styles.timerSelector}>
+                            <Text style={styles.selectorTitle}>Temporizador de Enfoque</Text>
+                            <View style={styles.presetsGrid}>
+                                {TIMER_PRESETS.map(mins => (
+                                    <TouchableOpacity
+                                        key={mins}
+                                        style={styles.presetOption}
+                                        onPress={() => handleSetTimer(mins)}
+                                    >
+                                        <Text style={styles.presetText}>{mins}m</Text>
+                                    </TouchableOpacity>
+                                ))}
+                                <TouchableOpacity
+                                    style={[styles.presetOption, { backgroundColor: 'rgba(255, 0, 0, 0.2)' }]}
+                                    onPress={() => {
+                                        setTimerSeconds(null);
+                                        setIsTimerSelectorOpen(false);
+                                    }}
+                                >
+                                    <Text style={[styles.presetText, { color: '#FF6B6B' }]}>Off</Text>
+                                </TouchableOpacity>
+                            </View>
                         </BlurView>
+                    </View>
+                )}
+
+                {/* Center Content */}
+                <View style={styles.centerInfo}>
+                    <Text style={styles.soundTitle}>{soundscape.name}</Text>
+                    <Text style={styles.soundDesc}>{soundscape.description}</Text>
+
+                    <TouchableOpacity
+                        style={styles.playBtn}
+                        onPress={togglePlay}
+                        activeOpacity={0.8}
+                    >
+                        <BlurView intensity={30} tint="light" style={styles.playBlur}>
+                            <Ionicons
+                                name={isPlaying ? "pause" : "play"}
+                                size={48}
+                                color="#FFF"
+                                style={{ marginLeft: isPlaying ? 0 : 4 }}
+                            />
+                        </BlurView>
+                    </TouchableOpacity>
+
+                    {activeBinaural && (
+                        <View style={styles.activeWaveIndicator}>
+                            <Ionicons name="pulse" size={16} color={activeBinaural.color} />
+                            <Text style={[styles.activeWaveText, { color: activeBinaural.color }]}>
+                                {activeBinaural.name} Activo
+                            </Text>
+                        </View>
                     )}
                 </View>
-            </ImageBackground>
+
+                {/* Bottom Controls */}
+                <View style={styles.bottomControls}>
+                    <TouchableOpacity
+                        style={[styles.mixerBtn, isMixerOpen && styles.mixerBtnActive]}
+                        onPress={() => {
+                            setIsMixerOpen(!isMixerOpen);
+                            setIsTimerSelectorOpen(false);
+                        }}
+                    >
+                        <Ionicons name="options" size={24} color={isMixerOpen ? "#000" : "#FFF"} />
+                        <Text style={[styles.mixerText, { color: isMixerOpen ? "#000" : "#FFF" }]}>
+                            {isMixerOpen ? "Cerrar Mezclador" : "Mezclador Binaural"}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                {isMixerOpen && (
+                    <BlurView intensity={80} tint="dark" style={styles.mixerSheet}>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mixerList}>
+                            {BINAURAL_WAVES.map((wave) => {
+                                const isActive = activeBinauralId === wave.id;
+                                const isAvailable = !!wave.audioFile;
+
+                                return (
+                                    <TouchableOpacity
+                                        key={wave.id}
+                                        style={[
+                                            styles.waveCard,
+                                            isActive && { borderColor: wave.color, backgroundColor: 'rgba(255,255,255,0.1)' },
+                                            !isAvailable && { opacity: 0.3 }
+                                        ]}
+                                        onPress={() => {
+                                            if (isAvailable) {
+                                                setActiveBinauralId(isActive ? null : wave.id);
+                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                            }
+                                        }}
+                                        disabled={!isAvailable}
+                                    >
+                                        <View style={[styles.waveIcon, { backgroundColor: isActive ? wave.color : '#333' }]}>
+                                            <Ionicons name="pulse" size={20} color="#FFF" />
+                                        </View>
+                                        <Text style={styles.waveName}>{wave.name}</Text>
+                                        <Text style={styles.waveFreq}>{wave.frequency}</Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
+                    </BlurView>
+                )}
+            </View>
         </View>
     );
 };

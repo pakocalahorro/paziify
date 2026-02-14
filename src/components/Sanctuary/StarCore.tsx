@@ -22,6 +22,34 @@ interface StarCoreProps {
     size?: number;
 }
 
+const AnimatedWave = ({ sharedValue, index, size, center }: { sharedValue: SharedValue<number>, index: number, size: number, center: number }) => {
+    // Rings start from the edge of the white core (size * 0.15)
+    const minRadius = size * 0.15;
+    const maxRadius = index === 3 ? size * 0.85 : size * 0.55;
+
+    const radius = useDerivedValue(() =>
+        minRadius + sharedValue.value * (maxRadius - minRadius)
+    );
+    const opacity = useDerivedValue(() => (1 - sharedValue.value) * 0.6);
+
+    // Alternate Neon Colors: Violet (#A855F7) and Neon Green (#22C55E)
+    const waveColor = index % 2 === 1 ? '#22C55E' : '#A855F7';
+
+    return (
+        <Circle
+            cx={center}
+            cy={center}
+            r={radius}
+            color={waveColor}
+            opacity={opacity}
+            style="stroke"
+            strokeWidth={2}
+        >
+            <Blur blur={3} />
+        </Circle>
+    );
+};
+
 const StarCore: React.FC<StarCoreProps> = ({ progress, size = 100 }) => {
     // We increase the drawing area to 2x the size to avoid clipping the ripples
     const canvasSize = size * 2;
@@ -39,7 +67,7 @@ const StarCore: React.FC<StarCoreProps> = ({ progress, size = 100 }) => {
             false
         );
 
-        setTimeout(() => {
+        const t1 = setTimeout(() => {
             wave2.value = withRepeat(
                 withTiming(1, { duration: 4000, easing: Easing.out(Easing.quad) }),
                 -1,
@@ -47,7 +75,7 @@ const StarCore: React.FC<StarCoreProps> = ({ progress, size = 100 }) => {
             );
         }, 1000);
 
-        setTimeout(() => {
+        const t2 = setTimeout(() => {
             wave3.value = withRepeat(
                 withTiming(1, { duration: 4000, easing: Easing.out(Easing.quad) }),
                 -1,
@@ -55,13 +83,19 @@ const StarCore: React.FC<StarCoreProps> = ({ progress, size = 100 }) => {
             );
         }, 2000);
 
-        setTimeout(() => {
+        const t3 = setTimeout(() => {
             wave4.value = withRepeat(
                 withTiming(1, { duration: 4000, easing: Easing.out(Easing.quad) }),
                 -1,
                 false
             );
         }, 3000);
+
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            clearTimeout(t3);
+        };
     }, []);
 
     const colors = useDerivedValue(() => {
@@ -73,34 +107,7 @@ const StarCore: React.FC<StarCoreProps> = ({ progress, size = 100 }) => {
         return ['#FFFFFF', '#FFFFFF']; // Neutral
     });
 
-    const renderWave = (sharedValue: SharedValue<number>, index: number) => {
-        // Rings start from the edge of the white core (size * 0.15)
-        const minRadius = size * 0.15;
-        const maxRadius = index === 3 ? size * 0.85 : size * 0.55;
-
-        const radius = useDerivedValue(() =>
-            minRadius + sharedValue.value * (maxRadius - minRadius)
-        );
-        const opacity = useDerivedValue(() => (1 - sharedValue.value) * 0.6);
-
-        // Alternate Neon Colors: Violet (#A855F7) and Neon Green (#22C55E)
-        const waveColor = index % 2 === 1 ? '#22C55E' : '#A855F7';
-
-        return (
-            <Circle
-                key={index}
-                cx={center}
-                cy={center}
-                r={radius}
-                color={waveColor}
-                opacity={opacity.value}
-                style="stroke"
-                strokeWidth={2}
-            >
-                <Blur blur={3} />
-            </Circle>
-        );
-    };
+    const gradientColors = useDerivedValue(() => [colors.value[0], 'transparent']);
 
     return (
         <View style={{ width: size, height: size }}>
@@ -123,7 +130,10 @@ const StarCore: React.FC<StarCoreProps> = ({ progress, size = 100 }) => {
                 </Circle>
 
                 <Group>
-                    {[wave1, wave2, wave3, wave4].map((wave, i) => renderWave(wave, i))}
+                    <AnimatedWave sharedValue={wave1} index={0} size={size} center={center} />
+                    <AnimatedWave sharedValue={wave2} index={1} size={size} center={center} />
+                    <AnimatedWave sharedValue={wave3} index={2} size={size} center={center} />
+                    <AnimatedWave sharedValue={wave4} index={3} size={size} center={center} />
 
                     <Circle cx={center} cy={center} r={size * 0.15} color="white">
                         <Blur blur={4} />
@@ -133,7 +143,7 @@ const StarCore: React.FC<StarCoreProps> = ({ progress, size = 100 }) => {
                         <RadialGradient
                             c={vec(center, center)}
                             r={size * 0.4}
-                            colors={[colors.value[0], 'transparent']}
+                            colors={gradientColors}
                         />
                         <Blur blur={12} />
                     </Circle>
