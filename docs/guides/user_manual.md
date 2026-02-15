@@ -20,10 +20,15 @@ La Academia ahora cuenta con 10 cursos completos dedicados a tu salud mental:
 
 ---
 
-## 3. Preparación para Cardio Scan y Bio-Feedback 🚀
-Hemos instalado la infraestructura necesaria para el futuro del bienestar interactivo:
-- **VisionCamera Integration**: Paziify ya es capaz de detectar cambios sutiles mediante la cámara del móvil (próximamente: Escaneo de Cardio).
-- **Privacidad**: Recuerda que la cámara solo se activa bajo tu consentimiento explícito para funciones de diagnóstico.
+## 3. Escáner Cardio & Bio-Feedback (Beta v2.10) 🚀
+Transforma tu cámara en un sensor de bienestar emocional:
+- **Cómo funciona**: Coloca suavemente tu dedo índice sobre la lente y el flash.
+- **Medical HUD**: Visualiza en tiempo real tu BPM (pulso) y HRV (variabilidad).
+- **Resultados Terapéuticos**: El sistema no te dará un diagnóstico médico frío, sino una interpretación empática:
+    - **Sobrecarga Mental**: Necesitas una pausa.
+    - **Energía Baja**: Necesitas recarga suave.
+    - **Resonancia Vital**: Estás en equilibrio óptimo.
+- **Privacidad**: El análisis se realiza en tiempo real y no se guardan imágenes de tu dedo.
 
 ---
 

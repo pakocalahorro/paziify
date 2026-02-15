@@ -48,6 +48,17 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 ---
 
 ## 8. Estandarización de Cabeceras (v2.9.0) 📐
+... [Mantenido] ...
+
+---
+
+## 9. Medical HUD & Bio-Feedback UI (v2.10.0) 🫀
+Interfaz de alta fidelidad para el Escáner Cardio.
+- **Glassmorphism**: Uso intensivo de `BlurView` (tintado oscuro) para separar datos del vídeo de fondo.
+- **Feedback Semántico**:
+    - **Colores de Estado**: Rojo (Sin señal/Sobrecarga), Ámbar (Buscando/Carga), Esmeralda (Señal óptima/Equilibrio).
+    - **Tipografía**: Números grandes (Oswald) para legibilidad instantánea.
+- **Micro-Interacciones**: El icono del corazón late (scale animation) para conectar emocionalmente con el usuario.
 Para reducir el ruido visual y mejorar la consistencia:
 - **Tipografía**: **26px ExtraBold** (Black) con `letter-spacing: -0.5`.
 - **Estructura**: `[Botón Atrás] [Título] [Icono Sección]` (Fila 1).

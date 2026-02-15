@@ -194,7 +194,43 @@ export type RootStackParamList = {
     [Screen.COMMUNITY]: undefined;
     [Screen.PAYWALL]: undefined;
     [Screen.COMPASS]: undefined;
+    [Screen.COMPASS]: undefined;
     [Screen.SPIRITUAL_PRELOADER]: undefined;
-    MainTabs: { mode?: 'healing' | 'growth' } | undefined;
-};
+
+    // Bio / Cardio
+    [Screen.CARDIO_SCAN]: undefined;
+    [Screen.CARDIO_RESULT]: { diagnosis: 'stress' | 'fatigue' | 'balanced' };
+}
+
+export enum Screen {
+    REGISTER = 'REGISTER',
+    WELCOME = 'WELCOME',
+    LOGIN = 'LOGIN',
+    NOTIFICATION_SETTINGS = 'NOTIFICATION_SETTINGS',
+    HOME = 'HOME',
+    LIBRARY = 'LIBRARY',
+    MEDITATION_CATALOG = 'MEDITATION_CATALOG',
+    AUDIOBOOKS = 'AUDIOBOOKS',
+    AUDIOBOOK_PLAYER = 'AUDIOBOOK_PLAYER',
+    BACKGROUND_SOUND = 'BACKGROUND_SOUND',
+    BACKGROUND_PLAYER = 'BACKGROUND_PLAYER',
+    STORIES = 'STORIES',
+    STORY_DETAIL = 'STORY_DETAIL',
+    TRANSITION_TUNNEL = 'TRANSITION_TUNNEL',
+    BREATHING_TIMER = 'BREATHING_TIMER',
+    SESSION_END = 'SESSION_END',
+    PROFILE = 'PROFILE',
+    WEEKLY_REPORT = 'WEEKLY_REPORT',
+    CBT_ACADEMY = 'CBT_ACADEMY',
+    ACADEMY_COURSE_DETAIL = 'ACADEMY_COURSE_DETAIL',
+    CBT_DETAIL = 'CBT_DETAIL',
+    CBT_QUIZ = 'CBT_QUIZ',
+    COMMUNITY = 'COMMUNITY',
+    PAYWALL = 'PAYWALL',
+    SESSION_DETAIL = 'SESSION_DETAIL',
+    COMPASS = 'COMPASS',
+    SPIRITUAL_PRELOADER = 'SPIRITUAL_PRELOADER',
+    CARDIO_SCAN = 'CARDIO_SCAN',
+    CARDIO_RESULT = 'CARDIO_RESULT',
+}
 

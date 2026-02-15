@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.9.0) 🚀
+# Paziify - AI Studio App (v2.10.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.9.0 (Zero-Egress & Unified Categories)**, centrada en la independencia total de la red (Offline) y la integración dinámica con el Panel de Administración para Historias y Meditaciones.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.10.0 (Bio-Metric Awakening)**, que introduce el **Escáner Cardio Terapéutico**, transformando la cámara en una herramienta de bienestar emocional.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -51,17 +51,11 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
+- **[NEW] Bio-Metric Awakening (v2.10.0)**: Implementación del **Escáner Cardio** con Medical HUD, detección de presencia (Liveness) y diagnósticos con tono terapéutico ("Sobrecarga" vs "Estrés").
 - **[NEW] Zero-Egress & Unified Categories (v2.9.0)**: Modo Offline total verificado. Unificación de categorías de Historias con el Panel Admin (adiós hardcode).
 - **[NEW] Academy & Offline Mastery (v2.8.10)**: Restauración de Insomnio, limpieza de 53 activos redundantes y protocolo Zero-Egress verificado.
-- **[NEW] Stability Hotfix (v2.8.2)**: Soluciona el crash al navegar a la biblioteca mediante `AnimatedImage` para `expo-image`.
-- **[NEW] Zero-Egress Update (v2.8.1)**: Sistema de caché nativo robusto e infraestructura para Cardio Scan.
-- **[NEW] Unified Branding & UI Mastery (v2.7.0)**: Unificación visual de Biblioteca, Academia y Audiolibros. Sistema de navegación flotante con `StarCore` y tipografía premium Skia.
-- **[NEW] Spiritual Flow (v2.6.5)**: Implementación de `SpiritualPreloader` y navegación simplificada de fricción cero.
-- **[NEW] Total Cloud Sync (v2.6.5)**: Persistencia 100% en Supabase (Favoritos, Historial y Ajustes en JSONB).
-- **[NEW] Monthly Challenge (v2.6.0)**: Motor de compromiso con Reto de 30 días y 30 luces de progreso.
-- **[NEW] Audio Automation 101 (v2.5.0)**: Flujo completo de generación masiva con voces premium restauradas.
 
 ---
 
-**Última actualización:** 14 de Febrero de 2026 - **Versión v2.9.0** (Zero-Egress & Unified Categories)
+**Última actualización:** 15 de Febrero de 2026 - **Versión v2.10.0** (Bio-Metric Awakening)
 

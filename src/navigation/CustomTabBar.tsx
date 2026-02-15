@@ -203,11 +203,17 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
                         </View>
 
                         <View style={styles.futureScanner}>
-                            <View style={styles.scannerInner}>
-                                <Ionicons name="finger-print-outline" size={24} color="rgba(255,255,255,0.2)" />
-                                <Text style={styles.scannerText}>Check-in de Coherencia</Text>
-                                <View style={styles.tag}><Text style={styles.tagText}>PRÓXIMAMENTE</Text></View>
-                            </View>
+                            <TouchableOpacity
+                                style={styles.scannerInner}
+                                onPress={() => {
+                                    setIsSantuarioOpen(false);
+                                    navigation.navigate(Screen.CARDIO_SCAN);
+                                }}
+                            >
+                                <Ionicons name="finger-print-outline" size={24} color="#FFF" />
+                                <Text style={[styles.scannerText, { color: '#FFF' }]}>Escanear Bio-Ritmo</Text>
+                                <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.5)" />
+                            </TouchableOpacity>
                         </View>
 
                         <TouchableOpacity style={styles.closeButton} onPress={() => setIsSantuarioOpen(false)}>

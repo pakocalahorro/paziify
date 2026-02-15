@@ -11,7 +11,6 @@ import RegisterScreen from '../screens/Onboarding/RegisterScreen';
 import LoginScreen from '../screens/Onboarding/LoginScreen';
 import { TabNavigator } from './TabNavigator';
 // Immersive / Shared Screens
-// Immersive / Shared Screens
 import TransitionTunnel from '../screens/Meditation/TransitionTunnel';
 import BreathingTimer from '../screens/Meditation/BreathingTimer';
 import SessionEndScreen from '../screens/Meditation/SessionEndScreen';
@@ -28,6 +27,8 @@ import SpiritualPreloader from '../screens/Sanctuary/SpiritualPreloader';
 import StoryDetailScreen from '../screens/Content/StoryDetailScreen';
 import SessionDetailScreen from '../screens/Meditation/SessionDetailScreen';
 import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
+import CardioScanScreen from '../screens/Bio/CardioScanScreen';
+import CardioResultScreen from '../screens/Bio/CardioResultScreen';
 
 import { View, ActivityIndicator } from 'react-native';
 
@@ -95,6 +96,18 @@ const AppNavigatorContent = () => {
                                 presentation: 'modal',
                                 animation: 'slide_from_bottom'
                             }}
+                        />
+
+                        {/* Bio / Cardio Scan */}
+                        <Stack.Screen
+                            name={Screen.CARDIO_SCAN}
+                            component={CardioScanScreen}
+                            options={{ animation: 'fade', gestureEnabled: false }}
+                        />
+                        <Stack.Screen
+                            name={Screen.CARDIO_RESULT}
+                            component={CardioResultScreen}
+                            options={{ animation: 'fade' }}
                         />
                     </>
                 )}
