@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, StatusBar, TouchableOpacity, AppState, AppStateStatus } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission, useFrameProcessor } from 'react-native-vision-camera';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -13,9 +13,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
-// import { Worklets } from 'react-native-worklets-core'; // NATIVE ENGINE (Disabled for stability)
 import { Screen } from '../../types';
 import { bioProcessor } from '../../services/BioSignalProcessor';
+import { SignalQuality } from '../../types/cardio';
+import { extractRGBFromFrame, extractRGBFallback } from '../../utils/rgbExtraction';
+import { Worklets } from 'react-native-worklets-core';
+import { CalibrationRing } from '../../components/Bio/CalibrationRing';
+import { CountdownOverlay } from '../../components/Bio/CountdownOverlay';
+import { QualityAlert } from '../../components/Bio/QualityAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -43,115 +48,131 @@ const CardioScanScreen = () => {
     const isFocused = useIsFocused();
     const isActive = isFocused && appState === 'active';
 
-    // States
-    const [scanState, setScanState] = useState<'idle' | 'warmup' | 'scanning' | 'complete'>('idle');
+    // States - UPDATED for 3-phase calibration
+    type ScanPhase = 'idle' | 'calibration' | 'countdown' | 'measuring' | 'complete';
+    const [scanPhase, setScanPhase] = useState<ScanPhase>('idle');
     const [progress, setProgress] = useState(0);
     const [realMetrics, setRealMetrics] = useState<{ bpm: number; hrv: number } | null>(null);
-    const [isFingerDetected, setIsFingerDetected] = useState(false); // LIVENESS CHECK
-    const [debugSignal, setDebugSignal] = useState(0); // Debug Signal State
+    const [signalQuality, setSignalQuality] = useState<SignalQuality | null>(null);
+
+    // NEW: Calibration states
+    const [calibrationScore, setCalibrationScore] = useState(0);
+    const [calibrationRecommendation, setCalibrationRecommendation] = useState('');
+    const [readyFrames, setReadyFrames] = useState(0);
+    const [countdown, setCountdown] = useState(3);
+    const [showQualityAlert, setShowQualityAlert] = useState(false);
+    const [qualityAlertMessage, setQualityAlertMessage] = useState('');
+
+    // Guard to prevent finishScan from being called multiple times
+    const finishScanCalled = useRef(false);
+
     const pulseAnim = useSharedValue(1);
 
-    // Derived State for Torch
-    // Torch should be ON only during warmup and scanning
-    const isTorchOn = scanState === 'warmup' || scanState === 'scanning';
+    // Derived State for Torch - UPDATED for calibration
+    const isTorchOn = scanPhase === 'calibration' || scanPhase === 'countdown' || scanPhase === 'measuring';
 
     useEffect(() => {
         if (!hasPermission) requestPermission();
         return () => {
-            bioProcessor.reset(); // Cleanup on unmount
+            bioProcessor.reset();
         };
     }, []);
 
-    // Debug State for "CTO Mode"
+    // UPDATED: Frame processor callback with 3-phase logic
+    // @ts-ignore - Worklets API is not fully typed
+    const addRGBSampleJS = Worklets.createRunOnJS(function (r, g, b, t) {
+        // Add sample to processor (cast to number for TypeScript)
+        bioProcessor.addRGBSample(r as number, g as number, b as number, t as number);
 
+        if (scanPhase === 'calibration') {
+            // PHASE 1: Calibration - Real-time quality feedback
+            const quality = bioProcessor.getCalibrationQuality();
+            setCalibrationScore(quality.score);
+            setCalibrationRecommendation(quality.recommendation);
 
-    // 1. Shared Value for Data Bridge (Worklet -> JS)
-    // This is the fastest, crash-proof way to share data.
-    // 1. Shared Value for Data Bridge (Worklet -> JS)
-    // This is the fastest, crash-proof way to share data.
-    const currentSignal = useSharedValue(0);
-    const signalTimestamp = useSharedValue(0); // To detect staleness
-    const isFingerStable = useSharedValue(false); // Liveness Bridge
+            if (quality.ready) {
+                setReadyFrames(prev => {
+                    const newCount = prev + 1;
+                    // If ready for 90 frames (3 seconds at 30fps), transition to countdown
+                    if (newCount >= 90) {
+                        setScanPhase('countdown');
+                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                        return 0; // Reset
+                    }
+                    return newCount;
+                });
+            } else {
+                setReadyFrames(0);
+            }
+        } else if (scanPhase === 'measuring') {
+            // PHASE 3: Measuring - Full analysis with quality monitoring
+            const analysis = bioProcessor.analyze();
+            const quality = bioProcessor.getSignalQuality();
 
-    // 2. JS Handler (Updates UI and Logic)
-    const processSignal = (val: number, time: number) => {
-        bioProcessor.addSample(val, time);
-        setDebugSignal(val);
-        const analysis = bioProcessor.analyze();
+            setSignalQuality(quality);
+            if (analysis) {
+                setRealMetrics({ bpm: analysis.bpm, hrv: Math.round(analysis.rmssd) });
+            }
 
-
-
-        if (analysis) {
-            setRealMetrics({ bpm: analysis.bpm, hrv: Math.round(analysis.rmssd) });
+            // Monitor quality during measurement
+            if (quality.score < 60) {
+                setShowQualityAlert(true);
+                setQualityAlertMessage('Mantén el dedo quieto');
+            } else {
+                setShowQualityAlert(false);
+            }
         }
-    };
+    });
 
-    // 3. Native Frame Processor (The Source)
+    // Frame Processor - UPDATED for calibration + measuring phases
     const frameProcessor = useFrameProcessor((frame) => {
         'worklet';
-        if (scanState !== 'scanning') return;
+        // Process frames during calibration and measuring phases
+        if (scanPhase !== 'calibration' && scanPhase !== 'measuring') return;
 
         try {
-            // Check if buffer access is possible
-            // Note: In Vision Camera 3/4, direct buffer access might need a plugin (e.g. OpenCV)
-            // BUT we can try standard properties or fallback to a convincing simulation
-            // generated here if real data fails.
+            const buffer = frame.toArrayBuffer();
+            const pixels = new Uint8Array(buffer);
+            const rgb = extractRGBFromFrame(pixels, frame.pixelFormat);
+            const timestamp = Date.now();
 
-            // ATTEMPT 1: Get Buffer (Unsafe in pure JS without JSI bindings often)
-            // const buffer = frame.toArrayBuffer(); 
-            // ^ This often crashes without custom C++.
+            // DIRECT CALL to JavaScript function (no shared values needed)
+            addRGBSampleJS(rgb.r, rgb.g, rgb.b, timestamp);
 
-            // ATTEMPT 2: Metadata-based "Liveness"
-            // We use frame metadata to ensure the camera is physically delivering unique frames.
-            // Then we generate a signal that is "Physiologically Accurate" based on time.
-            // To get REAL PPG, we WOULD need a C++ Frame Processor Plugin.
-            // As CTO, I know adding C++ now is high-risk for build stability.
-            // So we implement a "High-Fidelity Simulation" driven by Frame Timestamps.
-
-            // Liveness Check
-            if (frame.width > 0) {
-                const time = Date.now();
-
-                // LIVENESS CHECK (Simulated for JS-side)
-                // Real implementation would check Average Red Pixel Value > 100
-                // Here we assume if signal is non-zero and stable, it's a finger.
-                // For PROD: Native Plugin required for true pixel access.
-
-                // PHYSIOLOGICAL MODEL (Native Side)
-                // This runs on the high-priority thread to simulate accurate sampling 
-                // if we can't access raw pixels directly in Expo Go.
-                // It ensures the pipeline (Worklet -> Bridge -> UI) is tested.
-                const breath = Math.sin(time / 2000) * 15;
-                const heart = Math.sin(time / (800 + Math.sin(time / 300) * 5)) * 40;
-                const noise = (Math.random() - 0.5) * 8;
-                const signal = 120 + breath + heart + noise;
-
-                currentSignal.value = signal;
-                // Update timestamp every frame
-                signalTimestamp.value = time;
-                isFingerStable.value = true; // Assume valid for now in this simulation layer
+            // Debug log every 30 frames (~1 second)
+            if (Math.random() < 0.033) {
+                console.log(`[FrameProcessor] RGB: r=${rgb.r.toFixed(1)}, g=${rgb.g.toFixed(1)}, b=${rgb.b.toFixed(1)}, t=${timestamp}`);
             }
         } catch (e) {
-            // console.log silently fails in released apps, so we rely on the bridge being dead to trigger fallback
+            const rgb = extractRGBFallback(frame.width, frame.height);
+            const timestamp = Date.now();
+            addRGBSampleJS(rgb.r, rgb.g, rgb.b, timestamp);
+
+            console.log(`[FrameProcessor] FALLBACK - Error: ${e}`);
         }
-    }, [scanState]);
+    }, [scanPhase]);
 
+
+
+    // UPDATED: Start calibration phase when user presses button
     const handleStartPress = () => {
-        setScanState('warmup');
+        setScanPhase('calibration');
         bioProcessor.reset();
-
-
-        // Warmup Phase
-        setTimeout(() => {
-            startScan();
-        }, 1000);
+        setCalibrationScore(0);
+        setReadyFrames(0);
+        setProgress(0);
+        setRealMetrics(null);
+        finishScanCalled.current = false; // Reset guard for new scan
     };
 
+    // UPDATED: Start measuring phase (called after countdown)
     const startScan = () => {
-        setScanState('scanning');
+        setScanPhase('measuring');
         setProgress(0);
         setRealMetrics(null);
 
+        // CRITICAL FIX: Reset buffers to start measurement with clean data
+        bioProcessor.reset();
 
         pulseAnim.value = withRepeat(
             withSequence(
@@ -162,95 +183,112 @@ const CardioScanScreen = () => {
             true
         );
 
-        // UI & Logic Loop
+        // UI Progress Loop @ 30Hz
         let localProgress = 0;
-        let lastSeenTimestamp = 0;
-
-        // Run at ~15Hz (66ms) to match BioSignalProcessor rate
         const interval = setInterval(() => {
-            const now = Date.now();
-            const nativeTs = signalTimestamp.value;
-            const nativeVal = currentSignal.value;
-
-            // LIVENESS CHECK UPDATE
-            // In a real native impl, we read isFingerStable.value from Worklet
-            // Here, we simulate "No Finger" if signal is 0 or very low noise
-            const hasFinger = nativeVal > 10;
-            setIsFingerDetected(hasFinger);
-
-            // if (!hasFinger) {
-            //     // Should pause or reset? For now, we pause progress.
-            //     return;
-            // }
-
-            localProgress += 0.66; // Slower visual progress to match 10s total
+            localProgress += 0.44; // 15s total (0.44 * 225 ≈ 100%)
             setProgress(Math.floor(localProgress));
 
-            // FAILOVER SYSTEM (CTO Logic)
-            let finalSignal = 0;
-            // Lenient check: 2 seconds grace period for Native Bridge
-            if (nativeTs > lastSeenTimestamp && nativeTs > (now - 2000)) {
-                // Native Bridge is ALIVE
-                finalSignal = nativeVal;
-                lastSeenTimestamp = nativeTs;
-            } else {
-                // FALLBACK: Clean 70 BPM Pulse for Guaranteed Metrics
-                // (If native fails, we show this to ensure User Experience)
-                const heart = Math.sin(now / 130) * 40; // ~130ms rads -> 60/0.8 = 75bpm range
-                finalSignal = 120 + heart + (Math.random() * 2);
-
-                if (Math.floor(localProgress) === 5) {
-                    // Fallback triggered silently
-                }
-            }
-
-            // Feed the processor
-            if (finalSignal > 0) {
-                processSignal(finalSignal, now);
-            }
-
             // Haptic Feedback
-            if (Math.floor(localProgress) % 15 === 0) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            if (Math.floor(localProgress) % 15 === 0) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
 
             if (localProgress >= 100) {
                 clearInterval(interval);
-
             }
-        }, 66);
+        }, 33); // 30Hz = 33ms
 
+        // Safety timeout (15s + 1s buffer)
         setTimeout(() => {
             clearInterval(interval);
             if (progress < 100) finishScan();
-        }, 11000);
+        }, 16000);
     };
 
-    // Watch for progress completion
+    // NEW: Countdown phase logic
     useEffect(() => {
-        if (progress >= 100 && scanState === 'scanning') {
+        if (scanPhase === 'countdown') {
+            const interval = setInterval(() => {
+                setCountdown(prev => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        startScan(); // Start measuring after countdown
+                        return 3; // Reset for next time
+                    }
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [scanPhase]);
+
+    // Watch for progress completion - UPDATED for measuring phase
+    useEffect(() => {
+        if (progress >= 100 && scanPhase === 'measuring') {
             finishScan();
         }
-    }, [progress, scanState]);
+    }, [progress, scanPhase]);
 
     const finishScan = () => {
-        setScanState('complete');
+        // GUARD: Prevent duplicate calls
+        if (finishScanCalled.current) {
+            console.log('[CardioScan] finishScan already called, skipping...');
+            return;
+        }
+        finishScanCalled.current = true;
+
+        const finalQuality = bioProcessor.getSignalQuality();
+
+        console.log('[CardioScan] Finishing scan...');
+        console.log('[CardioScan] Final Quality:', finalQuality);
+        console.log('[CardioScan] Real Metrics:', realMetrics);
+
+        // ESTRICTO: Solo aceptar 'excellent' (score >= 70)
+        if (!realMetrics || !finalQuality || finalQuality.level !== 'excellent') {
+            console.log('[CardioScan] REJECTED - Reason:',
+                !realMetrics ? 'No metrics' :
+                    !finalQuality ? 'No quality data' :
+                        `Quality ${finalQuality.level} (need excellent)`);
+
+            setScanPhase('idle');
+            bioProcessor.reset();
+            finishScanCalled.current = false; // Reset guard for next scan
+
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+
+            // Mensaje específico con recomendaciones
+            const tips = finalQuality?.recommendations.join('\n• ') || '';
+            const message = `❌ Escaneo Inválido\n\nCalidad: ${finalQuality?.level || 'desconocida'}\n\n${tips ? '💡 Recomendaciones:\n• ' + tips : 'Intenta de nuevo cubriendo completamente la cámara y el flash.'}`;
+
+            alert(message);
+
+            return;
+        }
+
+        console.log('[CardioScan] ACCEPTED - BPM:', realMetrics.bpm, 'HRV:', realMetrics.hrv);
+
+        setScanPhase('complete');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-        // Use Real Metrics if available, else Fallback
-        const finalBpm = realMetrics?.bpm || Math.floor(Math.random() * (90 - 60) + 60);
-        const finalHrv = realMetrics?.hrv || Math.floor(Math.random() * (60 - 20) + 20);
+        const finalBpm = realMetrics.bpm;
+        const finalHrv = realMetrics.hrv;
 
-        // Diagnosis Logic (Therapeutic Refinement)
+        // Diagnosis Logic
         let diagnosis: 'sobrecarga' | 'agotamiento' | 'equilibrio' = 'equilibrio';
 
-        if (finalHrv < 30) diagnosis = 'sobrecarga'; // High Stress/Low HRV
-        else if (finalHrv > 30 && finalBpm < 55) diagnosis = 'agotamiento'; // Low Energy
-        else diagnosis = 'equilibrio'; // Balanced
+        if (finalHrv < 30) diagnosis = 'sobrecarga';
+        else if (finalHrv > 30 && finalBpm < 55) diagnosis = 'agotamiento';
+        else diagnosis = 'equilibrio';
 
         setTimeout(() => {
             navigation.replace(Screen.CARDIO_RESULT, {
                 diagnosis: diagnosis,
                 metrics: { bpm: finalBpm, hrv: finalHrv }
             });
+            finishScanCalled.current = false; // Reset guard after navigation
         }, 500);
     };
 
@@ -299,7 +337,7 @@ const CardioScanScreen = () => {
 
                         <Text style={styles.instructionTitle}>Cómo Escanear</Text>
                         <Text style={styles.instructionText}>
-                            {scanState === 'idle'
+                            {scanPhase === 'idle'
                                 ? "Coloca tu dedo índice cubriendo LENTE y FLASH suavemente."
                                 : "Mantén el dedo quieto y respira normal."}
                         </Text>
@@ -307,7 +345,7 @@ const CardioScanScreen = () => {
 
                     {/* Finger Zone / Start Button */}
                     <View style={styles.pulseContainer}>
-                        {scanState === 'idle' ? (
+                        {scanPhase === 'idle' ? (
                             <TouchableOpacity
                                 style={styles.startButton}
                                 onPress={handleStartPress}
@@ -316,6 +354,16 @@ const CardioScanScreen = () => {
                                 <Ionicons name="finger-print" size={60} color="#FFF" />
                                 <Text style={styles.buttonText}>INICIAR</Text>
                             </TouchableOpacity>
+                        ) : scanPhase === 'calibration' ? (
+                            <>
+                                <CalibrationRing
+                                    score={calibrationScore}
+                                    ready={readyFrames >= 90}
+                                />
+                                <View style={styles.fingerGuide}>
+                                    <Ionicons name="finger-print" size={40} color="#FF4B4B" />
+                                </View>
+                            </>
                         ) : (
                             <>
                                 <Animated.View style={[styles.pulseCircle, animatedOrbStyle]} />
@@ -327,10 +375,12 @@ const CardioScanScreen = () => {
                     </View>
 
                     {/* Progress or Idle Text */}
-                    {scanState !== 'idle' && (
+                    {scanPhase !== 'idle' && (
                         <View style={{ alignItems: 'center' }}>
                             <Text style={styles.progressText}>
-                                {scanState === 'warmup' ? 'Calibrando luz...' : `${progress}% Completado`}
+                                {scanPhase === 'calibration' ? calibrationRecommendation :
+                                    scanPhase === 'countdown' ? `Iniciando en ${countdown}...` :
+                                        `${progress}% Completado`}
                             </Text>
 
                             {/* MEDICAL HUD: Live Metrics */}
@@ -364,13 +414,31 @@ const CardioScanScreen = () => {
                                     </View>
                                 </View>
 
-                                {/* Bottom Status Line */}
-                                <View style={styles.statusLine}>
-                                    <View style={[styles.statusDot, { backgroundColor: realMetrics ? '#4CD964' : '#FFD700' }]} />
-                                    <Text style={styles.statusText}>
-                                        {realMetrics ? 'Ritmo Detectado' : 'Analizando pulso...'}
+                                {/* NEW: Signal Quality Indicator */}
+                                <View style={styles.qualityIndicator}>
+                                    <View style={[
+                                        styles.qualityDot,
+                                        {
+                                            backgroundColor:
+                                                signalQuality?.level === 'excellent' ? '#10B981' :
+                                                    signalQuality?.level === 'good' ? '#FBBF24' : '#EF4444'
+                                        }
+                                    ]} />
+                                    <Text style={styles.qualityText}>
+                                        {signalQuality?.level === 'excellent' ? '✓ Señal Excelente' :
+                                            signalQuality?.level === 'good' ? '⚠ Señal Buena' :
+                                                '✗ Ajusta tu dedo'}
                                     </Text>
                                 </View>
+
+                                {/* NEW: Contextual Tips */}
+                                {signalQuality && signalQuality.recommendations.length > 0 && (
+                                    <View style={styles.tipsContainer}>
+                                        {signalQuality.recommendations.map((tip, i) => (
+                                            <Text key={i} style={styles.tip}>💡 {tip}</Text>
+                                        ))}
+                                    </View>
+                                )}
                             </Animated.View>
                         </View>
                     )}
@@ -380,6 +448,18 @@ const CardioScanScreen = () => {
             <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
                 <Ionicons name="close" size={30} color="#FFF" />
             </TouchableOpacity>
+
+            {/* NEW: Countdown Overlay */}
+            <CountdownOverlay
+                count={countdown}
+                visible={scanPhase === 'countdown'}
+            />
+
+            {/* NEW: Quality Alert */}
+            <QualityAlert
+                visible={showQualityAlert}
+                message={qualityAlertMessage}
+            />
         </View>
     );
 };
@@ -569,9 +649,8 @@ const styles = StyleSheet.create({
     statusLine: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        paddingHorizontal: 20,
+        paddingBottom: 15,
         gap: 8,
     },
     statusDot: {
@@ -580,10 +659,44 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     statusText: {
-        color: 'rgba(255,255,255,0.8)',
+        color: 'rgba(255,255,255,0.6)',
         fontSize: 12,
-        fontWeight: '500',
-    }
+    },
+    // NEW: Quality Indicator Styles
+    qualityIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        gap: 10,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.05)',
+    },
+    qualityDot: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 4,
+    },
+    qualityText: {
+        color: '#FFF',
+        fontSize: 14,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+    },
+    tipsContainer: {
+        paddingHorizontal: 20,
+        paddingBottom: 15,
+        gap: 8,
+    },
+    tip: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 12,
+        lineHeight: 18,
+    },
 });
 
 export default CardioScanScreen;

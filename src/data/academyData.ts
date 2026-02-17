@@ -143,7 +143,7 @@ export const ACADEMY_LESSONS: Lesson[] = [
         description: 'Entiende por qué sientes lo que sientes. La neurociencia del miedo.',
         duration: '10 min',
         isPlus: false,
-        audio_url: require('../../assets/academy/audio/lesson_1.mp3'),
+
         content: `
 # Día 1: La Falsa Alarma 🚨
 
@@ -171,7 +171,7 @@ Cuando sientas el nudo en el estómago, di en voz alta (o mentalmente):
         description: 'Tus pensamientos no son hechos. Son hipótesis.',
         duration: '12 min',
         isPlus: false,
-        audio_url: require('../../assets/academy/audio/lesson_2.mp3'),
+
         content: `
 # Día 2: El Triángulo Cognitivo 🔺
 
@@ -198,7 +198,7 @@ Sé un **Detective**. Atrapa un pensamiento catastrófico hoy y pregúntale:
         description: 'Aprende a no luchar contra la sensación física.',
         duration: '8 min',
         isPlus: true,
-        audio_url: require('../../assets/academy/audio/lesson_3.mp3'),
+
         content: `
 # Día 3: El Efecto del Oso Blanco 🐻‍❄️
 
@@ -222,7 +222,7 @@ Imagina que la ansiedad es una ola.
         description: 'Entre el estímulo y la respuesta, hay un espacio.',
         duration: '9 min',
         isPlus: true,
-        audio_url: require('../../assets/academy/audio/lesson_4.mp3'),
+
         content: `
 # Día 4: Tu Superpoder Oculto ⏸️
 
@@ -249,7 +249,7 @@ Ensancha tu espacio. Recupera tu libertad.
         description: 'Plan de crisis y graduación.',
         duration: '11 min',
         isPlus: true,
-        audio_url: require('../../assets/academy/audio/lesson_5.mp3'),
+
         content: `
 # Día 5: Plan de Crisis 🧰
 

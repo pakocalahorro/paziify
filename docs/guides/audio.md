@@ -1,6 +1,6 @@
-# 🎙️ Guía Maestra de Audio - Paziify (v2.9.0) 💎
+# 🎙️ Guía Maestra de Audio - Paziify (v2.10.0) 💎
 
-Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura, el catálogo auditado y los parámetros de identidad de los guías. La versión **v2.9.0** introduce la arquitectura **Zero-Egress** para la Academia y la estabilidad offline total.
+Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura, el catálogo auditado y los parámetros de identidad de los guías. La versión **v2.10.0** mantiene la arquitectura **Zero-Egress** consolidada en v2.9.0.
 
 ---
 
@@ -91,7 +91,7 @@ Disponemos de herramientas en la carpeta `scripts/` para mantener el catálogo o
 
 ---
 
-*Última revisión: 14 de Febrero de 2026 - Versión 2.9.0 (Zero-Egress & Unified Categories)*
+*Última revisión: 15 de Febrero de 2026 - Versión 2.10.0 (Bio-Metric Awakening)*
 
 Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura, el catálogo auditado y los parámetros de identidad de los guías.
 

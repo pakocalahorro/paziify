@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.9.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.10.0) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.9.0** se enfoca en la consolidación del almacenamiento de la Academia, la resiliencia offline y la **Unificación de Categorías**.
+Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.10.0** mantiene la consolidación del almacenamiento de la Academia, la resiliencia offline y la **Unificación de Categorías** establecidas en v2.9.0.
 
 ---
 
@@ -67,5 +67,5 @@ A partir de la versión 2.9.0, todas las tablas de contenido (`meditation_sessio
 Esto garantiza que el Panel de Administración (CMS) pueda filtrar y asignar contenido de manera consistente en toda la plataforma.
 
 ---
-*Última revisión: 14 de Febrero de 2026 - Master Audit v2.9.0 (Zero-Egress & Unified Categories)*
+*Última revisión: 15 de Febrero de 2026 - Master Audit v2.10.0 (Bio-Metric Awakening)*
 

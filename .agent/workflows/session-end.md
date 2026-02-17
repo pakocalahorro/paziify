@@ -27,9 +27,10 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
    Para cada cambio identificado, **ACTUALIZA** en este orden:
    1. **`walkthrough.md`**: La radiografía técnica 1:1. Incluye `render_diffs` de los puntos calientes.
    2. **`README.md`**: Si hay nueva versión o features clave.
-   3. **`docs/guides/user_manual.md`**: Si cambia el flujo de usuario o la interfaz.
-   4. **`docs/guides/designs.md`**: Si hay nuevos componentes o cambios estéticos.
-   5. **`docs/guides/database.md`**: Si hubo cambios en Supabase o lógica de datos.
+   3. **`docs/guides/structure.md`**: **[NUEVO]** Si se añadieron/modificaron pantallas, componentes, servicios o navegación.
+   4. **`docs/guides/user_manual.md`**: Si cambia el flujo de usuario o la interfaz.
+   5. **`docs/guides/designs.md`**: Si hay nuevos componentes o cambios estéticos.
+   6. **`docs/guides/database.md`**: Si hubo cambios en Supabase o lógica de datos.
 
 ### 4. Reconciliación Cruzada (Garantía CEO) ✅
    - Hazte la pregunta: **"¿Si el CEO revisa esto con su papel y boli, encontrará todo lo que hemos hablado hoy?"**.

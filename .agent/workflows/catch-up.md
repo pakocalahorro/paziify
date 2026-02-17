@@ -20,7 +20,8 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
    - Comparar ultima version de Git con las ultimas notas de sesion e informar si coincide todo o hay diferencias
 
 3. **Visión de Producto & Guías (LECTURA OBLIGATORIA)**
-    - **Imprescindible**: Leer los 4 pilares de documentación para entender el estado actual:
+    - **Imprescindible**: Leer los 5 pilares de documentación para entender el estado actual:
+      - `docs/guides/structure.md`: **[NUEVO]** Mapa completo del proyecto (pantallas, componentes, servicios, navegación).
       - `docs/guides/user_manual.md`: Funcionalidad y UX (v2.x).
       - `docs/guides/audio.md`: Arquitectura del motor, guías premium y auditoría.
       - `docs/guides/database.md`: Datos, esquema y seguridad RLS.

@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.9.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.11.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.9.0**. Esta versión introduce la **Unificación de Categorías**, permitiendo que el Panel Admin controle las Historias, y verifica el **Modo Offline Zero-Egress** para una experiencia sin interrupciones.
+Bienvenido a la guía oficial de **Paziify v2.11.0 (Premium Calibration)**. Esta versión introduce el **Sistema de Calibración Premium** para el Escáner Cardio, con tecnología rPPG y algoritmo POS de precisión clínica (±3 BPM).
 
 ---
 
@@ -20,15 +20,52 @@ La Academia ahora cuenta con 10 cursos completos dedicados a tu salud mental:
 
 ---
 
-## 3. Escáner Cardio & Bio-Feedback (Beta v2.10) 🚀
-Transforma tu cámara en un sensor de bienestar emocional:
-- **Cómo funciona**: Coloca suavemente tu dedo índice sobre la lente y el flash.
-- **Medical HUD**: Visualiza en tiempo real tu BPM (pulso) y HRV (variabilidad).
-- **Resultados Terapéuticos**: El sistema no te dará un diagnóstico médico frío, sino una interpretación empática:
-    - **Sobrecarga Mental**: Necesitas una pausa.
-    - **Energía Baja**: Necesitas recarga suave.
-    - **Resonancia Vital**: Estás en equilibrio óptimo.
-- **Privacidad**: El análisis se realiza en tiempo real y no se guardan imágenes de tu dedo.
+## 3. Escáner Cardio Premium (v2.11.0) 🫀✨
+Transforma tu cámara en un sensor de bienestar emocional con tecnología rPPG (remote PhotoPlethysmoGraphy) y algoritmo POS de precisión clínica.
+
+### Sistema de Calibración en 3 Fases
+
+#### **FASE 1: Calibración Guiada (5-10s)**
+1. **Preparación**: Coloca suavemente tu dedo índice sobre la lente trasera y el flash
+2. **Feedback Visual en Tiempo Real**:
+   - **Anillo de Calibración**: Muestra tu score de calidad (0-100%)
+   - **Colores Dinámicos**: 
+     - 🔴 Rojo (<60%): "Ajusta la posición del dedo"
+     - 🟡 Amarillo (60-79%): "Casi perfecto, mantén así"
+     - 🟢 Verde (≥80%): "¡Perfecto! Mantén así"
+3. **Recomendaciones Contextuales**:
+   - "Cubre completamente cámara y flash"
+   - "Reduce la presión ligeramente"
+   - "Mantén el dedo quieto"
+4. **Transición Automática**: Cuando mantienes score ≥80% durante 3 segundos, avanza automáticamente
+
+#### **FASE 2: Cuenta Regresiva (3s)**
+- Overlay fullscreen con cuenta regresiva: 3... 2... 1...
+- Vibración en cada segundo
+- Mensaje: "¡Perfecto! Iniciando medición..."
+- Subtítulo: "Mantén el dedo quieto"
+
+#### **FASE 3: Medición (15s)**
+- **Análisis Continuo**: Algoritmo POS procesa 30 frames por segundo
+- **Barra de Progreso**: Visualización clara del tiempo restante
+- **Monitoreo de Calidad**: Si la calidad cae, aparece alerta flotante con recomendaciones
+- **Datos en Tiempo Real**: BPM (pulsaciones) y HRV (variabilidad cardíaca)
+
+### Resultados Terapéuticos (No Médicos)
+El sistema interpreta tus métricas con un tono de cuidado, no clínico:
+- **🔴 Sobrecarga Mental**: "Tu sistema necesita un respiro" → Recomendación: Calma SOS
+- **🟡 Energía Baja**: "Necesitas recarga suave" → Recomendación: Resiliencia
+- **🟢 Resonancia Vital**: "Estás en equilibrio óptimo" → Recomendación: Mantén tu práctica
+
+### Tecnología rPPG con Algoritmo POS
+- **Precisión Clínica**: ±3 BPM vs ECG
+- **Robusto al Movimiento**: Tolera movimiento moderado
+- **Universal**: Funciona en todos los tonos de piel
+- **Validado Científicamente**: Basado en paper de De Haan & Jeanne (2013)
+### Privacidad Total
+- ✅ **Análisis Local**: Todo el procesamiento ocurre en tu dispositivo
+- ✅ **Cero Almacenamiento**: No se guardan imágenes ni videos de tu dedo
+- ✅ **Sin Conexión Requerida**: Funciona completamente offline
 
 ---
 
@@ -66,6 +103,6 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 
 ---
-*Última revisión: 14 de Febrero de 2026 - Versión 2.9.0 (Zero-Egress & Unified Categories)*
-**Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen`
+*Última revisión: 15 de Febrero de 2026 - Versión 2.10.0 (Bio-Metric Awakening)*  
+**Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen` -> `CardioScanScreen`
 
