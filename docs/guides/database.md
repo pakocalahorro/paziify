@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.10.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.11.0) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.10.0** mantiene la consolidación del almacenamiento de la Academia, la resiliencia offline y la **Unificación de Categorías** establecidas en v2.9.0.
+Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.11.0** introduce el protocolo de **Privacidad Bio-métrica** junto con la consolidación del almacenamiento Zero-Egress.
 
 ---
 
@@ -67,5 +67,17 @@ A partir de la versión 2.9.0, todas las tablas de contenido (`meditation_sessio
 Esto garantiza que el Panel de Administración (CMS) pueda filtrar y asignar contenido de manera consistente en toda la plataforma.
 
 ---
-*Última revisión: 15 de Febrero de 2026 - Master Audit v2.10.0 (Bio-Metric Awakening)*
+
+## 7. Privacidad Bio-métrica (v2.11.0) 🧬🛡️
+
+Con la introducción del **Escáner Cardio Premium** en v2.11.0, se establece un protocolo estricto de no-persistencia para datos sensibles:
+
+- **Zero Cloud Storage**: Los datos crudos del sensor rPPG (frames de video) y las métricas calculadas (BPM, HRV, Stress Level) **NUNCA** se envían a Supabase ni a ningún servidor externo.
+- **Procesamiento Local (Edge)**: Todo el análisis de señal mediante el algoritmo POS ocurre estrictamente en el dispositivo del usuario (`BioSignalProcessor.ts`).
+- **Persistencia Efímera**: Los resultados solo existen en la memoria volátil de la sesión (`Context`) y se descartan al cerrar la pantalla de resultados, a menos que el usuario decida explícitamente guardarlos en su historial local (AsyncStorage, no Cloud).
+
+Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confianza del usuario.
+
+---
+*Última revisión: 18 de Febrero de 2026 - Versión 2.11.0 (Premium Calibration System)*
 
