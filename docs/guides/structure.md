@@ -935,6 +935,17 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - `clear()` - Limpiar todo
 - `isExpired(key)` - Verificar expiración
 
+### `src/services/CardioService.ts`
+**Función**: Gestión de datos de cardio (Local & Zero-Egress)
+**Métodos**:
+- `saveSession(metrics)` - Guardar nueva sesión
+- `getHistory()` - Recuperar historial local
+- `getLatestBaselines()` - Obtener métricas base recientes
+- `clearHistory()` - Borrar datos locales
+**Características**:
+- Persistencia en AsyncStorage
+- Separación de contextos (baseline vs post_session)
+
 ### `src/services/contentService.ts`
 **Función**: Gestión de contenido dinámico
 **Métodos**:
@@ -1305,8 +1316,8 @@ admin/
 
 ---
 
-*Documento generado el 16 de febrero de 2026*
-*Versión del proyecto: 2.10.0*
+*Documento generado el 19 de febrero de 2026*
+*Versión del proyecto: 2.12.0*
 *Total de pantallas: 30+*
 *Total de componentes: 40+*
 *Total de servicios: 10+*

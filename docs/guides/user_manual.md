@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.11.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.12.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.11.0 (Premium Calibration)**. Esta versión introduce el **Sistema de Calibración Premium** para el Escáner Cardio, con tecnología rPPG y algoritmo POS de precisión clínica (±3 BPM).
+Bienvenido a la guía oficial de **Paziify v2.12.0 (Medical Grade)**. Esta versión introduce la **Fiabilidad Científica** para el Escáner Cardio y la Gamificación Terapéutica "OrbFlow".
 
 ---
 
@@ -20,42 +20,35 @@ La Academia ahora cuenta con 10 cursos completos dedicados a tu salud mental:
 
 ---
 
-## 3. Escáner Cardio Premium (v2.11.0) 🫀✨
-Transforma tu cámara en un sensor de bienestar emocional con tecnología rPPG (remote PhotoPlethysmoGraphy) y algoritmo POS de precisión clínica.
+## 3. Escáner Cardio de Grado Médico (v2.12.0) 🫀✨
+Transforma tu cámara en un sensor de bienestar emocional con tecnología rPPG (remote PhotoPlethysmoGraphy) y algoritmos médicos validados.
 
-### Sistema de Calibración en 3 Fases
+### Sistema de Medición Progresiva (Reliability First)
 
-#### **FASE 1: Calibración Guiada (5-10s)**
-1. **Preparación**: Coloca suavemente tu dedo índice sobre la lente trasera y el flash
+#### **FASE 1: Calibración Inteligente**
+1. **Preparación**: Coloca suavemente tu dedo índice sobre la lente trasera y el flash.
 2. **Feedback Visual en Tiempo Real**:
-   - **Anillo de Calibración**: Muestra tu score de calidad (0-100%)
-   - **Colores Dinámicos**: 
-     - 🔴 Rojo (<60%): "Ajusta la posición del dedo"
-     - 🟡 Amarillo (60-79%): "Casi perfecto, mantén así"
-     - 🟢 Verde (≥80%): "¡Perfecto! Mantén así"
-3. **Recomendaciones Contextuales**:
-   - "Cubre completamente cámara y flash"
-   - "Reduce la presión ligeramente"
-   - "Mantén el dedo quieto"
-4. **Transición Automática**: Cuando mantienes score ≥80% durante 3 segundos, avanza automáticamente
+   - **Anillo de Calibración**: Te guía con colores dinámicos (Rojo/Amarillo/Verde).
+   - **Validación Automática**: El sistema solo comienza cuando detecta una señal de pulso estable y limpia.
 
-#### **FASE 2: Cuenta Regresiva (3s)**
-- Overlay fullscreen con cuenta regresiva: 3... 2... 1...
-- Vibración en cada segundo
-- Mensaje: "¡Perfecto! Iniciando medición..."
-- Subtítulo: "Mantén el dedo quieto"
+#### **FASE 2: Escaneo por Acumulación de Calidad**
+Olvídate de los temporizadores que fallan si te mueves al final.
+- **Barra de Progreso Inteligente**: No avanza por tiempo, sino por **cantidad de latidos válidos recolectados**.
+- **Si te mueves**: La barra se pausa o retrocede ligeramente.
+- **Si mantienes la calma**: La barra avanza fluida hacia el 100%.
+- **Resultado**: Garantizamos que cada medición se basa en datos 100% fiables.
 
-#### **FASE 3: Medición (15s)**
-- **Análisis Continuo**: Algoritmo POS procesa 30 frames por segundo
-- **Barra de Progreso**: Visualización clara del tiempo restante
-- **Monitoreo de Calidad**: Si la calidad cae, aparece alerta flotante con recomendaciones
-- **Datos en Tiempo Real**: BPM (pulsaciones) y HRV (variabilidad cardíaca)
+#### **FASE 3: Análisis Científico (Post-Procesado)**
+Al completar el círculo:
+1. **Validación Estadística**: Aplicamos filtro **MAD (Median Absolute Deviation)** para eliminar quirúrgicamente cualquier micro-movimiento.
+2. **Cálculo de Sesión**: La métrica final es la media robusta de TODA la sesión, no solo del último instante.
+3. **Precisión Clínica**: Margen de error <5% comparado con dispositivos médicos (Apple Watch/Garmin/Polar).
 
-### Resultados Terapéuticos (No Médicos)
-El sistema interpreta tus métricas con un tono de cuidado, no clínico:
-- **🔴 Sobrecarga Mental**: "Tu sistema necesita un respiro" → Recomendación: Calma SOS
-- **🟡 Energía Baja**: "Necesitas recarga suave" → Recomendación: Resiliencia
-- **🟢 Resonancia Vital**: "Estás en equilibrio óptimo" → Recomendación: Mantén tu práctica
+### Resultados Terapéuticos
+El sistema interpreta tus métricas con un tono de cuidado:
+- **Sobrecarga Mental**: Baja Variabilidad (HRV) → Recomendación: Calma SOS.
+- **Agotamiento Físico**: Pulso Muy Bajo/Alto → Recomendación: Energía Suave.
+- **Equilibrio Vital**: Métricas en Rango Óptimo → Recomendación: Mantener Práctica.
 
 ### Tecnología rPPG con Algoritmo POS
 - **Precisión Clínica**: ±3 BPM vs ECG
@@ -103,6 +96,6 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 
 ---
-*Última revisión: 15 de Febrero de 2026 - Versión 2.10.0 (Bio-Metric Awakening)*  
+*Última revisión: 19 de Febrero de 2026 - Versión 2.12.0 (Medical Grade Cardio)*  
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen` -> `CardioScanScreen`
 

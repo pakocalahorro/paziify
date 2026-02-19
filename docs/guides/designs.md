@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.11.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.12.0) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.11.0** introduce los **Componentes Bio Premium** para el Sistema de Calibración del Escáner Cardio, consolidando la experiencia de bienestar con interfaces profesionales de alta fidelidad.
+Esta guía define el ADN visual de Paziify. La versión **v2.12.0** introduce los **Componentes Bio Científicos** para el Escáner Cardio de Grado Médico.
 
 ---
 
@@ -165,6 +165,31 @@ El color comunica el estado del sistema de forma intuitiva:
 - Iconos con tamaño mínimo de 24x24px
 - Feedback multi-sensorial (visual + háptico)
 
+### 10. Scientific Result Screen (v2.12.0) 📊
+La pantalla de resultados se ha refinado para transmitir autoridad médica y calidez humana.
+
+**Header & Títulos**:
+- **Título Principal**: "ANÁLISIS COMPLETADO" (Inter SemiBold, 14px, Tracking 2px, Opacidad 70%)
+- **Subtítulo Emocional**: "Tu corazón respira calma" (Inter Bold, 28px, Color `#FFFFFF`)
+
+**Tarjetas de Datos (Glassmorphism)**:
+- **BPM Card**:
+  - Valor: Oswald Medium, 56px
+  - Label: "PULSACIONES / MIN" (Inter Bold, 10px, Opacidad 60%)
+- **HRV Card (La Joya)**:
+  - Valor: Oswald Medium, 56px
+  - Label: "VARIABILIDAD (HRV) / MS"
+  - *Nota*: La HRV es el indicador clave de estrés. Se destaca visualmente.
+
+**Botones de Acción (CTAs)**:
+- **Principal (Sanar/Crecer)**:
+  - Gradiente según diagnóstico (Emerald/Amber)
+  - Sombra difusa: `0px 10px 30px rgba(color, 0.4)`
+  - Texto: Inter Bold, 16px, Uppercase
+- **Secundario (Descarte)**:
+  - Texto: **"DESCONECTA ANTES DE EMPEZAR"** (Inter SemiBold, 13px, Opacidad 60%)
+  - *Cambio v2.12*: Mensaje alineado con la filosofía de desconexión digital.
+
 ---
 
-*Última revisión: 15 de Febrero de 2026 - Master Audit v2.10.0 (Bio-Metric Awakening)*
+*Última revisión: 19 de Febrero de 2026 - Master Audit v2.12.0 (Medical Grade Cardio)*
