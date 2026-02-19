@@ -30,5 +30,5 @@ Elevar el sistema de cardio a un estándar "Medical Grade" mediante algoritmos e
 - `src/components/Gamification/OrbFlowGame.tsx`: Lógica de juego pulida.
 
 ## 📦 Estado del Proyecto
-- **Versión Actual**: v2.8.0 (Scientific Release)
+- **Versión Actual**: v2.12.0 (Medical Grade Cardio)
 - **Estabilidad**: Alta. El módulo de cardio es ahora el más robusto de la app.
