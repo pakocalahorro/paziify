@@ -74,6 +74,7 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
             totalMinutes: (userState.totalMinutes || 0) + durationMinutes,
         });
 
+        // @ts-ignore
         navigation.navigate('MainTabs');
     };
 
@@ -90,7 +91,10 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
             <StatusBar barStyle="light-content" />
 
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.navigate('MainTabs')} style={styles.closeButton}>
+                <TouchableOpacity onPress={() => {
+                    // @ts-ignore
+                    navigation.navigate('MainTabs');
+                }} style={styles.closeButton}>
                     <Ionicons name="close" size={28} color="rgba(255,255,255,0.6)" />
                 </TouchableOpacity>
             </View>
@@ -171,10 +175,27 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                             <Switch
                                 value={isSharing}
                                 onValueChange={setIsSharing}
-                                trackColor={{ false: '#333', true: theme.colors.primary }}
+                                trackColor={{ false: '#333', true: '#4CD964' }}
                                 thumbColor={isSharing ? '#FFF' : '#666'}
                             />
                         </View>
+
+                        {/* New Feature: Post-Session Cardio Scan */}
+                        <TouchableOpacity
+                            style={styles.cardioButton}
+                            onPress={() => {
+                                // @ts-ignore
+                                navigation.navigate('CardioScan', { context: 'post_session' });
+                            }}
+                        >
+                            <Ionicons name="heart-circle-outline" size={24} color="#FFD700" />
+                            <Text style={styles.cardioButtonText}>Verificar Impacto en Cardio</Text>
+                            <Ionicons name="arrow-forward" size={16} color="#FFD700" style={{ marginLeft: 'auto' }} />
+                        </TouchableOpacity>
+
+                        <View style={styles.separator} />
+
+                        {/* Opciones de Continuidad */}
                         <Text style={styles.shareSubtext}>
                             Tu opinión ayudará a otros usuarios de la comunidad.
                         </Text>
@@ -335,6 +356,35 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 16,
         fontWeight: '700',
+    },
+    quoteAuthor: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 14,
+        fontStyle: 'italic',
+    },
+    // NEW STYLES
+    cardioButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 215, 0, 0.1)', // Gold tint
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        borderRadius: 16,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 215, 0, 0.3)',
+        gap: 12,
+    },
+    cardioButtonText: {
+        color: '#FFD700', // Gold
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    separator: {
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        marginVertical: 20,
+        width: '100%',
     },
     shareSubtext: {
         color: 'rgba(255,255,255,0.4)',

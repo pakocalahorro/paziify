@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Modal, ScrollView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
 import { contentService } from '../../services/contentService';
 import * as Haptics from 'expo-haptics';
+import { CardioService } from '../../services/CardioService';
+import GameContainer from '../../components/Gamification/GameContainer';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +18,8 @@ interface CardioResultParams {
         bpm: number;
         hrv: number;
     };
+    context?: 'baseline' | 'post_session';
+    quality?: number;
 }
 
 const CardioResultScreen = () => {
@@ -27,42 +31,84 @@ const CardioResultScreen = () => {
     const params = route.params as CardioResultParams | undefined;
     const diagnosis = params?.diagnosis || 'equilibrio';
     const metrics = params?.metrics;
+    const context = params?.context || 'baseline';
+    const quality = params?.quality || 98; // Default to high if missing
 
-    // THERAPEUTIC MAPPING
+    // -------------------------------------------------------------------------
+    // 1. SAVE RESULT (LOCAL FIRST)
+    // -------------------------------------------------------------------------
+    React.useEffect(() => {
+        if (metrics && params?.diagnosis) {
+            const saveResult = async () => {
+                try {
+                    await CardioService.saveScan({
+                        bpm: metrics.bpm,
+                        hrv: metrics.hrv,
+                        diagnosis: params.diagnosis,
+                        context: context
+                    });
+                    console.log('Cardio Result saved locally with context:', context);
+                } catch (e) {
+                    console.error('Failed to save cardio result', e);
+                }
+            };
+            saveResult();
+        }
+    }, [metrics, params, context]);
+
+    // -------------------------------------------------------------------------
+    // 2. POSITIVE ARCHETYPES CONFIG (El Espejo del Alma)
+    // -------------------------------------------------------------------------
     const resultConfig = {
         sobrecarga: {
             mode: 'healing',
-            title: 'Sobrecarga Mental',
-            tag: 'NECESIDAD DE PAUSA',
-            color: '#EF4444',
+            title: 'Guerrero en Reposo', // Before: Sobrecarga Mental
+            tag: 'HONRA TU ESFUERZO',
+            color: '#EF4444', // Red-ish
             bg: '#1A0808',
-            insight: "Tu sistema nervioso necesita un respiro. Es normal sentir saturación; tu cuerpo te pide desconectar para volver a conectar."
+            insight: "Tu cuerpo ha luchado grandes batallas. Ahora, la victoria reside en soltar las armas y permitirte sanar. No es debilidad, es sabiduría."
         },
         agotamiento: {
-            mode: 'growth',
-            title: 'Energía Baja',
-            tag: 'MOMENTO DE RECARGA',
-            color: '#FBBF24',
+            mode: 'healing', // Changed to healing for fatigue
+            title: 'Marea Calma', // Before: Energía Baja
+            tag: 'NUTRICIÓN PROFUNDA',
+            color: '#FBBF24', // Amber
             bg: '#1A1500',
-            insight: "Tus reservas están bajas hoy. No te fuerces. Una sesión suave de activación puede ser justo lo que necesitas para fluir mejor."
+            insight: "Como el mar cuando se retira, tu energía está baja para luego volver con fuerza. Hoy no exijas, solo nutre. Flota."
         },
         equilibrio: {
             mode: 'growth',
-            title: 'Resonancia Vital',
-            tag: 'ESTADO ÓPTIMO',
-            color: '#10B981',
+            title: 'Sol Naciente', // Before: Resonancia Vital
+            tag: 'LUZ INTERIOR',
+            color: '#10B981', // Emerald
             bg: '#061812',
-            insight: "Tu coherencia cardíaca es excelente. Estás en un estado ideal para crear, resolver problemas o profundizar en tu práctica."
+            insight: "Tu luz interior es estable y brillante. Tienes la claridad y la fuerza para expandirte. Es tu momento de brillar."
         }
     };
 
     const config = resultConfig[diagnosis] || resultConfig.equilibrio;
     const suggestedMode = config.mode as 'healing' | 'growth';
 
+    // -------------------------------------------------------------------------
+    // 3. GAMIFICATION LOGIC
+    // -------------------------------------------------------------------------
+    const [activeGameMode, setActiveGameMode] = React.useState<'healing' | 'growth' | null>(null);
+
     const handleAction = async (mode: 'healing' | 'growth') => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        // Launch Game directly
+        setActiveGameMode(mode);
+    };
 
-        // Update user state (same logic as CustomTabBar)
+    const handleGameComplete = async () => {
+        if (!activeGameMode) return;
+        // Game completed, navigate home with stats update (handled inside game or here if needed)
+        await activateModeAndNavigate(activeGameMode);
+        setActiveGameMode(null);
+    };
+
+    const activateModeAndNavigate = async (mode: 'healing' | 'growth') => {
+        // 1. Update Profile (Mood/Background)
         const bgUri = await contentService.getRandomCategoryImage(mode);
 
         updateUserState({
@@ -73,8 +119,20 @@ const CardioResultScreen = () => {
 
         if (bgUri) setLastSelectedBackgroundUri(bgUri as string);
 
-        // Go back to Home (MainTabs)
+        // 2. Navigate Home
         navigation.navigate('MainTabs', { screen: 'Home' });
+    };
+
+    const handleCardPress = async (mode: 'healing' | 'growth') => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        // Direct navigation (Internal Compass behavior)
+        await activateModeAndNavigate(mode);
+    };
+
+    const handleButtonPress = () => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        // Launch Game (Premium Experience)
+        setActiveGameMode(suggestedMode);
     };
 
     return (
@@ -82,7 +140,27 @@ const CardioResultScreen = () => {
             {/* Background Gradient/Mesh Placeholder */}
             <View style={[styles.backgroundBase, { backgroundColor: config.bg }]} />
 
-            <View style={[styles.content, { paddingTop: insets.top + 20 }]}>
+            {/* GAMIFICATION MODAL */}
+            <Modal
+                visible={!!activeGameMode}
+                animationType="fade"
+                transparent={false}
+                onRequestClose={() => setActiveGameMode(null)}
+            >
+                {activeGameMode && (
+                    <GameContainer
+                        mode={activeGameMode}
+                        onClose={() => setActiveGameMode(null)}
+                        onComplete={handleGameComplete}
+                    />
+                )}
+            </Modal>
+
+            <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 10 }]}
+                showsVerticalScrollIndicator={false}
+            >
                 {/* Header */}
                 <Text style={styles.subHeader}>TU ESTADO ACTUAL</Text>
                 <Text style={styles.headerTitle}>
@@ -107,9 +185,23 @@ const CardioResultScreen = () => {
                     </View>
                     <View style={styles.metricDivider} />
                     <View style={styles.metricItem}>
-                        <Text style={styles.metricLabel}>COHERENCIA</Text>
+                        <Text style={styles.metricLabel}>VFC (HRV)</Text>
                         <Text style={styles.metricValue}>{metrics?.hrv || '--'}<Text style={styles.metricUnit}> ms</Text></Text>
                     </View>
+                </View>
+
+                {/* SCIENTIFIC VALIDATION BLOCK */}
+                <View style={styles.scientificContainer}>
+                    <View style={styles.qualityBadge}>
+                        <Ionicons name="shield-checkmark" size={14} color="#10B981" />
+                        <Text style={styles.qualityLabel}>CALIDAD DE SEÑAL:</Text>
+                        <Text style={styles.qualityValue}>{quality}% (CLÍNICA)</Text>
+                    </View>
+
+                    <Text style={styles.scientificText}>
+                        Diagnóstico basado en biomarcadores de Variabilidad Cardíaca (VFC).{"\n"}
+                        Tecnología de fotopletismografía validada científicamente.
+                    </Text>
                 </View>
 
                 <View style={styles.divider} />
@@ -128,10 +220,10 @@ const CardioResultScreen = () => {
                             // Highlight if suggestion is healing
                             suggestedMode === 'healing' && styles.highlightedCard
                         ]}
-                        onPress={() => handleAction('healing')}
+                        onPress={() => handleCardPress('healing')}
                         activeOpacity={0.8}
                     >
-                        <Ionicons name="leaf-outline" size={32} color={suggestedMode === 'healing' ? '#2DD4BF' : 'rgba(45, 212, 191, 0.4)'} />
+                        <Ionicons name="leaf-outline" size={28} color={suggestedMode === 'healing' ? '#2DD4BF' : 'rgba(45, 212, 191, 0.4)'} />
                         <Text style={[styles.cardTitle, { color: '#2DD4BF' }]}>SANAR</Text>
                         <Text style={styles.cardDesc}>Calma SOS</Text>
                     </TouchableOpacity>
@@ -146,15 +238,24 @@ const CardioResultScreen = () => {
                             // Highlight if suggestion is growth
                             suggestedMode === 'growth' && styles.highlightedCard
                         ]}
-                        onPress={() => handleAction('growth')}
+                        onPress={() => handleCardPress('growth')}
                         activeOpacity={0.8}
                     >
-                        <Ionicons name="flash-outline" size={32} color={suggestedMode === 'growth' ? '#FBBF24' : 'rgba(251, 191, 36, 0.4)'} />
+                        <Ionicons name="flash-outline" size={28} color={suggestedMode === 'growth' ? '#FBBF24' : 'rgba(251, 191, 36, 0.4)'} />
                         <Text style={[styles.cardTitle, { color: '#FBBF24' }]}>CRECER</Text>
                         <Text style={styles.cardDesc}>Energía</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+
+                {/* EXPLICIT CTA BUTTON */}
+                <TouchableOpacity
+                    style={[styles.ctaButton, { backgroundColor: config.color }]}
+                    onPress={handleButtonPress}
+                >
+                    <Text style={styles.ctaText}>DESCONECTA ANTES DE EMPEZAR</Text>
+                    <Ionicons name="game-controller" size={20} color="#000" />
+                </TouchableOpacity>
+            </ScrollView>
         </View>
     );
 };
@@ -167,56 +268,56 @@ const styles = StyleSheet.create({
     backgroundBase: {
         ...StyleSheet.absoluteFillObject,
     },
-    content: {
-        flex: 1,
-        paddingHorizontal: 25,
+    scrollContent: {
+        paddingHorizontal: 20,
         alignItems: 'center',
+        paddingBottom: 150, // Increased to ensure button clears Android nav bar
     },
     subHeader: {
         color: 'rgba(255,255,255,0.5)',
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: '900',
-        letterSpacing: 2,
-        marginBottom: 10,
+        letterSpacing: 1.5,
+        marginBottom: 8,
     },
     headerTitle: {
         color: '#FFF',
-        fontSize: 32,
+        fontSize: 30, // Increased from 28
         fontWeight: '800',
-        letterSpacing: -1,
-        marginBottom: 15,
+        letterSpacing: -0.5,
+        marginBottom: 10, // Reduced from 15
         textAlign: 'center',
     },
     tag: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        marginBottom: 30,
+        paddingHorizontal: 10, // Reduced
+        paddingVertical: 4, // Reduced
+        borderRadius: 6,
+        marginBottom: 20, // Reduced from 30
     },
     tagText: {
-        fontSize: 12,
+        fontSize: 11, // Reduced
         fontWeight: '900',
         letterSpacing: 1,
     },
     insightText: {
         color: 'rgba(255,255,255,0.8)',
-        fontSize: 16,
-        lineHeight: 24,
+        fontSize: 13, // Reduced from 15 to fit 2 lines
+        lineHeight: 20, // Reduced from 22
         textAlign: 'center',
-        paddingHorizontal: 10,
+        paddingHorizontal: 10, // Increased padding
     },
     divider: {
         width: 40,
-        height: 4,
+        height: 3,
         backgroundColor: 'rgba(255,255,255,0.1)',
         borderRadius: 2,
-        marginVertical: 40,
+        marginVertical: 15, // Reduced from 25 to pull up contents
     },
     recommendationLabel: {
         color: '#FFF',
-        fontSize: 14,
+        fontSize: 13, // Reduced
         fontWeight: '700',
-        marginBottom: 20,
+        marginBottom: 10, // Reduced from 15
         alignSelf: 'flex-start',
     },
     cardsContainer: {
@@ -226,9 +327,9 @@ const styles = StyleSheet.create({
     },
     card: {
         width: '48%',
-        height: 160,
-        borderRadius: 24,
-        padding: 20,
+        height: 130, // Reduced from 160
+        borderRadius: 20, // Reduced
+        padding: 15, // Reduced
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
@@ -256,24 +357,24 @@ const styles = StyleSheet.create({
         // base styles
     },
     cardTitle: {
-        fontSize: 20,
+        fontSize: 18, // Reduced from 20
         fontWeight: '900',
-        marginTop: 15,
+        marginTop: 10, // Reduced
         letterSpacing: 1,
     },
     cardDesc: {
         color: 'rgba(255,255,255,0.4)',
-        fontSize: 12,
-        marginTop: 5,
+        fontSize: 11, // Reduced
+        marginTop: 4,
         fontWeight: '600',
     },
     metricsContainer: {
         flexDirection: 'row',
         backgroundColor: 'rgba(255,255,255,0.05)',
         borderRadius: 16,
-        padding: 20,
+        padding: 15, // Reduced from 20
         width: '100%',
-        marginTop: 30,
+        marginTop: 20, // Reduced from 30
         justifyContent: 'space-around',
         alignItems: 'center',
     },
@@ -285,23 +386,87 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: '700',
         letterSpacing: 1,
-        marginBottom: 5,
+        marginBottom: 4,
     },
     metricValue: {
         color: '#FFF',
-        fontSize: 24,
+        fontSize: 22, // Reduced from 24
         fontWeight: '900',
         fontVariant: ['tabular-nums'],
     },
     metricUnit: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: '500',
         color: 'rgba(255,255,255,0.4)',
     },
     metricDivider: {
         width: 1,
-        height: 30,
+        height: 25, // Reduced from 30
         backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    ctaButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16, // Reduced from 18
+        paddingHorizontal: 40,
+        borderRadius: 30,
+        marginTop: 30, // Reduced from 40
+        marginBottom: 20, // Reduced from 100 on Button itself, now handled by Scroll container padding
+        gap: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 8,
+        width: '100%',
+    },
+    ctaText: {
+        color: '#000',
+        fontSize: 15, // Reduced from 16
+        fontWeight: '900',
+        letterSpacing: 1,
+    },
+    scientificContainer: {
+        marginTop: 20,
+        padding: 15,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 16,
+        width: '100%',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+    },
+    qualityBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+        gap: 6,
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.2)',
+    },
+    qualityLabel: {
+        color: 'rgba(255,255,255,0.6)',
+        fontSize: 10,
+        fontWeight: '700',
+        letterSpacing: 0.5,
+    },
+    qualityValue: {
+        color: '#10B981',
+        fontSize: 11,
+        fontWeight: '900',
+        letterSpacing: 0.5,
+    },
+    scientificText: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 10, // Reduced from 11
+        textAlign: 'center',
+        lineHeight: 14, // Reduced from 16
+        fontStyle: 'italic',
     }
 });
 

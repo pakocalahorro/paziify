@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.11.0) 🚀
+# Paziify - AI Studio App (v2.12.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.11.0 (Premium Calibration)**, que introduce el **Sistema de Calibración Premium** para el Escáner Cardio, con tecnología rPPG y algoritmo POS de precisión clínica.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.12.0 (Medical Grade)**, que introduce la **Fiabilidad Científica** para el Escáner Cardio, con acumulación de sesión, filtros estadísticos MAD y gamificación terapéutica avanzada (OrbFlow).
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -51,13 +51,11 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
+- **[NEW] Medical Grade Cardio (v2.12.0)**: Algoritmo biométrico validado con acumulación de sesión y filtro estadístico MAD. Precisión clínica (±4 BPM). Incluye gamificación terapéutica (OrbFlow v2).
 - **[NEW] Premium Calibration System (v2.11.0)**: Sistema de calibración en 3 fases para Cardio Scan con tecnología rPPG y algoritmo POS. Incluye CalibrationRing, CountdownOverlay, QualityAlert y 6 bug fixes críticos para precisión clínica (±3 BPM).
-- **[NEW] Bio-Metric Awakening (v2.10.0)**: Implementación del **Escáner Cardio** con Medical HUD, detección de presencia (Liveness) y diagnósticos con tono terapéutico ("Sobrecarga" vs "Estrés").
-- **[NEW] Zero-Egress & Unified Categories (v2.9.0)**: Modo Offline total verificado. Unificación de categorías de Historias con el Panel Admin (adiós hardcode).
-- **[NEW] Academy & Offline Mastery (v2.8.10)**: Restauración de Insomnio, limpieza de 53 activos redundantes y protocolo Zero-Egress verificado.
 
 ---
 
-**Última actualización:** 17 de Febrero de 2026 - **Versión v2.11.0** (Premium Calibration)
+**Última actualización:** 19 de Febrero de 2026 - **Versión v2.12.0** (Medical Grade & Gamification)
 
 

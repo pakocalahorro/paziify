@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, StatusBar, TouchableOpacity, AppState, AppStateStatus } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission, useFrameProcessor } from 'react-native-vision-camera';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useIsFocused, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
     useSharedValue,
@@ -43,10 +43,14 @@ const CardioScanScreen = () => {
     const device = useCameraDevice('back');
     const { hasPermission, requestPermission } = useCameraPermission();
 
-    // Lifecycle & Active State
     const appState = useAppState();
     const isFocused = useIsFocused();
     const isActive = isFocused && appState === 'active';
+
+    // params
+    const route = useRoute();
+    const params = route.params as { context?: 'baseline' | 'post_session' } | undefined;
+    const context = params?.context || 'baseline';
 
     // States - UPDATED for 3-phase calibration
     type ScanPhase = 'idle' | 'calibration' | 'countdown' | 'measuring' | 'complete';
@@ -65,8 +69,13 @@ const CardioScanScreen = () => {
 
     // Guard to prevent finishScan from being called multiple times
     const finishScanCalled = useRef(false);
+    const safetyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const pulseAnim = useSharedValue(1);
+    // DEBUG STATE
+    const [debugRGB, setDebugRGB] = useState({ r: 0, g: 0, b: 0 });
+    const lastDebugUpdate = useRef(0);
+
+    // Removed pulseAnim and animatedOrbStyle as requested
 
     // Derived State for Torch - UPDATED for calibration
     const isTorchOn = scanPhase === 'calibration' || scanPhase === 'countdown' || scanPhase === 'measuring';
@@ -75,6 +84,7 @@ const CardioScanScreen = () => {
         if (!hasPermission) requestPermission();
         return () => {
             bioProcessor.reset();
+            if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
         };
     }, []);
 
@@ -83,6 +93,13 @@ const CardioScanScreen = () => {
     const addRGBSampleJS = Worklets.createRunOnJS(function (r, g, b, t) {
         // Add sample to processor (cast to number for TypeScript)
         bioProcessor.addRGBSample(r as number, g as number, b as number, t as number);
+
+        // DEBUG: Update UI state (Throttled 100ms)
+        const now = Date.now();
+        if (now - lastDebugUpdate.current > 100) {
+            setDebugRGB({ r: r as number, g: g as number, b: b as number });
+            lastDebugUpdate.current = now;
+        }
 
         if (scanPhase === 'calibration') {
             // PHASE 1: Calibration - Real-time quality feedback
@@ -127,8 +144,8 @@ const CardioScanScreen = () => {
     // Frame Processor - UPDATED for calibration + measuring phases
     const frameProcessor = useFrameProcessor((frame) => {
         'worklet';
-        // Process frames during calibration and measuring phases
-        if (scanPhase !== 'calibration' && scanPhase !== 'measuring') return;
+
+        if (scanPhase !== 'calibration' && scanPhase !== 'measuring' && scanPhase !== 'countdown') return;
 
         try {
             const buffer = frame.toArrayBuffer();
@@ -136,74 +153,90 @@ const CardioScanScreen = () => {
             const rgb = extractRGBFromFrame(pixels, frame.pixelFormat);
             const timestamp = Date.now();
 
-            // DIRECT CALL to JavaScript function (no shared values needed)
+            // DIRECT CALL to JavaScript function
             addRGBSampleJS(rgb.r, rgb.g, rgb.b, timestamp);
 
-            // Debug log every 30 frames (~1 second)
-            if (Math.random() < 0.033) {
-                console.log(`[FrameProcessor] RGB: r=${rgb.r.toFixed(1)}, g=${rgb.g.toFixed(1)}, b=${rgb.b.toFixed(1)}, t=${timestamp}`);
+            // DEBUG: Log RGB during Countdown to check flash status
+            if (scanPhase === 'countdown') {
+                console.log(`[Countdown] RGB: ${rgb.r.toFixed(0)}, ${rgb.g.toFixed(0)}, ${rgb.b.toFixed(0)}`);
             }
-        } catch (e) {
-            const rgb = extractRGBFallback(frame.width, frame.height);
-            const timestamp = Date.now();
-            addRGBSampleJS(rgb.r, rgb.g, rgb.b, timestamp);
 
-            console.log(`[FrameProcessor] FALLBACK - Error: ${e}`);
+        } catch (e) {
+            console.log(`[FrameProcessor] Error: ${e}`);
         }
     }, [scanPhase]);
 
-
-
-    // UPDATED: Start calibration phase when user presses button
+    // UPDATED: Start calibration phase
+    // UPDATED: Start measuring phase (Skipping calibration per user request)
     const handleStartPress = () => {
-        setScanPhase('calibration');
+        setScanPhase('countdown'); // Go straight to countdown
         bioProcessor.reset();
         setCalibrationScore(0);
         setReadyFrames(0);
         setProgress(0);
         setRealMetrics(null);
-        finishScanCalled.current = false; // Reset guard for new scan
+        finishScanCalled.current = false;
+        Haptics.selectionAsync();
     };
 
-    // UPDATED: Start measuring phase (called after countdown)
+    // STALE CLOSURE FIX: Keep metrics in ref for async access
+    const realMetricsRef = useRef<{ bpm: number; hrv: number } | null>(null);
+
+    // Sync ref with state
+    useEffect(() => {
+        realMetricsRef.current = realMetrics;
+    }, [realMetrics]);
+
+    // UPDATED: Start measuring phase (Progressive Fingerprint Logic)
     const startScan = () => {
         setScanPhase('measuring');
         setProgress(0);
         setRealMetrics(null);
+        realMetricsRef.current = null; // Reset ref
 
-        // CRITICAL FIX: Reset buffers to start measurement with clean data
-        bioProcessor.reset();
+        // HOT START: Do NOT reset bioProcessor here. Keep calibration data.
 
-        pulseAnim.value = withRepeat(
-            withSequence(
-                withTiming(1.2, { duration: 400, easing: Easing.bezier(0.25, 0.1, 0.25, 1) }),
-                withTiming(1, { duration: 400, easing: Easing.bezier(0.25, 0.1, 0.25, 1) })
-            ),
-            -1,
-            true
-        );
 
-        // UI Progress Loop @ 30Hz
-        let localProgress = 0;
+        // Quality Accumulation Loop @ 30Hz
         const interval = setInterval(() => {
-            localProgress += 0.44; // 15s total (0.44 * 225 ≈ 100%)
-            setProgress(Math.floor(localProgress));
+            // Ask processor for progress based on CURRENT signal quality
+            // This is the key: Speed varies by quality.
+            const result = bioProcessor.processProgressFrame();
 
-            // Haptic Feedback
-            if (Math.floor(localProgress) % 15 === 0) {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }
+            // Log for debugging
+            if (Math.random() < 0.05) console.log('[Scan] Progress Delta:', result.progressDelta, 'Quality:', result.quality.score);
 
-            if (localProgress >= 100) {
-                clearInterval(interval);
-            }
-        }, 33); // 30Hz = 33ms
+            setProgress(prev => {
+                const next = Math.min(100, prev + result.progressDelta);
 
-        // Safety timeout (15s + 1s buffer)
-        setTimeout(() => {
+                // Haptic feedback on significant progress milestones (every 10%)
+                if (Math.floor(next / 10) > Math.floor(prev / 10)) {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+
+                if (next >= 100) {
+                    clearInterval(interval);
+                    // DO NOT call finishScan() here directly to avoid Stale Closure.
+                    // Let the useEffect([progress]) handle it.
+                }
+                return next;
+            });
+
+        }, 33); // 30Hz
+
+        // Safety timeout (60s max - extended to be forgiving)
+        safetyTimeoutRef.current = setTimeout(() => {
             clearInterval(interval);
-            if (progress < 100) finishScan();
-        }, 16000);
+            if (!finishScanCalled.current) {
+                // Check if we have gathered enough data despite timeout
+                if (progress > 80) {
+                    finishScan();
+                } else {
+                    alert("El escaneo ha tomado demasiado tiempo. Inténtalo de nuevo.");
+                    setScanPhase('idle');
+                }
+            }
+        }, 60000);
     };
 
     // NEW: Countdown phase logic
@@ -228,7 +261,10 @@ const CardioScanScreen = () => {
     // Watch for progress completion - UPDATED for measuring phase
     useEffect(() => {
         if (progress >= 100 && scanPhase === 'measuring') {
-            finishScan();
+            // Only call if not already called
+            if (!finishScanCalled.current) {
+                finishScan();
+            }
         }
     }, [progress, scanPhase]);
 
@@ -240,41 +276,44 @@ const CardioScanScreen = () => {
         }
         finishScanCalled.current = true;
 
+        // STOP TIMEOUT
+        if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
+
         const finalQuality = bioProcessor.getSignalQuality();
 
         console.log('[CardioScan] Finishing scan...');
         console.log('[CardioScan] Final Quality:', finalQuality);
-        console.log('[CardioScan] Real Metrics:', realMetrics);
+
+        // USE REF TO GET FRESH METRICS (Fixes Stale Closure)
+        // OLD: const finalMetrics = realMetricsRef.current;
+        // NEW SCIENTIFIC: Calculate from accumulated session using MAD Filter
+        const finalMetrics = bioProcessor.calculateSessionMetrics();
+
+        console.log('[CardioScan] Session Metrics (Scientific):', finalMetrics);
 
         // ESTRICTO: Solo aceptar 'excellent' (score >= 70)
-        if (!realMetrics || !finalQuality || finalQuality.level !== 'excellent') {
-            console.log('[CardioScan] REJECTED - Reason:',
-                !realMetrics ? 'No metrics' :
-                    !finalQuality ? 'No quality data' :
-                        `Quality ${finalQuality.level} (need excellent)`);
+        // NOTE: In Progressive Scan, we might trust the accumulation even if final frame is just 'good'
+        // But let's keep it strict for now to ensure quality.
+        if (!finalMetrics) {
+            console.log('[CardioScan] REJECTED - No metrics computed');
 
             setScanPhase('idle');
             bioProcessor.reset();
-            finishScanCalled.current = false; // Reset guard for next scan
-
+            finishScanCalled.current = false;
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-
-            // Mensaje específico con recomendaciones
-            const tips = finalQuality?.recommendations.join('\n• ') || '';
-            const message = `❌ Escaneo Inválido\n\nCalidad: ${finalQuality?.level || 'desconocida'}\n\n${tips ? '💡 Recomendaciones:\n• ' + tips : 'Intenta de nuevo cubriendo completamente la cámara y el flash.'}`;
-
-            alert(message);
-
+            alert("No se pudieron calcular métricas fiables. Intenta de nuevo.");
             return;
         }
 
-        console.log('[CardioScan] ACCEPTED - BPM:', realMetrics.bpm, 'HRV:', realMetrics.hrv);
-
+        // STOP EVERYTHING IMMEDIATELY
         setScanPhase('complete');
+        bioProcessor.reset();
+
+        console.log('[CardioScan] ACCEPTED - BPM:', finalMetrics.bpm, 'HRV:', finalMetrics.rmssd);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-        const finalBpm = realMetrics.bpm;
-        const finalHrv = realMetrics.hrv;
+        const finalBpm = finalMetrics.bpm;
+        const finalHrv = finalMetrics.rmssd; // Processor returns RMSSD directly
 
         // Diagnosis Logic
         let diagnosis: 'sobrecarga' | 'agotamiento' | 'equilibrio' = 'equilibrio';
@@ -283,18 +322,16 @@ const CardioScanScreen = () => {
         else if (finalHrv > 30 && finalBpm < 55) diagnosis = 'agotamiento';
         else diagnosis = 'equilibrio';
 
-        setTimeout(() => {
-            navigation.replace(Screen.CARDIO_RESULT, {
-                diagnosis: diagnosis,
-                metrics: { bpm: finalBpm, hrv: finalHrv }
-            });
-            finishScanCalled.current = false; // Reset guard after navigation
-        }, 500);
+        // Navigate immediately
+        navigation.replace(Screen.CARDIO_RESULT, {
+            diagnosis: diagnosis,
+            metrics: { bpm: finalBpm, hrv: finalHrv },
+            context: context,
+            quality: finalQuality.score // Pass score (0-100)
+        });
     };
 
-    const animatedOrbStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: pulseAnim.value }]
-    }));
+
 
     if (!hasPermission) return <View style={styles.container}><Text>No Camera Permission</Text></View>;
     if (!device) return <View style={styles.container}><Text>No Camera Device</Text></View>;
@@ -354,23 +391,31 @@ const CardioScanScreen = () => {
                                 <Ionicons name="finger-print" size={60} color="#FFF" />
                                 <Text style={styles.buttonText}>INICIAR</Text>
                             </TouchableOpacity>
-                        ) : scanPhase === 'calibration' ? (
-                            <>
-                                <CalibrationRing
-                                    score={calibrationScore}
-                                    ready={readyFrames >= 90}
-                                />
-                                <View style={styles.fingerGuide}>
-                                    <Ionicons name="finger-print" size={40} color="#FF4B4B" />
-                                </View>
-                            </>
                         ) : (
-                            <>
-                                <Animated.View style={[styles.pulseCircle, animatedOrbStyle]} />
-                                <View style={styles.fingerGuide}>
-                                    <Ionicons name="finger-print" size={40} color="#FF4B4B" />
+                            // MEASURING / COUNTDOWN PHASE
+                            <View style={styles.fingerGuide}>
+                                {/* 1. Background Fingerprint (Grey/Dim) - Always visible */}
+                                <View style={{ width: 180, height: 180, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Ionicons name="finger-print" size={180} color="rgba(255, 75, 75, 0.2)" />
                                 </View>
-                            </>
+
+                                {/* 2. Foreground Fingerprint (Red) - Reveal Mask */}
+                                <View style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0, // Ensure absolute alignment relative to fingerGuide
+                                    width: 180, // MATCH BACKGROUND WIDTH EXACTLY
+                                    height: `${progress}%`, // Grows from bottom
+                                    overflow: 'hidden',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center'
+                                }}>
+                                    {/* Inner Red Icon - Fixed Size & Positioned at bottom of container */}
+                                    <View style={{ width: 180, height: 180, justifyContent: 'center', alignItems: 'center' }}>
+                                        <Ionicons name="finger-print" size={180} color="#FF4B4B" />
+                                    </View>
+                                </View>
+                            </View>
                         )}
                     </View>
 
@@ -380,7 +425,7 @@ const CardioScanScreen = () => {
                             <Text style={styles.progressText}>
                                 {scanPhase === 'calibration' ? calibrationRecommendation :
                                     scanPhase === 'countdown' ? `Iniciando en ${countdown}...` :
-                                        `${progress}% Completado`}
+                                        `${Math.round(progress)}% Completado`}
                             </Text>
 
                             {/* MEDICAL HUD: Live Metrics */}
@@ -391,9 +436,8 @@ const CardioScanScreen = () => {
                                     {/* Left: BPM */}
                                     <View style={styles.metricBlock}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                                            <Animated.View style={animatedOrbStyle}>
-                                                <Ionicons name="heart" size={28} color="#FF4B4B" />
-                                            </Animated.View>
+                                            {/* Removed pulsating circle */}
+                                            <Ionicons name="heart" size={28} color="#FF4B4B" />
                                             <Text style={styles.metricValue}>
                                                 {realMetrics?.bpm || '--'}
                                             </Text>
@@ -431,6 +475,7 @@ const CardioScanScreen = () => {
                                     </Text>
                                 </View>
 
+
                                 {/* NEW: Contextual Tips */}
                                 {signalQuality && signalQuality.recommendations.length > 0 && (
                                     <View style={styles.tipsContainer}>
@@ -455,12 +500,27 @@ const CardioScanScreen = () => {
                 visible={scanPhase === 'countdown'}
             />
 
-            {/* NEW: Quality Alert */}
             <QualityAlert
                 visible={showQualityAlert}
                 message={qualityAlertMessage}
             />
-        </View>
+
+            {/* DEBUG OVERLAY (Top Level) */}
+            <View style={{ position: 'absolute', top: 100, left: 10, padding: 10, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 8, zIndex: 2000, pointerEvents: 'none' }}>
+                <Text style={{ color: '#00FF00', fontFamily: 'monospace', fontSize: 12, fontWeight: 'bold' }}>
+                    DEBUG MODE
+                </Text>
+                <Text style={{ color: 'white', fontFamily: 'monospace', fontSize: 12 }}>
+                    Phase: {scanPhase}
+                </Text>
+                <Text style={{ color: 'white', fontFamily: 'monospace', fontSize: 12 }}>
+                    R: {debugRGB.r.toFixed(0)} | G: {debugRGB.g.toFixed(0)} | B: {debugRGB.b.toFixed(0)}
+                </Text>
+                <Text style={{ color: 'white', fontFamily: 'monospace', fontSize: 12 }}>
+                    Quality: {signalQuality?.score.toFixed(0) || 0} ({signalQuality?.level})
+                </Text>
+            </View>
+        </View >
     );
 };
 
@@ -563,14 +623,11 @@ const styles = StyleSheet.create({
         shadowRadius: 20,
     },
     fingerGuide: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.3)',
+        width: 180,
+        height: 180,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.3)',
+        // Removed border and background as requested (no circle)
     },
     progressText: {
         color: 'rgba(255,255,255,0.6)',
