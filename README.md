@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.12.0) 🚀
+# Paziify - AI Studio App (v2.13.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.12.0 (Medical Grade)**, que introduce la **Fiabilidad Científica** para el Escáner Cardio, con acumulación de sesión, filtros estadísticos MAD y gamificación terapéutica avanzada (OrbFlow).
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.13.0 (Premium Editorial Home)**, que introduce una reestructuración arquitectónica y estética "Out-of-box" para la Home Screen, uso de jerarquía fonética Satisfy y dashboards analíticos compactos.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -51,11 +51,12 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
-- **[NEW] Medical Grade Cardio (v2.12.0)**: Algoritmo biométrico validado con acumulación de sesión y filtro estadístico MAD. Precisión clínica (±4 BPM). Incluye gamificación terapéutica (OrbFlow v2).
-- **[NEW] Premium Calibration System (v2.11.0)**: Sistema de calibración en 3 fases para Cardio Scan con tecnología rPPG y algoritmo POS. Incluye CalibrationRing, CountdownOverlay, QualityAlert y 6 bug fixes críticos para precisión clínica (±3 BPM).
+- **[NEW] Premium Editorial Home (v2.13.0)**: Rediseño masivo de la Home Screen. Implementación del layout "Out-of-box" (títulos Satisfy y CTA externos), Dashboards duales (Hoy/Semana) con oscuro contraste premium y tarjetas modulares temáticas.
+- **[PREVIOUS] Medical Grade Cardio (v2.12.0)**: Algoritmo biométrico validado con acumulación de sesión y filtro estadístico MAD. Precisión clínica (±4 BPM). Incluye gamificación terapéutica (OrbFlow v2).
+- **[PREVIOUS] Premium Calibration System (v2.11.0)**: Sistema de calibración en 3 fases para Cardio Scan con tecnología rPPG y algoritmo POS. Incluye CalibrationRing, CountdownOverlay, QualityAlert y 6 bug fixes críticos para precisión clínica (±3 BPM).
 
 ---
 
-**Última actualización:** 19 de Febrero de 2026 - **Versión v2.12.0** (Medical Grade & Gamification)
+**Última actualización:** 20 de Febrero de 2026 - **Versión v2.13.0** (Premium Editorial Home)
 
 

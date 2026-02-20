@@ -5,8 +5,23 @@ import { AppNavigator } from './src/navigation/AppNavigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { queryClient, asyncStoragePersister } from './src/lib/queryClient';
+import { useFonts, Outfit_400Regular, Outfit_600SemiBold, Outfit_700Bold, Outfit_800ExtraBold, Outfit_900Black } from '@expo-google-fonts/outfit';
+import { Satisfy_400Regular } from '@expo-google-fonts/satisfy';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Outfit_400Regular,
+    Outfit_600SemiBold,
+    Outfit_700Bold,
+    Outfit_800ExtraBold,
+    Outfit_900Black,
+    Satisfy_400Regular,
+  });
+
+  if (!fontsLoaded) {
+    return null; // O un SplashScreen de Expo si estuviera configurado
+  }
+
   return (
     <SafeAreaProvider>
       <PersistQueryClientProvider

@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.12.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.13.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.12.0 (Medical Grade)**. Esta versión introduce la **Fiabilidad Científica** para el Escáner Cardio y la Gamificación Terapéutica "OrbFlow".
+Bienvenido a la guía oficial de **Paziify v2.13.0 (Premium Editorial Home)**. Esta versión introduce una reestructuración arquitectónica masiva de la pantalla de inicio, elevándola a grado editorial.
 
 ---
 
@@ -9,6 +9,15 @@ Paziify v2.8 introduce un motor de caché inteligente que protege tu plan de dat
 - **Carga Instantánea**: Una vez que escuchas una sesión o ves una carátula, la app la guarda en tu móvil para siempre.
 - **Modo Offline Automático**: Si pierdes la conexión, todo el contenido que ya hayas visitado seguirá disponible sin esperas.
 - **Optimización de Almacenamiento**: Hemos reducido la redundancia de archivos en un 50%, asegurando que cada lección de la Academia ocupe el mínimo espacio necesario.
+
+---
+
+## 2. Experiencia Premium Editorial (Home Screen) 💎
+La pantalla de inicio (Home) ha sido rediseñada para ofrecer una experiencia limpia, inmersiva y altamente curada, dividida en 3 áreas clave que evitan la sobrecarga cognitiva:
+
+- **1. Tu Estado (Analíticas Compactas)**: El panel superior de bienvenida ahora integra un cristal oscurecido (`Glassmorphism`) con dos indicadores visuales contiguos (Círculos Zen de "Hoy" y "Semana"), junto a métricas compactadas estilo widget nativo.
+- **2. Tu Práctica (Extracto Out-of-box)**: La "Dosis Diaria" abandona el formato de grilla para presentar su título y subtítulo fuera de la imagen fotográfica, presidido por una firma caligráfica manual (fuente `Satisfy`).
+- **3. Consejos del Día (Bento Modular)**: Las herramientas complementarias (Academia, Historias Reales, Música Binaural, Audiolibros) se agrupan en una cuadrícula temática. Cada tarjeta implementa el mismo formato "Out-of-box" con firmas de categoría como "Curso" o "Relato", cediendo el 100% de la imagen fotográfica para lucir limpia junto a un botón interactivo masivo (CTA).
 
 ---
 
@@ -96,6 +105,6 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 
 ---
-*Última revisión: 19 de Febrero de 2026 - Versión 2.12.0 (Medical Grade Cardio)*  
+*Última revisión: 20 de Febrero de 2026 - Versión 2.13.0 (Premium Editorial Home)*  
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen` -> `CardioScanScreen`
 

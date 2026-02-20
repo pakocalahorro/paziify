@@ -6,9 +6,9 @@ import {
     ScrollView,
     StatusBar,
     TouchableOpacity,
-    Image,
     Dimensions,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -27,6 +27,7 @@ import StatsCard from '../../components/Home/StatsCard';
 import WeeklyChart from '../../components/Home/WeeklyChart';
 import { analyticsService } from '../../services/analyticsService';
 import PurposeModal from '../../components/Home/PurposeModal';
+import SoundWaveHeader from '../../components/SoundWaveHeader';
 
 const { width } = Dimensions.get('window');
 
@@ -211,166 +212,324 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                     </View>
                 </View>
 
-                {/* CAPA 1: DOBLE ZENMETER (HOY Y SEMANA) */}
-                <View style={styles.dualZenSection}>
-                    <View style={styles.zenContainer}>
-                        <ZenMeter progress={dailyProgress} size={110} label="HOY" />
-                    </View>
-                    <View style={styles.zenContainer}>
-                        <ZenMeter progress={weeklyProgress} size={110} label="SEMANA" />
-                    </View>
-                </View>
-
-                {/* CAPA 2: LOGRO (RESUMEN CRISTAL) */}
-                <View style={styles.statsRow}>
-                    <StatsCard
-                        title="HOY"
-                        value={todayStats.minutes}
-                        unit="min"
-                        icon="time"
-                        color={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
-                    />
-                    <StatsCard
-                        title="ESTA SEMANA"
-                        value={weeklyStats.minutes}
-                        unit="min"
-                        icon="stats-chart"
-                        color={theme.colors.primary}
-                    />
-                </View>
-
-                {/* CAPA 3: EL RITMO (GRÁFICO) */}
-                <View style={styles.rhythmSection}>
-                    <WeeklyChart
-                        data={weeklyStats.activity}
-                        color={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
-                    />
-                </View>
-
-                {/* BENTO GRID 3.0 */}
-                <View style={styles.gridSection}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>RECOMENDACIONES PAZIIFY</Text>
-                    </View>
-                    <BentoGrid>
-                        {/* Dosis Diaria - Large Card */}
-                        <BentoCard
-                            title="DOSIS DIARIA"
-                            subtitle={recommendations?.daily?.title || "Cargando..."}
-                            variant="large"
-                            icon="sparkles"
-                            ctaText="Entrar ahora"
-                            backgroundImage={recommendations?.daily?.thumbnail_url || require('../../assets/meditation/webp-optimized/resiliencia_tecnica_010_base_v2_1770219645522.webp')}
-                            onPress={() => recommendations?.daily && navigation.navigate(Screen.SESSION_DETAIL, {
-                                sessionId: recommendations.daily.id,
-                                sessionData: recommendations.daily
-                            })}
-                        >
-                            <View style={{ position: 'absolute', top: 0, right: 0 }}>
-                                <BlurView intensity={40} tint="light" style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', overflow: 'hidden' }}>
-                                    <Text style={{ color: '#FFF', fontSize: 9, fontWeight: '900', letterSpacing: 1 }}>TU GUÍA</Text>
-                                </BlurView>
+                {/* ÁREA 1: TU ESTADO (DASHBOARD COMPACTO) */}
+                <View style={styles.dashboardSection}>
+                    <View style={styles.dashboardCard}>
+                        <BlurView intensity={70} tint="dark" style={styles.dashboardBlur}>
+                            <View style={styles.dashboardContent}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                                    <ZenMeter progress={dailyProgress} size={75} label="HOY" />
+                                    <ZenMeter progress={weeklyProgress} size={75} label="SEM" />
+                                </View>
+                                <View style={styles.dashboardSeparator} />
+                                <View style={[styles.dashboardStats, { justifyContent: 'center', gap: 12, marginLeft: 8 }]}>
+                                    <View style={styles.dashboardStatItem}>
+                                        <Ionicons name="time" size={18} color={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'} />
+                                        <Text style={styles.dashboardStatValue}>
+                                            {todayStats.minutes} <Text style={styles.dashboardStatUnit}>m Hoy</Text>
+                                        </Text>
+                                    </View>
+                                    <View style={styles.dashboardStatItem}>
+                                        <Ionicons name="stats-chart" size={18} color={theme.colors.primary} />
+                                        <Text style={styles.dashboardStatValue}>
+                                            {weeklyStats.minutes} <Text style={styles.dashboardStatUnit}>m Sem</Text>
+                                        </Text>
+                                    </View>
+                                </View>
                             </View>
-                        </BentoCard>
 
-                        {/* Stories -> HISTORIAS (Real Story) IN BENTO */}
-                        <BentoCard
-                            title="HISTORIAS"
-                            subtitle={recommendations?.stories?.title || "Relatos que inspiran"}
-                            icon="book"
-                            largeIcon={true}
-                            variant="medium"
-                            backgroundImage={recommendations?.stories?.thumbnail_url || require('../../assets/meditation/webp-optimized/resiliencia_eter_090_la-ciudadela-interior.webp')}
-                            onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, {
-                                storyId: recommendations.stories.id,
-                                story: recommendations.stories
-                            })}
-                        />
+                            {/* ACTIVIDAD SEMANAL COMPACTA (DOTS) */}
+                            {weeklyStats.activity && weeklyStats.activity.length > 0 && (
+                                <View style={styles.weeklyDotsContainer}>
+                                    {weeklyStats.activity.map((item, index) => {
+                                        const dateObj = new Date(item.day.includes('T') ? item.day : `${item.day}T12:00:00`);
+                                        const dayNum = dateObj.getDay().toString();
+                                        const dayLabels: Record<string, string> = {
+                                            '1': 'L', '2': 'M', '3': 'X', '4': 'J', '5': 'V', '6': 'S', '0': 'D'
+                                        };
+                                        const label = dayLabels[dayNum] || '';
+                                        const isActive = item.minutes > 0;
 
-                        {/* Sounds -> MÚSICA AMBIENTAL */}
-                        <BentoCard
-                            title="MÚSICA AMBIENTAL"
-                            subtitle={recommendations?.sounds?.name || "Sintonía Delta"}
-                            icon="play"
-                            largeIcon={true}
-                            variant="medium"
-                            backgroundImage={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
-                            onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
-                                soundscapeId: recommendations.sounds.id,
-                                soundscape: recommendations.sounds
-                            })}
-                        />
-                    </BentoGrid>
+                                        const today = new Date();
+                                        const isToday = dateObj.getDate() === today.getDate() &&
+                                            dateObj.getMonth() === today.getMonth() &&
+                                            dateObj.getFullYear() === today.getFullYear();
+
+                                        return (
+                                            <View key={index} style={styles.dotItem}>
+                                                <View style={[
+                                                    styles.activityDot,
+                                                    isActive ? {
+                                                        backgroundColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24',
+                                                        shadowColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24',
+                                                        shadowOpacity: 0.6,
+                                                        shadowRadius: 4,
+                                                        elevation: 3
+                                                    } : {
+                                                        backgroundColor: 'rgba(255,255,255,0.06)'
+                                                    },
+                                                    isToday && { borderWidth: 1, borderColor: '#FFF' }
+                                                ]} />
+                                                <Text style={[
+                                                    styles.dotLabel,
+                                                    isActive && { color: 'rgba(255,255,255,0.8)' },
+                                                    isToday && { color: '#FFF', fontWeight: '900' }
+                                                ]}>{label}</Text>
+                                            </View>
+                                        );
+                                    })}
+                                </View>
+                            )}
+                        </BlurView>
+                        <View style={styles.innerGlassBorder} pointerEvents="none" />
+                    </View>
                 </View>
 
-                {/* ACADEMIA PAZIIFY SECTION */}
-                <View style={styles.featuredSection}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>ACADEMIA PAZIIFY</Text>
-                        <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate(Screen.CBT_ACADEMY as any)}>
-                            <Text style={styles.seeAllText}>Entrar</Text>
-                            <Ionicons name="chevron-forward" size={14} color="#2DD4BF" />
-                        </TouchableOpacity>
-                    </View>
+                {/* ÁREA 2: FOCO PRINCIPAL (HERO CARD DE DOSIS DIARIA) */}
+                <View style={{ marginBottom: 32 }}>
+                    <SoundWaveHeader
+                        title="Tu práctica de hoy"
+                        accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
+                    />
 
-                    <TouchableOpacity
-                        style={styles.featuredCard}
-                        onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
-                            courseId: recommendations.academy.id,
-                            courseData: recommendations.academy
-                        })}
-                    >
-                        <Image
-                            source={{ uri: typeof recommendations?.academy?.image === 'string' ? recommendations.academy.image : "https://images.unsplash.com/photo-1434031211b08-39916fcad442?w=800" }}
-                            style={styles.featuredImage}
-                        />
-                        <LinearGradient
-                            colors={['transparent', 'rgba(0,0,0,0.8)']}
-                            style={styles.featuredOverlay}
-                        />
-                        <View style={styles.featuredInfo}>
-                            <View style={[styles.categoryTag, { backgroundColor: 'rgba(168, 85, 247, 0.2)' }]}>
-                                <Text style={[styles.categoryTagText, { color: '#A855F7' }]}>CURSO RECOMENDADO</Text>
-                            </View>
-                            <Text style={styles.featuredTitle}>{recommendations?.academy?.title || "Manejo del Estrés"}</Text>
-                            <Text style={styles.featuredSubtitle}>{recommendations?.academy?.description || "Aprende herramientas cognitivas."}</Text>
+                    <View style={styles.featuredSection}>
+                        {/* Title Above */}
+                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
+                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#A0AEC0', marginBottom: -8 }}>Meditación</Text>
+                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
+                                {recommendations?.daily?.title || "Cargando..."}
+                            </Text>
                         </View>
-                    </TouchableOpacity>
+
+                        <View style={[styles.featuredCardWrapper, { shadowColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24' }]}>
+                            <TouchableOpacity
+                                style={styles.featuredCard}
+                                activeOpacity={0.9}
+                                onPress={() => recommendations?.daily && navigation.navigate(Screen.SESSION_DETAIL, {
+                                    sessionId: recommendations.daily.id,
+                                    sessionData: recommendations.daily
+                                })}
+                            >
+                                <Image
+                                    source={{ uri: typeof recommendations?.daily?.thumbnail_url === 'string' ? recommendations.daily.thumbnail_url : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" }}
+                                    style={styles.featuredImage}
+                                    transition={500}
+                                    cachePolicy="memory-disk"
+                                />
+                                <LinearGradient
+                                    colors={visualMode === 'healing'
+                                        ? ['rgba(0,0,0,0.0)', 'rgba(2, 6, 23, 0.4)', 'rgba(15, 23, 42, 0.95)']
+                                        : ['rgba(0,0,0,0.0)', 'rgba(9, 9, 11, 0.5)', 'rgba(217, 119, 6, 0.85)']}
+                                    style={styles.featuredOverlay}
+                                />
+                                <View style={[styles.featuredInnerBorder, { borderRadius: 24 }]} pointerEvents="none" />
+
+                                {/* Info inside card -> Centered content */}
+                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
+                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
+                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Comenzar</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Subtitle Below */}
+                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
+                            {recommendations?.daily?.description || "Tu sesión recomendada para hoy."}
+                        </Text>
+                    </View>
                 </View>
 
-                {/* Audiobooks Section */}
-                <View style={[styles.featuredSection, { marginTop: 30 }]}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>AUDIOLIBROS DESTACADOS</Text>
-                        <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Library' as any)}>
-                            <Text style={styles.seeAllText}>Ver todo</Text>
-                            <Ionicons name="chevron-forward" size={14} color="#2DD4BF" />
-                        </TouchableOpacity>
-                    </View>
+                {/* ÁREA 3: ARSENAL TERAPÉUTICO (BENTO GRID UNIFICADO) */}
+                <View style={{ paddingBottom: 40 }}>
+                    <SoundWaveHeader
+                        title="Consejos del día"
+                        accentColor={visualMode === 'healing' ? '#8B5CF6' : '#2DD4BF'}
+                    />
 
-                    <TouchableOpacity
-                        style={styles.featuredCard}
-                        onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
-                            audiobookId: recommendations.audiobook.id,
-                            audiobook: recommendations.audiobook
-                        })}
-                    >
-                        <Image
-                            source={{ uri: recommendations?.audiobook?.image_url || 'https://paziify.app/placeholder-audiobook.jpg' }} // Fallback for audiobook cover
-                            style={styles.featuredImage}
-                        />
-                        <LinearGradient
-                            colors={['transparent', 'rgba(0,0,0,0.8)']}
-                            style={styles.featuredOverlay}
-                        />
-                        <View style={styles.featuredInfo}>
-                            <View style={styles.categoryTag}>
-                                <Text style={styles.categoryTagText}>RECOMENDADO</Text>
-                            </View>
-                            <Text style={styles.featuredTitle}>{recommendations?.audiobook?.title || "La Mente en Calma"}</Text>
-                            <Text style={styles.featuredSubtitle}>{recommendations?.audiobook?.author || "Paziify"}</Text>
+                    <View style={styles.gridSection}>
+                        {/* 1. ACADEMIA PAZIIFY (Bento Wide Top) */}
+                        {/* Title Above */}
+                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
+                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#A855F7', marginBottom: -8 }}>Curso</Text>
+                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
+                                {recommendations?.academy?.title || "Manejo del Estrés"}
+                            </Text>
                         </View>
-                    </TouchableOpacity>
+
+                        <View style={[styles.featuredCardWrapper, { shadowColor: '#A855F7' }]}>
+                            <TouchableOpacity
+                                style={styles.featuredCard}
+                                activeOpacity={0.9}
+                                onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                                    courseId: recommendations.academy.id,
+                                    courseData: recommendations.academy
+                                })}
+                            >
+                                <Image
+                                    source={{ uri: typeof recommendations?.academy?.image === 'string' ? recommendations.academy.image : "https://images.unsplash.com/photo-1434031211b08-39916fcad442?w=800" }}
+                                    style={styles.featuredImage}
+                                    transition={500}
+                                    cachePolicy="memory-disk"
+                                />
+                                <LinearGradient
+                                    colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.6)', 'rgba(67, 20, 119, 0.9)']}
+                                    style={styles.featuredOverlay}
+                                />
+                                <View style={styles.featuredInnerBorder} pointerEvents="none" />
+
+                                {/* Info inside card -> Centered content */}
+                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
+                                    <View style={{ marginBottom: 16, overflow: 'hidden', borderRadius: 30, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.4)' }}>
+                                        <BlurView intensity={50} tint="light" style={[styles.badgeBlur, { paddingHorizontal: 16, paddingVertical: 8 }]}>
+                                            <Ionicons name="school-outline" size={14} color="#FFFFFF" style={styles.badgeIconStyle} />
+                                            <Text style={[styles.badgeText, { fontSize: 10 }]}>FORMACIÓN</Text>
+                                        </BlurView>
+                                    </View>
+
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
+                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
+                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Accede al curso</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Subtitle Below */}
+                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, marginBottom: 32, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
+                            {recommendations?.academy?.description || "Aprende herramientas cognitivas."}
+                        </Text>
+
+                        {/* 2. Audiolibros - Hero Card */}
+                        {/* Title Above */}
+                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
+                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: theme.colors.primary, marginBottom: -8 }}>Audiolibro</Text>
+                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
+                                {recommendations?.audiobook?.title || "El poder del Ahora"}
+                            </Text>
+                        </View>
+
+                        <View style={[styles.featuredCardWrapper, { shadowColor: theme.colors.primary }]}>
+                            <TouchableOpacity
+                                style={styles.featuredCard}
+                                activeOpacity={0.9}
+                                onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
+                                    audiobookId: recommendations.audiobook.id,
+                                    audiobook: recommendations.audiobook
+                                })}
+                            >
+                                <Image
+                                    source={{ uri: recommendations?.audiobook?.image_url || 'https://paziify.app/placeholder-audiobook.jpg' }}
+                                    style={styles.featuredImage}
+                                    transition={500}
+                                    cachePolicy="memory-disk"
+                                />
+                                <LinearGradient
+                                    colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.5)', `rgba(2, 6, 23, 0.95)`]}
+                                    style={styles.featuredOverlay}
+                                />
+                                <View style={styles.featuredInnerBorder} pointerEvents="none" />
+
+                                {/* Info inside card -> Centered content */}
+                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
+                                    <View style={{ marginBottom: 16, overflow: 'hidden', borderRadius: 30, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.4)' }}>
+                                        <BlurView intensity={50} tint="light" style={[styles.badgeBlur, { paddingHorizontal: 16, paddingVertical: 8 }]}>
+                                            <Ionicons name="headset-outline" size={14} color="#FFFFFF" style={styles.badgeIconStyle} />
+                                            <Text style={[styles.badgeText, { fontSize: 10 }]}>AUDIOLIBRO</Text>
+                                        </BlurView>
+                                    </View>
+
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
+                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
+                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Accede al audiolibro</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Subtitle Below */}
+                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, marginBottom: 32, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
+                            {recommendations?.audiobook?.author || "Eckhart Tolle"}
+                        </Text>
+
+                        {/* 3. Historias (Silhouette Card) */}
+                        {/* Title Above */}
+                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
+                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#38BDF8', marginBottom: -8 }}>Relato</Text>
+                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
+                                {recommendations?.stories?.title || "Elías y el Mar"}
+                            </Text>
+                        </View>
+
+                        <View style={[styles.featuredCardWrapper, { shadowColor: '#38BDF8' }]}>
+                            <TouchableOpacity
+                                style={styles.featuredCard}
+                                activeOpacity={0.9}
+                                onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, {
+                                    storyId: recommendations.stories.id,
+                                    story: recommendations.stories
+                                })}
+                            >
+                                <Image
+                                    source={{ uri: "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/true_stories_background.webp" }}
+                                    style={styles.featuredImage}
+                                    transition={500}
+                                    cachePolicy="memory-disk"
+                                />
+                                <LinearGradient
+                                    colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)']}
+                                    style={styles.featuredOverlay}
+                                />
+                                <View style={styles.featuredInnerBorder} pointerEvents="none" />
+
+                                {/* Info inside card -> Centered content */}
+                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
+                                    <View style={{ marginBottom: 16, overflow: 'hidden', borderRadius: 30, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.4)' }}>
+                                        <BlurView intensity={50} tint="light" style={[styles.badgeBlur, { paddingHorizontal: 16, paddingVertical: 8 }]}>
+                                            <Ionicons name="book-outline" size={14} color="#FFFFFF" style={styles.badgeIconStyle} />
+                                            <Text style={[styles.badgeText, { fontSize: 10 }]}>RELATO</Text>
+                                        </BlurView>
+                                    </View>
+
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
+                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
+                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Leer relato</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Subtitle Below */}
+                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, marginBottom: 32, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
+                            {"Una historia real de superación personal."}
+                        </Text>
+
+                        {/* 4. Sonidos (Literal Vinyl Player) */}
+                        {/* Title Above */}
+                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
+                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#10B981', marginBottom: -8 }}>Música ambiente</Text>
+                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
+                                {recommendations?.sounds?.title || "Frecuencia de Sanación"}
+                            </Text>
+                        </View>
+
+                        <View style={{ marginBottom: 16 }}>
+                            <BentoCard
+                                title={""} // Title handled externally now
+                                icon="play"
+                                largeIcon={false}
+                                variant="vinyl"
+                                badgeText="SONIDO"
+                                mood={visualMode === 'healing' ? 'healing' : 'growth'}
+                                backgroundImage={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
+                                onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
+                                    soundscapeId: recommendations.sounds.id,
+                                    soundscape: recommendations.sounds
+                                })}
+                            />
+                        </View>
+                    </View>
                 </View>
             </ScrollView>
         </View>
@@ -450,35 +609,104 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     userName: {
+        fontSize: 22,
+        color: '#FFF',
+        flex: 1,
+        fontFamily: 'Satisfy_400Regular',
+    },
+    // NUEVOS ESTILOS DASHBOARD COMPACTO
+    dashboardSection: {
+        paddingHorizontal: 20,
+        marginBottom: 24,
+    },
+    dashboardCard: {
+        borderRadius: 24,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(2, 6, 23, 0.4)', // Darker base color for better contrast
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    dashboardBlur: {
+        padding: 16,
+    },
+    dashboardContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    dashboardZen: {
+        width: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    dashboardSeparator: {
+        width: 1,
+        height: 60,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        marginHorizontal: 16,
+    },
+    dashboardStats: {
+        flex: 1,
+        justifyContent: 'space-around',
+    },
+    dashboardStatItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    dashboardStatValue: {
         fontSize: 20,
         fontWeight: '900',
         color: '#FFF',
+        marginLeft: 8,
+    },
+    dashboardStatUnit: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: 'rgba(255,255,255,0.5)',
+    },
+    dashboardStatLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: 'rgba(255,255,255,0.5)',
+        marginLeft: 8,
         flex: 1,
+        textAlign: 'right',
     },
-    dualZenSection: {
+    weeklyDotsContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 30,
-        marginBottom: 15,
-        paddingHorizontal: 20,
+        justifyContent: 'space-between',
+        marginTop: 16,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 8,
     },
-    zenContainer: {
+    dotItem: {
         alignItems: 'center',
-        justifyContent: 'center',
+        gap: 6,
+    },
+    activityDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+    },
+    dotLabel: {
+        fontSize: 9,
+        fontWeight: '700',
+        color: 'rgba(255,255,255,0.3)',
+    },
+    innerGlassBorder: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 24,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.12)',
+        borderTopColor: 'rgba(255,255,255,0.25)',
+        borderLeftColor: 'rgba(255,255,255,0.18)',
     },
     statsSection: {
         alignItems: 'center',
         marginBottom: 10,
-    },
-    statsRow: {
-        flexDirection: 'row',
-        paddingHorizontal: 15,
-        marginBottom: 15,
-    },
-    rhythmSection: {
-        paddingHorizontal: 20,
-        marginBottom: 20,
     },
     statsLabels: {
         flex: 1,
@@ -513,18 +741,6 @@ const styles = StyleSheet.create({
     featuredSection: {
         paddingHorizontal: 20,
     },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 12,
-        fontWeight: '900',
-        color: 'rgba(255,255,255,0.4)',
-        letterSpacing: 2,
-    },
     seeAllBtn: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -535,11 +751,28 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         marginRight: 4,
     },
+    featuredCardWrapper: {
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 10,
+        borderRadius: 24,
+    },
     featuredCard: {
-        height: 180,
+        height: 200, // Slightly taller for more presence
         borderRadius: 24,
         overflow: 'hidden',
         backgroundColor: 'rgba(255,255,255,0.05)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    featuredInnerBorder: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 24,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.15)',
+        borderTopColor: 'rgba(255,255,255,0.35)',
+        borderLeftColor: 'rgba(255,255,255,0.2)',
     },
     featuredImage: {
         width: '100%',
@@ -549,35 +782,56 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
     },
     featuredInfo: {
+        ...StyleSheet.absoluteFillObject,
+        padding: 20,
+        justifyContent: 'flex-end',
+    },
+    heroBadgeContainer: {
         position: 'absolute',
-        bottom: 20,
+        top: 20,
         left: 20,
-        right: 20,
+        zIndex: 10,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderRadius: 20, // Circular/Pill
+        overflow: 'hidden',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: 'rgba(255,255,255,0.4)',
     },
-    categoryTag: {
-        backgroundColor: 'rgba(45, 212, 191, 0.2)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
-        alignSelf: 'flex-start',
-        marginBottom: 8,
+    badgeBlur: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        gap: 6,
     },
-    categoryTagText: {
+    badgeIconStyle: {
+        textShadowColor: 'rgba(0,0,0,0.5)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 2,
+    },
+    badgeText: {
+        color: '#FFFFFF',
         fontSize: 10,
-        color: '#2DD4BF',
         fontWeight: '900',
-        letterSpacing: 1,
+        letterSpacing: 1.5,
     },
     featuredTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#FFF',
-        marginBottom: 2,
+        fontSize: 24,
+        fontFamily: 'Outfit_900Black',
+        color: '#FFFFFF',
+        marginBottom: 6,
+        letterSpacing: -1,
+        textShadowColor: 'rgba(0,0,0,0.8)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 8,
     },
     featuredSubtitle: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.6)',
-        fontWeight: '500',
+        fontSize: 14,
+        fontFamily: 'Outfit_600SemiBold',
+        color: 'rgba(255,255,255,0.7)',
+        textShadowColor: 'rgba(0,0,0,0.8)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 4,
     },
 });
 

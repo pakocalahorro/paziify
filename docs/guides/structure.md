@@ -234,16 +234,14 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 ### 5. Home - Pantalla Principal
 
 #### `src/screens/Home/HomeScreen.tsx`
-**Función**: Dashboard principal de la app
+**Función**: Dashboard principal de la app (Premium Editorial Layout)
 **Contenido**:
-- Saludo personalizado
-- ZenMeter (nivel de bienestar)
-- BentoGrid con accesos rápidos
-- Recomendaciones diarias
-- Sesiones recientes
-- Progreso de rachas (streaks)
+- Saludo personalizado (Tipografía manuscrita `Satisfy`)
+- "Tu Estado": Dashboard compacto y unificado de analíticas diarias y semanales con orbes `ZenMeter`
+- "Tu Práctica": Dosis Diaria en layout "Out-of-box" (Extracto de título y subtítulo externo a la imagen)
+- "Consejos del día": BentoGrid modular temático (Formación, Relatos, Binaurales, Audiolibros)
+- Progreso de rachas (streaks) e indicador de Actividad Semanal
 - Mini reproductor si hay audio activo
-- Notificaciones
 
 ---
 

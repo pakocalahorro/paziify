@@ -190,6 +190,23 @@ La pantalla de resultados se ha refinado para transmitir autoridad médica y cal
   - Texto: **"DESCONECTA ANTES DE EMPEZAR"** (Inter SemiBold, 13px, Opacidad 60%)
   - *Cambio v2.12*: Mensaje alineado con la filosofía de desconexión digital.
 
+### 11. Estilo Premium Editorial (v2.13.0) 📖
+Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas", la Home Screen adopta un diseño tipo catálogo de arte o portada de revista:
+
+**Formato "Out-of-box"**:
+- Títulos y descripciones se extraen fuera del contenedor de la tarjeta fotográfica.
+- La tarjeta queda como un lienzo limpio con *Badges* minimalistas y un enorme CTA centrado.
+- Alturas unificadas (ej: 200px) para mantener un *scroll* armónico en todas las secciones independientes.
+
+**Sistema Tipográfico Corporativo Dual (Outfit + Satisfy)**:
+- **La Estructura (`@expo-google-fonts/outfit`)**: Tipografía geométrica, moderna y extremadamente legible que reemplaza a las antiguas sans-serif en los títulos principales (ej. `fontFamily: 'Outfit_800ExtraBold'`, `Outfit_900Black`). Su peso aporta robustez técnica y seriedad de grado médico.
+- **El Alma (`@expo-google-fonts/satisfy`)**: Tipografía manuscrita introducida para dar un carácter humano, íntimo y personal a la app. Otorga el matiz "Boutique/Editorial".
+- **Norma de Uso Dual**: `Satisfy` actúa EXCLUSIVAMENTE como "Firma" o "Prefijo" (tamaño grande 22-36px, sin pesos gruesos) flotando justo por encima de la "Estructura" maciza que proporciona `Outfit`. Esta será la base para todos los futuros refinamientos de UI corporativa de Paziify.
+
+**Dashboard Compacto de Analíticas**:
+- Agrupación de métricas de Salud (Diarias/Semanales) en un "Glassmorphism oscurecido" (`rgba(2, 6, 23, 0.4)`, Intensity 70).
+- Side-by-side Layout: Componentes visuales gemelos (ZenMeters contiguos) con rotulación de texto aglomerado al estilo widget nativo (`12 m Hoy`).
+
 ---
 
-*Última revisión: 19 de Febrero de 2026 - Master Audit v2.12.0 (Medical Grade Cardio)*
+*Última revisión: 20 de Febrero de 2026 - Master Audit v2.13.0 (Premium Editorial Home)*
