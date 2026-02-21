@@ -9,7 +9,7 @@ Paziify v2.30 introduce 119 sesiones de meditación elevadas a calidad **Premium
 - **Control de Ritmo**: Las sesiones ahora tienen un ritmo de habla pausado (`72%`) para permitir la introspección.
 - **Pausas de Respiración**: Silencios estratégicos de hasta 5 segundos integrados directamente en el audio para guiar tu práctica sin interrupciones abruptas.
 - **Micro-Matices**: Uso de volúmenes dinámicos para cierres más íntimos y reconfortantes.
-- **Voces Especializadas**: Cada categoría tiene su guía ideal: Aria (Calma), Helios (Energía), Zenon (Fortaleza) y Gaia (Consciencia).
+- **Voces Especializadas**: Cada categoría tiene su guía ideal: Aria (Calma/Salud), Gaia (Consciencia), Ziro (Energía) y Éter (Paz/Resiliencia).
 
 ---
 

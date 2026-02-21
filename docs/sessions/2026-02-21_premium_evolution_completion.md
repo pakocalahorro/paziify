@@ -26,8 +26,8 @@ El Panel de Administración ha sido transformado en una herramienta profesional.
 
 ### 4. Sincronización de la Base de Conocimiento 📚
 Todas las guías de desarrollo han sido actualizadas a la versión **v2.30.0**.
-- **Audio (`audio.md`)**: Nuevos perfiles de voz (Aria, Helios, Zenon, Gaia) y motor SSML.
-- **Base de Datos (`database.md`)**: Nuevas políticas RLS y diccionarios de almacenamiento.
+- **Audio (`audio.md`)**: Guías oficiales (Aria, Ziro, Éter, Gaia) y motor SSML.
+- **Base de Datos (`database.md`)**: Bucket unificado `meditation` y políticas RLS.
 - **Diseño (`designs.md`)**: Especificaciones de los nuevos componentes del Panel Admin.
 - **Manual de Usuario (`user_manual.md`)**: Guía actualizada para el uso del nuevo CMS.
 

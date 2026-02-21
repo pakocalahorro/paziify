@@ -28,23 +28,24 @@ Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase 
 
 ## 4. Políticas de Seguridad (RLS Hardening) 🔐
 ```sql
--- Storage: Blindaje de buckets v2.8.10
+-- Storage: Blindaje de buckets v2.30.0
 CREATE POLICY "Lectura pública de assets" ON storage.objects 
-  FOR SELECT USING (bucket_id IN ('meditation-voices', 'meditation-thumbnails', 'audiobooks', 'soundscapes', 'academy-voices'));
+  FOR SELECT USING (bucket_id IN ('meditation', 'soundscapes', 'binaurals', 'audiobooks', 'academy-voices'));
 ```
 
 ---
 
 ## 5. Almacenamiento (Supabase Storage) & Optimización Zero-Egress ☁️
 
-| Bucket | Contenido | Política | Estrategia de Caché |
+| Bucket | Contenido | Política | Estrategia |
 | :--- | :--- | :--- | :--- |
-| `meditation` | Voces 119 sesiones (con carpetas) | Public Read | `max-age=31536000` |
-| `academy-voices` | Audios Academia (60 archivos) | Public Read | Zero-Egress Persistent Cache |
-| `meditation-thumbnails`| Portadas IA / WebP | Public Read | `max-age=31536000` |
-| `audiobooks` | Archivos MP3 narrados | Public Read | Persistent Cache local |
+| **`meditation`** | **Unified Master**: Audios 119 sesiones y thumbnails | Public Read | `max-age=31536000` |
+| `academy-voices`| Audios Academia (60 archivos) | Public Read | Zero-Egress Persistent |
 | `soundscapes` | Ambientes infinitos | Public Read | Persistent Cache |
 | `binaurals` | Ondas Theta/Alpha | Public Read | Persistent Cache |
+| `audiobooks` | Archivos MP3 narrados | Public Read | Persistent Cache |
+| `meditation-voice`| (DEP) Bucket de voz legado | (Legacy) | Obsoleto v2.30 |
+| `meditation-thumbnails`| (DEP) Bucket de portadas legado| (Legacy) | Obsoleto v2.30 |
 
 > [!IMPORTANT]
 > **Estrategia Oasis Folder**: El bucket `meditation` utiliza subcarpetas dinámicas (`/kids`, `/calmasos`, `/sueno`, etc.) para una organización granular gestionada por el componente `MediaUploader.tsx`.

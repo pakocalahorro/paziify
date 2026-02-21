@@ -16,13 +16,14 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 4.  **Ondas Binaurales**: Frecuencias (Theta, Alpha, Gamma) inyectadas como capa secundaria para potenciar el enfoque o la relajación.
 
 ### Implementaciones Técnicas
-*   **Supabase Storage**: Todos los assets estáticos (Voice Tracks, Soundscapes, Binaurales, Audiolibros) se sirven desde buckets dedicados (`meditation-voices`, `soundscapes`, `binaurals`, `audiobooks`).
+*   **Supabase Storage**: Centralización absoluta en el bucket unificado **`meditation`** (v2.30.0).
+    - **Bucket Maestro**: `meditation` (Contiene audios y miniaturas).
+    - **Buckets Especializados**: `soundscapes`, `binaurals`, `audiobooks`, `academy-voices`.
+    - **Legado**: `meditation-voices` y `meditation-thumbnails` se consideran obsoletos.
+*   **Oasis Folder Strategy**: Los archivos en el bucket `meditation` se organizan en subcarpetas dinámicas por categoría (ej. `/kids`, `/sueno`, `/calmasos`).
 *   **Background Execution**: Audio configurado con `staysActiveInBackground: true` para mantener la reproducción incluso con la pantalla apagada.
-*   **Sincronización Quirúrgica**: 
-    - **Compensación Aditiva**: El motor visual suma dinámicamente el tiempo de voz para evitar la desincronización por "drift".
-    - **Offset de Anticipación**: Adelanto visual de 350ms respecto al audio para una respuesta intuitiva.
-*   **Protocolo de Nomenclatura ASCII**: Todos los archivos y URLs deben ser 100% ASCII (ej. `sueno`, `lluvia`, `bosque`, `cosmos`). Hemos estandarizado los archivos con prefijo de 4 dígitos (ej. `0001-slug.mp3`).
-*   **Security Hardening (RLS)**: Los buckets de audio (`meditation`, `audiobooks`, `soundscapes`) cuentan con políticas RLS de lectura protegida y permisos de sobrescritura (`upsert`) vía SQL.
+*   **Protocolo de Nomenclatura ASCII**: Todos los archivos y URLs deben ser 100% ASCII y comenzar con un prefijo de 4 dígitos correlativo al `ID` de la sesión (ej. `0001-meditation-slug.mp3`).
+*   **Security Hardening (RLS)**: El bucket `meditation` cuenta con políticas RLS de lectura protegida y permisos de sobrescritura (`upsert`) vía SQL.
 
 ### Reproductor Global y Persistencia (`AudioPlayerContext.tsx`)
 Para audiolibros e historias:
@@ -35,10 +36,10 @@ Para audiolibros e historias:
 
 A continuación se detallan los parámetros técnicos de Google Cloud TTS validados para mantener la calidad profesional de Paziify.
 
-### 📋Resumen de Guías (Identidad Upgraded v2.14)
+### 📋Resumen de Guías Oficiales
 - **Aria (Calma/Salud/Emocional/Niños)**: `es-ES-Chirp3-HD-Vindemiatrix` | Pitch: 0.0 | Rate: 0.72 | Voz nutritiva y protectora.
-- **Helios (Energía/Deporte)**: `es-ES-Chirp3-HD-Autonoe` (Re-tune) | Pitch: 0.0 | Rate: 0.75 | Voz vibrante y motivadora.
-- **Zenon (Estoicismo/Resiliencia)**: `es-ES-Neural-Deep` (Custom Profile) | Pitch: -2.0 | Rate: 0.70 | Voz profunda y autoritaria.
+- **Ziro (Rendimiento/Despertar)**: `es-ES-Chirp3-HD-Autonoe` (Perfil *Helios*) | Pitch: 0.0 | Rate: 0.75 | Voz vibrante y motivadora.
+- **Éter (Sueño/Resiliencia)**: `es-ES-Neural-Deep` (Perfil *Zenon*) | Pitch: -2.0 | Rate: 0.70 | Voz profunda y de comando.
 - **Gaia (Mindfulness)**: `es-ES-Studio-F` | Pitch: 0.0 | Rate: 0.75 | Voz etérea y consciente.
 
 ### SSML Prosody (Calidad Premium) 🎙️
@@ -85,14 +86,14 @@ Para evitar sorpresas con la facturación de Google Cloud, el motor integra un s
 ---
 
 ### 🛑 119 Sesiones Guiadas (Premium Evolution v2.30)
-| Bloque | Categoría | Guiones | Voz | Estado |
+| Bloque | Categoría | Guiones | Voz (Guía) | Estado |
 | :--- | :--- | :---: | :--- | :--- |
 | 01 | Calma SOS | 16 | Aria | **Premium SSML** |
 | 02 | Mindfulness | 13 | Gaia | **Premium SSML** |
-| 03 | Sueño | 14 | Aria | **Premium SSML** |
-| 04 | Resiliencia | 13 | Zenon | **Premium SSML** |
-| 05 | Rendimiento | 10 | Helios | **Premium SSML** |
-| 06 | Despertar | 13 | Helios | **Premium SSML** |
+| 03 | Sueño | 14 | Éter | **Premium SSML** |
+| 04 | Resiliencia | 13 | Éter | **Premium SSML** |
+| 05 | Rendimiento | 10 | Ziro | **Premium SSML** |
+| 06 | Despertar | 13 | Ziro | **Premium SSML** |
 | 07 | Salud | 10 | Aria | **Premium SSML** |
 | 08 | Emocional | 10 | Aria | **Premium SSML** |
 | 09 | Hábitos | 10 | Aria | **Premium SSML** |

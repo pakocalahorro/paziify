@@ -156,6 +156,10 @@ class AudioEngineService {
     }
 
     /**
+     *   **Supabase Storage**: Centralización en el bucket **`meditation`** (v2.30.0). Asset legados en soundscapes, binaurals, etc.
+     */
+
+    /**
      * Reproduce todas las capas de audio sincronizadas
      */
     async playAll() {
