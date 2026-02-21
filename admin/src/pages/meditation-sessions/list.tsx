@@ -60,11 +60,20 @@ export const MeditationSessionList = () => {
                     dataIndex="category"
                     title="Category"
                     filters={MEDITATION_CATEGORIES.map(cat => ({ text: cat.label, value: cat.value }))}
+                    render={(value) => {
+                        const category = MEDITATION_CATEGORIES.find(cat => cat.value === value);
+                        return category ? category.label : value;
+                    }}
                 />
+                <Table.Column dataIndex="category" title="Cat ID" />
                 <Table.Column
                     dataIndex="creator_name"
                     title="Guide"
                     filters={PAZIIFY_GUIDES.map(guide => ({ text: guide.label, value: guide.value }))}
+                    render={(value) => {
+                        const guide = PAZIIFY_GUIDES.find(g => g.value === value);
+                        return guide ? guide.label : value;
+                    }}
                 />
                 <Table.Column dataIndex="slug" title="Slug" />
                 <Table.Column

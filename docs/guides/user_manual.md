@@ -1,10 +1,19 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.15.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.30.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.15.0 (Premium Audio & Admin Sync)**. Esta versión profesionaliza la generación de audio y la gestión de contenidos.
+Bienvenido a la guía oficial de **Paziify v2.30.0 (Premium Evolution)**. Esta versión transforma la app en una experiencia de meditación de alto nivel con guiones premium y una gestión técnica impecable.
 
 ---
 
-## 1. Zero-Egress Caching (Navegación sin Gastar Datos) 🛡️
+## 1. Contenido Premium SSML (Evolución Emocional) 🧘✨
+Paziify v2.30 introduce 119 sesiones de meditación elevadas a calidad **Premium**.
+- **Control de Ritmo**: Las sesiones ahora tienen un ritmo de habla pausado (`72%`) para permitir la introspección.
+- **Pausas de Respiración**: Silencios estratégicos de hasta 5 segundos integrados directamente en el audio para guiar tu práctica sin interrupciones abruptas.
+- **Micro-Matices**: Uso de volúmenes dinámicos para cierres más íntimos y reconfortantes.
+- **Voces Especializadas**: Cada categoría tiene su guía ideal: Aria (Calma), Helios (Energía), Zenon (Fortaleza) y Gaia (Consciencia).
+
+---
+
+## 2. Zero-Egress Caching (Navegación sin Gastar Datos) 🛡️
 Paziify v2.8 introduce un motor de caché inteligente que protege tu plan de datos:
 - **Carga Instantánea**: Una vez que escuchas una sesión o ves una carátula, la app la guarda en tu móvil para siempre.
 - **Modo Offline Automático**: Si pierdes la conexión, todo el contenido que ya hayas visitado seguirá disponible sin esperas.
@@ -92,12 +101,12 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 ---
 
 ## 7. Panel de Administración (CMS Profesional) ⚙️
-**Acceso:** Panel Web dedicado.
-- **Gestión Total**: El contenido de la Academia, Audiolibros e Historias se gestiona ahora de forma profesional sin tocar código.
-- **Sincronización Técnica (v2.15.0)**:
-    - **Campos App-Ready**: Inclusión de momentos del día, niveles de dificultad y configuración de ondas binaurales.
-    - **Autosync de IDs**: El panel genera automáticamente el `legacy_id` para asegurar que la App localice siempre los archivos de audio en Supabase.
-    - **Categorías Validadas**: Filtros unificados con las 10 categorías maestras del proyecto.
+**Acceso:** Panel Web dedicado (v2.30.0 Upgraded).
+- **Gestor de Medios Inteligente**: El nuevo `MediaUploader` centraliza la subida de audios y carátulas:
+    - **Organización Automática**: El sistema guarda los archivos en carpetas según su categoría (`/kids`, `/sueno`, etc.).
+    - **Limpieza de Almacenamiento**: Al sustituir un archivo, el panel te preguntará si deseas borrar la versión antigua de Supabase para ahorrar espacio.
+- **Selectores de Coherencia**: Selección visual de Paisajes Sonoros (Soundscapes) y Ondas Binaurales vinculados a los datos técnicos reales.
+- **Validación de Audio**: Botones de Play/Stop integrados en los formularios para escuchar guiones antes de publicar.
 
 ---
 
@@ -108,6 +117,6 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 
 ---
-*Última revisión: 21 de Febrero de 2026 - Versión 2.15.0 (Premium Audio & Admin Sync)*  
-**Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen` -> `CardioScanScreen`
+*Última revisión: 21 de Febrero de 2026 - Versión 2.30.0 (Premium Evolution)*  
+**Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`
 

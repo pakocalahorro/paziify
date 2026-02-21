@@ -12,10 +12,10 @@ export const MEDITATION_CATEGORIES = [
 ];
 
 export const PAZIIFY_GUIDES = [
-    { label: 'Aria (Mindfulness)', value: 'Aria' },
-    { label: 'Ziro (Power)', value: 'Ziro' },
-    { label: 'Éter (Deep)', value: 'Éter' },
-    { label: 'Gaia (Junior)', value: 'Gaia' },
+    { label: 'Aria', value: 'Aria' },
+    { label: 'Ziro', value: 'Ziro' },
+    { label: 'Éter', value: 'Éter' },
+    { label: 'Gaia', value: 'Gaia' },
 ];
 
 export const TIME_OF_DAY_OPTIONS = [
@@ -29,4 +29,14 @@ export const DIFFICULTY_LEVELS = [
     { label: 'Principiante', value: 'principiante' },
     { label: 'Intermedio', value: 'intermedio' },
     { label: 'Avanzado', value: 'avanzado' },
+];
+const SB_BINAURAL_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/binaurals/';
+
+export const BINAURAL_BEATS = [
+    { label: 'Ondas Alpha (Enfoque)', value: 'alpha_waves', url: `${SB_BINAURAL_URL}Alpha_waves.mp3` },
+    { label: 'Ondas Theta (Meditación)', value: 'theta_waves', url: `${SB_BINAURAL_URL}binaural_theta.mp3` },
+    { label: 'Ondas Delta (Sueño)', value: 'delta_waves', url: `${SB_BINAURAL_URL}binaural_delta.mp3` },
+    { label: 'Ondas Gamma (Alerta)', value: 'gamma_waves', url: `${SB_BINAURAL_URL}binaural_gamma.mp3` },
+    { label: 'Frecuencia 528Hz (Sanación)', value: '528hz', url: `${SB_BINAURAL_URL}solfeggio_528hz.mp3` },
+    { label: 'Frecuencia 432Hz (Paz)', value: '432hz', url: `${SB_BINAURAL_URL}432hz.mp3` },
 ];

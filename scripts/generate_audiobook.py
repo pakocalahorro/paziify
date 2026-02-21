@@ -113,19 +113,21 @@ def generate_audio(text_file, output_file, persona='aria'):
 
     print(f"🎙️ Generating PREMIUM audio with persona: {persona.upper()} ({config['name']})...")
     
+    # Check if input is already SSML
+    is_raw_ssml = "<speak>" in text
+    
     # Chunking Logic (preserving paragraph structure for SSML, checking actual byte size)
     MAX_BYTES = 4800 # Safe margin below 5000
-    paragraphs = text.replace('\r\n', '\n').split('\n')
-    
-    chunks = []
-    current_paragraphs = []
     
     def build_ssml(paras):
         combined = "\n".join(paras).strip('\n')
+        
+        if is_raw_ssml:
+            return combined
+            
         inner_text = clean_for_ssml(combined).replace('\n', '\n<break time="2000ms"/>\n')
         
         # FIX: Studio and Chirp voices do NOT support the 'pitch' attribute in <prosody>
-        # We check if 'Studio' or 'Chirp' is in the voice name
         is_advanced = "Studio" in config['name'] or "Chirp" in config['name']
         pitch_attr = f'pitch="{config["pitch"]}st"' if not is_advanced else ""
         
@@ -137,6 +139,11 @@ def generate_audio(text_file, output_file, persona='aria'):
         </speak>
         """
 
+    paragraphs = text.replace('\r\n', '\n').split('\n') if not is_raw_ssml else [text]
+    
+    chunks = []
+    current_paragraphs = []
+    
     for paragraph in paragraphs:
         if not paragraph.strip():
             continue

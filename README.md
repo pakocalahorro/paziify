@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.15.0) 🚀
+# Paziify - AI Studio App (v2.30.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.15.0 (Premium Audio & Admin Sync)**, que introduce voces de ultra-alta definición (Chirp3-HD/Studio), un motor de audio blindado con Quota Tracker y una sincronización total del Panel Admin con Supabase.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.30.0 (Premium Evolution)**, que introduce 119 guiones SSML de alta fidelidad, un sistema de almacenamiento unificado y herramientas de administración profesional.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -51,11 +51,11 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
-- **[NEW] Premium Audio & Admin Sync (v2.15.0)**: Migración a voces **Chirp3-HD** y **Studio**. Motor de audio con **Quota Tracker** y chunking por bytes (4800b). Sincronización total del Panel Admin con la App mediante constantes centralizadas y autosync de `legacy_id`.
-- **[PREVIOUS] Premium Editorial Home (v2.13.0)**: Rediseño masivo de la Home Screen. Dashboards duales y tarjetas "Out-of-box".
+- **[NEW] Premium Evolution (v2.30.0)**: Transformación total de 119 guiones a formato **SSML Premium**. Unificación de buckets de storage con estrategia de carpetas dinámicas. Panel Admin optimizado con previsualización de audio y borrado inteligente de archivos.
+- **[PREVIOUS] Premium Audio & Admin Sync (v2.15.0)**: Migración a voces **Chirp3-HD** y **Studio**. Motor de audio con **Quota Tracker** y chunking por bytes (4800b). Sincronización total del Panel Admin con la App mediante constantes centralizadas y autosync de `legacy_id`.
 
 ---
 
-**Última actualización:** 21 de Febrero de 2026 - **Versión v2.15.0** (Premium Audio & Admin Sync)
+**Última actualización:** 21 de Febrero de 2026 - **Versión v2.30.0** (Premium Evolution)
 
 

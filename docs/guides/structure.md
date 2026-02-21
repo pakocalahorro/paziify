@@ -18,7 +18,7 @@
 
 **Paziify** es una aplicación móvil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versión**: 2.15.0
+**Versión**: 2.30.0
 
 ---
 

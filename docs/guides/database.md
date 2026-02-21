@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.15.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.30.0) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.15.0** consolida la sincronización total del Admin CMS y el motor de audio premium.
+Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.30.0** consolida la unificación de buckets de storage y el sistema de carpetas dinámicas.
 
 ---
 
@@ -39,10 +39,15 @@ CREATE POLICY "Lectura pública de assets" ON storage.objects
 
 | Bucket | Contenido | Política | Estrategia de Caché |
 | :--- | :--- | :--- | :--- |
-| `meditation-voices` | Voces 101 sesiones | Public Read | `max-age=31536000` |
-| `academy-voices` | **Audios Academia (60 archivos técnicos)** | Public Read | **Zero-Egress Persistent Cache** |
+| `meditation` | Voces 119 sesiones (con carpetas) | Public Read | `max-age=31536000` |
+| `academy-voices` | Audios Academia (60 archivos) | Public Read | Zero-Egress Persistent Cache |
 | `meditation-thumbnails`| Portadas IA / WebP | Public Read | `max-age=31536000` |
 | `audiobooks` | Archivos MP3 narrados | Public Read | Persistent Cache local |
+| `soundscapes` | Ambientes infinitos | Public Read | Persistent Cache |
+| `binaurals` | Ondas Theta/Alpha | Public Read | Persistent Cache |
+
+> [!IMPORTANT]
+> **Estrategia Oasis Folder**: El bucket `meditation` utiliza subcarpetas dinámicas (`/kids`, `/calmasos`, `/sueno`, etc.) para una organización granular gestionada por el componente `MediaUploader.tsx`.
 
 > [!NOTE]
 > **Estrategia Zero-Egress**: Se han convertido todas las referencias de audio en `academyData.ts` de rutas relativas a URLs públicas absolutas. Esto permite que el cliente (App) gestione la descarga y persistencia local sin depender de resoluciones de ruta dinámicas en tiempo de ejecución.

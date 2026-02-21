@@ -11,7 +11,8 @@ interface MediaUploaderProps {
     accept?: string;
     initialUrl?: string;
     customFileName?: string;
-    onUploadSuccess: (url: string) => void;
+    folder?: string; // Optional folder path (e.g., "kids" or "calmasos")
+    onUploadSuccess: (url: string, fileName?: string) => void;
 }
 
 export const MediaUploader: React.FC<MediaUploaderProps> = ({
@@ -20,6 +21,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     accept = "image/*,audio/*",
     initialUrl,
     customFileName,
+    folder,
     onUploadSuccess,
 }) => {
     const [uploading, setUploading] = useState(false);
@@ -44,33 +46,33 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     const handleUpload = async (file: File) => {
         setUploading(true);
         try {
-            let fileName = "";
+            let baseName = "";
 
             if (customFileName) {
-                // If customFileName is provided (e.g., "082-bosque"), append the extension
                 const extension = file.name.split('.').pop();
-                fileName = `${customFileName}.${extension}`;
+                baseName = `${customFileName}.${extension}`;
             } else {
-                // Legacy: Timestamp + Sanitized Name
-                const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-                fileName = `${Date.now()}-${sanitizedName}`;
+                baseName = file.name;
             }
+
+            // OASIS FOLDER STRATEGY: Prefix with folder if provided
+            const finalPath = folder ? `${folder}/${baseName}` : baseName;
 
             const { data, error } = await supabaseClient.storage
                 .from(bucket)
-                .upload(fileName, file, { cacheControl: "3600", upsert: false });
+                .upload(finalPath, file, { cacheControl: "3600", upsert: true });
 
             if (error) throw error;
 
             const { data: publicUrlData } = supabaseClient.storage
                 .from(bucket)
-                .getPublicUrl(fileName);
+                .getPublicUrl(finalPath);
 
             const newUrl = publicUrlData.publicUrl;
 
-            // Success! 
-            onUploadSuccess(newUrl);
-            message.success("Archivo subido con éxito.");
+            // Success! Pass finalPath for tracking/slugging
+            onUploadSuccess(newUrl, finalPath);
+            message.success(`Archivo subido a "${finalPath}" con éxito.`);
 
             // Second warning: Delete old file?
             if (initialUrl && initialUrl !== newUrl) {
