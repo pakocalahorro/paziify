@@ -70,7 +70,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_001_respiracion-4-7-8.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0001-respiracion-4-7-8.mp3",
       "defaultBinaural": "theta_waves",
       "defaultSoundscape": "bird_relaxation"
     },
@@ -88,7 +88,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz y las vibraciones.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_001_respiracion-4-7-8.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0001-respiracion-4-7-8.webp"
   },
   {
     "id": "anx_box",
@@ -107,7 +107,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_002_respiracion-cuadrada-box-breathing-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0002-respiracion-cuadrada-box-breathing.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "moon_stretched"
     },
@@ -125,7 +125,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Enfócate en el orbe o mantén los ojos cerrados sintiendo el ritmo constante.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_002_respiracion-cuadrada-box-breathing-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0002-respiracion-cuadrada-box-breathing.webp"
   },
   {
     "id": "anx_sigh",
@@ -144,7 +144,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_003_suspiro-ciclico.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0003-suspiro-ciclico.mp3",
       "defaultSoundscape": "ethereal_voices"
     },
     "breathingPattern": {
@@ -161,7 +161,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#FF6B6B",
     "practiceInstruction": "Realiza una doble inhalación por la nariz y un suspiro largo por la boca.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_003_suspiro-ciclico.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0003-suspiro-ciclico.webp"
   },
   {
     "id": "wake_bellows",
@@ -180,7 +180,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_tecnica_004_respiracion-de-fuelle-bhastrika-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0004-respiracion-de-fuelle-bhastrika.mp3",
       "defaultBinaural": "gamma_waves",
       "defaultSoundscape": "meditation_bowls"
     },
@@ -198,7 +198,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FFD93D",
     "practiceInstruction": "Mantén los ojos abiertos y sigue el orbe para sincronizar tu energía.",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0004-respiracion-de-fuelle-bhastrika.webp"
   },
   {
     "id": "wake_sun",
@@ -217,7 +217,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_tecnica_005_aliento-de-fuego-kapalbhati-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0005-aliento-de-fuego-kapalbhati.mp3",
       "defaultBinaural": "beta_waves",
       "defaultSoundscape": "sirens_call_a"
     },
@@ -253,7 +253,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_006_nsdr-non-sleep-deep-rest-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0006-nsdr-non-sleep-deep-rest.mp3",
       "defaultBinaural": "delta_waves",
       "defaultSoundscape": "lotus_peace"
     },
@@ -271,7 +271,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos. Escucha el escaneo corporal y relájate profundamente.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_006_nsdr-non-sleep-deep-rest-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0006-nsdr-non-sleep-deep-rest.webp"
   },
   {
     "id": "sleep_478_night",
@@ -290,7 +290,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_007_4-7-8-nocturno.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0007-4-7-8-nocturno.mp3",
       "defaultBinaural": "delta_waves",
       "defaultSoundscape": "atlantic_loop"
     },
@@ -308,7 +308,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#4A90E2",
     "practiceInstruction": "Ojos cerrados. Deja que la exhalación sea un alivio total.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_007_4-7-8-nocturno.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0007-4-7-8-nocturno.webp"
   },
   {
     "id": "mind_open",
@@ -327,7 +327,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_tecnica_008_monitorizacion-abierta.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0008-monitorizacion-abierta.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "forest_meditation"
     },
@@ -345,7 +345,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y observa tus pensamientos como nubes pasando.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_tecnica_008_monitorizacion-abierta.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0008-monitorizacion-abierta.webp"
   },
   {
     "id": "mind_breath",
@@ -364,7 +364,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_tecnica_009_anclaje-en-la-respiracion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0009-anclaje-en-la-respiracion.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "wind_chimes"
     },
@@ -382,7 +382,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Ojos cerrados. Siente el aire entrar y salir por tus fosas nasales.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_tecnica_009_anclaje-en-la-respiracion.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0009-anclaje-en-la-respiracion.webp"
   },
   {
     "id": "res_stoic",
@@ -401,7 +401,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_tecnica_010_visualizacion-negativa-estoicismo-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0010-visualizacion-negativa-estoicismo.mp3",
       "defaultBinaural": "alpha_waves",
       "defaultSoundscape": "meditative_motion"
     },
@@ -419,7 +419,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#FF9F43",
     "practiceInstruction": "Enfócate en la voz. Visualiza los desafíos con serenidad y ojos cerrados.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_tecnica_010_visualizacion-negativa.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0010-visualizacion-negativa-estoicismo.webp"
   },
   {
     "id": "res_gratitude",
@@ -438,7 +438,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_tecnica_011_gratitud-re-cableado-de-sesgos.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0011-gratitud-re-cableado-de-sesgos.mp3",
       "defaultBinaural": "528hz",
       "defaultSoundscape": "forest_meditation"
     },
@@ -456,7 +456,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Ojos cerrados. Evoca tres momentos de gratitud mientras respiras.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_tecnica_011_gratitud-recableado.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0011-gratitud-re-cableado-de-sesgos.webp"
   },
   {
     "id": "res_vagus",
@@ -475,7 +475,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_tecnica_012_tonificacion-del-vago.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0012-tonificacion-del-vago.mp3",
       "defaultBinaural": "theta_waves",
       "defaultSoundscape": "theta_state"
     },
@@ -493,7 +493,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#FF9F43",
     "practiceInstruction": "Ojos suavemente cerrados. Sigue las instrucciones para liberar tensión.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_tecnica_012_tonificacion-del-vago.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0012-tonificacion-del-vago.webp"
   },
   {
     "id": "anx_sos",
@@ -512,7 +512,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_013_s-o-s-rescate-de-panico.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0013-s-o-s-rescate-de-panico.mp3",
       "defaultBinaural": "theta_waves",
       "defaultSoundscape": "athmo_motion"
     },
@@ -530,7 +530,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Sigue el orbe visualmente si te ayuda a anclarte en el presente.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_013_s-o-s-rescate-de-panico.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0013-s-o-s-rescate-de-panico.webp"
   },
   {
     "id": "anx_calm_ocean",
@@ -549,7 +549,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_tecnica_014_calma-oceanica.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0014-calma-oceanica.mp3",
       "defaultSoundscape": "atlantic_loop"
     },
     "breathingPattern": {
@@ -566,7 +566,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos e imagina el vaivén de las olas con tu respiración.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_tecnica_014_calma-oceanica.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0014-calma-oceanica.webp"
   },
   {
     "id": "sleep_yoganidra",
@@ -585,7 +585,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_015_yoga-nidra-directo.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0015-yoga-nidra-directo.mp3",
       "defaultBinaural": "delta_waves",
       "defaultSoundscape": "moon_stretched"
     },
@@ -603,7 +603,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#4A90E2",
     "practiceInstruction": "Ojos cerrados. Entra en el descanso profundo sin dormirte.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_015_yoga-nidra-directo.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0015-yoga-nidra-directo.webp"
   },
   {
     "id": "sleep_soft_rain",
@@ -622,7 +622,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_tecnica_016_lluvia-mental.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0016-lluvia-mental.mp3",
       "defaultSoundscape": "bird_relaxation"
     },
     "breathingPattern": {
@@ -639,7 +639,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate llevar por el sonido de la lluvia.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_tecnica_016_lluvia-mental.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0016-lluvia-mental.webp"
   },
   {
     "id": "wake_espresso",
@@ -658,7 +658,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_tecnica_017_espresso-mental.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0017-espresso-mental.mp3",
       "defaultBinaural": "gamma_waves",
       "defaultSoundscape": "meditation_bowls"
     },
@@ -694,7 +694,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_tecnica_018_mente-como-el-cielo.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0018-mente-como-el-cielo.mp3",
       "defaultSoundscape": "ethereal_voices"
     },
     "breathingPattern": {
@@ -711,7 +711,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": true,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y expande tu consciencia como el cielo infinito.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_tecnica_018_mente-como-el-cielo.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0018-mente-como-el-cielo.webp"
   },
   {
     "id": "01_respiracion_cuadrada",
@@ -727,7 +727,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_019_respiracion-cuadrada-estabilidad-mental-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0019-respiracion-cuadrada-estabilidad-mental.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -744,7 +744,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_019_respiracion-cuadrada-estabilidad-mental-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0019-respiracion-cuadrada-estabilidad-mental.webp"
   },
   {
     "id": "02_coherencia_cardiaca",
@@ -760,7 +760,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_020_coherencia-cardiaca-ritmo-5-5-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0020-coherencia-cardiaca-ritmo-5-5.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -777,7 +777,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_020_coherencia-cardiaca-ritmo-5-5-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0020-coherencia-cardiaca-ritmo-5-5.webp"
   },
   {
     "id": "03_sosiego_pensamientos",
@@ -793,7 +793,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_021_sosiego-de-los-pensamientos.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0021-sosiego-de-los-pensamientos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -810,7 +810,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_021_sosiego-de-los-pensamientos.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0021-sosiego-de-los-pensamientos.webp"
   },
   {
     "id": "04_tecnica_54321",
@@ -826,7 +826,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_022_tecnica-5-4-3-2-1-anclaje-sensorial-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0022-tecnica-5-4-3-2-1-anclaje-sensorial.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -843,7 +843,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_022_tecnica-de-anclaje-5-4-3-2-1.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0022-tecnica-5-4-3-2-1-anclaje-sensorial.webp"
   },
   {
     "id": "05_desanclaje_pensamientos",
@@ -859,7 +859,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_023_desanclaje-de-pensamientos-defusion-cognitiva-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0023-desanclaje-de-pensamientos-defusion-cognitiva.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -876,7 +876,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_023_desanclaje-de-pensamientos.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0023-desanclaje-de-pensamientos-defusion-cognitiva.webp"
   },
   {
     "id": "06_refugio_respiracion",
@@ -892,7 +892,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_024_el-refugio-de-la-respiracion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0024-el-refugio-de-la-respiracion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -909,7 +909,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_024_la-respiracion-como-refugio.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0024-el-refugio-de-la-respiracion.webp"
   },
   {
     "id": "07_sos_reunion",
@@ -925,7 +925,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_025_sos-antes-de-una-reunion-confianza-rapida-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0025-sos-antes-de-una-reunion-confianza-rapida.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -942,7 +942,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_026_gestion-del-panico-tierra-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0025-sos-antes-de-una-reunion-confianza-rapida.webp"
   },
   {
     "id": "08_gestion_panico",
@@ -958,7 +958,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_026_gestion-del-panico-tierra-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0026-gestion-del-panico-tierra.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -975,7 +975,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_025_sos-antes-de-una-reunion-confianza-rapida-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0026-gestion-del-panico-tierra.webp"
   },
   {
     "id": "09_alivio_pecho",
@@ -991,7 +991,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_027_alivio-de-la-opresion-en-el-pecho.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0027-alivio-de-la-opresion-en-el-pecho.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1008,7 +1008,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_028_neutralizacion-de-la-rumiacion.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0027-alivio-de-la-opresion-en-el-pecho.webp"
   },
   {
     "id": "10_neutralizar_rumiacion",
@@ -1024,7 +1024,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_028_neutralizacion-de-la-rumiacion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0028-neutralizacion-de-la-rumiacion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1041,7 +1041,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_027_alivio-de-la-opresion-en-el-pecho.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0028-neutralizacion-de-la-rumiacion.webp"
   },
   {
     "id": "11_reset_3min",
@@ -1057,7 +1057,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/calmasos_aria_029_reset-de-3-minutos.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0029-reset-de-3-minutos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1074,7 +1074,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF6B6B",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/calmasos_aria_029_reset-de-3-minutos.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/calmasos/0029-reset-de-3-minutos.webp"
   },
   {
     "id": "11_despertar_mente",
@@ -1090,11 +1090,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_030_despertar-de-la-mente-focus-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0030-despertar-de-la-mente-focus.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1122,11 +1122,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_031_cardio-energia-respiracion-activa-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0031-cardio-energia-respiracion-activa.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1154,11 +1154,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_032_afirmaciones-de-poder.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0032-afirmaciones-de-poder.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1186,11 +1186,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_033_cafe-mental-respiracion-de-fuego-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0033-cafe-mental-respiracion-de-fuego.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1218,11 +1218,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_034_amanecer-en-el-cuerpo-movilidad-y-consciencia-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0034-amanecer-en-el-cuerpo-movilidad-y-consciencia.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1250,11 +1250,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_035_afirmaciones-de-proposito.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0035-afirmaciones-de-proposito.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1282,11 +1282,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_036_activacion-de-dopamina-natural.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0036-activacion-de-dopamina-natural.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1314,11 +1314,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_037_superar-la-niebla-mental.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0037-superar-la-niebla-mental.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1346,11 +1346,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_038_visualizacion-de-exito-diario.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0038-visualizacion-de-exito-diario.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1378,11 +1378,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/despertar_gaia_039_respiracion-alterna-nadi-shodhana-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/despertar/0039-respiracion-alterna-nadi-shodhana.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Ziro",
+    "creatorCredentials": "Guía de Resiliencia y Enfoque",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -1410,7 +1410,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_040_mi-nuevo-yo-identidad-y-habito-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0040-mi-nuevo-yo-identidad-y-habito.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1442,7 +1442,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_041_comer-consciente-mindful-eating-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0041-comer-consciente-mindful-eating.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1474,7 +1474,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_042_caminar-sin-prisa-mindful-walking-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0042-caminar-sin-prisa-mindful-walking.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1506,7 +1506,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_043_detox-digital-soltar-la-pantalla-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0043-detox-digital-soltar-la-pantalla.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1538,7 +1538,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_044_gratitud-antes-de-dormir.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0044-gratitud-antes-de-dormir.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1570,7 +1570,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_045_paciencia-ante-la-espera-cola-o-trafico-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0045-paciencia-ante-la-espera-cola-o-trafico.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1602,7 +1602,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_046_escucha-profunda-relaciones-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0046-escucha-profunda-relaciones.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1634,7 +1634,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_047_respiracion-consciente-en-el-trabajo.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0047-respiracion-consciente-en-el-trabajo.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1666,7 +1666,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_048_vivir-con-minimalismo-mental.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0048-vivir-con-minimalismo-mental.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1698,7 +1698,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/habitos_aria_049_valorar-lo-pequeno-mindfulness-diario-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/habitos/0049-valorar-lo-pequeno-mindfulness-diario.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1730,7 +1730,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_050_reconocer-la-emocion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0050-reconocer-la-emocion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1762,7 +1762,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_051_el-espacio-entre-estimulo-y-respuesta.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0051-el-espacio-entre-estimulo-y-respuesta.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1794,7 +1794,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_052_autogestion-de-la-ansiedad.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0052-autogestion-de-la-ansiedad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1826,7 +1826,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_053_bondad-amorosa-metta-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0053-bondad-amorosa-metta.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1858,7 +1858,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_054_compassion-por-los-demas.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0054-compassion-por-los-demas.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1890,7 +1890,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_055_observar-la-ira-el-volcan-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0055-observar-la-ira-el-volcan.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1922,7 +1922,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_056_gestionar-la-tristeza.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0056-gestionar-la-tristeza.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1954,7 +1954,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_057_escucha-empatica-preparacion-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0057-escucha-empatica-preparacion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -1986,7 +1986,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_058_auto-responsabilidad.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0058-auto-responsabilidad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -2018,7 +2018,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/emocional_aria_059_celebrar-el-logro-ajeno-mudita-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/emocional/0059-celebrar-el-logro-ajeno-mudita.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -2050,11 +2050,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_060_la-aventura-del-aire-respiracion-magica-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0060-la-aventura-del-aire-respiracion-magica.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2082,11 +2082,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_061_el-bosque-de-la-relajacion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0061-el-bosque-de-la-relajacion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2114,11 +2114,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_062_el-superpoder-del-silencio.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0062-el-superpoder-del-silencio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2146,11 +2146,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_063_adios-al-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0063-adios-al.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2178,11 +2178,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_064_habitantes-de-la-mente-mindfulness-para-ninos-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0064-habitantes-de-la-mente-mindfulness-para-ninos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2210,11 +2210,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_065_el-viaje-en-la-nube.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0065-el-viaje-en-la-nube.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2242,11 +2242,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_066_soy-el-capitan-de-mi-barco.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0066-soy-el-capitan-de-mi-barco.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2274,11 +2274,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_067_gratitud-para-ninos-el-arbol-de-la-suerte-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0067-gratitud-para-ninos-el-arbol-de-la-suerte.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2306,11 +2306,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_068_concentracion-para-ninos-el-rayo-laser-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0068-concentracion-para-ninos-el-rayo-laser.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2338,11 +2338,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/kids_gaia_069_estiramiento-estrella-despertar-ninos-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0069-estiramiento-estrella-despertar-ninos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Gaia",
-    "creatorCredentials": "Guía de Energía y Conexión",
+    "creatorName": "Aria",
+    "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2370,11 +2370,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_070_mindfulness-en-la-respiracion-anapanasati-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0070-mindfulness-en-la-respiracion-anapanasati.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2387,7 +2387,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_070_mindfulness-en-la-respiracion-anapanasati-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0070-mindfulness-en-la-respiracion-anapanasati.webp"
   },
   {
     "id": "32_escaner_corporal",
@@ -2403,11 +2403,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_071_escaner-corporal-para-el-dia.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0071-escaner-corporal-para-el-dia.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2420,7 +2420,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_071_escaner-corporal-para-el-dia.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0071-escaner-corporal-para-el-dia.webp"
   },
   {
     "id": "33_observador_pensamientos",
@@ -2436,11 +2436,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_072_el-observador-de-pensamientos.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0072-el-observador-de-pensamientos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2453,7 +2453,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_072_el-observador-de-pensamientos.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0072-el-observador-de-pensamientos.webp"
   },
   {
     "id": "34_observador_imparcial",
@@ -2469,11 +2469,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_073_el-observador-imparcial.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0073-el-observador-imparcial.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2486,7 +2486,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_073_el-observador-imparcial.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0073-el-observador-imparcial.webp"
   },
   {
     "id": "35_mindfulness_sonidos",
@@ -2502,11 +2502,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_074_mindfulness-en-los-sonidos.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0074-mindfulness-en-los-sonidos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2519,7 +2519,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_074_mindfulness-en-los-sonidos.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0074-mindfulness-en-los-sonidos.webp"
   },
   {
     "id": "36_consciencia_sensaciones",
@@ -2535,11 +2535,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_075_consciencia-de-las-sensaciones-el-mapa-vivo-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0075-consciencia-de-las-sensaciones-el-mapa-vivo.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2552,7 +2552,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_075_consciencia-de-las-sensaciones-el-mapa-vivo-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0075-consciencia-de-las-sensaciones-el-mapa-vivo.webp"
   },
   {
     "id": "37_caminata_consciente",
@@ -2568,11 +2568,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_076_caminata-lenta-consciente.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0076-caminata-lenta-consciente.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2585,7 +2585,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_076_caminata-lenta-consciente.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0076-caminata-lenta-consciente.webp"
   },
   {
     "id": "38_pausa_pensamientos",
@@ -2601,11 +2601,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_077_la-pausa-entre-pensamientos.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0077-la-pausa-entre-pensamientos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2618,7 +2618,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_077_la-pausa-entre-pensamientos.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0077-la-pausa-entre-pensamientos.webp"
   },
   {
     "id": "39_vipassana_cuerpo",
@@ -2634,11 +2634,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_078_vipassana-el-cuerpo-revelado.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0078-vipassana-el-cuerpo-revelado.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2651,7 +2651,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_078_vipassana-el-cuerpo-revelado.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0078-vipassana-el-cuerpo-revelado.webp"
   },
   {
     "id": "40_presencia_ahora",
@@ -2667,11 +2667,11 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/mindfulness_aria_079_presencia-en-el-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0079-presencia-en-el.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
-    "creatorCredentials": "Guía Especialista en Mindfulness",
+    "creatorName": "Gaia",
+    "creatorCredentials": "Guía de Energía y Conexión",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {
       "inhale": 4,
@@ -2684,7 +2684,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#9B59B6",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/mindfulness_aria_079_presencia-en-el-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/mindfulness/0079-presencia-en-el.webp"
   },
   {
     "id": "51_flow_state",
@@ -2700,7 +2700,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_080_flow-state-inmersion-total.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0080-flow-state-inmersion-total.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2718,7 +2718,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "color": "#E67E22",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
     ,
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_080_flow-state-inmersion-total.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0080-flow-state-inmersion-total.webp"
   },
   {
     "id": "52_concentracion_laser",
@@ -2734,7 +2734,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_081_concentracion-laser.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0081-concentracion-laser.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2752,7 +2752,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "color": "#E67E22",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
     ,
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_081_concentracion-laser.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0081-concentracion-laser.webp"
   },
   {
     "id": "53_preparacion_creatividad",
@@ -2768,7 +2768,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_082_preparacion-para-la-creatividad.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0082-preparacion-para-la-creatividad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2786,7 +2786,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "color": "#E67E22",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
     ,
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_082_preparacion-para-la-creatividad.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0082-preparacion-para-la-creatividad.webp"
   },
   {
     "id": "54_enfoque_estudiar",
@@ -2802,7 +2802,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_083_enfoque-antes-de-estudiar.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0083-enfoque-antes-de-estudiar.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2820,7 +2820,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "color": "#E67E22",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
     ,
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/rendimiento_ziro_083_enfoque-antes-de-estudiar.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0083-enfoque-antes-de-estudiar.webp"
   },
   {
     "id": "55_mentalidad_ganadora",
@@ -2836,7 +2836,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_084_mentalidad-ganadora-efecto-ganador-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0084-mentalidad-ganadora-efecto-ganador.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2868,7 +2868,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_085_superar-la-procrastinacion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0085-superar-la-procrastinacion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2900,7 +2900,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_086_foco-en-la-monotarea.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0086-foco-en-la-monotarea.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2932,7 +2932,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_087_vision-periferica-y-calma-hakalau-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0087-vision-periferica-y-calma-hakalau.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2964,7 +2964,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_088_resiliencia-bajo-presion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0088-resiliencia-bajo-presion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -2996,7 +2996,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/rendimiento_ziro_089_bloqueo-de-distracciones.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/rendimiento/0089-bloqueo-de-distracciones.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Ziro",
@@ -3028,7 +3028,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_090_la-ciudadela-interior-estoicismo-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0090-la-ciudadela-interior-estoicismo.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3046,7 +3046,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
     ,
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_090_la-ciudadela-interior.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0090-la-ciudadela-interior-estoicismo.webp"
   },
   {
     "id": "42_gestion_cambio",
@@ -3062,7 +3062,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_091_gestion-del-cambio-aceptacion-estoica-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0091-gestion-del-cambio-aceptacion-estoica.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3080,7 +3080,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
     ,
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_091_gestion-del-cambio.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0091-gestion-del-cambio-aceptacion-estoica.webp"
   },
   {
     "id": "43_gratitud_radical",
@@ -3096,7 +3096,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_092_gratitud-radical.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0092-gratitud-radical.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3114,7 +3114,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz."
     ,
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_092_gratitud-radical.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0092-gratitud-radical.webp"
   },
   {
     "id": "44_transformar_fracaso",
@@ -3130,7 +3130,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_093_transformar-el-fracaso-resiliencia-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0093-transformar-el-fracaso-resiliencia.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3147,7 +3147,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_093_transformar-el-fracaso.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0093-transformar-el-fracaso-resiliencia.webp"
   },
   {
     "id": "45_observador_tormenta",
@@ -3163,7 +3163,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_094_el-observador-de-la-tormenta.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0094-el-observador-de-la-tormenta.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3180,7 +3180,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_094_el-observador-de-la-tormenta.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0094-el-observador-de-la-tormenta.webp"
   },
   {
     "id": "46_fortaleza_adversidad",
@@ -3196,7 +3196,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_095_fortaleza-ante-la-adversidad.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0095-fortaleza-ante-la-adversidad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3213,7 +3213,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_095_fortaleza-ante-la-adversidad.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0095-fortaleza-ante-la-adversidad.webp"
   },
   {
     "id": "47_autocompasion_error",
@@ -3229,7 +3229,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_096_auto-compasion-ante-el-error.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0096-auto-compasion-ante-el-error.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3246,7 +3246,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_096_autocompasion-ante-el-error.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0096-auto-compasion-ante-el-error.webp"
   },
   {
     "id": "48_desaprender_juicio",
@@ -3262,7 +3262,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_097_desaprender-el-juicio.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0097-desaprender-el-juicio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3279,7 +3279,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_097_desaprender-el-juicio.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0097-desaprender-el-juicio.webp"
   },
   {
     "id": "49_ecuanimidad_caos",
@@ -3295,7 +3295,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_098_ecuanimidad-en-el-caos.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0098-ecuanimidad-en-el-caos.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3312,7 +3312,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_098_ecuanimidad-en-el-caos.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0098-ecuanimidad-en-el-caos.webp"
   },
   {
     "id": "50_previsualizacion_males",
@@ -3328,7 +3328,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/resiliencia_eter_099_previsualizacion-de-dificultades-pre-mortum-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0099-previsualizacion-de-dificultades-pre-mortum.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3345,7 +3345,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#FF9F43",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/resiliencia_eter_099_previsualizacion-de-males.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/resiliencia/0099-previsualizacion-de-dificultades-pre-mortum.webp"
   },
   {
     "id": "61_alivio_dolor",
@@ -3361,7 +3361,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_100_alivio-del-dolor-escaner-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0100-alivio-del-dolor-escaner.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3393,7 +3393,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_101_consciencia-de-la-postura.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0101-consciencia-de-la-postura.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3425,7 +3425,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_102_recuperacion-post-ejercicio.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0102-recuperacion-post-ejercicio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3457,7 +3457,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_103_respiracion-para-la-digestion.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0103-respiracion-para-la-digestion.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3489,7 +3489,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_104_escucha-de-la-incomodidad.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0104-escucha-de-la-incomodidad.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3521,7 +3521,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_105_relajacion-de-mandibula-y-rostro.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0105-relajacion-de-mandibula-y-rostro.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3553,7 +3553,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_106_el-cuerpo-como-aliado.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0106-el-cuerpo-como-aliado.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3585,7 +3585,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_107_gestion-de-la-cefalea-por-tension.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0107-gestion-de-la-cefalea-por-tension.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3617,7 +3617,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_108_vitalidad-sistemica.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0108-vitalidad-sistemica.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3649,7 +3649,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/salud_aria_109_conexion-mente-intestino.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/salud/0109-conexion-mente-intestino.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Aria",
@@ -3681,7 +3681,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_110_preparacion-para-el-ensueno.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0110-preparacion-para-el-ensueno.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3698,7 +3698,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_110_preparacion-para-el-ensueno.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0110-preparacion-para-el-ensueno.webp"
   },
   {
     "id": "22_descanso_post_pantallas",
@@ -3714,7 +3714,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_111_relajacion-post-pantallas.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0111-relajacion-post-pantallas.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3731,7 +3731,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_111_relajacion-post-pantallas.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0111-relajacion-post-pantallas.webp"
   },
   {
     "id": "23_lago_calma",
@@ -3747,7 +3747,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_112_el-lago-de-la-calma.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0112-el-lago-de-la-calma.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3764,7 +3764,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_112_el-lago-de-la-calma.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0112-el-lago-de-la-calma.webp"
   },
   {
     "id": "24_respiracion_luna",
@@ -3780,7 +3780,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_113_respiracion-de-la-luna-chandra-bhedana-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0113-respiracion-de-la-luna-chandra-bhedana.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3797,7 +3797,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_113_respiracion-de-la-luna-chandra-bhedana-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0113-respiracion-de-la-luna-chandra-bhedana.webp"
   },
   {
     "id": "25_478_nocturno",
@@ -3813,7 +3813,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_114_4-7-8-nocturno-hacia-el-sueno-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0114-4-7-8-nocturno-hacia-el-sueno.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3830,7 +3830,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_114_4-7-8-nocturno-hacia-el-sueno-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0114-4-7-8-nocturno-hacia-el-sueno.webp"
   },
   {
     "id": "26_relajacion_jacobson",
@@ -3846,7 +3846,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_115_relajacion-muscular-progresiva-jacobson-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0115-relajacion-muscular-progresiva-jacobson.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3863,7 +3863,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_115_relajacion-muscular-progresiva-jacobson-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0115-relajacion-muscular-progresiva-jacobson.webp"
   },
   {
     "id": "27_vaciado_mental",
@@ -3879,7 +3879,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_116_soltar-el-dia-vaciado-mental-.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0116-soltar-el-dia-vaciado-mental.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3896,7 +3896,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_116_soltar-el-dia-vaciado-mental-.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0116-soltar-el-dia-vaciado-mental.webp"
   },
   {
     "id": "28_alivio_insomnio",
@@ -3912,7 +3912,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_117_sosiego-del-insomnio.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0117-sosiego-del-insomnio.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3929,7 +3929,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_117_sosiego-del-insomnio.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0117-sosiego-del-insomnio.webp"
   },
   {
     "id": "29_respiracion_abdominal",
@@ -3945,7 +3945,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_118_respiracion-abdominal-profunda.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0118-respiracion-abdominal-profunda.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3962,7 +3962,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_118_respiracion-abdominal-profunda.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0118-respiracion-abdominal-profunda.webp"
   },
   {
     "id": "30_silencio_mente",
@@ -3978,7 +3978,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "sessionType": "guided_pure",
     "isCustomizable": false,
     "audioLayers": {
-      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-voices/sueno_eter_119_el-silencio-de-la-mente.mp3",
+      "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0119-el-silencio-de-la-mente.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
     "creatorName": "Éter",
@@ -3995,7 +3995,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
     "isPremium": false,
     "color": "#4A90E2",
     "practiceInstruction": "Cierra los ojos y déjate guiar por la voz.",
-    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/sueno_eter_119_el-silencio-de-la-mente.webp"
+    "thumbnailUrl": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/sueno/0119-el-silencio-de-la-mente.webp"
   }
 ];
 

@@ -70,7 +70,7 @@ export const RealStoriesCreate = () => {
                 </Form.Item>
 
                 <MediaUploader
-                    bucket="meditation-thumbnails"
+                    bucket="meditation"
                     label="Upload Cover Image"
                     onUploadSuccess={handleUploadSuccess}
                 />

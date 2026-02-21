@@ -87,5 +87,5 @@ Con la introducción del **Escáner Cardio Premium** en v2.11.0, se establece un
 Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confianza del usuario.
 
 ---
-*Última revisión: 21 de Febrero de 2026 - Versión 2.15.0 (Premium Audio & Admin Sync)*
+*Última revisión: 21 de Febrero de 2026 - Versión 2.30.0 (Premium Audio & Admin Sync)*
 

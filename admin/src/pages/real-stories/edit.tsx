@@ -72,7 +72,7 @@ export const RealStoriesEdit = () => {
                 </Form.Item>
 
                 <MediaUploader
-                    bucket="meditation-thumbnails"
+                    bucket="meditation"
                     label="Replace Cover Image"
                     initialUrl={initialCoverUrl}
                     onUploadSuccess={handleUploadSuccess}

@@ -6,8 +6,8 @@ const storageDataPath = 'c:/Mis Cosas/Proyectos/Paziify/scripts/storage_objects.
 
 try {
     const STORAGE_LIST = JSON.parse(fs.readFileSync(storageDataPath, 'utf8'));
-    const voices = STORAGE_LIST.filter(o => o.bucket_id === 'meditation-voices').map(o => o.name);
-    const thumbnails = STORAGE_LIST.filter(o => o.bucket_id === 'meditation-thumbnails').map(o => o.name);
+    const voices = STORAGE_LIST.filter(o => o.bucket_id === 'meditation' && o.name.endsWith('.mp3')).map(o => o.name);
+    const thumbnails = STORAGE_LIST.filter(o => o.bucket_id === 'meditation' && o.name.endsWith('.webp')).map(o => o.name);
 
     const fileContent = fs.readFileSync(sessionsFilePath, 'utf8');
 

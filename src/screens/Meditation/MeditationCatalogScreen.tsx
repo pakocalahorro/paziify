@@ -112,28 +112,28 @@ const GUIDES = [
         name: 'Aria',
         specialty: 'Calma',
         color: '#66DEFF',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/aria_avatar.webp'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/aria_avatar.webp'
     },
     {
         id: 'eter',
         name: 'Éter',
         specialty: 'Sueño',
         color: '#9575CD',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/eter_avatar.webp'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/eter_avatar.webp'
     },
     {
         id: 'ziro',
         name: 'Ziro',
         specialty: 'Resiliencia',
         color: '#646CFF',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/ziro_avatar.webp'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/ziro_avatar.webp'
     },
     {
         id: 'gaia',
         name: 'Gaia',
         specialty: 'Energía',
         color: '#FFA726',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation-thumbnails/gaia_avatar.webp'
+        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/gaia_avatar.webp'
     },
 ];
 
