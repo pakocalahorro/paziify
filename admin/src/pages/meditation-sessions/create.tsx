@@ -42,9 +42,18 @@ export const MeditationSessionCreate = () => {
                 <Form.Item label="Descripción" name="description">
                     <Input.TextArea rows={3} />
                 </Form.Item>
-                <Form.Item label="Slug (ID en App)" name="slug" rules={[{ required: true }]} help="Ej: 'box-breathing-anxiety'">
-                    <Input />
-                </Form.Item>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <Form.Item
+                        label="Orden / Índice (Filtro NNN)"
+                        name="order_index"
+                        help="Ej: '082' para generar el nombre de archivo"
+                    >
+                        <Input placeholder="082" maxLength={3} />
+                    </Form.Item>
+                    <Form.Item label="Slug (ID en App)" name="slug" rules={[{ required: true }]} help="Ej: 'bosque-relajacion'">
+                        <Input />
+                    </Form.Item>
+                </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <Form.Item label="Categoría" name="category" rules={[{ required: true }]}>
@@ -82,9 +91,10 @@ export const MeditationSessionCreate = () => {
                     <Input readOnly placeholder="Upload audio below" />
                 </Form.Item>
                 <MediaUploader
-                    bucket="meditation-voices"
+                    bucket="meditation"
                     label="Subir Audio Principal"
                     accept="audio/*"
+                    customFileName={`${form?.getFieldValue("order_index")}-${form?.getFieldValue("slug")}`}
                     onUploadSuccess={handleAudioSuccess}
                 />
 
@@ -92,8 +102,9 @@ export const MeditationSessionCreate = () => {
                     <Input readOnly placeholder="Upload image below" />
                 </Form.Item>
                 <MediaUploader
-                    bucket="meditation-thumbnails"
+                    bucket="meditation"
                     label="Subir Miniatura"
+                    customFileName={`${form?.getFieldValue("order_index")}-${form?.getFieldValue("slug")}`}
                     onUploadSuccess={handleThumbnailSuccess}
                 />
 

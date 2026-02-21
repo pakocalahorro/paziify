@@ -10,6 +10,7 @@ interface MediaUploaderProps {
     label: string;
     accept?: string;
     initialUrl?: string;
+    customFileName?: string;
     onUploadSuccess: (url: string) => void;
 }
 
@@ -18,6 +19,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     label,
     accept = "image/*,audio/*",
     initialUrl,
+    customFileName,
     onUploadSuccess,
 }) => {
     const [uploading, setUploading] = useState(false);
@@ -42,8 +44,17 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     const handleUpload = async (file: File) => {
         setUploading(true);
         try {
-            const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-            const fileName = `${Date.now()}-${sanitizedName}`;
+            let fileName = "";
+
+            if (customFileName) {
+                // If customFileName is provided (e.g., "082-bosque"), append the extension
+                const extension = file.name.split('.').pop();
+                fileName = `${customFileName}.${extension}`;
+            } else {
+                // Legacy: Timestamp + Sanitized Name
+                const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+                fileName = `${Date.now()}-${sanitizedName}`;
+            }
 
             const { data, error } = await supabaseClient.storage
                 .from(bucket)
