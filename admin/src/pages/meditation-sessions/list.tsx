@@ -1,6 +1,7 @@
 import { List, useTable, TagField, EditButton, DeleteButton } from "@refinedev/antd";
 import { Table, Space, Form, Input, Button } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import { MEDITATION_CATEGORIES, PAZIIFY_GUIDES } from "../../constants/meditation-constants";
 
 export const MeditationSessionList = () => {
     const { tableProps, searchFormProps } = useTable({
@@ -57,24 +58,12 @@ export const MeditationSessionList = () => {
                 <Table.Column
                     dataIndex="category"
                     title="Category"
-                    filters={[
-                        { text: 'Calmasos', value: 'calmasos' },
-                        { text: 'Meditación', value: 'meditacion' },
-                        { text: 'Respiración', value: 'respiracion' },
-                        { text: 'Cuentos', value: 'cuentos' },
-                        { text: 'Resiliencia', value: 'resiliencia' },
-                        { text: 'Rendimiento', value: 'rendimiento' },
-                    ]}
+                    filters={MEDITATION_CATEGORIES.map(cat => ({ text: cat.label, value: cat.value }))}
                 />
                 <Table.Column
                     dataIndex="creator_name"
                     title="Guide"
-                    filters={[
-                        { text: 'Aria', value: 'Aria' },
-                        { text: 'Ziro', value: 'Ziro' },
-                        { text: 'Éter', value: 'Éter' },
-                        { text: 'Gaia', value: 'Gaia' },
-                    ]}
+                    filters={PAZIIFY_GUIDES.map(guide => ({ text: guide.label, value: guide.value }))}
                 />
                 <Table.Column dataIndex="slug" title="Slug" />
                 <Table.Column

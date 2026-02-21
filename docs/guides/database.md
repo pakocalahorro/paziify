@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.11.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.15.0) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.11.0** introduce el protocolo de **Privacidad Bio-métrica** junto con la consolidación del almacenamiento Zero-Egress.
+Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.15.0** consolida la sincronización total del Admin CMS y el motor de audio premium.
 
 ---
 
@@ -13,8 +13,10 @@ Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase 
 ### `meditation_sessions_content` 🧘
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
-| `audio_layers` | JSONB | Voces (Gaia, Ziro, Aria, Éter), Paisajes, Ondas |
-| `breathing_config` | JSONB | Tiempos de inhalación/exhalación (Bio-feedback) |
+| `legacy_id` | TEXT | ID único para la App (ej: "anx_401"). Autosync con `slug`. |
+| `audio_config`| JSONB | Configuración de Binaurales y Soundscapes. |
+| `breathing_config`| JSONB | Tiempos de inhalación/exhalación. |
+| `time_of_day` | TEXT | Categorización temporal (mañana/noche). |
 
 ### 3. Esquema Educativo (Academia v2.8.10) 🎓
 | Tabla | Propósito |
@@ -79,5 +81,5 @@ Con la introducción del **Escáner Cardio Premium** en v2.11.0, se establece un
 Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confianza del usuario.
 
 ---
-*Última revisión: 18 de Febrero de 2026 - Versión 2.11.0 (Premium Calibration System)*
+*Última revisión: 21 de Febrero de 2026 - Versión 2.15.0 (Premium Audio & Admin Sync)*
 

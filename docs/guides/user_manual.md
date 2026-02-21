@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.13.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.15.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.13.0 (Premium Editorial Home)**. Esta versión introduce una reestructuración arquitectónica masiva de la pantalla de inicio, elevándola a grado editorial.
+Bienvenido a la guía oficial de **Paziify v2.15.0 (Premium Audio & Admin Sync)**. Esta versión profesionaliza la generación de audio y la gestión de contenidos.
 
 ---
 
@@ -93,8 +93,11 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 ## 7. Panel de Administración (CMS Profesional) ⚙️
 **Acceso:** Panel Web dedicado.
-- **Gestión Total**: El contenido de la Academia, Audiolibros e Historias se gestiona ahora de forma profesional sin tocar código, permitiendo subidas masivas de media y edición de metadatos.
-- **Categorías Dinámicas (NUEVO v2.9)**: Ahora puedes crear/editar Historias con categorías estándar (`Rendimiento`, `Despertar`, etc.) y aparecerán automáticamente en la App.
+- **Gestión Total**: El contenido de la Academia, Audiolibros e Historias se gestiona ahora de forma profesional sin tocar código.
+- **Sincronización Técnica (v2.15.0)**:
+    - **Campos App-Ready**: Inclusión de momentos del día, niveles de dificultad y configuración de ondas binaurales.
+    - **Autosync de IDs**: El panel genera automáticamente el `legacy_id` para asegurar que la App localice siempre los archivos de audio en Supabase.
+    - **Categorías Validadas**: Filtros unificados con las 10 categorías maestras del proyecto.
 
 ---
 
@@ -105,6 +108,6 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 
 ---
-*Última revisión: 20 de Febrero de 2026 - Versión 2.13.0 (Premium Editorial Home)*  
+*Última revisión: 21 de Febrero de 2026 - Versión 2.15.0 (Premium Audio & Admin Sync)*  
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `CompassScreen` -> `HomeScreen` -> `CardioScanScreen`
 

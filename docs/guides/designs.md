@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.12.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.15.0) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.12.0** introduce los **Componentes Bio Científicos** para el Escáner Cardio de Grado Médico.
+Esta guía define el ADN visual de Paziify. La versión **v2.15.0** introduce las **Voces Premium Chirp3-HD/Studio** para una inmersión espiritual sin precedentes.
 
 ---
 
@@ -209,4 +209,4 @@ Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas"
 
 ---
 
-*Última revisión: 20 de Febrero de 2026 - Master Audit v2.13.0 (Premium Editorial Home)*
+*Última revisión: 21 de Febrero de 2026 - Master Audit v2.15.0 (Premium Audio & Admin Sync)*

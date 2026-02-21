@@ -23,7 +23,7 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
    - **Requisito**: Dividir por "Hitos Críticos". Cada hito debe explicar el **POR QUÉ** del cambio, no solo el qué.
    - **Double-Check**: Coteja la nota contra tus apuntes del paso 1.
 
-### 3. Sincronización en Cascada (OBLIGATORIO) 🌊
+### 3. Actualizar documentos (OBLIGATORIO) 🌊
    Para cada cambio identificado, **ACTUALIZA** en este orden:
    1. **`walkthrough.md`**: La radiografía técnica 1:1. Incluye `render_diffs` de los puntos calientes.
    2. **`README.md`**: Si hay nueva versión o features clave.

@@ -1,159 +1,134 @@
 import { Create, useForm } from "@refinedev/antd";
-import { Form, Input, Select, Checkbox, Tabs, InputNumber, Divider, Typography } from "antd";
+import { Form, Input, Select, Checkbox, Divider, Typography, InputNumber } from "antd";
 import { MediaUploader } from "../../components/media/MediaUploader";
+import {
+    MEDITATION_CATEGORIES,
+    PAZIIFY_GUIDES,
+    TIME_OF_DAY_OPTIONS,
+    DIFFICULTY_LEVELS
+} from "../../constants/meditation-constants";
 
 const { Text } = Typography;
 
 export const MeditationSessionCreate = () => {
-    const { formProps, saveButtonProps, form } = useForm();
+    const { formProps, saveButtonProps, form, onFinish } = useForm({
+        resource: "meditation_sessions_content",
+    });
+
+    const handleAudioSuccess = (url: string) => {
+        form?.setFieldValue("voice_url", url);
+    };
 
     const handleThumbnailSuccess = (url: string) => {
         form?.setFieldValue("thumbnail_url", url);
     };
 
-    const handleVoiceSuccess = (url: string) => {
-        form?.setFieldValue("voice_url", url);
+    const handleOnFinish = async (values: any) => {
+        // Enforce Panel Admin = Supabase = App
+        // Map slug to legacy_id automatically for backward compatibility or DB constraints
+        const finalValues = {
+            ...values,
+            legacy_id: values.slug,
+        };
+        await onFinish(finalValues);
     };
-
-    const tabItems = [
-        {
-            key: "1",
-            label: "Contenido Básico",
-            children: (
-                <>
-                    <Form.Item label="Título" name="title" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Slogan / Descripción Corta" name="description">
-                        <Input.TextArea rows={3} />
-                    </Form.Item>
-                    <Form.Item label="Slug (ID Único)" name="slug" rules={[{ required: true }]} help="ej: respiracion_basica">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Categoría" name="category" rules={[{ required: true }]}>
-                        <Select
-                            options={[
-                                { label: 'Calma SOS', value: 'calmasos' },
-                                { label: 'Meditación', value: 'meditacion' },
-                                { label: 'Respiración', value: 'respiracion' },
-                                { label: 'Cuentos', value: 'cuentos' },
-                                { label: 'Resiliencia', value: 'resiliencia' },
-                                { label: 'Rendimiento', value: 'rendimiento' },
-                                { label: 'Paziify Kids', value: 'kids' },
-                                { label: 'Despertar', value: 'despertar' },
-                                { label: 'Mindfulness', value: 'mindfulness' },
-                                { label: 'Sueño', value: 'sueno' },
-                            ]}
-                        />
-                    </Form.Item>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                        <Form.Item label="Duración (Minutos)" name="duration_minutes" style={{ flex: 1 }}>
-                            <InputNumber min={0} style={{ width: '100%' }} />
-                        </Form.Item>
-                        <Form.Item label="Nivel de Dificultad" name="difficulty_level" style={{ flex: 1 }}>
-                            <Select
-                                options={[
-                                    { label: 'Principiante', value: 'principiante' },
-                                    { label: 'Intermedio', value: 'intermedio' },
-                                    { label: 'Avanzado', value: 'avanzado' },
-                                ]}
-                            />
-                        </Form.Item>
-                    </div>
-                    <Form.Item label="Tags de Estado de Ánimo" name="mood_tags">
-                        <Select mode="tags" placeholder="pánico, estrés, sueño..." />
-                    </Form.Item>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                        <Form.Item label="Premium" name="is_premium" valuePropName="checked">
-                            <Checkbox>Solo para miembros Plus</Checkbox>
-                        </Form.Item>
-                        <Form.Item label="Es Técnica" name="is_technical" valuePropName="checked">
-                            <Checkbox>Requiere guía visual técnica</Checkbox>
-                        </Form.Item>
-                    </div>
-                </>
-            )
-        },
-        {
-            key: "2",
-            label: "Configuración de Audio y Medios",
-            children: (
-                <>
-                    <Form.Item label="Thumbnail URL" name="thumbnail_url">
-                        <Input readOnly />
-                    </Form.Item>
-                    <MediaUploader
-                        bucket="meditation-thumbnails"
-                        label="Subir Miniatura"
-                        onUploadSuccess={handleThumbnailSuccess}
-                    />
-
-                    <Divider />
-
-                    <Form.Item label="Voice URL (Audio principal)" name="voice_url">
-                        <Input readOnly />
-                    </Form.Item>
-                    <MediaUploader
-                        bucket="meditation-voices"
-                        label="Subir Audio de la Guía"
-                        accept="audio/*"
-                        onUploadSuccess={handleVoiceSuccess}
-                    />
-
-                    <Divider />
-
-                    <Text strong>Configuración Inicial de Sonido</Text>
-                    <Form.Item name={["audio_config", "defaultSoundscape"]} label="Paisaje Sonoro Inicial">
-                        <Input placeholder="bird_relaxation" />
-                    </Form.Item>
-                </>
-            )
-        },
-        {
-            key: "3",
-            label: "Respiración y Metadatos",
-            children: (
-                <>
-                    <Text strong>Patrón de Respiración (Segundos)</Text>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                        <Form.Item label="Inhalar" name={["breathing_config", "inhale"]} style={{ flex: 1 }}>
-                            <InputNumber min={0} defaultValue={4} style={{ width: '100%' }} />
-                        </Form.Item>
-                        <Form.Item label="Mantener" name={["breathing_config", "hold"]} style={{ flex: 1 }}>
-                            <InputNumber min={0} defaultValue={4} style={{ width: '100%' }} />
-                        </Form.Item>
-                        <Form.Item label="Exhalar" name={["breathing_config", "exhale"]} style={{ flex: 1 }}>
-                            <InputNumber min={0} defaultValue={4} style={{ width: '100%' }} />
-                        </Form.Item>
-                        <Form.Item label="Pausa Post" name={["breathing_config", "holdPost"]} style={{ flex: 1 }}>
-                            <InputNumber min={0} defaultValue={0} style={{ width: '100%' }} />
-                        </Form.Item>
-                    </div>
-
-                    <Divider />
-
-                    <Text strong>Metadatos Científicos</Text>
-                    <Form.Item label="Beneficios Científicos" name={["metadata", "scientific_benefits"]} style={{ marginTop: '8px' }}>
-                        <Input.TextArea rows={4} />
-                    </Form.Item>
-                    <Form.Item label="Nombre del Guía" name="creator_name">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Credenciales del Guía" name={["metadata", "creator_credentials"]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Habilitar Sincronización Visual" name={["metadata", "visual_sync_enabled"]} valuePropName="checked">
-                        <Checkbox defaultChecked>Sincronización del Orbe de Respiración</Checkbox>
-                    </Form.Item>
-                </>
-            )
-        }
-    ];
 
     return (
         <Create saveButtonProps={saveButtonProps}>
-            <Form {...formProps} layout="vertical">
-                <Tabs defaultActiveKey="1" items={tabItems} />
+            <Form {...formProps} onFinish={handleOnFinish} layout="vertical">
+                <Form.Item label="Título" name="title" rules={[{ required: true }]}>
+                    <Input placeholder="Respiración de Calma" />
+                </Form.Item>
+                <Form.Item label="Descripción" name="description">
+                    <Input.TextArea rows={3} />
+                </Form.Item>
+                <Form.Item label="Slug (ID en App)" name="slug" rules={[{ required: true }]} help="Ej: 'box-breathing-anxiety'">
+                    <Input />
+                </Form.Item>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <Form.Item label="Categoría" name="category" rules={[{ required: true }]}>
+                        <Select options={MEDITATION_CATEGORIES} />
+                    </Form.Item>
+                    <Form.Item label="Guía (Creador)" name="creator_name" rules={[{ required: true }]}>
+                        <Select options={PAZIIFY_GUIDES} />
+                    </Form.Item>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                    <Form.Item label="Momento del Día" name="time_of_day">
+                        <Select options={TIME_OF_DAY_OPTIONS} />
+                    </Form.Item>
+                    <Form.Item label="Dificultad" name="difficulty_level">
+                        <Select options={DIFFICULTY_LEVELS} />
+                    </Form.Item>
+                    <Form.Item label="Duración (minutos)" name="duration_minutes">
+                        <InputNumber style={{ width: '100%' }} min={1} />
+                    </Form.Item>
+                </div>
+
+                <Divider>Configuración Técnica & Audio</Divider>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <Form.Item label="Binaural (Default)" name={['audio_config', 'defaultBinaural']}>
+                        <Input placeholder="gamma_waves, theta_waves..." />
+                    </Form.Item>
+                    <Form.Item label="Soundscape (Default)" name={['audio_config', 'defaultSoundscape']}>
+                        <Input placeholder="bird_relaxation, moonlight..." />
+                    </Form.Item>
+                </div>
+
+                <Form.Item label="Voice URL" name="voice_url" rules={[{ required: true }]}>
+                    <Input readOnly placeholder="Upload audio below" />
+                </Form.Item>
+                <MediaUploader
+                    bucket="meditation-voices"
+                    label="Subir Audio Principal"
+                    accept="audio/*"
+                    onUploadSuccess={handleAudioSuccess}
+                />
+
+                <Form.Item label="Thumbnail URL" name="thumbnail_url" rules={[{ required: true }]}>
+                    <Input readOnly placeholder="Upload image below" />
+                </Form.Item>
+                <MediaUploader
+                    bucket="meditation-thumbnails"
+                    label="Subir Miniatura"
+                    onUploadSuccess={handleThumbnailSuccess}
+                />
+
+                <Divider>Respiración & Metadatos</Divider>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px' }}>
+                    <Form.Item label="Inhale" name={['breathing_config', 'inhale']}>
+                        <InputNumber style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item label="Hold" name={['breathing_config', 'hold']}>
+                        <InputNumber style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item label="Exhale" name={['breathing_config', 'exhale']}>
+                        <InputNumber style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item label="Hold Post" name={['breathing_config', 'holdPost']}>
+                        <InputNumber style={{ width: '100%' }} />
+                    </Form.Item>
+                </div>
+
+                <Form.Item label="Beneficios Científicos" name="scientific_benefits">
+                    <Input.TextArea rows={2} />
+                </Form.Item>
+
+                <div style={{ display: 'flex', gap: '24px' }}>
+                    <Form.Item label="Es Premium" name="is_premium" valuePropName="checked">
+                        <Checkbox>Available for Plus members only</Checkbox>
+                    </Form.Item>
+                    <Form.Item label="Visual Sync" name="visual_sync" valuePropName="checked">
+                        <Checkbox>Show titles & breath orb</Checkbox>
+                    </Form.Item>
+                    <Form.Item label="Technical Tutorial" name="is_technical" valuePropName="checked">
+                        <Checkbox>Mark as breathing tutorial</Checkbox>
+                    </Form.Item>
+                </div>
             </Form>
         </Create>
     );

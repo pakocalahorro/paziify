@@ -35,7 +35,13 @@ echo Archivo seleccionado: "%FILE_PATH%"
 echo.
 
 set "PERSONA=aria"
-set /p "PERSONA=Elige guia (aria, ziro, eter, gaia) [default: aria]: "
+echo Seleccione el guia por su nombre:
+echo   - aria (Vindemiatrix - Chirp3-HD)
+echo   - ziro (Enceladus - Chirp3-HD)
+echo   - gaia (Autonoe - Chirp3-HD)
+echo   - eter (Studio-F - Studio)
+echo.
+set /p "PERSONA=Escriba el nombre [default: aria]: "
 
 :: Definir directorio de salida fijo
 set "OUTPUT_DIR=C:\Mis Cosas\Proyectos\paziify-files"
