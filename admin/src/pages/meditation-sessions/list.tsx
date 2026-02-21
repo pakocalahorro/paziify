@@ -1,13 +1,14 @@
 import { List, useTable, TagField, EditButton, DeleteButton } from "@refinedev/antd";
 import { Table, Space, Form, Input, Button } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import { CrudFilters } from "@refinedev/core";
 import { MEDITATION_CATEGORIES, PAZIIFY_GUIDES } from "../../constants/meditation-constants";
 
 export const MeditationSessionList = () => {
     const { tableProps, searchFormProps } = useTable({
         resource: "meditation_sessions_content",
         onSearch: (params: any) => {
-            const filters = [];
+            const filters: CrudFilters = [];
             if (params.title) {
                 filters.push({
                     field: "title",
