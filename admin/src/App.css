@@ -87,3 +87,19 @@ td:last-child {
 .menu ul {
   padding-left: 16px;
 }
+
+/* AntD Resizable Columns */
+.react-resizable {
+  position: relative;
+  background-clip: padding-box;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  right: -5px;
+  bottom: 0;
+  z-index: 10;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+}

@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.30.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.30.5) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.30.0** introduce la **Evolución Premium** de contenido y herramientas administrativas profesionales.
+Esta guía define el ADN visual de Paziify. La versión **v2.30.5** introduce la **Evolución Premium** de contenido y herramientas administrativas profesionales.
 
 ---
 
@@ -44,9 +44,11 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 
 ---
 
-### 11. Panel Admin Premium (v2.30.0) 🛠️
+### 11. Panel Admin Premium (v2.30.5) 🛠️
 El CMS ha sido diseñado para una gestión técnica sin fricciones:
 
+*   **Portadas HDR (Listado)**: Miniaturas de **80px** con componente `Image` de Ant Design que permite previsualización clicable en pantalla completa.
+*   **Persistent Layout**: Uso de `localStorage` para recordar el ancho de las columnas (resizable) y el número de elementos por página (`pageSize`).
 *   **Jerarquía de Datos**: El campo **Slug** tiene prioridad visual absoluta, ubicado por encima del Título para facilitar la identificación técnica.
 *   **MediaUploader Out-of-box**: Componente especializado que permite la subida a subcarpetas, estandariza nombres a ASCII y gestiona la eliminación de archivos antiguos automáticamente.
 *   **Preview Integrado**: Botones de Play/Stop en los formularios para validar binaurales y paisajes sonoros instantáneamente.

@@ -12,6 +12,7 @@ interface MediaUploaderProps {
     initialUrl?: string;
     customFileName?: string;
     folder?: string; // Optional folder path (e.g., "kids" or "calmasos")
+    variant?: "card" | "compact";
     onUploadSuccess: (url: string, fileName?: string) => void;
 }
 
@@ -22,6 +23,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     initialUrl,
     customFileName,
     folder,
+    variant = "card",
     onUploadSuccess,
 }) => {
     const [uploading, setUploading] = useState(false);
@@ -56,7 +58,10 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
             }
 
             // OASIS FOLDER STRATEGY: Prefix with folder if provided
-            const finalPath = folder ? `${folder}/${baseName}` : baseName;
+            // DEFENSIVE: If baseName already starts with folder prefix, don't duplicate it
+            const finalPath = (folder && !baseName.startsWith(`${folder}/`))
+                ? `${folder}/${baseName}`
+                : baseName;
 
             const { data, error } = await supabaseClient.storage
                 .from(bucket)
@@ -120,6 +125,22 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
         handleUpload(file);
         return false; // Manual upload
     };
+
+    if (variant === "compact") {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Upload
+                    accept={accept}
+                    beforeUpload={beforeUpload}
+                    showUploadList={false}
+                >
+                    <Button icon={<UploadOutlined />} loading={uploading} size="small">
+                        {uploading ? "Subiendo..." : "Cargar"}
+                    </Button>
+                </Upload>
+            </div>
+        );
+    }
 
     return (
         <div style={{ marginBottom: '16px', padding: '12px', border: '1px dashed #d9d9d9', borderRadius: '8px' }}>

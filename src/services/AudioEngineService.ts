@@ -1,6 +1,6 @@
 import { Audio } from 'expo-av';
-import { supabase } from './supabaseClient';
 import { SOUNDSCAPES, BINAURAL_WAVES, ELEMENTS } from '../data/soundscapesData';
+import { soundscapesService } from './contentService';
 import CacheService from './CacheService';
 
 export interface AudioConfig {
@@ -103,11 +103,19 @@ class AudioEngineService {
         // Soundscape
         try {
             if (config.soundscape) {
-                const soundscape = SOUNDSCAPES.find(s => s.id === config.soundscape);
+                // Resolvamos dinámicamente desde Supabase si no está en local
+                const soundscape = await soundscapesService.getById(config.soundscape);
+
                 if (soundscape && soundscape.audioFile) {
-                    console.log(`[AUDIO_ENGINE] Loading soundscape: ${soundscape.name}`);
+                    // [OFFLINE PROTECTION] Route soundscape through CacheService
+                    const remoteUri = soundscape.audioFile.uri;
+                    const localUri = await CacheService.get(remoteUri, 'soundscape');
+                    const isLocal = localUri.startsWith('file://');
+
+                    console.log(`[AUDIO_ENGINE] Loading soundscape [${isLocal ? 'CACHE' : 'REMOTA'}]: ${soundscape.name}`);
+
                     const { sound } = await Audio.Sound.createAsync(
-                        soundscape.audioFile,
+                        { uri: localUri },
                         { shouldPlay: false, volume: this.volumes.soundscape, isLooping: true }
                     );
                     this.soundscapeSound = sound;
@@ -123,9 +131,14 @@ class AudioEngineService {
             if (config.binaural) {
                 const binaural = BINAURAL_WAVES.find(b => b.id === config.binaural);
                 if (binaural && binaural.audioFile) {
-                    console.log(`[AUDIO_ENGINE] Loading binaural: ${binaural.name}`);
+                    // [OFFLINE PROTECTION] Route through CacheService
+                    const localUri = await CacheService.get(binaural.audioFile.uri, 'binaural');
+                    const isLocal = localUri.startsWith('file://');
+
+                    console.log(`[AUDIO_ENGINE] Loading binaural [${isLocal ? 'CACHE' : 'REMOTA'}]: ${binaural.name}`);
+
                     const { sound } = await Audio.Sound.createAsync(
-                        binaural.audioFile,
+                        { uri: localUri },
                         { shouldPlay: false, volume: this.volumes.binaural, isLooping: true }
                     );
                     this.binauralSound = sound;
@@ -314,10 +327,14 @@ class AudioEngineService {
                 this.soundscapeSound = null;
             }
 
-            const soundscape = SOUNDSCAPES.find(s => s.id === soundscapeId);
+            // Resolución dinámica para soportar CMS
+            const soundscape = await soundscapesService.getById(soundscapeId);
             if (soundscape && soundscape.audioFile) {
+                // [OFFLINE PROTECTION] Route through CacheService
+                const localUri = await CacheService.get(soundscape.audioFile.uri, 'soundscape');
+
                 const { sound } = await Audio.Sound.createAsync(
-                    soundscape.audioFile,
+                    { uri: localUri },
                     { shouldPlay: false, volume: this.volumes.soundscape, isLooping: true }
                 );
                 this.soundscapeSound = sound;
@@ -342,8 +359,11 @@ class AudioEngineService {
 
             const binaural = BINAURAL_WAVES.find(b => b.id === binauralId);
             if (binaural && binaural.audioFile) {
+                // [OFFLINE PROTECTION] Route through CacheService
+                const localUri = await CacheService.get(binaural.audioFile.uri, 'binaural');
+
                 const { sound } = await Audio.Sound.createAsync(
-                    binaural.audioFile,
+                    { uri: localUri },
                     { shouldPlay: false, volume: this.volumes.binaural, isLooping: true }
                 );
                 this.binauralSound = sound;

@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.30.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.30.5) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.30.0** consolida la unificación de buckets de storage y el sistema de carpetas dinámicas.
+Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.30.5** consolida la unificación de buckets de storage y el sistema de carpetas dinámicas.
 
 ---
 
@@ -51,7 +51,7 @@ CREATE POLICY "Lectura pública de assets" ON storage.objects
 > **Estrategia Oasis Folder**: El bucket `meditation` utiliza subcarpetas dinámicas (`/kids`, `/calmasos`, `/sueno`, etc.) para una organización granular gestionada por el componente `MediaUploader.tsx`.
 
 > [!NOTE]
-> **Estrategia Zero-Egress**: Se han convertido todas las referencias de audio en `academyData.ts` de rutas relativas a URLs públicas absolutas. Esto permite que el cliente (App) gestione la descarga y persistencia local sin depender de resoluciones de ruta dinámicas en tiempo de ejecución.
+> **Estrategia Zero-Egress Dinámica (v2.30.5)**: La App ya no precarga listas estáticas de ambientes. El sistema resuelve mediante servicios (`contentService.ts`) los metadatos de audios y miniaturas, permitiendo que el 100% del contenido sea gestionable desde el Panel Admin y almacenable localmente por el `CacheService`.
 
 
 ---
@@ -87,5 +87,5 @@ Con la introducción del **Escáner Cardio Premium** en v2.11.0, se establece un
 Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confianza del usuario.
 
 ---
-*Última revisión: 21 de Febrero de 2026 - Versión 2.30.0 (Premium Audio & Admin Sync)*
+*Última revisión: 22 de Febrero de 2026 - Versión 2.30.5 (Dynamic Content & Admin Sync)*
 

@@ -34,9 +34,13 @@ const SB_BINAURAL_URL = 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/obj
 
 export const BINAURAL_BEATS = [
     { label: 'Ondas Alpha (Enfoque)', value: 'alpha_waves', url: `${SB_BINAURAL_URL}Alpha_waves.mp3` },
+    { label: 'Ondas Beta (Concentración)', value: 'beta_waves', url: `${SB_BINAURAL_URL}binaural_beta.mp3` },
     { label: 'Ondas Theta (Meditación)', value: 'theta_waves', url: `${SB_BINAURAL_URL}binaural_theta.mp3` },
     { label: 'Ondas Delta (Sueño)', value: 'delta_waves', url: `${SB_BINAURAL_URL}binaural_delta.mp3` },
     { label: 'Ondas Gamma (Alerta)', value: 'gamma_waves', url: `${SB_BINAURAL_URL}binaural_gamma.mp3` },
-    { label: 'Frecuencia 528Hz (Sanación)', value: '528hz', url: `${SB_BINAURAL_URL}solfeggio_528hz.mp3` },
     { label: 'Frecuencia 432Hz (Paz)', value: '432hz', url: `${SB_BINAURAL_URL}432hz.mp3` },
+    { label: 'Solfeggio 396Hz (Liberación)', value: 'solfeggio_396', url: `${SB_BINAURAL_URL}solfeggio_396hz.mp3` },
+    { label: 'Solfeggio 528Hz (Sanación)', value: '528hz', url: `${SB_BINAURAL_URL}solfeggio_528hz.mp3` },
+    { label: 'Solfeggio 639Hz (Conexión)', value: 'solfeggio_639', url: `${SB_BINAURAL_URL}solfeggio_639hz.mp3` },
+    { label: 'Solfeggio 963Hz (Conciencia)', value: 'solfeggio_963', url: `${SB_BINAURAL_URL}solfeggio_963hz.mp3` },
 ];

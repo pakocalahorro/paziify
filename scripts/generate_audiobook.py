@@ -31,11 +31,67 @@ VOICE_PERSONAS = {
         'rate': 0.75,
         'pitch': 0.0 # Studio doesn't support pitch shifts nicely, so we keep 0 per audio.md
     },
-    'gaia': { # Kids (UPGRADED TO CHIRP3-HD v2.14 - AUTONOE)
+    'gaia': { # Legacy Kids
         'language_code': 'es-ES',
         'name': 'es-ES-Chirp3-HD-Autonoe',
         'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
         'rate': 0.80,
+        'pitch': 0.0
+    },
+    'nova_v1': { # Nova Variant 1: Female Teen, Balanced
+        'language_code': 'es-ES',
+        'name': 'es-ES-Chirp3-HD-Gacrux',
+        'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
+        'rate': 0.82,
+        'pitch': 4.0
+    },
+    'nova_v2': { # Nova Variant 2: Female Child/Young Teen, Higher pitch
+        'language_code': 'es-ES',
+        'name': 'es-ES-Chirp3-HD-Kore',
+        'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
+        'rate': 0.85,
+        'pitch': 6.0
+    },
+    'nova_v3': { # Nova Variant 3: Male Teen
+        'language_code': 'es-ES',
+        'name': 'es-ES-Chirp3-HD-Orus',
+        'ssml_gender': texttospeech.SsmlVoiceGender.MALE,
+        'rate': 0.82,
+        'pitch': 3.5
+    },
+    'nova_v4': { # Neural2 Female - Naturally clear/younger
+        'language_code': 'es-ES',
+        'name': 'es-ES-Neural2-H',
+        'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
+        'rate': 0.95,
+        'pitch': 1.0
+    },
+    'nova_v5': { # Wavenet Female - Soft/Youthful
+        'language_code': 'es-ES',
+        'name': 'es-ES-Wavenet-H',
+        'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
+        'rate': 0.90,
+        'pitch': 1.5
+    },
+    'nova_v6': { # Neural2 Male - Young/Modern
+        'language_code': 'es-ES',
+        'name': 'es-ES-Neural2-F',
+        'ssml_gender': texttospeech.SsmlVoiceGender.MALE,
+        'rate': 0.95,
+        'pitch': 0.8
+    },
+    'nova_v7': { # Chirp3 HD Female - Natural register
+        'language_code': 'es-ES',
+        'name': 'es-ES-Chirp3-HD-Laomedeia',
+        'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
+        'rate': 0.92,
+        'pitch': 0.0
+    },
+    'nova_v8': { # Nova Variant 8: Laomedeia (CHIRP) - Natural human register
+        'language_code': 'es-ES',
+        'name': 'es-ES-Chirp3-HD-Laomedeia',
+        'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
+        'rate': 0.82,
         'pitch': 0.0
     }
 }
@@ -127,9 +183,9 @@ def generate_audio(text_file, output_file, persona='aria'):
             
         inner_text = clean_for_ssml(combined).replace('\n', '\n<break time="2000ms"/>\n')
         
-        # FIX: Studio and Chirp voices do NOT support the 'pitch' attribute in <prosody>
-        is_advanced = "Studio" in config['name'] or "Chirp" in config['name']
-        pitch_attr = f'pitch="{config["pitch"]}st"' if not is_advanced else ""
+        # Chirp 3 HD supports pitch since Oct 2025. Studio voices may still have limitations.
+        is_studio = "Studio" in config['name']
+        pitch_attr = f'pitch="{config["pitch"]}st"' if not is_studio else ""
         
         return f"""
         <speak>

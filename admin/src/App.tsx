@@ -69,7 +69,10 @@ function App() {
                     list: "/meditations",
                     create: "/meditations/create",
                     edit: "/meditations/edit/:id",
-                    meta: { label: "Meditaciones" }
+                    meta: {
+                      label: "Meditaciones",
+                      resource: "meditation_sessions_content"
+                    }
                   },
                   {
                     name: "academy_modules",

@@ -1,6 +1,6 @@
-# 🎙️ Guía Maestra de Audio - Paziify (v2.30.0) 💎
+# 🎙️ Guía Maestra de Audio - Paziify (v2.30.5) 💎
 
-Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.30.0** marca la **Evolución Premium**, consolidando el soporte total para **SSML** y la transformación de 119 guiones originales.
+Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.30.5** marca la **Sincronización Universal**, consolidando el motor asíncrono y la protección offline total.
 
 ---
 
@@ -37,7 +37,8 @@ Para audiolibros e historias:
 A continuación se detallan los parámetros técnicos de Google Cloud TTS validados para mantener la calidad profesional de Paziify.
 
 ### 📋Resumen de Guías Oficiales
-- **Aria (Calma/Salud/Emocional/Niños)**: `es-ES-Chirp3-HD-Vindemiatrix` | Pitch: 0.0 | Rate: 0.72 | Voz nutritiva y protectora.
+- **Aria (Calma/Salud/Emocional)**: `es-ES-Chirp3-HD-Vindemiatrix` | Pitch: 0.0 | Rate: 0.72 | Voz nutritiva y protectora.
+- **Laomedeia (Kids/Adolescente)**: `es-ES-Neural2-A` (Perfil *Nova v8*) | Pitch: +1.0 | Rate: 0.85 | Voz juvenil, veloz y empática.
 - **Ziro (Rendimiento/Despertar)**: `es-ES-Chirp3-HD-Autonoe` (Perfil *Helios*) | Pitch: 0.0 | Rate: 0.75 | Voz vibrante y motivadora.
 - **Éter (Sueño/Resiliencia)**: `es-ES-Neural-Deep` (Perfil *Zenon*) | Pitch: -2.0 | Rate: 0.70 | Voz profunda y de comando.
 - **Gaia (Mindfulness)**: `es-ES-Studio-F` | Pitch: 0.0 | Rate: 0.75 | Voz etérea y consciente.
@@ -97,7 +98,13 @@ Para evitar sorpresas con la facturación de Google Cloud, el motor integra un s
 | 07 | Salud | 10 | Aria | **Premium SSML** |
 | 08 | Emocional | 10 | Aria | **Premium SSML** |
 | 09 | Hábitos | 10 | Aria | **Premium SSML** |
-| 10 | Paziify Kids | 10 | Aria | **Premium SSML** |
+| 10 | Paziify Kids | 10 | Laomedeia | **Premium SSML** |
 
 ---
-*Última revisión: 21 de Febrero de 2026 - Versión 2.30.0 (Premium Content Evolution)*
+
+### Mantenimiento de Scripts
+> [!CAUTION]
+> Los scripts que apuntan a buckets legacy (`meditation-voice`) han sido movidos a `scripts/LEGACY_OLD_STRUCTURE/`. **No usarlos** para nuevas cargas masivas. Usa el Panel Admin.
+
+---
+*Última revisión: 22 de Febrero de 2026 - Versión 2.30.5 (Universal Sync Evolution)*

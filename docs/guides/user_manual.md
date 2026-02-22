@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.30.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.30.5) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.30.0 (Premium Evolution)**. Esta versión transforma la app en una experiencia de meditación de alto nivel con guiones premium y una gestión técnica impecable.
+Bienvenido a la guía oficial de **Paziify v2.30.5 (Universal Sync)**. Esta versión transforma la app en una experiencia de meditación de alto nivel con guiones premium y una gestión técnica impecable.
 
 ---
 
@@ -100,8 +100,13 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 ---
 
-## 7. Panel de Administración (CMS Profesional) ⚙️
-**Acceso:** Panel Web dedicado (v2.30.0 Upgraded).
+## 7. Panel de Administración (CMS Profesional) ⚙️ (v2.30.5 Upgraded)
+**Acceso:** Panel Web dedicado.
+
+- **Listado Dinámico**: La tabla de meditaciones ahora es una herramienta de productividad:
+    - **Portadas HDR**: Miniaturas el doble de grandes (**80px**) con previsualización clicable (haz clic en la foto para verla en pantalla completa).
+    - **Columnas Ajustables**: Puedes arrastrar los bordes de las columnas para cambiar su ancho. El sistema recordará tus preferencias automáticamente.
+    - **Control de Filas**: Selecciona cuántas sesiones ver por página (10, 20, 50 o 100) y el sistema mantendrá esta configuración en tu próxima visita.
 - **Gestor de Medios Inteligente**: El nuevo `MediaUploader` centraliza la subida de audios y carátulas:
     - **Organización Automática**: El sistema guarda los archivos en carpetas según su categoría (`/kids`, `/sueno`, etc.).
     - **Limpieza de Almacenamiento**: Al sustituir un archivo, el panel te preguntará si deseas borrar la versión antigua de Supabase para ahorrar espacio.
@@ -117,6 +122,6 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 
 ---
-*Última revisión: 21 de Febrero de 2026 - Versión 2.30.0 (Premium Evolution)*  
+*Última revisión: 22 de Febrero de 2026 - Versión 2.30.5 (Universal Sync)*  
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`
 

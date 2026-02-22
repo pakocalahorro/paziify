@@ -29,7 +29,7 @@ import { IMAGES } from '../../constants/images';
 import { useApp } from '../../context/AppContext';
 import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import AudioEngineService from '../../services/AudioEngineService';
-import { sessionsService, adaptSession } from '../../services/contentService'; // Import service
+import { sessionsService, adaptSession, soundscapesService } from '../../services/contentService'; // Import services
 // import { MEDITATION_SESSIONS } from '../../data/sessionsData'; // Remove static usage
 import { SOUNDSCAPES, BINAURAL_WAVES, Soundscape, BinauralWave } from '../../data/soundscapesData';
 import ThemedBreathingOrb from '../../components/Meditation/ThemedBreathingOrb';
@@ -253,11 +253,28 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     const [selectedSoundscape, setSelectedSoundscape] = useState<Soundscape | null>(null);
     const [selectedBinaural, setSelectedBinaural] = useState<BinauralWave | null>(null);
 
+    const [availableSoundscapes, setAvailableSoundscapes] = useState<Soundscape[]>(SOUNDSCAPES);
     const [showSoundscapeModal, setShowSoundscapeModal] = useState(false);
     const [showBinauralModal, setShowBinauralModal] = useState(false);
     const [selectedTheme, setSelectedTheme] = useState<ThemeId>(DEFAULT_THEME);
     const [isImmersiveMode, setIsImmersiveMode] = useState(false);
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+
+
+    // Fetch all available soundscapes for the modal (Dynamic CMS)
+    useEffect(() => {
+        const fetchSoundscapes = async () => {
+            try {
+                const data = await soundscapesService.getAll();
+                if (data && data.length > 0) {
+                    setAvailableSoundscapes(data);
+                }
+            } catch (err) {
+                console.error('[BREATHING_TIMER] Error fetching soundscapes for modal:', err);
+            }
+        };
+        fetchSoundscapes();
+    }, []);
 
 
     useEffect(() => {
@@ -303,12 +320,13 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                         exhale: 'Exhala'
                     };
 
-                    // Auto-select based on session defaults
+                    // Auto-select based on session defaults (Dynamic resolution for CMS)
                     const ssId = session.audioLayers.defaultSoundscape;
                     const bwId = session.audioLayers.defaultBinaural;
 
-                    const ss = SOUNDSCAPES.find(s => s.id === ssId) || SOUNDSCAPES[0];
-                    const bw = BINAURAL_WAVES.find(b => b.id === bwId) || BINAURAL_WAVES[0];
+                    // Support for "None" option: only fetch if ID is truthy
+                    const ss = ssId ? (await soundscapesService.getById(ssId) || SOUNDSCAPES[0]) : null;
+                    const bw = bwId ? (BINAURAL_WAVES.find(b => b.id === bwId) || BINAURAL_WAVES[0]) : null;
 
                     setSelectedSoundscape(ss);
                     setSelectedBinaural(bw);
@@ -339,8 +357,8 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     setVolumes(initialVolumes);
                     setEnabledLayers({
                         voice: true,
-                        soundscape: true,
-                        binaural: !isGuided, // Disable binaural by default for guided
+                        soundscape: !!ssId, // "OFF" if none selected
+                        binaural: !!bwId && !isGuided, // "OFF" if none or guided
                         customTheme: false
                     });
 
@@ -348,8 +366,8 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     console.log('[BREATHING_TIMER] Starting Audio Engine Load...');
                     await AudioEngineService.loadSession({
                         voiceTrack: session.audioLayers?.voiceTrack,
-                        soundscape: ss.id,
-                        binaural: bw.id,
+                        soundscape: ss?.id,
+                        binaural: bw?.id,
                         elements: session.audioLayers?.defaultElements,
                     });
                     console.log('[BREATHING_TIMER] Audio Engine Load COMPLETED');
@@ -901,7 +919,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     visible={showSoundscapeModal}
                     onClose={() => setShowSoundscapeModal(false)}
                     title="Sonido Ambiente"
-                    data={SOUNDSCAPES}
+                    data={availableSoundscapes}
                     currentId={selectedSoundscape?.id}
                     onSelect={handleSoundscapeChange}
                 />
