@@ -9,6 +9,7 @@ import {
     Text,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +28,8 @@ import { useApp } from '../context/AppContext';
 import { contentService } from '../services/contentService';
 import * as Haptics from 'expo-haptics';
 import StarCore from '../components/Sanctuary/StarCore';
+import { useSessions } from '../hooks/useContent';
+import { CHALLENGES } from '../constants/challenges';
 
 const { width } = Dimensions.get('window');
 
@@ -68,6 +71,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
     };
 
     const handleSintonizar = async (mode: 'healing' | 'growth') => {
+        if (userState.activeChallenge) return; // Desactivado si hay reto
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         // 1. Obtener imagen aleatoria igual que en la Brújula
@@ -179,28 +183,51 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
                     <BlurView intensity={90} tint="dark" style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalLabel}>SANTUARIO</Text>
-                            <Text style={styles.modalTitle}>Sintoniza tu estado</Text>
+                            <Text style={styles.modalTitle}>
+                                {userState.activeChallenge
+                                    ? `PROGRAMA "${userState.activeChallenge.title.toUpperCase()}" ACTIVADO`
+                                    : "Sintoniza tu estado"}
+                            </Text>
                         </View>
 
                         <View style={styles.optionsGrid}>
                             <TouchableOpacity
-                                style={[styles.optionCard, { borderColor: userState.lifeMode === 'healing' ? '#2DD4BF' : 'rgba(255,255,255,0.05)' }]}
+                                style={[
+                                    styles.optionCard,
+                                    { borderColor: userState.lifeMode === 'healing' ? '#2DD4BF' : 'rgba(255,255,255,0.05)' },
+                                    userState.activeChallenge && styles.optionCardDisabled
+                                ]}
                                 onPress={() => handleSintonizar('healing')}
+                                disabled={!!userState.activeChallenge}
                             >
-                                <Ionicons name="leaf-outline" size={32} color="#2DD4BF" />
-                                <Text style={[styles.optionTitle, { color: '#2DD4BF' }]}>SANAR</Text>
+                                <Ionicons name="leaf-outline" size={32} color={userState.activeChallenge ? 'rgba(255,255,255,0.1)' : "#2DD4BF"} />
+                                <Text style={[styles.optionTitle, { color: userState.activeChallenge ? 'rgba(255,255,255,0.2)' : '#2DD4BF' }]}>SANAR</Text>
                                 <Text style={styles.optionDesc}>Paz y Regeneración</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={[styles.optionCard, { borderColor: userState.lifeMode === 'growth' ? '#FBBF24' : 'rgba(255,255,255,0.05)' }]}
+                                style={[
+                                    styles.optionCard,
+                                    { borderColor: userState.lifeMode === 'growth' ? '#FBBF24' : 'rgba(255,255,255,0.05)' },
+                                    userState.activeChallenge && styles.optionCardDisabled
+                                ]}
                                 onPress={() => handleSintonizar('growth')}
+                                disabled={!!userState.activeChallenge}
                             >
-                                <Ionicons name="flash-outline" size={32} color="#FBBF24" />
-                                <Text style={[styles.optionTitle, { color: '#FBBF24' }]}>CRECER</Text>
+                                <Ionicons name="flash-outline" size={32} color={userState.activeChallenge ? 'rgba(255,255,255,0.1)' : "#FBBF24"} />
+                                <Text style={[styles.optionTitle, { color: userState.activeChallenge ? 'rgba(255,255,255,0.2)' : '#FBBF24' }]}>CRECER</Text>
                                 <Text style={styles.optionDesc}>Potencial y Energía</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {userState.activeChallenge && (
+                            <View style={styles.libraryGuidance}>
+                                <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
+                                <Text style={styles.libraryGuidanceText}>
+                                    Modos desactivados durante tu evolución. Para otras sesiones, visita la <Text style={{ fontWeight: '900', color: 'rgba(255,255,255,0.6)' }}>Biblioteca</Text>.
+                                </Text>
+                            </View>
+                        )}
 
                         <View style={styles.futureScanner}>
                             <TouchableOpacity
@@ -308,13 +335,14 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: '100%',
+        backgroundColor: 'rgba(15, 23, 42, 0.98)', // Fondo casi sólido para evitar solapamiento
         borderTopLeftRadius: 40,
         borderTopRightRadius: 40,
         padding: 25,
         paddingBottom: 40,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: 'rgba(255,255,255,0.15)',
     },
     modalHeader: {
         alignItems: 'center',
@@ -330,9 +358,11 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         color: '#FFF',
-        fontSize: 26,
+        fontSize: 18,
         fontWeight: '900',
-        letterSpacing: -0.5,
+        letterSpacing: 1,
+        textAlign: 'center',
+        paddingHorizontal: 20,
     },
     optionsGrid: {
         flexDirection: 'row',
@@ -401,7 +431,54 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
-    }
+    },
+    missionButton: {
+        width: '100%',
+        height: 70,
+        borderRadius: 24,
+        overflow: 'hidden',
+        marginBottom: 20,
+    },
+    missionGradient: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    missionText: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '900',
+        letterSpacing: 1,
+    },
+    missionSubtext: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    optionCardDisabled: {
+        backgroundColor: 'rgba(255,255,255,0.01)',
+        borderColor: 'rgba(255,255,255,0.03)',
+        opacity: 0.6,
+    },
+    libraryGuidance: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)', // Más oscuro para contrastar con el fondo del modal
+        padding: 16,
+        borderRadius: 20,
+        marginBottom: 20,
+        width: '100%',
+        gap: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    libraryGuidanceText: {
+        color: 'rgba(255,255,255,0.6)', // Texto más legible
+        fontSize: 12,
+        flex: 1,
+        lineHeight: 18,
+    },
 });
 
 export default CustomTabBar;

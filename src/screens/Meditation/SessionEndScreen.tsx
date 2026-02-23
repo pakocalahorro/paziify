@@ -17,10 +17,12 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { Screen, RootStackParamList } from '../../types';
+import { Screen, RootStackParamList, UserState } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { analyticsService } from '../../services/analyticsService';
+import ResilienceTree from '../../components/Profile/ResilienceTree';
+import ZenMeter from '../../components/Home/ZenMeter';
 
 type SessionEndScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -40,6 +42,10 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
     const [selectedMood, setSelectedMood] = useState<number>(3); // Default to middle/calm
     const [isSharing, setIsSharing] = useState(false);
     const [comment, setComment] = useState('');
+
+    const isChallengeSession = userState.activeChallenge &&
+        (userState.activeChallenge.currentSessionSlug === sessionId ||
+            userState.activeChallenge.slug === sessionId); // Flexible ID check
 
     useEffect(() => {
         if (Platform.OS !== 'web') {
@@ -66,13 +72,28 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
             newStreak += 1;
         }
 
-        updateUserState({
+        const updateObj: Partial<UserState> = {
             streak: newStreak,
             isDailySessionDone: true,
             lastSessionDate: now.toISOString(),
             resilienceScore: Math.min(userState.resilienceScore + (selectedMood >= 3 ? 3 : 1), 100),
             totalMinutes: (userState.totalMinutes || 0) + durationMinutes,
-        });
+        };
+
+        if (isChallengeSession && userState.activeChallenge) {
+            const todayStr = now.toISOString().split('T')[0];
+            const lastCompletedStr = userState.activeChallenge.lastSessionCompletedDate?.split('T')[0];
+
+            if (todayStr !== lastCompletedStr) {
+                updateObj.activeChallenge = {
+                    ...userState.activeChallenge,
+                    daysCompleted: userState.activeChallenge.daysCompleted + 1,
+                    lastSessionCompletedDate: now.toISOString(),
+                };
+            }
+        }
+
+        updateUserState(updateObj);
 
         // @ts-ignore
         navigation.navigate('MainTabs');
@@ -100,9 +121,30 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                <View style={styles.badge}>
-                    <Text style={styles.badgeText}>SESIÓN COMPLETADA</Text>
+                <View style={[styles.badge, isChallengeSession && { backgroundColor: theme.colors.accent }]}>
+                    <Text style={styles.badgeText}>{isChallengeSession ? 'MISIÓN COMPLETADA' : 'SESIÓN COMPLETADA'}</Text>
                 </View>
+
+                {/* VISUALIZACIÓN DUAL: Árbol (Reto) vs ZenMeter (Libre) */}
+                <View style={{ height: 200, justifyContent: 'center', marginBottom: 20 }}>
+                    {isChallengeSession ? (
+                        <ResilienceTree
+                            daysPracticed={userState.activeChallenge?.daysCompleted ? userState.activeChallenge.daysCompleted + 1 : 1}
+                            totalSteps={userState.activeChallenge?.totalDays}
+                            size={180}
+                        />
+                    ) : (
+                        <View style={{ alignItems: 'center' }}>
+                            <ZenMeter progress={Math.min((userState.totalMinutes || 0) / 1000, 1)} size={150} label="VITALIDAD" />
+                        </View>
+                    )}
+                </View>
+
+                {isChallengeSession && (
+                    <Text style={[styles.title, { fontSize: 18, color: theme.colors.accent, marginBottom: 10 }]}>
+                        ¡Día {userState.activeChallenge?.daysCompleted ? userState.activeChallenge.daysCompleted + 1 : 1} de {userState.activeChallenge?.totalDays} completado!
+                    </Text>
+                )}
 
                 <Text style={styles.title}>¿Cómo te sientes ahora?</Text>
 

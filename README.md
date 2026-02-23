@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.30.0) 🚀
+# Paziify - AI Studio App (v2.31.0) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.30.0 (Premium Evolution)**, que introduce 119 guiones SSML de alta fidelidad, un sistema de almacenamiento unificado y herramientas de administración profesional.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.31.0 (Evolution Focus)**, que introduce una navegación blindada para retos activos, el Santuario de alta fidelidad y un sistema de información de programas integrado.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 

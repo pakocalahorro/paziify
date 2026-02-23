@@ -8,6 +8,14 @@ import {
     TouchableOpacity,
     Dimensions,
 } from 'react-native';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withRepeat,
+    withTiming,
+    withSequence,
+    interpolateColor
+} from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +26,7 @@ import { RouteProp, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
+import { Svg, Circle } from 'react-native-svg';
 import { useSessions, useAudiobooks, useStories, useAcademyModules, useSoundscapes } from '../../hooks/useContent';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import BentoGrid from '../../components/Home/BentoGrid';
@@ -28,6 +37,8 @@ import WeeklyChart from '../../components/Home/WeeklyChart';
 import { analyticsService } from '../../services/analyticsService';
 import PurposeModal from '../../components/Home/PurposeModal';
 import SoundWaveHeader from '../../components/SoundWaveHeader';
+import { CHALLENGES } from '../../constants/challenges';
+import { ChallengeDetailsModal } from '../../components/Challenges/ChallengeDetailsModal';
 
 const { width } = Dimensions.get('window');
 
@@ -49,6 +60,41 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const visualMode = userState.lifeMode || route.params?.mode || (isNightMode ? 'healing' : 'growth');
     const [greeting, setGreeting] = useState('');
     const [showPurposeModal, setShowPurposeModal] = useState(false);
+    const [showChallengeInfo, setShowChallengeInfo] = useState(false);
+
+    // Pulse Animation for CTA
+    const pulseScale = useSharedValue(1);
+    const pulseOpacity = useSharedValue(0.4);
+
+    useEffect(() => {
+        if (!userState.activeChallenge) {
+            pulseScale.value = withRepeat(
+                withSequence(
+                    withTiming(1.08, { duration: 1200 }),
+                    withTiming(1, { duration: 1200 })
+                ),
+                -1,
+                true
+            );
+            pulseOpacity.value = withRepeat(
+                withSequence(
+                    withTiming(0.8, { duration: 1200 }),
+                    withTiming(0.4, { duration: 1200 })
+                ),
+                -1,
+                true
+            );
+        } else {
+            pulseScale.value = 1;
+            pulseOpacity.value = 0.4;
+        }
+    }, [userState.activeChallenge]);
+
+    const animatedButtonStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: pulseScale.value }],
+        borderColor: `rgba(212, 175, 55, ${pulseOpacity.value + 0.1})`,
+        shadowOpacity: pulseOpacity.value,
+    }));
 
     // Data Fetching
     const { data: allSessions } = useSessions();
@@ -101,18 +147,33 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const handleAcceptChallenge = () => {
         updateUserState({ hasAcceptedMonthlyChallenge: true });
         setShowPurposeModal(false);
+        navigation.navigate(Screen.EVOLUTION_CATALOG);
     };
 
     // Selection Logic for Bento Cards (Recommendations)
     const recommendations = useMemo(() => {
         if (!allSessions || !allBooks || !allStories || !academyModules || !allSoundscapes) return null;
 
-        // 1. Daily Dose: Find first session of preferred category based on mode
-        const targetCats = visualMode === 'healing'
-            ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
-            : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
+        // 1. Daily Dose: Prioritize Active Challenge Session
+        let dailySession = allSessions[0];
 
-        const dailySession = allSessions.find(s => targetCats.includes(s.category as string)) || allSessions[0];
+        if (userState.activeChallenge) {
+            const challengeSession = allSessions.find(s => s.legacy_id === userState.activeChallenge?.currentSessionSlug || s.id === userState.activeChallenge?.currentSessionSlug);
+            if (challengeSession) {
+                dailySession = challengeSession;
+            } else {
+                // Fallback to mode-based if challenge session not found
+                const targetCats = visualMode === 'healing'
+                    ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
+                    : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
+                dailySession = allSessions.find(s => targetCats.includes(s.category as string)) || allSessions[0];
+            }
+        } else {
+            const targetCats = visualMode === 'healing'
+                ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
+                : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
+            dailySession = allSessions.find(s => targetCats.includes(s.category as string)) || allSessions[0];
+        }
 
         // 2. Academy: Recommended course (AcademyModule) matching mode
         const academyModule = academyModules.find(m =>
@@ -145,7 +206,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
             stories: realStory,
             audiobook: featuredBook
         };
-    }, [allSessions, allBooks, allStories, academyModules, allSoundscapes, visualMode]);
+    }, [allSessions, allBooks, allStories, academyModules, allSoundscapes, visualMode, userState.activeChallenge]);
 
     const dailyGoal = userState.dailyGoalMinutes || 20;
     const weeklyGoal = userState.weeklyGoalMinutes || 150;
@@ -169,48 +230,151 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 100 }]}
             >
+                <ChallengeDetailsModal
+                    visible={showChallengeInfo}
+                    challenge={userState.activeChallenge ? CHALLENGES[userState.activeChallenge.id] : null}
+                    onClose={() => setShowChallengeInfo(false)}
+                    hideActivateButton
+                />
+
                 <PurposeModal
                     isVisible={showPurposeModal}
                     onAccept={handleAcceptChallenge}
                     onClose={() => setShowPurposeModal(false)}
                 />
                 {/* HEADER... (mantener igual) */}
-                <View style={styles.header}>
-                    <View style={styles.greetingRow}>
-                        <Text style={styles.greeting}>{greeting}</Text>
-                        <TouchableOpacity
-                            style={styles.retoButton}
-                            onPress={() => {
-                                if (userState.hasAcceptedMonthlyChallenge) {
-                                    navigation.navigate(Screen.PROFILE as any);
-                                } else {
-                                    setShowPurposeModal(true);
-                                }
-                            }}
+                {userState.activeChallenge ? (
+                    <View style={styles.headerFullWidth}>
+                        <BlurView
+                            intensity={80}
+                            tint="dark"
+                            style={styles.headerFullWidthGlass}
                         >
-                            <Ionicons
-                                name={userState.hasAcceptedMonthlyChallenge ? "checkmark-circle" : "sparkles-outline"}
-                                size={14}
-                                color="#FFF"
+                            {/* Glass Reflection Shimmer */}
+                            <LinearGradient
+                                colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.02)', 'transparent']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={StyleSheet.absoluteFill}
                             />
-                            <Text style={styles.retoButtonText}>
-                                {userState.hasAcceptedMonthlyChallenge ? "Reto Activado" : "Reto Paziify"}
-                            </Text>
-                        </TouchableOpacity>
+
+                            {/* "Verde Clarito" Base Tint */}
+                            <View style={[
+                                styles.headerInnerTint,
+                                { backgroundColor: 'rgba(45, 212, 191, 0.18)' }
+                            ]} />
+
+                            <View style={styles.headerContent}>
+                                <View style={styles.greetingRow}>
+                                    <View>
+                                        <Text style={styles.dayText}>DÍA {(userState.activeChallenge.daysCompleted || 0) + 1}</Text>
+                                        <Text style={[styles.challengeTitle, { fontFamily: 'Caveat_700Bold' }]}>
+                                            {userState.activeChallenge.title}
+                                        </Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                                        <TouchableOpacity
+                                            style={[styles.retoButton, { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }]}
+                                            onPress={() => setShowChallengeInfo(true)}
+                                        >
+                                            <Ionicons name="information-circle-outline" size={18} color="#FFF" />
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity
+                                            style={styles.retoButton}
+                                            onPress={() => navigation.navigate(Screen.PROFILE as any)}
+                                        >
+                                            <Ionicons name="checkmark-circle" size={14} color="#FFF" />
+                                            <Text style={styles.retoButtonText}>PROGRESO</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                <View style={styles.userProfileRow}>
+                                    <TouchableOpacity
+                                        onPress={() => navigation.navigate(Screen.PROFILE as any)}
+                                        style={styles.avatarContainer}
+                                    >
+                                        <View style={styles.ringOverlay}>
+                                            <Svg width={54} height={54} viewBox="0 0 54 54">
+                                                <Circle
+                                                    cx="27"
+                                                    cy="27"
+                                                    r="25"
+                                                    stroke="rgba(255,255,255,0.1)"
+                                                    strokeWidth="2"
+                                                    fill="none"
+                                                />
+                                                <Circle
+                                                    cx="27"
+                                                    cy="27"
+                                                    r="25"
+                                                    stroke={
+                                                        userState.activeChallenge.type === 'desafio' ? '#6366F1' :
+                                                            userState.activeChallenge.type === 'reto' ? '#2DD4BF' : '#EF4444'
+                                                    }
+                                                    strokeWidth="3"
+                                                    strokeDasharray={`${2 * Math.PI * 25}`}
+                                                    strokeDashoffset={`${2 * Math.PI * 25 * (1 - (userState.activeChallenge.daysCompleted / userState.activeChallenge.totalDays))}`}
+                                                    strokeLinecap="round"
+                                                    fill="none"
+                                                    transform="rotate(-90 27 27)"
+                                                />
+                                            </Svg>
+                                        </View>
+                                        <Image
+                                            source={{ uri: userState.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' }}
+                                            style={styles.avatar}
+                                        />
+                                    </TouchableOpacity>
+                                    <Text style={styles.userName} numberOfLines={1}>{userState.name || 'Pazificador'}</Text>
+                                </View>
+
+                                <View style={styles.progressLineContainer}>
+                                    <LinearGradient
+                                        colors={[
+                                            userState.activeChallenge.type === 'desafio' ? '#6366F1' :
+                                                userState.activeChallenge.type === 'reto' ? '#2DD4BF' : '#EF4444',
+                                            'transparent'
+                                        ]}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={[
+                                            styles.progressLine,
+                                            { width: `${(userState.activeChallenge.daysCompleted / userState.activeChallenge.totalDays) * 100}%` }
+                                        ]}
+                                    />
+                                </View>
+                            </View>
+                        </BlurView>
                     </View>
-                    <View style={styles.userProfileRow}>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate(Screen.PROFILE as any)}
-                            style={styles.avatarContainer}
-                        >
-                            <Image
-                                source={{ uri: userState.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' }}
-                                style={styles.avatar}
-                            />
-                        </TouchableOpacity>
-                        <Text style={styles.userName} numberOfLines={1}>{userState.name || 'Pazificador'}</Text>
+                ) : (
+                    <View style={styles.header}>
+                        <View style={styles.greetingRow}>
+                            <Text style={styles.greeting}>{greeting}</Text>
+                            <Animated.View style={animatedButtonStyle}>
+                                <TouchableOpacity
+                                    style={styles.retoButton}
+                                    onPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG)}
+                                >
+                                    <Ionicons name="sparkles-outline" size={14} color="#FFF" />
+                                    <Text style={styles.retoButtonText}>ACTIVA TU EVOLUCIÓN</Text>
+                                </TouchableOpacity>
+                            </Animated.View>
+                        </View>
+                        <View style={styles.userProfileRow}>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate(Screen.PROFILE as any)}
+                                style={styles.avatarContainer}
+                            >
+                                <Image
+                                    source={{ uri: userState.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' }}
+                                    style={styles.avatar}
+                                />
+                            </TouchableOpacity>
+                            <Text style={styles.userName} numberOfLines={1}>{userState.name || 'Pazificador'}</Text>
+                        </View>
                     </View>
-                </View>
+                )}
 
                 {/* ÁREA 1: TU ESTADO (DASHBOARD COMPACTO) */}
                 <View style={styles.dashboardSection}>
@@ -288,14 +452,16 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                 {/* ÁREA 2: FOCO PRINCIPAL (HERO CARD DE DOSIS DIARIA) */}
                 <View style={{ marginBottom: 32 }}>
                     <SoundWaveHeader
-                        title="Tu práctica de hoy"
+                        title={userState.activeChallenge ? "Tu misión de hoy" : "Tu práctica de hoy"}
                         accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
                     />
 
                     <View style={styles.featuredSection}>
                         {/* Title Above */}
                         <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#A0AEC0', marginBottom: -8 }}>Meditación</Text>
+                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#A0AEC0', marginBottom: -8 }}>
+                                {userState.activeChallenge ? userState.activeChallenge.type.toUpperCase() : "Meditación"}
+                            </Text>
                             <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
                                 {recommendations?.daily?.title || "Cargando..."}
                             </Text>
@@ -352,7 +518,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         {/* 1. ACADEMIA PAZIIFY (Bento Wide Top) */}
                         {/* Title Above */}
                         <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#A855F7', marginBottom: -8 }}>Curso</Text>
+                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#A855F7', marginBottom: -8 }}>Curso</Text>
                             <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
                                 {recommendations?.academy?.title || "Manejo del Estrés"}
                             </Text>
@@ -404,7 +570,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         {/* 2. Audiolibros - Hero Card */}
                         {/* Title Above */}
                         <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: theme.colors.primary, marginBottom: -8 }}>Audiolibro</Text>
+                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: theme.colors.primary, marginBottom: -8 }}>Audiolibro</Text>
                             <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
                                 {recommendations?.audiobook?.title || "El poder del Ahora"}
                             </Text>
@@ -456,7 +622,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         {/* 3. Historias (Silhouette Card) */}
                         {/* Title Above */}
                         <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#38BDF8', marginBottom: -8 }}>Relato</Text>
+                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#38BDF8', marginBottom: -8 }}>Relato</Text>
                             <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
                                 {recommendations?.stories?.title || "Elías y el Mar"}
                             </Text>
@@ -508,7 +674,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         {/* 4. Sonidos (Literal Vinyl Player) */}
                         {/* Title Above */}
                         <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Satisfy_400Regular', fontSize: 36, color: '#10B981', marginBottom: -8 }}>Música ambiente</Text>
+                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#10B981', marginBottom: -8 }}>Música ambiente</Text>
                             <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
                                 {recommendations?.sounds?.title || "Frecuencia de Sanación"}
                             </Text>
@@ -552,6 +718,26 @@ const styles = StyleSheet.create({
         zIndex: 1000,
         backgroundColor: 'rgba(2, 6, 23, 0.5)', // Added base opacity
     },
+    headerFullWidth: {
+        width: '100%',
+        marginBottom: 24,
+    },
+    headerFullWidthGlass: {
+        width: '100%',
+        overflow: 'hidden',
+        borderBottomWidth: 1.5,
+        borderBottomColor: 'rgba(255,255,255,0.15)',
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(2, 6, 23, 0.25)',
+    },
+    headerInnerTint: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    headerContent: {
+        paddingVertical: 24,
+        paddingHorizontal: 20,
+    },
     header: {
         paddingHorizontal: 20,
         marginBottom: 20,
@@ -584,13 +770,6 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    retoButtonText: {
-        fontSize: 11,
-        fontWeight: '800',
-        color: '#FFF',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
     userProfileRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -612,7 +791,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         color: '#FFF',
         flex: 1,
-        fontFamily: 'Satisfy_400Regular',
+        fontFamily: 'Caveat_700Bold',
     },
     // NUEVOS ESTILOS DASHBOARD COMPACTO
     dashboardSection: {
@@ -814,6 +993,42 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: '900',
         letterSpacing: 1.5,
+    },
+    retoButtonText: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: '900',
+    },
+    dayText: {
+        fontSize: 12,
+        fontWeight: '900',
+        color: 'rgba(255,255,255,0.4)',
+        letterSpacing: 2,
+    },
+    challengeTitle: {
+        fontSize: 22,
+        color: '#FFF',
+        marginTop: -2,
+    },
+    ringOverlay: {
+        position: 'absolute',
+        top: -4,
+        left: -4,
+        zIndex: 1,
+    },
+    progressLineContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 20,
+        right: 20,
+        height: 2,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 1,
+        overflow: 'hidden',
+    },
+    progressLine: {
+        height: '100%',
+        borderRadius: 1,
     },
     featuredTitle: {
         fontSize: 24,

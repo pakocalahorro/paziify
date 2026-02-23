@@ -73,12 +73,19 @@ const Bloom: React.FC<BloomProps> = ({ index, points, growAnim, isActive, colors
 
 interface ResilienceTreeProps {
     daysPracticed?: number;
+    totalSteps?: number; // New: To dynamize growth
     size?: number;
     isGuest?: boolean;
 }
 
-const ResilienceTree: React.FC<ResilienceTreeProps> = ({ daysPracticed = 0, size = 250, isGuest = false }) => {
-    const targetGrowth = isGuest ? 0.35 : 0.2 + (Math.min(daysPracticed / 30, 1) * 0.8);
+const ResilienceTree: React.FC<ResilienceTreeProps> = ({
+    daysPracticed = 0,
+    totalSteps = 30, // Default to legacy 30 days
+    size = 250,
+    isGuest = false
+}) => {
+    // Dynamize growth: (Practiced / Total) * 0.8 + 0.2 (base)
+    const targetGrowth = isGuest ? 0.35 : 0.2 + (Math.min(daysPracticed / totalSteps, 1) * 0.8);
     const growth = useSharedValue(0.1);
 
     useEffect(() => {

@@ -37,23 +37,34 @@ export async function requestNotificationPermissions() {
     return true;
 }
 
-export async function scheduleDailyMeditationReminder(hour: number, minute: number) {
+export async function scheduleDailyMeditationReminder(hour: number, minute: number, challengeTitle?: string, currentDay?: number) {
     // Cancel all previous notifications of this type if needed
-    // For simplicity, we just cancel all scheduled for now
     await Notifications.cancelAllScheduledNotificationsAsync();
+
+    const title = challengeTitle ? `Reto: ${challengeTitle} 🌳` : "Momento de Paziify 🧘‍♂️";
+    const body = challengeTitle
+        ? `¡Día ${currentDay} de tu misión! Tu sistema nervioso te espera para seguir floreciendo.`
+        : "Tu sistema nervioso está listo para un minuto de calma. ¿Empezamos?";
 
     const id = await Notifications.scheduleNotificationAsync({
         content: {
-            title: "Momento de Paziify 🧘‍♂️",
-            body: "Tu sistema nervioso está listo para un minuto de calma. ¿Empezamos?",
-            data: { screen: 'LIBRARY' },
+            title,
+            body,
+            data: { screen: 'HOME' }, // Redirect to HOME where the master slot is
         },
-        trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-            hour,
-            minute,
-            repeats: true,
-        },
+        trigger: Platform.OS === 'android'
+            ? {
+                type: 'daily', // Explicitly set type for Android
+                hour,
+                minute,
+                repeats: true,
+            } as any
+            : {
+                type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+                hour,
+                minute,
+                repeats: true,
+            },
     });
 
     return id;

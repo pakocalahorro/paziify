@@ -91,16 +91,22 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 **Componente:** `CustomTabBar`
 - **Isla de Cristal**: Un menú ergonómico que flota sobre el contenido.
 - **Efecto Orbital**: El botón central late orgánicamente reflejando tu energía actual.
+- **Restricción de Evolución (v2.31.0)**: Si tienes un programa activo (reto), los modos "Sanar" y "Crecer" se desactivan en el Santuario para proteger tu disciplina. La app te guía a terminar tu sesión diaria antes de cambiar de sintonía.
 
 ---
 
 ## 6. Sincronización 100% Cloud y Perfil 3.0 🌟
 - **Tu Oasis te Sigue**: Favoritos, historial y ajustes persistidos en Supabase.
-- **Árbol de Resiliencia**: Un árbol vivo en tu perfil que crece con cada día de racha, iluminando sus 30 luces neón según tu progreso.
+- **Árbol de Resiliencia Dinámico**: El árbol crece proporcionalmente a la duración de tu programa (3, 7, 30 días).
 
 ---
 
-## 7. Panel de Administración (CMS Profesional) ⚙️ (v2.30.5 Upgraded)
+## 7. Consultar Detalles del Reto (Info Button) ℹ️
+En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo en cualquier momento para recordar los beneficios y el propósito del programa en el que estás inscrito.
+
+---
+
+## 8. Panel de Administración (CMS Profesional) ⚙️ (v2.30.5 Upgraded)
 **Acceso:** Panel Web dedicado.
 
 - **Listado Dinámico**: La tabla de meditaciones ahora es una herramienta de productividad:

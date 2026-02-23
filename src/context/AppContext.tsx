@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, UserState, Session } from '../types';
 import { supabase } from '../services/supabaseClient';
+import { scheduleDailyMeditationReminder } from '../utils/notifications';
 import { User } from '@supabase/supabase-js';
 
 interface AppContextType {
@@ -47,6 +48,7 @@ const defaultUserState: UserState = {
         quietHoursEnd: "07:00",
     },
     hasAcceptedMonthlyChallenge: false,
+    activeChallenge: null,
 };
 
 const STORAGE_KEY = '@paziify_user_state';
@@ -155,6 +157,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         lastEntryDate: data.last_entry_date || prev.lastEntryDate,
                         favoriteSessionIds: data.favorite_session_ids || prev.favoriteSessionIds || [],
                         completedSessionIds: data.completed_session_ids || prev.completedSessionIds || [],
+                        activeChallenge: data.active_challenge || prev.activeChallenge,
                         settings: data.notification_settings || prev.settings,
                     }));
                 }
@@ -185,6 +188,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                                 last_entry_date: userState.lastEntryDate,
                                 favorite_session_ids: userState.favoriteSessionIds,
                                 completed_session_ids: userState.completedSessionIds,
+                                active_challenge: userState.activeChallenge,
                                 notification_settings: userState.settings
                             })
                             .eq('id', user.id);
@@ -205,9 +209,34 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         userState.lastEntryDate,
         userState.favoriteSessionIds,
         userState.completedSessionIds,
+        userState.activeChallenge,
         userState.settings,
         isLoading
     ]);
+
+    // Handle Challenge Reminders scheduling
+    useEffect(() => {
+        if (!isLoading && userState.settings?.notificationMorning) {
+            const scheduleReminders = async () => {
+                try {
+                    // Extract hour/minute from user settings
+                    // Assuming settings.morningTime is "08:00" format or similar
+                    // For now, using default 8:00 or current setting if available
+                    const [hour, minute] = [8, 0]; // Default or from settings if available
+
+                    await scheduleDailyMeditationReminder(
+                        hour,
+                        minute,
+                        userState.activeChallenge?.title,
+                        (userState.activeChallenge?.daysCompleted || 0) + 1
+                    );
+                } catch (error) {
+                    console.error('Error scheduling challenge reminders:', error);
+                }
+            };
+            scheduleReminders();
+        }
+    }, [userState.activeChallenge?.id, userState.activeChallenge?.daysCompleted, userState.settings?.notificationMorning]);
 
     // Determine night mode based on real time
     useEffect(() => {

@@ -26,7 +26,7 @@ const QUOTES = [
 
 const SpiritualPreloader = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const { isFirstEntryOfDay } = useApp();
+    const { isFirstEntryOfDay, userState } = useApp();
     const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -45,14 +45,20 @@ const SpiritualPreloader = () => {
                 useNativeDriver: true,
             })
         ]).start(() => {
-            // Decision logic
+            // Decision logic: If there's an active challenge, bypass Compass
             if (isFirstEntryOfDay) {
-                navigation.replace(Screen.COMPASS);
+                if (userState.activeChallenge) {
+                    // @ts-ignore
+                    navigation.replace('MainTabs');
+                } else {
+                    navigation.replace(Screen.COMPASS);
+                }
             } else {
+                // @ts-ignore
                 navigation.replace('MainTabs');
             }
         });
-    }, [isFirstEntryOfDay]);
+    }, [isFirstEntryOfDay, userState.activeChallenge]);
 
     return (
         <AuraBackground mode="neutral">

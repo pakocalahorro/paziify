@@ -18,7 +18,7 @@
 
 **Paziify** es una aplicación móvil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versión**: 2.30.5 (Universal Sync)
+**Versión**: 2.31.0 (Evolution Focus)
 
 ---
 
@@ -74,7 +74,9 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 ├── src/                        # Código fuente principal
 │   ├── assets/                 # Assets optimizados
 │   ├── components/             # Componentes reutilizables
-│   ├── constants/              # Constantes (temas, categorías)
+│   │   ├── Challenges/         # [NEW] Modales de reto
+│   ├── constants/              # Constantes (temas, categorías, retos)
+│   │   ├── challenges.ts       # [NEW] Maestro de retos y slugs
 │   ├── context/                # Contextos de React
 │   ├── data/                   # Datos estáticos y mocks
 │   ├── hooks/                  # Custom hooks
@@ -426,6 +428,15 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 ---
 
 ## Componentes
+
+### Componentes de Retos
+
+#### `src/components/Challenges/ChallengeDetailsModal.tsx`
+**Función**: Modal informativo de programas
+**Contenido**:
+- Título, duración y descripción del reto
+- Listado de beneficios
+- Efectos de desenfoque premium (BlurView)
 
 ### Componentes de Home
 

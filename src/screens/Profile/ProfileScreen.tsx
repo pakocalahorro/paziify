@@ -19,6 +19,7 @@ import { theme } from '../../constants/theme';
 import { analyticsService, UserStats, DailyActivity } from '../../services/analyticsService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import WidgetTutorialModal from '../../components/Challenges/WidgetTutorialModal';
 
 const { width } = Dimensions.get('window');
 
@@ -40,6 +41,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const [dominantMode, setDominantMode] = useState<'healing' | 'growth' | 'neutral'>('neutral');
 
     const visualMode = userState.lifeMode || (isNightMode ? 'healing' : 'growth');
+    const [showWidgetTutorial, setShowWidgetTutorial] = useState(false);
 
     const dayLabels: Record<string, string> = {
         '0': 'D', '1': 'L', '2': 'M', '3': 'X', '4': 'J', '5': 'V', '6': 'S'
@@ -107,21 +109,65 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     <BlurView intensity={40} tint="dark" style={styles.treeSection}>
                         <TouchableOpacity
                             style={styles.infoIconContainer}
-                            onPress={() => Alert.alert("Tu Florecer Mensual", "Cada día que meditas enciendes una nueva luz en tu árbol. Completa el ciclo de 30 días para integrar el hábito de la paz y mejorar tu equilibrio emocional.")}
+                            onPress={() => Alert.alert(
+                                userState.activeChallenge ? "Tu Reto Activo" : "Tu Florecer Mensual",
+                                userState.activeChallenge
+                                    ? `Estás en el camino de "${userState.activeChallenge.title}". Cada sesión completa hace brillar tu árbol.`
+                                    : "Cada día que meditas enciendes una nueva luz en tu árbol. Completa el ciclo de 30 días para integrar el hábito de la paz."
+                            )}
                         >
                             <Ionicons name="information-circle-outline" size={20} color="rgba(255,255,255,0.5)" />
                         </TouchableOpacity>
 
                         <ResilienceTree
-                            daysPracticed={displayStats.currentStreak} // Using streak for now as 'days in month'
+                            daysPracticed={userState.activeChallenge ? userState.activeChallenge.daysCompleted : displayStats.currentStreak}
+                            totalSteps={userState.activeChallenge ? userState.activeChallenge.totalDays : 30}
                             size={250}
                             isGuest={isGuest}
                         />
                         <View style={styles.treeLabels}>
-                            <Text style={styles.treeScore}>{displayStats.currentStreak}/30</Text>
-                            <Text style={styles.treeSubtext}>Días de Calma este mes</Text>
+                            <Text style={styles.treeScore}>
+                                {userState.activeChallenge
+                                    ? `${userState.activeChallenge.daysCompleted}/${userState.activeChallenge.totalDays}`
+                                    : `${displayStats.currentStreak}/30`}
+                            </Text>
+                            <Text style={styles.treeSubtext}>
+                                {userState.activeChallenge ? "Días completados" : "Días de Calma este mes"}
+                            </Text>
                         </View>
-                        {isGuest && (
+
+                        {userState.activeChallenge && (
+                            <TouchableOpacity
+                                style={[styles.guestCTA, { backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)' }]}
+                                onPress={() => {
+                                    Alert.alert(
+                                        "Abandonar Misión",
+                                        "¿Seguro que quieres abandonar este reto? El progreso visual de este reto se perderá, aunque tus estadísticas globales se mantendrán.",
+                                        [
+                                            { text: "Cancelar", style: "cancel" },
+                                            {
+                                                text: "Abandonar",
+                                                style: "destructive",
+                                                onPress: () => updateUserState({ activeChallenge: null })
+                                            }
+                                        ]
+                                    );
+                                }}
+                            >
+                                <Text style={[styles.guestCTAText, { color: '#EF4444' }]}>Abandonar Misión</Text>
+                                <Ionicons name="close-circle" size={14} color="#EF4444" />
+                            </TouchableOpacity>
+                        )}
+
+                        <TouchableOpacity
+                            style={[styles.guestCTA, { marginTop: userState.activeChallenge ? 8 : 16, backgroundColor: 'rgba(100, 108, 255, 0.1)', borderColor: 'rgba(100, 108, 255, 0.2)' }]}
+                            onPress={() => setShowWidgetTutorial(true)}
+                        >
+                            <Ionicons name="apps-outline" size={14} color={theme.colors.primary} />
+                            <Text style={[styles.guestCTAText, { color: theme.colors.primary }]}>Instalar Zen Widget</Text>
+                        </TouchableOpacity>
+
+                        {isGuest && !userState.activeChallenge && (
                             <TouchableOpacity
                                 style={styles.guestCTA}
                                 onPress={() => navigation.navigate(Screen.WELCOME)}
@@ -313,6 +359,10 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
                 </ScrollView>
             </View>
+            <WidgetTutorialModal
+                isVisible={showWidgetTutorial}
+                onClose={() => setShowWidgetTutorial(false)}
+            />
         </View>
     );
 };

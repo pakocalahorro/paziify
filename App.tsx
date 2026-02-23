@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { queryClient, asyncStoragePersister } from './src/lib/queryClient';
 import { useFonts, Outfit_400Regular, Outfit_600SemiBold, Outfit_700Bold, Outfit_800ExtraBold, Outfit_900Black } from '@expo-google-fonts/outfit';
-import { Satisfy_400Regular } from '@expo-google-fonts/satisfy';
+import { Caveat_700Bold } from '@expo-google-fonts/caveat';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -15,7 +15,7 @@ export default function App() {
     Outfit_700Bold,
     Outfit_800ExtraBold,
     Outfit_900Black,
-    Satisfy_400Regular,
+    Caveat_700Bold,
   });
 
   if (!fontsLoaded) {

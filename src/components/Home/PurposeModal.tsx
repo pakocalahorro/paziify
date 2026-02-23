@@ -24,53 +24,53 @@ const PurposeModal: React.FC<PurposeModalProps> = ({ isVisible, onAccept, onClos
                     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
                         <View style={styles.header}>
                             <View style={styles.treeWrapper}>
-                                <ResilienceTree daysPracticed={12} size={110} isGuest={false} />
+                                <ResilienceTree daysPracticed={0} totalSteps={30} size={110} isGuest={false} />
                             </View>
-                            <Text style={styles.title}>Tu Propósito en Paziify</Text>
-                            <Text style={styles.subtitle}>Acepta el reto para transformar tu vida y la de los demás.</Text>
+                            <Text style={styles.title}>Diseña tu Evolución</Text>
+                            <Text style={styles.subtitle}>Paziify se adapta a tu ritmo. Elige el compromiso que necesites hoy.</Text>
                         </View>
 
                         <View style={styles.itemsContainer}>
                             <View style={styles.item}>
                                 <View style={[styles.iconCircle, { backgroundColor: 'rgba(74, 103, 65, 0.2)' }]}>
-                                    <Ionicons name="heart" size={24} color="#4ADE80" />
+                                    <Ionicons name="flash" size={24} color="#4ADE80" />
                                 </View>
                                 <View style={styles.itemTexts}>
-                                    <Text style={styles.itemTitle}>Equilibrio Emocional</Text>
+                                    <Text style={styles.itemTitle}>Misiones y Desafíos</Text>
                                     <Text style={styles.itemDescription}>
-                                        Mejora tu salud y paz interior practicando a diario durante un mes completo.
+                                        Elige entre 3, 7 o 30 días según tu energía y compromiso actual.
                                     </Text>
                                 </View>
                             </View>
 
                             <View style={styles.item}>
                                 <View style={[styles.iconCircle, { backgroundColor: 'rgba(212, 175, 55, 0.2)' }]}>
-                                    <Ionicons name="earth" size={24} color="#D4AF37" />
+                                    <Ionicons name="leaf" size={24} color="#D4AF37" />
                                 </View>
                                 <View style={styles.itemTexts}>
-                                    <Text style={styles.itemTitle}>Guía y Motivación</Text>
+                                    <Text style={styles.itemTitle}>Árbol Adaptativo</Text>
                                     <Text style={styles.itemDescription}>
-                                        Comparte tu camino al final para inspirar y guiar a otras personas en su búsqueda.
+                                        Tu Árbol de Resiliencia florecerá al ritmo de tu camino elegido.
                                     </Text>
                                 </View>
                             </View>
 
                             <View style={styles.item}>
                                 <View style={[styles.iconCircle, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
-                                    <Ionicons name="gift" size={24} color="#FFF" />
+                                    <Ionicons name="people" size={24} color="#FFF" />
                                 </View>
                                 <View style={styles.itemTexts}>
-                                    <Text style={styles.itemTitle}>Regalo Sorpresa</Text>
+                                    <Text style={styles.itemTitle}>Propósito Compartido</Text>
                                     <Text style={styles.itemDescription}>
-                                        Una recompensa exclusiva te espera al completar el florecer de tu árbol.
+                                        Tu evolución personal inspira y guía a otros en su búsqueda de paz.
                                     </Text>
                                 </View>
                             </View>
                         </View>
 
                         <TouchableOpacity style={styles.button} onPress={onAccept}>
-                            <Text style={styles.buttonText}>Acepto el Reto</Text>
-                            <Ionicons name="sparkles" size={18} color={theme.colors.background} style={{ marginLeft: 8 }} />
+                            <Text style={styles.buttonText}>Explorar mi Evolución</Text>
+                            <Ionicons name="arrow-forward" size={18} color={theme.colors.background} style={{ marginLeft: 8 }} />
                         </TouchableOpacity>
 
                         <Text style={styles.footerNote}>
