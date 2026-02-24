@@ -2053,7 +2053,7 @@ export const MEDITATION_SESSIONS: MeditationSession[] = [
       "voiceTrack": "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/kids/0060-la-aventura-del-aire-respiracion-magica.mp3",
       "defaultSoundscape": "meditation_bowls"
     },
-    "creatorName": "Aria",
+    "creatorName": "Gaia",
     "creatorCredentials": "Guía Especialista en Mindfulness",
     "scientificBenefits": "Basado en protocolos clínicos de regulación emocional y bio-feedback.",
     "breathingPattern": {

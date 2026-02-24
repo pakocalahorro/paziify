@@ -25,6 +25,14 @@
     - Creado `ChallengeDetailsModal.tsx` para unificar la vista de información en Home y el Catálogo.
 - **Resultado**: Código más mantenible y una UI consistente en toda la aplicación.
 
+### 4. Sincronización de Guías de Audio 🎙️
+- **Por qué**: Había discrepancias en la asignación de categorías de voz y cuotas de consumo.
+- **Cambio**: 
+    - Actualizado `audio.md` a **v2.31.0**.
+    - Corregida la tabla de cuotas: **Gaia** (Studio) y **Éter** (Neural/Chirp).
+    - Alineados todos los parámetros de prosodia con los guías oficiales.
+- **Resultado**: Documentación técnica impecable para futuras expansiones de contenido.
+
 ## Detalles Técnicos (Visual & Lógica)
 
 ### Métricas Visuales

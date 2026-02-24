@@ -1,6 +1,6 @@
-# 🎙️ Guía Maestra de Audio - Paziify (v2.30.5) 💎
+# 🎙️ Guía Maestra de Audio - Paziify (v2.31.0) 💎
 
-Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.30.5** marca la **Sincronización Universal**, consolidando el motor asíncrono y la protección offline total.
+Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.31.0** marca el **Enfoque en Evolución**, con sintonización de guías premium y optimización de cuotas.
 
 ---
 
@@ -38,13 +38,13 @@ A continuación se detallan los parámetros técnicos de Google Cloud TTS valida
 
 ### 📋Resumen de Guías Oficiales
 - **Aria (Calma/Salud/Emocional)**: `es-ES-Chirp3-HD-Vindemiatrix` | Pitch: 0.0 | Rate: 0.72 | Voz nutritiva y protectora.
-- **Laomedeia (Kids/Adolescente)**: `es-ES-Neural2-A` (Perfil *Nova v8*) | Pitch: +1.0 | Rate: 0.85 | Voz juvenil, veloz y empática.
-- **Ziro (Rendimiento/Despertar)**: `es-ES-Chirp3-HD-Autonoe` (Perfil *Helios*) | Pitch: 0.0 | Rate: 0.75 | Voz vibrante y motivadora.
-- **Éter (Sueño/Resiliencia)**: `es-ES-Neural-Deep` (Perfil *Zenon*) | Pitch: -2.0 | Rate: 0.70 | Voz profunda y de comando.
-- **Gaia (Mindfulness)**: `es-ES-Studio-F` | Pitch: 0.0 | Rate: 0.75 | Voz etérea y consciente.
+- **Ziro (Rendimiento/Despertar)**: `es-ES-Chirp3-HD-Enceladus` | Pitch: 0.0 | Rate: 0.75 | Voz vibrante y motivadora.
+- **Gaia (Mindfulness/Kids)**: `es-ES-Chirp3-HD-Autonoe` | Pitch: 0.0 | Rate: 0.80 | Voz etérea, joven y consciente.
+- **Éter (Sueño/Resiliencia)**: `es-ES-Studio-F` | Pitch: 0.0 | Rate: 0.75 | Voz profunda y de comando (Studio).
 
 ### SSML Prosody (Calidad Premium) 🎙️
-Para una experiencia meditativa superior, el motor de audio (`generate_audiobook.py`) utiliza etiquetas SSML para controlar la prosodia:
+Para una experiencia meditativa superior, el motor de audio (`generate_audiobook.py`) utiliza etiquetas SSML para controlar la prosodia. Consulta la **[Guía Maestra de Comandos SSML](../tutorials/ssml_master_guide.md)** para aprender a usar énfasis, pausas y variaciones de tono directamente en tus archivos `.txt`.
+
 - **Pausas Automáticas**: Se insertan etiquetas `<break time="2000ms"/>` entre párrafos.
 - **Ritmo Espiritual**: Las tasas de habla (`speaking_rate`) se mantienen por debajo de 0.8x para facilitar la introspección.
 - **Control de Carga (Byte-Based)**: El script calcula dinámicamente el tamaño de la petición en bytes (`MAX_BYTES = 4800`) para garantizar que nunca se supere el límite de 5000 bytes de Google Cloud, incluso con caracteres especiales y etiquetas complejas.
@@ -98,7 +98,7 @@ Para evitar sorpresas con la facturación de Google Cloud, el motor integra un s
 | 07 | Salud | 10 | Aria | **Premium SSML** |
 | 08 | Emocional | 10 | Aria | **Premium SSML** |
 | 09 | Hábitos | 10 | Aria | **Premium SSML** |
-| 10 | Paziify Kids | 10 | Laomedeia | **Premium SSML** |
+| 10 | Paziify Kids | 10 | Gaia | **Premium SSML** |
 
 ---
 
@@ -107,4 +107,4 @@ Para evitar sorpresas con la facturación de Google Cloud, el motor integra un s
 > Los scripts que apuntan a buckets legacy (`meditation-voice`) han sido movidos a `scripts/LEGACY_OLD_STRUCTURE/`. **No usarlos** para nuevas cargas masivas. Usa el Panel Admin.
 
 ---
-*Última revisión: 22 de Febrero de 2026 - Versión 2.30.5 (Universal Sync Evolution)*
+*Última revisión: 23 de Febrero de 2026 - Versión 2.31.0 (Evolution Focus)*
