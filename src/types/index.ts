@@ -77,6 +77,11 @@ export interface UserState {
     dailyGoalMinutes?: number;
     weeklyGoalMinutes?: number;
     hasAcceptedMonthlyChallenge?: boolean;
+    // Health Profile (Cardio Scan context)
+    birthDate?: string;           // ISO date "1990-05-15"
+    gender?: 'male' | 'female' | 'other';
+    heightCm?: number;
+    weightKg?: number;
 }
 
 export interface Session {
@@ -201,7 +206,7 @@ export type RootStackParamList = {
     [Screen.STORY_DETAIL]: { storyId: string; story?: any };
     [Screen.TRANSITION_TUNNEL]: { sessionId?: string; sessionData?: any };
     [Screen.BREATHING_TIMER]: { sessionId: string; sessionData?: any };
-    [Screen.SESSION_END]: { sessionId: string; durationMinutes: number };
+    [Screen.SESSION_END]: { sessionId: string; durationMinutes: number; thumbnailUrl?: string };
     [Screen.SESSION_DETAIL]: { sessionId: string; sessionData?: any };
     [Screen.PROFILE]: undefined;
     [Screen.WEEKLY_REPORT]: undefined;
@@ -217,7 +222,7 @@ export type RootStackParamList = {
     MainTabs: undefined;
 
     // Bio / Cardio
-    [Screen.CARDIO_SCAN]: undefined;
+    [Screen.CARDIO_SCAN]: { context?: 'baseline' | 'post_session' } | undefined;
     [Screen.CARDIO_RESULT]: { diagnosis: 'stress' | 'fatigue' | 'balanced' };
     [Screen.EVOLUTION_CATALOG]: undefined;
 }

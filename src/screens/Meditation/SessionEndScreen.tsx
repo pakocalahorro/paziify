@@ -1,4 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import ReanimatedAnimated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withRepeat,
+    withSequence,
+    withTiming,
+    Easing,
+} from 'react-native-reanimated';
 import {
     View,
     Text,
@@ -12,6 +20,8 @@ import {
     Switch,
     ScrollView,
 } from 'react-native';
+import { ImageBackground } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useRoute } from '@react-navigation/native';
@@ -37,11 +47,28 @@ interface Props {
 
 const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
     const route = useRoute<SessionEndScreenRouteProp>();
-    const { sessionId, durationMinutes } = route.params;
+    const { sessionId, durationMinutes, thumbnailUrl } = route.params;
     const { user, userState, updateUserState } = useApp();
     const [selectedMood, setSelectedMood] = useState<number>(3); // Default to middle/calm
     const [isSharing, setIsSharing] = useState(false);
     const [comment, setComment] = useState('');
+
+    // Heartbeat animation for Verificar button
+    const heartScale = useSharedValue(1);
+    useEffect(() => {
+        heartScale.value = withRepeat(
+            withSequence(
+                withTiming(1.08, { duration: 600, easing: Easing.out(Easing.ease) }),
+                withTiming(1, { duration: 500, easing: Easing.in(Easing.ease) }),
+                withTiming(1.05, { duration: 400, easing: Easing.out(Easing.ease) }),
+                withTiming(1, { duration: 1000, easing: Easing.in(Easing.ease) }),
+            ),
+            -1, false
+        );
+    }, []);
+    const heartbeatStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: heartScale.value }],
+    }));
 
     const isChallengeSession = userState.activeChallenge &&
         (userState.activeChallenge.currentSessionSlug === sessionId ||
@@ -110,6 +137,20 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" />
+            {/* Session Background Image */}
+            {thumbnailUrl && (
+                <ImageBackground
+                    source={{ uri: thumbnailUrl }}
+                    style={StyleSheet.absoluteFill}
+                    imageStyle={{ opacity: 0.3 }}
+                    resizeMode="cover"
+                >
+                    <LinearGradient
+                        colors={['rgba(10,10,10,0.6)', 'rgba(10,10,10,0.95)', '#0A0A0A']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </ImageBackground>
+            )}
 
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => {
@@ -125,20 +166,16 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.badgeText}>{isChallengeSession ? 'MISIÓN COMPLETADA' : 'SESIÓN COMPLETADA'}</Text>
                 </View>
 
-                {/* VISUALIZACIÓN DUAL: Árbol (Reto) vs ZenMeter (Libre) */}
-                <View style={{ height: 200, justifyContent: 'center', marginBottom: 20 }}>
-                    {isChallengeSession ? (
+                {/* VISUALIZACIÓN: Solo Árbol para Retos */}
+                {isChallengeSession && (
+                    <View style={{ height: 200, justifyContent: 'center', marginBottom: 20 }}>
                         <ResilienceTree
                             daysPracticed={userState.activeChallenge?.daysCompleted ? userState.activeChallenge.daysCompleted + 1 : 1}
                             totalSteps={userState.activeChallenge?.totalDays}
                             size={180}
                         />
-                    ) : (
-                        <View style={{ alignItems: 'center' }}>
-                            <ZenMeter progress={Math.min((userState.totalMinutes || 0) / 1000, 1)} size={150} label="VITALIDAD" />
-                        </View>
-                    )}
-                </View>
+                    </View>
+                )}
 
                 {isChallengeSession && (
                     <Text style={[styles.title, { fontSize: 18, color: theme.colors.accent, marginBottom: 10 }]}>
@@ -222,18 +259,6 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                             />
                         </View>
 
-                        {/* New Feature: Post-Session Cardio Scan */}
-                        <TouchableOpacity
-                            style={styles.cardioButton}
-                            onPress={() => {
-                                // @ts-ignore
-                                navigation.navigate('CardioScan', { context: 'post_session' });
-                            }}
-                        >
-                            <Ionicons name="heart-circle-outline" size={24} color="#FFD700" />
-                            <Text style={styles.cardioButtonText}>Verificar Impacto en Cardio</Text>
-                            <Ionicons name="arrow-forward" size={16} color="#FFD700" style={{ marginLeft: 'auto' }} />
-                        </TouchableOpacity>
 
                         <View style={styles.separator} />
 
@@ -258,9 +283,24 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
             </ScrollView>
 
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.button} onPress={handleFinish}>
-                    <Text style={styles.buttonText}>{(isSharing && comment) ? 'Publicar y Continuar' : 'Guardar y Continuar'}</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                    {/* Verificar Impacto */}
+                    <TouchableOpacity
+                        style={styles.cardioFooterBtn}
+                        onPress={() => navigation.navigate(Screen.CARDIO_SCAN, { context: 'post_session' })}
+                    >
+                        <ReanimatedAnimated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 6 }, heartbeatStyle]}>
+                            <Ionicons name="heart-circle" size={22} color="#FF4B4B" />
+                            <Text style={styles.cardioFooterText}>Verificar</Text>
+                        </ReanimatedAnimated.View>
+                    </TouchableOpacity>
+
+                    {/* Continuar */}
+                    <TouchableOpacity style={styles.button} onPress={handleFinish}>
+                        <Text style={styles.buttonText}>{(isSharing && comment) ? 'Publicar' : 'Continuar'}</Text>
+                        <Ionicons name="arrow-forward" size={18} color="#FFF" />
+                    </TouchableOpacity>
+                </View>
             </View>
         </SafeAreaView>
     );
@@ -303,17 +343,17 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
     },
     title: {
-        fontSize: 32,
+        fontSize: 22,
         fontWeight: '800',
         color: '#FFF',
         textAlign: 'center',
-        marginBottom: 60,
+        marginBottom: 24,
     },
     moodSelector: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        marginBottom: 40,
+        marginBottom: 24,
     },
     moodItemContainer: {
         alignItems: 'center',
@@ -451,10 +491,14 @@ const styles = StyleSheet.create({
         paddingTop: 10,
     },
     button: {
+        flex: 1,
         backgroundColor: theme.colors.primary,
         paddingVertical: 18,
         borderRadius: 16,
         alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        gap: 8,
         shadowColor: theme.colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
@@ -464,6 +508,23 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 18,
         fontWeight: '800',
+    },
+    cardioFooterBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        paddingVertical: 18,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 75, 75, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 75, 75, 0.3)',
+    },
+    cardioFooterText: {
+        color: '#FF4B4B',
+        fontSize: 14,
+        fontWeight: '700',
     },
 });
 

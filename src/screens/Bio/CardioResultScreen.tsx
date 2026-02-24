@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Modal, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Modal, ScrollView, ImageBackground } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -8,6 +9,7 @@ import { useApp } from '../../context/AppContext';
 import { contentService } from '../../services/contentService';
 import * as Haptics from 'expo-haptics';
 import { CardioService } from '../../services/CardioService';
+import { Screen } from '../../types';
 import GameContainer from '../../components/Gamification/GameContainer';
 
 const { width } = Dimensions.get('window');
@@ -18,21 +20,36 @@ interface CardioResultParams {
         bpm: number;
         hrv: number;
     };
+    hrvNormalized?: {
+        rawValue: number;
+        normalizedValue: number;
+        expectedValue: number;
+        category: string;
+        message: string;
+    };
     context?: 'baseline' | 'post_session';
     quality?: number;
+    sessionData?: any;
 }
 
 const CardioResultScreen = () => {
     const route = useRoute();
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
-    const { updateUserState, setLastSelectedBackgroundUri } = useApp();
+    const { userState, updateUserState, setLastSelectedBackgroundUri } = useApp();
 
     const params = route.params as CardioResultParams | undefined;
     const diagnosis = params?.diagnosis || 'equilibrio';
     const metrics = params?.metrics;
+    const hrvNormalized = params?.hrvNormalized;
     const context = params?.context || 'baseline';
-    const quality = params?.quality || 98; // Default to high if missing
+    const quality = params?.quality || 98;
+    const sessionData = params?.sessionData;
+    const hasActiveProgram = !!userState.activeChallenge;
+
+    // History trend state
+    const [weekTrend, setWeekTrend] = useState<{ bpm: number; hrv: number; date: string }[]>([]);
+    const [todayBaseline, setTodayBaseline] = useState<{ bpm: number; hrv: number } | null>(null);
 
     // -------------------------------------------------------------------------
     // 1. SAVE RESULT (LOCAL FIRST)
@@ -54,6 +71,19 @@ const CardioResultScreen = () => {
             };
             saveResult();
         }
+
+        // Load history trend for mini-chart
+        const loadTrend = async () => {
+            const trend = await CardioService.getWeekTrend();
+            setWeekTrend(trend.map(s => ({ bpm: s.bpm, hrv: s.hrv, date: s.timestamp })));
+
+            // Load today's baseline for pre/post comparison
+            if (context === 'post_session') {
+                const baseline = await CardioService.getTodayBaseline();
+                if (baseline) setTodayBaseline({ bpm: baseline.bpm, hrv: baseline.hrv });
+            }
+        };
+        loadTrend();
     }, [metrics, params, context]);
 
     // -------------------------------------------------------------------------
@@ -63,7 +93,7 @@ const CardioResultScreen = () => {
         sobrecarga: {
             mode: 'healing',
             title: 'Guerrero en Reposo', // Before: Sobrecarga Mental
-            tag: 'HONRA TU ESFUERZO',
+            tag: 'TU CUERPO HA LUCHADO GRANDES BATALLAS, PERMÍTETE SANAR',
             color: '#EF4444', // Red-ish
             bg: '#1A0808',
             insight: "Tu cuerpo ha luchado grandes batallas. Ahora, la victoria reside en soltar las armas y permitirte sanar. No es debilidad, es sabiduría."
@@ -71,7 +101,7 @@ const CardioResultScreen = () => {
         agotamiento: {
             mode: 'healing', // Changed to healing for fatigue
             title: 'Marea Calma', // Before: Energía Baja
-            tag: 'NUTRICIÓN PROFUNDA',
+            tag: 'TU ENERGÍA ESTÁ BAJA PARA VOLVER CON FUERZA',
             color: '#FBBF24', // Amber
             bg: '#1A1500',
             insight: "Como el mar cuando se retira, tu energía está baja para luego volver con fuerza. Hoy no exijas, solo nutre. Flota."
@@ -79,7 +109,7 @@ const CardioResultScreen = () => {
         equilibrio: {
             mode: 'growth',
             title: 'Sol Naciente', // Before: Resonancia Vital
-            tag: 'LUZ INTERIOR',
+            tag: 'TU LUZ INTERIOR ES ESTABLE Y BRILLANTE',
             color: '#10B981', // Emerald
             bg: '#061812',
             insight: "Tu luz interior es estable y brillante. Tienes la claridad y la fuerza para expandirte. Es tu momento de brillar."
@@ -88,6 +118,13 @@ const CardioResultScreen = () => {
 
     const config = resultConfig[diagnosis] || resultConfig.equilibrio;
     const suggestedMode = config.mode as 'healing' | 'growth';
+
+    // Motivational message for active program (Variante B)
+    const missionMessages = {
+        sobrecarga: 'Tu cuerpo pide calma. Tu sesión de hoy es justo lo que necesitas — respira profundo y confía en el proceso.',
+        agotamiento: 'Tu energía está baja, pero tu sesión te nutrirá. Haz lo que puedas, sin presión.',
+        equilibrio: 'Estás en equilibrio perfecto. Hoy es el día ideal para avanzar en tu programa. ¡A por ello!'
+    };
 
     // -------------------------------------------------------------------------
     // 3. GAMIFICATION LOGIC
@@ -137,8 +174,22 @@ const CardioResultScreen = () => {
 
     return (
         <View style={styles.container}>
-            {/* Background Gradient/Mesh Placeholder */}
-            <View style={[styles.backgroundBase, { backgroundColor: config.bg }]} />
+            {/* Session Background Image or Solid Color */}
+            {sessionData?.thumbnailUrl ? (
+                <ImageBackground
+                    source={{ uri: sessionData.thumbnailUrl }}
+                    style={[StyleSheet.absoluteFill]}
+                    imageStyle={{ opacity: 0.3 }}
+                    resizeMode="cover"
+                >
+                    <LinearGradient
+                        colors={['rgba(10,10,10,0.5)', 'rgba(10,10,10,0.9)', '#0A0A0A']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </ImageBackground>
+            ) : (
+                <View style={[styles.backgroundBase, { backgroundColor: config.bg }]} />
+            )}
 
             {/* GAMIFICATION MODAL */}
             <Modal
@@ -172,10 +223,7 @@ const CardioResultScreen = () => {
                     </Text>
                 </View>
 
-                {/* Main Insight */}
-                <Text style={styles.insightText}>
-                    {config.insight}
-                </Text>
+
 
                 {/* Metrics Cards */}
                 <View style={styles.metricsContainer}>
@@ -190,71 +238,243 @@ const CardioResultScreen = () => {
                     </View>
                 </View>
 
-                {/* SCIENTIFIC VALIDATION BLOCK */}
-                <View style={styles.scientificContainer}>
-                    <View style={styles.qualityBadge}>
-                        <Ionicons name="shield-checkmark" size={14} color="#10B981" />
-                        <Text style={styles.qualityLabel}>CALIDAD DE SEÑAL:</Text>
-                        <Text style={styles.qualityValue}>{quality}% (CLÍNICA)</Text>
-                    </View>
+                {/* ============================================================ */}
+                {/* BASELINE MODE: Lightweight results → back to session          */}
+                {/* ============================================================ */}
+                {context === 'baseline' ? (
+                    <>
+                        {/* Confirmation */}
+                        <View style={styles.baselineConfirm}>
+                            <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                            <Text style={styles.baselineConfirmText}>
+                                Bio-ritmo registrado
+                            </Text>
+                        </View>
 
-                    <Text style={styles.scientificText}>
-                        Diagnóstico basado en biomarcadores de Variabilidad Cardíaca (VFC).{"\n"}
-                        Tecnología de fotopletismografía validada científicamente.
-                    </Text>
-                </View>
+                        <Text style={styles.baselineHint}>
+                            Al terminar tu sesión de meditación, podrás ver el impacto real comparando tus resultados de antes y después.
+                        </Text>
 
-                <View style={styles.divider} />
+                        {/* CTA: Start session directly */}
+                        <TouchableOpacity
+                            style={[styles.ctaButton, { backgroundColor: '#10B981' }]}
+                            onPress={() => {
+                                if (sessionData) {
+                                    navigation.navigate(Screen.BREATHING_TIMER, {
+                                        sessionId: sessionData.id,
+                                        sessionData: sessionData,
+                                    });
+                                } else {
+                                    navigation.goBack();
+                                }
+                            }}
+                        >
+                            <Text style={styles.ctaText}>Comenzar Sesión</Text>
+                            <Ionicons name="play" size={20} color="#000" />
+                        </TouchableOpacity>
 
-                <Text style={styles.recommendationLabel}>RECOMENDACIÓN PAZIIFY</Text>
+                        {/* MEDICAL DISCLAIMER */}
+                        <Text style={styles.disclaimer}>
+                            ⚕️ Esta medición es orientativa y tiene fines de bienestar personal. No sustituye el diagnóstico, consejo o tratamiento médico profesional.
+                        </Text>
+                    </>
+                ) : (
+                    <>
+                        {/* PRE/POST SESSION COMPARISON (Idea 2) */}
+                        {context === 'post_session' && todayBaseline && metrics && (
+                            <View style={styles.comparisonCard}>
+                                <Text style={styles.comparisonTitle}>IMPACTO DE TU SESIÓN</Text>
+                                <View style={styles.comparisonRow}>
+                                    <View style={styles.comparisonItem}>
+                                        <Text style={styles.comparisonLabel}>ANTES</Text>
+                                        <Text style={styles.comparisonVal}>{todayBaseline.bpm} BPM</Text>
+                                    </View>
+                                    <Ionicons name="arrow-forward" size={18} color="rgba(255,255,255,0.3)" />
+                                    <View style={styles.comparisonItem}>
+                                        <Text style={styles.comparisonLabel}>DESPUÉS</Text>
+                                        <Text style={styles.comparisonVal}>{metrics.bpm} BPM</Text>
+                                    </View>
+                                    <Text style={[styles.comparisonDelta, {
+                                        color: metrics.bpm < todayBaseline.bpm ? '#10B981' : '#FF6B6B'
+                                    }]}>
+                                        {metrics.bpm < todayBaseline.bpm ? '↓' : '↑'}{Math.abs(metrics.bpm - todayBaseline.bpm)}
+                                    </Text>
+                                </View>
+                                <View style={styles.comparisonRow}>
+                                    <View style={styles.comparisonItem}>
+                                        <Text style={styles.comparisonLabel}>VFC</Text>
+                                        <Text style={styles.comparisonVal}>{todayBaseline.hrv} ms</Text>
+                                    </View>
+                                    <Ionicons name="arrow-forward" size={18} color="rgba(255,255,255,0.3)" />
+                                    <View style={styles.comparisonItem}>
+                                        <Text style={styles.comparisonLabel}>VFC</Text>
+                                        <Text style={styles.comparisonVal}>{metrics.hrv} ms</Text>
+                                    </View>
+                                    <Text style={[styles.comparisonDelta, {
+                                        color: metrics.hrv > todayBaseline.hrv ? '#10B981' : '#FF6B6B'
+                                    }]}>
+                                        {metrics.hrv > todayBaseline.hrv ? '↑' : '↓'}{Math.abs(metrics.hrv - todayBaseline.hrv)} ms
+                                    </Text>
+                                </View>
+                                {metrics.hrv > todayBaseline.hrv && (
+                                    <Text style={styles.comparisonInsight}>
+                                        ✨ La meditación ha aumentado tu variabilidad cardíaca. ¡Tu cuerpo responde!
+                                    </Text>
+                                )}
+                            </View>
+                        )}
 
-                {/* Action Cards (The Nudge) */}
-                <View style={styles.cardsContainer}>
-                    {/* Sanar Card */}
-                    <TouchableOpacity
-                        style={[
-                            styles.card,
-                            styles.healingCard,
-                            // Dim if suggestion is growth
-                            suggestedMode === 'growth' && styles.dimmedCard,
-                            // Highlight if suggestion is healing
-                            suggestedMode === 'healing' && styles.highlightedCard
-                        ]}
-                        onPress={() => handleCardPress('healing')}
-                        activeOpacity={0.8}
-                    >
-                        <Ionicons name="leaf-outline" size={28} color={suggestedMode === 'healing' ? '#2DD4BF' : 'rgba(45, 212, 191, 0.4)'} />
-                        <Text style={[styles.cardTitle, { color: '#2DD4BF' }]}>SANAR</Text>
-                        <Text style={styles.cardDesc}>Calma SOS</Text>
-                    </TouchableOpacity>
+                        {/* HISTORY MINI-CHART (Idea 1) */}
+                        {weekTrend.length >= 2 && (
+                            <View style={styles.trendCard}>
+                                <Text style={styles.trendTitle}>📊 TU EVOLUCIÓN</Text>
+                                <View style={styles.trendChart}>
+                                    {weekTrend.map((point, i) => {
+                                        const maxHrv = Math.max(...weekTrend.map(p => p.hrv), 1);
+                                        const heightPct = Math.max((point.hrv / maxHrv) * 100, 10);
+                                        return (
+                                            <View key={i} style={styles.trendBarContainer}>
+                                                <View style={[styles.trendBar, {
+                                                    height: `${heightPct}%` as any,
+                                                    backgroundColor: i === weekTrend.length - 1
+                                                        ? '#10B981' : 'rgba(255,255,255,0.15)'
+                                                }]} />
+                                                <Text style={styles.trendBarLabel}>
+                                                    {['D', 'L', 'M', 'X', 'J', 'V', 'S'][new Date(point.date).getDay()]}
+                                                </Text>
+                                            </View>
+                                        );
+                                    })}
+                                </View>
+                                {(() => {
+                                    if (weekTrend.length >= 2) {
+                                        const first = weekTrend[0].hrv;
+                                        const last = weekTrend[weekTrend.length - 1].hrv;
+                                        const pctChange = Math.round(((last - first) / first) * 100);
+                                        if (pctChange > 0) return (
+                                            <Text style={styles.trendMessage}>
+                                                Tu VFC ha mejorado un {pctChange}% ✨
+                                            </Text>
+                                        );
+                                        if (pctChange < 0) return (
+                                            <Text style={[styles.trendMessage, { color: 'rgba(255,255,255,0.3)' }]}>
+                                                Tu VFC ha bajado un {Math.abs(pctChange)}%. Descansa más.
+                                            </Text>
+                                        );
+                                    }
+                                    return null;
+                                })()}
+                            </View>
+                        )}
+                        {weekTrend.length < 2 && weekTrend.length > 0 && (
+                            <Text style={styles.trendFirstScan}>
+                                ¡Primera lectura guardada! Escanéate otra vez mañana para ver tu evolución.
+                            </Text>
+                        )}
 
-                    {/* Crecer Card */}
-                    <TouchableOpacity
-                        style={[
-                            styles.card,
-                            styles.growthCard,
-                            // Dim if suggestion is healing
-                            suggestedMode === 'healing' && styles.dimmedCard,
-                            // Highlight if suggestion is growth
-                            suggestedMode === 'growth' && styles.highlightedCard
-                        ]}
-                        onPress={() => handleCardPress('growth')}
-                        activeOpacity={0.8}
-                    >
-                        <Ionicons name="flash-outline" size={28} color={suggestedMode === 'growth' ? '#FBBF24' : 'rgba(251, 191, 36, 0.4)'} />
-                        <Text style={[styles.cardTitle, { color: '#FBBF24' }]}>CRECER</Text>
-                        <Text style={styles.cardDesc}>Energía</Text>
-                    </TouchableOpacity>
-                </View>
+                        {/* VARIANTE B: Active Program */}
+                        {hasActiveProgram ? (
+                            <>
+                                <Text style={styles.recommendationLabel}>TU MISIÓN DE HOY</Text>
+                                <TouchableOpacity
+                                    style={styles.missionCard}
+                                    onPress={() => {
+                                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                        navigation.navigate('MainTabs', { screen: 'Home' });
+                                    }}
+                                    activeOpacity={0.8}
+                                >
+                                    <View style={styles.missionCardContent}>
+                                        <View style={styles.missionIconBox}>
+                                            <Ionicons name="trophy" size={28} color="#FBBF24" />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={styles.missionTitle}>
+                                                {userState.activeChallenge?.title || 'Tu Programa'}
+                                            </Text>
+                                            <Text style={styles.missionProgress}>
+                                                Día {(userState.activeChallenge?.daysCompleted || 0) + 1}/{userState.activeChallenge?.totalDays || 7} • Continuar sesión
+                                            </Text>
+                                        </View>
+                                        <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.4)" />
+                                    </View>
+                                </TouchableOpacity>
 
-                {/* EXPLICIT CTA BUTTON */}
-                <TouchableOpacity
-                    style={[styles.ctaButton, { backgroundColor: config.color }]}
-                    onPress={handleButtonPress}
-                >
-                    <Text style={styles.ctaText}>DESCONECTA ANTES DE EMPEZAR</Text>
-                    <Ionicons name="game-controller" size={20} color="#000" />
-                </TouchableOpacity>
+                                <View style={styles.missionInsight}>
+                                    <Ionicons name="sparkles" size={16} color={config.color} />
+                                    <Text style={styles.missionInsightText}>
+                                        {missionMessages[diagnosis]}
+                                    </Text>
+                                </View>
+                            </>
+                        ) : context === 'post_session' ? (
+                            /* POST-SESSION: Simple return to home */
+                            <>
+                                <TouchableOpacity
+                                    style={[styles.ctaButton, { backgroundColor: '#10B981' }]}
+                                    onPress={() => navigation.navigate('MainTabs', { screen: 'Home' })}
+                                >
+                                    <Text style={styles.ctaText}>Volver a Inicio</Text>
+                                    <Ionicons name="home" size={20} color="#000" />
+                                </TouchableOpacity>
+                            </>
+                        ) : (
+                            /* VARIANTE A: No active program (Standalone scan from Sanctuary) */
+                            <>
+                                <Text style={styles.recommendationLabel}>RECOMENDACIÓN PAZIIFY</Text>
+
+                                {/* Action Cards (The Nudge) */}
+                                <View style={styles.cardsContainer}>
+                                    {/* Sanar Card */}
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.card,
+                                            styles.healingCard,
+                                            suggestedMode === 'growth' && styles.dimmedCard,
+                                            suggestedMode === 'healing' && styles.highlightedCard
+                                        ]}
+                                        onPress={() => handleCardPress('healing')}
+                                        activeOpacity={0.8}
+                                    >
+                                        <Ionicons name="leaf-outline" size={28} color={suggestedMode === 'healing' ? '#2DD4BF' : 'rgba(45, 212, 191, 0.4)'} />
+                                        <Text style={[styles.cardTitle, { color: '#2DD4BF' }]}>SANAR</Text>
+                                        <Text style={styles.cardDesc}>Calma SOS</Text>
+                                    </TouchableOpacity>
+
+                                    {/* Crecer Card */}
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.card,
+                                            styles.growthCard,
+                                            suggestedMode === 'healing' && styles.dimmedCard,
+                                            suggestedMode === 'growth' && styles.highlightedCard
+                                        ]}
+                                        onPress={() => handleCardPress('growth')}
+                                        activeOpacity={0.8}
+                                    >
+                                        <Ionicons name="flash-outline" size={28} color={suggestedMode === 'growth' ? '#FBBF24' : 'rgba(251, 191, 36, 0.4)'} />
+                                        <Text style={[styles.cardTitle, { color: '#FBBF24' }]}>CRECER</Text>
+                                        <Text style={styles.cardDesc}>Energía</Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* EXPLICIT CTA BUTTON */}
+                                <TouchableOpacity
+                                    style={[styles.ctaButton, { backgroundColor: config.color }]}
+                                    onPress={handleButtonPress}
+                                >
+                                    <Text style={styles.ctaText}>DESCONECTA ANTES DE EMPEZAR</Text>
+                                    <Ionicons name="game-controller" size={20} color="#000" />
+                                </TouchableOpacity>
+                            </>
+                        )}
+
+                        {/* MEDICAL DISCLAIMER */}
+                        <Text style={styles.disclaimer}>
+                            ⚕️ Esta medición es orientativa y tiene fines de bienestar personal. No sustituye el diagnóstico, consejo o tratamiento médico profesional.
+                        </Text>
+                    </>
+                )}
             </ScrollView>
         </View>
     );
@@ -463,11 +683,202 @@ const styles = StyleSheet.create({
     },
     scientificText: {
         color: 'rgba(255,255,255,0.4)',
-        fontSize: 10, // Reduced from 11
+        fontSize: 10,
         textAlign: 'center',
-        lineHeight: 14, // Reduced from 16
+        lineHeight: 14,
         fontStyle: 'italic',
-    }
+    },
+    // Disclaimer
+    disclaimer: {
+        color: 'rgba(255,255,255,0.25)',
+        fontSize: 11,
+        textAlign: 'center',
+        lineHeight: 16,
+        paddingHorizontal: 20,
+        paddingVertical: 24,
+    },
+    // Variante B: Mission Card
+    missionCard: {
+        width: '100%',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 24,
+        borderWidth: 1.5,
+        borderColor: 'rgba(251, 191, 36, 0.25)',
+        overflow: 'hidden',
+    },
+    missionCardContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 18,
+        gap: 14,
+    },
+    missionIconBox: {
+        width: 50,
+        height: 50,
+        borderRadius: 16,
+        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    missionTitle: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '800',
+        marginBottom: 2,
+    },
+    missionProgress: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    missionInsight: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 10,
+        marginTop: 16,
+        paddingHorizontal: 4,
+    },
+    missionInsightText: {
+        flex: 1,
+        color: 'rgba(255,255,255,0.6)',
+        fontSize: 13,
+        lineHeight: 19,
+    },
+    // Pre/Post Comparison
+    comparisonCard: {
+        width: '100%',
+        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+        borderRadius: 20,
+        padding: 18,
+        marginTop: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.15)',
+    },
+    comparisonTitle: {
+        color: '#10B981',
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 1.5,
+        marginBottom: 14,
+        textAlign: 'center',
+    },
+    comparisonRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        marginBottom: 8,
+    },
+    comparisonItem: {
+        alignItems: 'center',
+        minWidth: 70,
+    },
+    comparisonLabel: {
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: 9,
+        fontWeight: '700',
+        letterSpacing: 1,
+    },
+    comparisonVal: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '800',
+    },
+    comparisonDelta: {
+        fontSize: 16,
+        fontWeight: '900',
+        minWidth: 50,
+        textAlign: 'right',
+    },
+    comparisonInsight: {
+        color: '#10B981',
+        fontSize: 12,
+        textAlign: 'center',
+        marginTop: 10,
+        fontWeight: '600',
+        lineHeight: 18,
+    },
+    // History Trend Chart
+    trendCard: {
+        width: '100%',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 20,
+        padding: 18,
+        marginTop: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+    },
+    trendTitle: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 1,
+        marginBottom: 14,
+    },
+    trendChart: {
+        flexDirection: 'row',
+        height: 50,
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        paddingHorizontal: 4,
+    },
+    trendBarContainer: {
+        alignItems: 'center',
+        gap: 4,
+        flex: 1,
+    },
+    trendBar: {
+        width: 8,
+        borderRadius: 4,
+        minHeight: 4,
+    },
+    trendBarLabel: {
+        color: 'rgba(255,255,255,0.2)',
+        fontSize: 9,
+        fontWeight: '700',
+    },
+    trendMessage: {
+        color: '#10B981',
+        fontSize: 12,
+        textAlign: 'center',
+        marginTop: 12,
+        fontWeight: '600',
+    },
+    trendFirstScan: {
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: 12,
+        textAlign: 'center',
+        paddingVertical: 16,
+        lineHeight: 18,
+    },
+    baselineConfirm: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        marginTop: 24,
+        paddingVertical: 14,
+        paddingHorizontal: 20,
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.2)',
+    },
+    baselineConfirmText: {
+        color: '#10B981',
+        fontSize: 16,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+    },
+    baselineHint: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 14,
+        textAlign: 'center',
+        lineHeight: 22,
+        marginTop: 16,
+        marginBottom: 24,
+        paddingHorizontal: 10,
+    },
 });
 
 export default CardioResultScreen;

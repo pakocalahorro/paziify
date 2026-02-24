@@ -642,7 +642,8 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                 setSessionState('COMPLETED');
                 navigation.navigate(Screen.SESSION_END, {
                     sessionId: sessionRef.current?.id || 'unknown',
-                    durationMinutes: sessionRef.current?.durationMinutes || 1
+                    durationMinutes: sessionRef.current?.durationMinutes || 1,
+                    thumbnailUrl: sessionRef.current?.thumbnailUrl,
                 });
             }, 2000);
         }

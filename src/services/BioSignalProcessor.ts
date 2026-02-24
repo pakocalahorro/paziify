@@ -56,10 +56,10 @@ export class BioSignalProcessor {
         // Only accumulate if signal is decent
         if (quality.score >= 60) {
             // Excellent signal = faster progress
-            // Target: ~15-20s duration for reliable HRV
-            // 30fps * 20s = 600 frames. 100/600 = ~0.16
+            // Target: ~30s duration for reliable HRV
+            // 30fps * 30s = 900 frames. 100/900 = ~0.11
             const multiplier = quality.level === 'excellent' ? 1.5 : 1.0;
-            progressDelta = 0.15 * multiplier; // Slower progress for more data
+            progressDelta = 0.08 * multiplier; // Slower progress for more data (~30s)
         } else if (quality.score < 40) {
             // Very poor signal = slight regression/penalty to force stability
             // But don't punish too hard
@@ -88,13 +88,13 @@ export class BioSignalProcessor {
 
         // 3. Cache valid result if found
         if (result) {
-            // Smart Filter Check to avoid huge jumps
-            // Smart Filter Check to avoid huge jumps
+            // Smart Filter: Reject huge BPM jumps (artifacts)
             if (this.lastValidBPM && Math.abs(result.bpm - this.lastValidBPM) > 40) {
-                // Ignore jump if too large, but if it persists we might need to reset.
-                // For now, let's just log it and maybe NOT update lastValidResult?
-                // Actually, if we return it, we should trust it somewhat.
-                // console.log('[BioProcessor] Jump detected');
+                // Artifact detected — return last valid with reduced confidence
+                if (this.lastValidResult) {
+                    return { ...this.lastValidResult, confidence: 0.6 };
+                }
+                return null;
             }
             this.lastValidResult = result;
             this.lastValidBPM = result.bpm;
@@ -116,7 +116,7 @@ export class BioSignalProcessor {
         const ppgSignal = this.applyPOSAlgorithm();
         if (ppgSignal.length < BioSignalProcessor.WINDOW_SIZE) return null;
 
-        const filtered = this.detrendSignal(ppgSignal);
+        const filtered = this.bandpassFilter(ppgSignal);
         const peaks = this.findPeaksAdaptive(filtered);
 
         if (peaks.length < 2) return null;
@@ -135,7 +135,7 @@ export class BioSignalProcessor {
         // We use -Green or just Green and look for valleys.
         // Simple approach: Detrend Green directly.
 
-        const processed = this.detrendSignal(this.gBuffer);
+        const processed = this.bandpassFilter(this.gBuffer);
         // Invert signal for peak detection if looking for absorption peaks
         // But findPeaksAdaptive looks for local maxima. Pulse = max blood flow = max absorption = min reflection.
         // So we should invert the green signal to find peaks at pulse beats.
@@ -169,8 +169,10 @@ export class BioSignalProcessor {
         const start = n - limit;
 
         for (let i = 1; i < peaks.length; i++) {
-            // Convert indices to ms (assuming 30fps = 33.33ms per frame)
-            const rr = (peaks[i] - peaks[i - 1]) * 33.33;
+            // Use REAL timestamps instead of assuming 33.33ms per frame
+            const peakIdx1 = start + peaks[i - 1];
+            const peakIdx2 = start + peaks[i];
+            const rr = this.timestamps[peakIdx2] - this.timestamps[peakIdx1];
             rawRRs.push(rr);
 
             // UNIQUE PEAK TRACKING
@@ -379,6 +381,23 @@ export class BioSignalProcessor {
             const sub = data.slice(start, end);
             const avg = sub.reduce((a, b) => a + b, 0) / sub.length;
             return v - avg;
+        });
+    }
+
+    /**
+     * Bandpass filter: removes DC/respiratory (<0.7Hz) + high-freq noise (>4Hz)
+     * Isolates cardiac frequencies at 30fps sampling rate
+     */
+    private bandpassFilter(data: number[]): number[] {
+        // High-pass via detrend (removes DC + respiratory)
+        const highpassed = this.detrendSignal(data);
+        // Low-pass: moving average with window ~4 samples (~4Hz cutoff at 30fps)
+        const lpWindow = 4;
+        return highpassed.map((_, i) => {
+            const s = Math.max(0, i - lpWindow);
+            const e = Math.min(highpassed.length, i + lpWindow + 1);
+            const sub = highpassed.slice(s, e);
+            return sub.reduce((a, b) => a + b, 0) / sub.length;
         });
     }
 

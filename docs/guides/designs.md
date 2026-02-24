@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.31.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.32.0) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.31.0** introduce el **Santuario de Alta Fidelidad** y el sistema de **Enfoque en Misión**.
+Esta guía define el ADN visual de Paziify. La versión **v2.32.0** introduce el **Cardio Scan v2** con calibración premium, arquetipos positivos y continuidad visual en el flujo de meditación.
 
 ---
 
@@ -35,7 +35,7 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 ## 6. Paleta de Color Bio-Luminiscente
 - **Healing**: Emerald Green (`#2DD4BF`) / Cyan / Deep Obsidian.
 - **Growth**: Solar Yellow (`#FBBF24`) / Golden White / Deep Obsidian.
-- **Tipografía**: **Oswald** (Headings) y **Inter/System** (Cuerpo técnico).
+- **Tipografía**: **Outfit** (Headings) y **Inter/System** (Cuerpo técnico).
 
 ---
 
@@ -106,10 +106,10 @@ Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas"
 - La tarjeta queda como un lienzo limpio con *Badges* minimalistas y un enorme CTA centrado.
 - Alturas unificadas (ej: 200px) para mantener un *scroll* armónico en todas las secciones independientes.
 
-**Sistema Tipográfico Corporativo Dual (Outfit + Satisfy)**:
+**Sistema Tipográfico Corporativo Dual (Outfit + Caveat)**:
 - **La Estructura (`@expo-google-fonts/outfit`)**: Tipografía geométrica, moderna y extremadamente legible que reemplaza a las antiguas sans-serif en los títulos principales (ej. `fontFamily: 'Outfit_800ExtraBold'`, `Outfit_900Black`). Su peso aporta robustez técnica y seriedad de grado médico.
-- **La Alma (`@expo-google-fonts/satisfy`)**: Tipografía manuscrita introducida para dar un carácter humano, íntimo y personal a la app. Otorga el matiz "Boutique/Editorial".
-- **Norma de Uso Dual**: `Satisfy` actúa EXCLUSIVAMENTE como "Firma" o "Prefijo" (tamaño grande 22-36px, sin pesos gruesos) flotando justo por encima de la "Estructura" maciza que proporciona `Outfit`. Esta será la base para todos los futuros refinamientos de UI corporativa de Paziify.
+- **La Alma (`@expo-google-fonts/caveat`)**: Tipografía manuscrita que da un carácter humano, íntimo y personal a la app. Otorga el matiz "Boutique/Editorial".
+- **Norma de Uso Dual**: `Caveat_700Bold` actúa EXCLUSIVAMENTE como "Firma" o "Prefijo" (tamaño grande 22-36px) flotando justo por encima de la "Estructura" maciza que proporciona `Outfit`. Esta será la base para todos los futuros refinamientos de UI corporativa de Paziify.
 
 **Dashboard Compacto de Analíticas**:
 - Agrupación de métricas de Salud (Diarias/Semanales) en un "Glassmorphism oscurecido" (`rgba(2, 6, 23, 0.4)`, Intensity 70).
@@ -117,4 +117,39 @@ Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas"
 
 ---
 
-*Última revisión: 24 de Febrero de 2026 - Versión 2.31.0 (Evolution Focus)*
+## 16. Cardio Scan v2 — Diseño Premium (v2.32.0) 🩺
+
+### Pipeline Visual
+Flujo: Botón INICIAR → Calibración (anillo de progreso 3s) → Countdown → Medición (~30s con barra de calidad) → Resultado
+
+### Arquetipos Positivos (El Espejo del Alma)
+| Diagnóstico | Arquetipo | Tag | Color | BG |
+|---|---|---|---|---|
+| sobrecarga | Guerrero en Reposo | TU CUERPO HA LUCHADO GRANDES BATALLAS, PERMÍTETE SANAR | `#EF4444` | `#1A0808` |
+| agotamiento | Marea Calma | TU ENERGÍA ESTÁ BAJA PARA VOLVER CON FUERZA | `#FBBF24` | `#1A1500` |
+| equilibrio | Sol Naciente | TU LUZ INTERIOR ES ESTABLE Y BRILLANTE | `#10B981` | `#061812` |
+
+### Historial Bio-Ritmo
+- Mini-gráfica de barras HRV 7 días
+- Días: D L M X J V S (lookup manual `getDay()`)
+- Barra actual: `#10B981`, anteriores: `rgba(255,255,255,0.15)`
+
+### Patrón de Footer Unificado (Modal + Satisfacción)
+```
+[ ♥ Escanear/Verificar ]  [ ▶ Comenzar/Continuar ]
+```
+- Ambos botones `flex: 1` (50/50 exacto)
+- Botón rojo: `rgba(255, 75, 75, 0.12)`, border `rgba(255, 75, 75, 0.3)`, animación heartbeat (Reanimated `withRepeat` escala 1→1.08)
+- Botón verde: `rgba(45, 212, 191, 0.25)`, border `rgba(45, 212, 191, 0.5)`
+- Height: 56px, borderRadius: 16
+
+### Fondo de Sesión Consistente
+Todas las pantallas del flujo de meditación usan la `thumbnailUrl` de la sesión:
+- `SessionPreviewModal`: Imagen hero de la sesión
+- `BreathingTimer`: `ImageBackground` con tema visual
+- `CardioResultScreen`: `ImageBackground` opacity 0.3 + gradiente `rgba(10,10,10,0.5→0.9→#0A0A0A)`
+- `SessionEndScreen`: `ImageBackground` opacity 0.3 + gradiente oscuro
+
+---
+
+*Última revisión: 24 de Febrero de 2026 - Versión 2.32.0 (Cardio Scan v2)*

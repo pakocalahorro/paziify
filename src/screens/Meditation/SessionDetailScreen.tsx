@@ -164,7 +164,7 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 120 }]}
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 180 }]}
             >
                 <View style={{ height: HEADER_HEIGHT - 60 }} />
 
@@ -272,17 +272,29 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
             {/* Footer Action */}
             <View style={[styles.footerAction, { paddingBottom: Math.max(30, insets.bottom + 25) }]}>
-                <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={[styles.startBtn, { backgroundColor: session.color || theme.colors.primary }]}
-                    onPress={() => navigation.navigate(Screen.BREATHING_TIMER, {
-                        sessionId: session.id,
-                        sessionData: route.params.sessionData || rawSession || session // Propagate data to the end of the chain
-                    })}
-                >
-                    <Text style={styles.startBtnText}>Comenzar Práctica</Text>
-                    <Ionicons name="play" size={20} color="#FFF" />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                    {/* Pre-Session Scan */}
+                    <TouchableOpacity
+                        style={styles.preScanBtn}
+                        onPress={() => navigation.navigate(Screen.CARDIO_SCAN, { context: 'baseline' })}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons name="heart-circle" size={26} color="#FF4B4B" />
+                    </TouchableOpacity>
+
+                    {/* Start Button */}
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        style={[styles.startBtn, { flex: 1, backgroundColor: session.color || theme.colors.primary }]}
+                        onPress={() => navigation.navigate(Screen.BREATHING_TIMER, {
+                            sessionId: session.id,
+                            sessionData: route.params.sessionData || rawSession || session
+                        })}
+                    >
+                        <Text style={styles.startBtnText}>Comenzar Práctica</Text>
+                        <Ionicons name="play" size={20} color="#FFF" />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
@@ -503,8 +515,9 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: 'rgba(2, 6, 23, 0.8)',
-        paddingTop: 15,
+        zIndex: 10,
+        backgroundColor: 'rgba(2, 6, 23, 0.95)',
+        paddingTop: 12,
         borderTopWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
@@ -520,6 +533,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '900',
         color: '#FFF',
+    },
+    preScanBtn: {
+        width: 64,
+        height: 64,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255, 75, 75, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 75, 75, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

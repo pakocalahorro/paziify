@@ -73,6 +73,34 @@ export const CardioService = {
     },
 
     /**
+     * Get today's baseline scan (for pre/post session comparison)
+     */
+    async getTodayBaseline(): Promise<CardioResult | null> {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const history = await this.getHistory(50);
+            return history.find(scan =>
+                scan.context === 'baseline' && scan.timestamp.startsWith(today)
+            ) || null;
+        } catch {
+            return null;
+        }
+    },
+
+    /**
+     * Get week trend data for the mini-chart (last 7 scans)
+     * Returns scans ordered oldest → newest for chart rendering
+     */
+    async getWeekTrend(): Promise<CardioResult[]> {
+        try {
+            const history = await this.getHistory(7);
+            return history.reverse(); // Oldest first for chart
+        } catch {
+            return [];
+        }
+    },
+
+    /**
      * Clear history (Development/Privacy)
      */
     async clearHistory(): Promise<void> {

@@ -40,11 +40,14 @@ const WidgetTutorialModal: React.FC<Props> = ({ isVisible, onClose }) => {
                                 <BlurView intensity={20} tint="light" style={styles.mockBlur}>
                                     <Ionicons name="leaf" size={32} color={theme.colors.primary} />
                                     <View style={styles.mockBar} />
-                                    <View style={[styles.mockBar, { width: '40%', opacity: 0.5 }]} />
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 }}>
+                                        <Ionicons name="heart" size={12} color="#FF4B4B" />
+                                        <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '700' }}>72 BPM</Text>
+                                    </View>
                                 </BlurView>
                             </View>
                             <Text style={styles.heroText}>
-                                Mantén tu evolución a la vista sin abrir la aplicación.
+                                Tu progreso, racha y último bio-ritmo siempre a la vista.
                             </Text>
                         </View>
 

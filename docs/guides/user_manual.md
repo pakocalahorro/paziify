@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.31.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.32.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.31.0 (Evolution Focus)**. Esta versión consolida la experiencia de meditación premium con el Sistema de Evolución y guiones SSML de alta calidad.
+Bienvenido a la guía oficial de **Paziify v2.32.0 (Cardio Scan v2)**. Esta versión mejora la fiabilidad del escáner cardíaco, añade perfil de salud y refina el flujo pre/post meditación.
 
 ---
 
@@ -154,5 +154,37 @@ En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo e
 
 
 ---
-*Última revisión: 24 de Febrero de 2026 - Versión 2.31.0 (Evolution Focus)*  
+## 14. Cardio Scan v2 — Bio-Ritmo Premium 🩺
+
+### Escáner Cardíaco Mejorado
+- **Calibración Obligatoria**: 3 segundos de validación de señal antes de empezar a medir. Asegura resultados fiables.
+- **Duración ~30s**: El estándar mínimo para medir HRV con precisión.
+- **Diagnóstico Personalizado**: Los umbrales se ajustan automáticamente según tu edad (configurada en Ajustes > Perfil de Salud).
+- **Disclaimer Médico**: Recordatorio de que es orientativo, no sustituye diagnóstico profesional.
+
+### Perfil de Salud
+- Accede desde **Ajustes** > **Mi Perfil de Salud**
+- Configura: Fecha de nacimiento, género, altura, peso
+- Datos guardados **solo en tu dispositivo** (privacidad total)
+- Mejora la precisión del diagnóstico cardíaco
+
+### Flujo Pre/Post Sesión
+1. **Antes de meditar**: Toca "♥ Escanear" en el modal de sesión para registrar tu bio-ritmo base
+2. **Resultado ligero**: Solo BPM + HRV + badge "✓ Bio-ritmo registrado"
+3. **Comenzar Sesión**: Te lleva directamente a la meditación (sin pasos extra)
+4. **Después de meditar**: Toca "♥ Verificar" para ver el impacto con comparativa ANTES→DESPUÉS
+
+### Historial de Evolución
+- Gráfica de barras con tu HRV de los últimos 7 días
+- Porcentaje de mejora semanal
+- Días: L M X J V S D
+
+### Arquetipos del Alma
+Según tu estado, recibirás un mensaje personalizado:
+- **Sol Naciente** (✅ Equilibrio): "Tu luz interior es estable y brillante"
+- **Guerrero en Reposo** (⚠️ Sobrecarga): "Tu cuerpo ha luchado grandes batallas, permítete sanar"
+- **Marea Calma** (🟡 Agotamiento): "Tu energía está baja para volver con fuerza"
+
+---
+*Última revisión: 24 de Febrero de 2026 - Versión 2.32.0 (Cardio Scan v2)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

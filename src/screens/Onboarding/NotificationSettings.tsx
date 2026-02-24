@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -7,6 +7,8 @@ import {
     SafeAreaView,
     ScrollView,
     Switch,
+    TextInput,
+    Alert,
     Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -28,6 +30,51 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
     const { userState, updateUserState } = useApp();
     const settings = userState.settings;
 
+    // Health Profile State
+    const [birthDate, setBirthDate] = useState(userState.birthDate || '');
+    const [gender, setGender] = useState<'male' | 'female' | 'other'>(userState.gender || 'other');
+    const [heightCm, setHeightCm] = useState(userState.heightCm?.toString() || '');
+    const [weightKg, setWeightKg] = useState(userState.weightKg?.toString() || '');
+    const [profileSaved, setProfileSaved] = useState(false);
+
+    const handleSaveProfile = () => {
+        // Validate date format (YYYY-MM-DD or DD/MM/YYYY)
+        let isoDate = birthDate;
+        if (birthDate.includes('/')) {
+            const parts = birthDate.split('/');
+            if (parts.length === 3) {
+                isoDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+        }
+
+        const h = parseInt(heightCm);
+        const w = parseInt(weightKg);
+
+        updateUserState({
+            birthDate: isoDate || undefined,
+            gender,
+            heightCm: isNaN(h) ? undefined : h,
+            weightKg: isNaN(w) ? undefined : w,
+        });
+
+        setProfileSaved(true);
+        setTimeout(() => setProfileSaved(false), 2000);
+    };
+
+    const calculateAge = (): number | null => {
+        if (!birthDate) return null;
+        let isoDate = birthDate;
+        if (birthDate.includes('/')) {
+            const parts = birthDate.split('/');
+            if (parts.length === 3) isoDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+        const d = new Date(isoDate);
+        if (isNaN(d.getTime())) return null;
+        return Math.floor((Date.now() - d.getTime()) / 31557600000);
+    };
+
+    const age = calculateAge();
+
     if (!settings) {
         return (
             <SafeAreaView style={styles.container}>
@@ -35,7 +82,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                         <Ionicons name="chevron-back" size={28} color={theme.colors.textMain} />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Notificaciones</Text>
+                    <Text style={styles.headerTitle}>Ajustes</Text>
                     <View style={{ width: 28 }} />
                 </View>
                 <View style={[styles.scrollContent, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -64,13 +111,147 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 <TouchableOpacity onPress={handleBack} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={28} color={theme.colors.textMain} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Notificaciones</Text>
+                <Text style={styles.headerTitle}>Ajustes</Text>
                 <View style={{ width: 28 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Info Card: Ciencia del Hábito */}
+
+                {/* ====================== */}
+                {/* HEALTH PROFILE SECTION */}
+                {/* ====================== */}
                 <View style={styles.infoCard}>
+                    <View style={styles.infoTitleRow}>
+                        <Ionicons name="heart-circle" size={18} color="#FF4B4B" />
+                        <Text style={[styles.infoLabel, { color: '#FF4B4B' }]}>MI PERFIL DE SALUD</Text>
+                    </View>
+                    <Text style={styles.infoContent}>
+                        Estos datos mejoran la precisión del
+                        <Text style={[styles.infoHighlight, { color: '#FF4B4B' }]}> Escáner Cardio</Text>
+                        . Se guardan solo en tu dispositivo.
+                    </Text>
+                </View>
+
+                <View style={styles.settingsGroup}>
+                    {/* Birth Date */}
+                    <View style={styles.settingRow}>
+                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
+                            <Ionicons name="calendar" size={20} color="#FF4B4B" />
+                        </View>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingTitle}>Fecha de nacimiento</Text>
+                            {age !== null && <Text style={styles.settingSubtitle}>{age} años</Text>}
+                        </View>
+                        <TextInput
+                            style={styles.healthInput}
+                            value={birthDate}
+                            onChangeText={setBirthDate}
+                            placeholder="DD/MM/AAAA"
+                            placeholderTextColor="rgba(255,255,255,0.2)"
+                            keyboardType="numbers-and-punctuation"
+                            maxLength={10}
+                        />
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    {/* Gender */}
+                    <View style={styles.settingRow}>
+                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
+                            <Ionicons name="person" size={20} color="#FF4B4B" />
+                        </View>
+                        <View style={[styles.settingInfo, { flex: 0, marginRight: 'auto' }]}>
+                            <Text style={styles.settingTitle}>Género</Text>
+                        </View>
+                        <View style={styles.genderSelector}>
+                            {(['male', 'female', 'other'] as const).map(g => (
+                                <TouchableOpacity
+                                    key={g}
+                                    style={[
+                                        styles.genderChip,
+                                        gender === g && styles.genderChipActive
+                                    ]}
+                                    onPress={() => setGender(g)}
+                                >
+                                    <Text style={[
+                                        styles.genderChipText,
+                                        gender === g && styles.genderChipTextActive
+                                    ]}>
+                                        {g === 'male' ? 'H' : g === 'female' ? 'M' : '—'}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    {/* Height & Weight */}
+                    <View style={styles.settingRow}>
+                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
+                            <Ionicons name="resize" size={20} color="#FF4B4B" />
+                        </View>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingTitle}>Altura</Text>
+                        </View>
+                        <TextInput
+                            style={styles.healthInput}
+                            value={heightCm}
+                            onChangeText={setHeightCm}
+                            placeholder="cm"
+                            placeholderTextColor="rgba(255,255,255,0.2)"
+                            keyboardType="numeric"
+                            maxLength={3}
+                        />
+                        <Text style={styles.healthUnit}>cm</Text>
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.settingRow}>
+                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
+                            <Ionicons name="barbell" size={20} color="#FF4B4B" />
+                        </View>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingTitle}>Peso</Text>
+                        </View>
+                        <TextInput
+                            style={styles.healthInput}
+                            value={weightKg}
+                            onChangeText={setWeightKg}
+                            placeholder="kg"
+                            placeholderTextColor="rgba(255,255,255,0.2)"
+                            keyboardType="numeric"
+                            maxLength={3}
+                        />
+                        <Text style={styles.healthUnit}>kg</Text>
+                    </View>
+                </View>
+
+                {/* Save Profile Button */}
+                <TouchableOpacity
+                    style={[styles.saveProfileButton, profileSaved && styles.saveProfileButtonSaved]}
+                    onPress={handleSaveProfile}
+                >
+                    <Ionicons
+                        name={profileSaved ? 'checkmark-circle' : 'save'}
+                        size={18}
+                        color={profileSaved ? '#10B981' : '#FF4B4B'}
+                    />
+                    <Text style={[
+                        styles.saveProfileText,
+                        { color: profileSaved ? '#10B981' : '#FF4B4B' }
+                    ]}>
+                        {profileSaved ? 'Guardado ✓' : 'Guardar Perfil'}
+                    </Text>
+                </TouchableOpacity>
+
+                {/* ====================== */}
+                {/* NOTIFICATIONS SECTION  */}
+                {/* ====================== */}
+
+                {/* Info Card: Ciencia del Hábito */}
+                <View style={[styles.infoCard, { marginTop: 16 }]}>
                     <View style={styles.infoTitleRow}>
                         <Ionicons name="beaker" size={18} color={theme.colors.primary} />
                         <Text style={styles.infoLabel}>CIENCIA DEL HÁBITO</Text>
@@ -348,6 +529,72 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: theme.colors.textMuted,
         letterSpacing: 2,
+    },
+    // Health Profile Styles
+    healthInput: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '700',
+        minWidth: 90,
+        textAlign: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    healthUnit: {
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: 14,
+        fontWeight: '600',
+        marginLeft: 6,
+    },
+    genderSelector: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    genderChip: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    genderChipActive: {
+        backgroundColor: 'rgba(255, 75, 75, 0.15)',
+        borderColor: '#FF4B4B',
+    },
+    genderChipText: {
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    genderChipTextActive: {
+        color: '#FF4B4B',
+    },
+    saveProfileButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 14,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 75, 75, 0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 75, 75, 0.15)',
+        marginBottom: 32,
+    },
+    saveProfileButtonSaved: {
+        backgroundColor: 'rgba(16, 185, 129, 0.08)',
+        borderColor: 'rgba(16, 185, 129, 0.15)',
+    },
+    saveProfileText: {
+        fontSize: 14,
+        fontWeight: '700',
     },
 });
 

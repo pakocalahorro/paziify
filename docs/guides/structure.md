@@ -166,27 +166,51 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ---
 
-### 3. Bio - Bio-feedback Cardíaco
+### 3. Bio - Bio-feedback Cardíaco (Cardio Scan v2)
+
+#### `src/screens/Bio/CardioScanScreen.tsx`
+**Función**: Escaneo cardíaco PPG usando cámara + flash
+**Pipeline**: Calibración (3s) → Countdown → Medición progresiva (~30s) → Resultado
+**Contenido**:
+- Vista previa de la cámara (Vision Camera)
+- Guía visual de colocación del dedo (esquemático lente + flash)
+- Fase de calibración obligatoria (3s de señal "good")
+- Indicador de progreso basado en calidad (no tiempo)
+- Diagnóstico contextualizado por edad del perfil de salud
+- normalizeHRV conectado al flujo de resultados
+- Debug overlay solo en `__DEV__`
+- Acepta `context: 'baseline' | 'post_session'` y `sessionData`
 
 #### `src/screens/Bio/CardioResultScreen.tsx`
 **Función**: Pantalla de resultados del escaneo cardíaco
+**Variantes**:
+- **Baseline** (pre-sesión): Vista ligera con BPM + HRV + badge "✓ Bio-ritmo registrado" + CTA "Comenzar Sesión ▶" → `BREATHING_TIMER`
+- **Post-sesión**: Comparativa ANTES→DESPUÉS con deltas de BPM y VFC
+- **Standalone** (sin programa): Arquetipos positivos (Sol Naciente, Guerrero en Reposo, Marea Calma) + Sanar/Crecer
+- **Con programa activo**: "TU MISIÓN DE HOY" + sesión del día + mensaje motivacional adaptado
 **Contenido**:
-- Ritmo cardíaco detectado
-- Gráfico de variabilidad (HRV)
-- Análisis de estrés
-- Recomendaciones basadas en resultados
-- Historial de mediciones
-- Exportar datos
+- Tags descriptivos completos (ej: "TU LUZ INTERIOR ES ESTABLE Y BRILLANTE")
+- Historial Bio-Ritmo: mini-gráfica barras HRV 7 días (D L M X J V S)
+- Disclaimer médico: "⚕️ Esta medición es orientativa..."
+- Fondo de sesión via `ImageBackground` cuando `sessionData.thumbnailUrl` disponible
+- Botón "Volver a Inicio" (post-session)
 
-#### `src/screens/Bio/CardioScanScreen.tsx`
-**Función**: Escaneo cardíaco usando la cámara
-**Contenido**:
-- Vista previa de la cámara
-- Guía de colocación del dedo
-- Indicador de progreso del escaneo
-- Señal en tiempo real
-- Calidad de la señal
-- Cancelar/Detener escaneo
+#### `src/services/BioSignalProcessor.ts`
+**Función**: Motor de procesamiento PPG (algoritmos POS + Legacy Green)
+**Pipeline**: Captura RGB @30Hz → Bandpass Filter (0.7-4 Hz) → Detección de picos → MAD Filter → Métricas
+**Features v2**:
+- Smart Filter: rechaza saltos >40 BPM entre lecturas
+- Timestamps reales (no asume 33.33ms/frame)
+- Bandpass filter antes de detección de picos
+- Duración ~30s (progressDelta 0.08)
+- normalizeHRV por edad y género
+
+#### `src/services/CardioService.ts`
+**Función**: Servicio de persistencia y consulta de escaneos cardíacos
+**Métodos principales**:
+- `saveScan()`: Guarda escaneo en AsyncStorage
+- `getHistory(limit)`: Últimos N escaneos para gráfica de evolución
+- `getTodayBaseline()`: Último baseline del día para comparativa pre/post
 
 ---
 
@@ -252,13 +276,17 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 ### 6. Meditation - Meditación
 
 #### `src/screens/Meditation/BreathingTimer.tsx`
-**Función**: Temporizador de respiración guiada
+**Función**: Motor de sesión de meditación (Audio Engine + Visual Sync)
 **Contenido**:
-- Animación del orbe de respiración
-- Patrones de respiración (4-7-8, caja, etc.)
-- Temporizador configurable
-- Sonidos guía
-- Guía visual e instrucciones
+- Animación del orbe de respiración (`ThemedBreathingOrb`)
+- Master Clock sincronizado con audio (posición real del track)
+- Patrones de respiración configurables con Visual Sync
+- Audio Engine de 4 capas (voz, soundscape, binaural, elementos)
+- Selección de temas visuales (Cosmos, Cave, Forest, Temple)
+- Panel de configuración desplegable con controles de volumen
+- Modo Inmersivo (cambia gradiente de fondo)
+- Auto-start con countdown de 3s
+- Pasa `thumbnailUrl` a `SessionEndScreen` para continuidad visual
 
 #### `src/screens/Meditation/LibraryScreen.tsx`
 **Función**: Biblioteca de meditaciones
@@ -285,19 +313,19 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Instructor
 - Duración y dificultad
 - Tags y beneficios
-- Comentarios de usuarios
 - Iniciar sesión
 - Añadir a favoritos
 
 #### `src/screens/Meditation/SessionEndScreen.tsx`
-**Función**: Pantalla de finalización de sesión
+**Función**: Pantalla de satisfacción post-meditación
 **Contenido**:
-- Mensaje de felicitación
-- Estadísticas de la sesión (tiempo, calidad)
-- Puntuación de experiencia
-- Compartir logro
-- Recomendación de siguiente sesión
-- Actualización de racha
+- Fondo de sesión via `ImageBackground` + gradiente oscuro
+- Selector de estado de ánimo (5 emociones)
+- Opción de compartir/comentar
+- Footer unificado: `♥ Verificar` (→ post_session scan) + `▶ Continuar` (→ Home)
+- Ambos botones `flex: 1` (50/50) con animación heartbeat en botón rojo
+- ResilienceTree para retos activos
+- Actualización de racha y estadísticas
 
 #### `src/screens/Meditation/TransitionTunnel.tsx`
 **Función**: Transición visual entre sesiones
@@ -321,8 +349,10 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Modo invitado
 
 #### `src/screens/Onboarding/NotificationSettings.tsx`
-**Función**: Configuración de notificaciones
+**Función**: Ajustes (Notificaciones + Perfil de Salud)
 **Contenido**:
+- **Mi Perfil de Salud**: Fecha de nacimiento (DatePicker), género (3 opciones), altura/peso
+- Nota de privacidad: "Datos guardados solo en tu dispositivo"
 - Permiso de notificaciones push
 - Configurar recordatorios diarios
 - Horario de meditación

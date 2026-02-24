@@ -13,15 +13,21 @@ import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 import Animated, {
     useSharedValue,
     useAnimatedScrollHandler,
     useAnimatedStyle,
     interpolate,
-    Extrapolate
+    Extrapolate,
+    withRepeat,
+    withSequence,
+    withTiming,
+    Easing,
 } from 'react-native-reanimated';
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 import { theme } from '../constants/theme';
+import { Screen } from '../types';
 import { SESSION_ASSETS } from '../constants/images';
 import { MeditationSession } from '../data/sessionsData';
 
@@ -39,7 +45,25 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onStart, guideAvatar }) => {
     const insets = useSafeAreaInsets();
+    const navigation = useNavigation<any>();
     const scrollY = useSharedValue(0);
+
+    // Heartbeat animation
+    const heartScale = useSharedValue(1);
+    React.useEffect(() => {
+        heartScale.value = withRepeat(
+            withSequence(
+                withTiming(1.15, { duration: 600, easing: Easing.out(Easing.ease) }),
+                withTiming(1, { duration: 800, easing: Easing.in(Easing.ease) }),
+                withTiming(1, { duration: 1200 }), // pausa larga = calma
+            ),
+            -1,
+            false
+        );
+    }, []);
+    const heartStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: heartScale.value }],
+    }));
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
             scrollY.value = event.contentOffset.y;
@@ -252,14 +276,35 @@ const SessionPreviewModal: React.FC<Props> = ({ isVisible, session, onClose, onS
 
                     {/* Pinned Footer Action */}
                     <View style={[styles.footerAction, { paddingBottom: Math.max(20, insets.bottom + 10) }]}>
-                        <TouchableOpacity
-                            activeOpacity={0.8}
-                            style={[styles.startBtn, { backgroundColor: session.color || theme.colors.primary }]}
-                            onPress={() => onStart(session)}
-                        >
-                            <Text style={styles.startBtnText}>Comenzar Práctica</Text>
-                            <Ionicons name="play" size={20} color="#FFF" />
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                            {/* Pre-Session Scan */}
+                            <TouchableOpacity
+                                style={styles.preScanBtn}
+                                onPress={() => {
+                                    onClose();
+                                    setTimeout(() => navigation.navigate(Screen.CARDIO_SCAN, {
+                                        context: 'baseline',
+                                        sessionData: session,
+                                    }), 300);
+                                }}
+                                activeOpacity={0.7}
+                            >
+                                <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 6 }, heartStyle]}>
+                                    <Ionicons name="heart-circle" size={22} color="#FF4B4B" />
+                                    <Text style={styles.preScanBtnText}>Escanear</Text>
+                                </Animated.View>
+                            </TouchableOpacity>
+
+                            {/* Start Button */}
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                style={styles.startBtn}
+                                onPress={() => onStart(session)}
+                            >
+                                <Text style={styles.startBtnText}>Comenzar</Text>
+                                <Ionicons name="play" size={18} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -332,11 +377,13 @@ const styles = StyleSheet.create({
     categoryText: {
         fontSize: 11,
         fontWeight: '900',
+        fontFamily: 'Outfit_900Black',
         letterSpacing: 2,
     },
     title: {
         fontSize: 32,
         fontWeight: '900',
+        fontFamily: 'Caveat_700Bold',
         color: '#FFFFFF',
         marginBottom: 12,
         letterSpacing: -0.5,
@@ -496,23 +543,36 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     startBtn: {
+        flex: 1,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: 'rgba(45, 212, 191, 0.25)',
+        borderWidth: 1,
+        borderColor: 'rgba(45, 212, 191, 0.5)',
         flexDirection: 'row',
-        height: 64,
-        borderRadius: 22,
-        justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 15,
-        elevation: 10,
+        justifyContent: 'center',
+        gap: 8,
     },
     startBtnText: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
         color: '#FFF',
-        letterSpacing: 0.5,
+    },
+    preScanBtn: {
+        flex: 1,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 75, 75, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 75, 75, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    preScanBtnText: {
+        color: '#FF4B4B',
+        fontSize: 14,
+        fontWeight: '700',
     },
     footerAction: {
         paddingHorizontal: 16,
@@ -521,10 +581,8 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: '#000',
         paddingTop: 15,
-        borderTopWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
     },
 });
 

@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 import { Screen } from '../../types';
 import { bioProcessor } from '../../services/BioSignalProcessor';
+import { useApp } from '../../context/AppContext';
 import { SignalQuality } from '../../types/cardio';
 import { extractRGBFromFrame, extractRGBFallback } from '../../utils/rgbExtraction';
 import { Worklets } from 'react-native-worklets-core';
@@ -42,6 +43,7 @@ const CardioScanScreen = () => {
     const navigation = useNavigation<any>();
     const device = useCameraDevice('back');
     const { hasPermission, requestPermission } = useCameraPermission();
+    const { userState } = useApp();
 
     const appState = useAppState();
     const isFocused = useIsFocused();
@@ -49,7 +51,7 @@ const CardioScanScreen = () => {
 
     // params
     const route = useRoute();
-    const params = route.params as { context?: 'baseline' | 'post_session' } | undefined;
+    const params = route.params as { context?: 'baseline' | 'post_session'; sessionData?: any } | undefined;
     const context = params?.context || 'baseline';
 
     // States - UPDATED for 3-phase calibration
@@ -169,7 +171,7 @@ const CardioScanScreen = () => {
     // UPDATED: Start calibration phase
     // UPDATED: Start measuring phase (Skipping calibration per user request)
     const handleStartPress = () => {
-        setScanPhase('countdown'); // Go straight to countdown
+        setScanPhase('calibration'); // Require signal validation first
         bioProcessor.reset();
         setCalibrationScore(0);
         setReadyFrames(0);
@@ -236,7 +238,7 @@ const CardioScanScreen = () => {
                     setScanPhase('idle');
                 }
             }
-        }, 60000);
+        }, 90000); // 90s safety (extended for ~30s target scan)
     };
 
     // NEW: Countdown phase logic
@@ -315,19 +317,34 @@ const CardioScanScreen = () => {
         const finalBpm = finalMetrics.bpm;
         const finalHrv = finalMetrics.rmssd; // Processor returns RMSSD directly
 
-        // Diagnosis Logic
+        // Calculate age from health profile
+        const age = userState.birthDate
+            ? Math.floor((Date.now() - new Date(userState.birthDate).getTime()) / 31557600000)
+            : 30; // Default if not set
+        const gender = (userState.gender === 'male' || userState.gender === 'female')
+            ? userState.gender : 'male';
+
+        // Adaptive thresholds based on age
+        const lowHRV = age < 30 ? 35 : age < 50 ? 25 : 18;
+
+        // Diagnosis Logic (Age-Contextualized)
         let diagnosis: 'sobrecarga' | 'agotamiento' | 'equilibrio' = 'equilibrio';
 
-        if (finalHrv < 30) diagnosis = 'sobrecarga';
-        else if (finalHrv > 30 && finalBpm < 55) diagnosis = 'agotamiento';
+        if (finalHrv < lowHRV) diagnosis = 'sobrecarga';
+        else if (finalBpm < 50) diagnosis = 'agotamiento';
         else diagnosis = 'equilibrio';
+
+        // Normalize HRV for result screen
+        const hrvNormalized = bioProcessor.normalizeHRV(finalHrv, age, gender);
 
         // Navigate immediately
         navigation.replace(Screen.CARDIO_RESULT, {
             diagnosis: diagnosis,
             metrics: { bpm: finalBpm, hrv: finalHrv },
+            hrvNormalized,
             context: context,
-            quality: finalQuality.score // Pass score (0-100)
+            quality: finalQuality.score,
+            sessionData: params?.sessionData,
         });
     };
 
@@ -505,21 +522,7 @@ const CardioScanScreen = () => {
                 message={qualityAlertMessage}
             />
 
-            {/* DEBUG OVERLAY (Top Level) */}
-            <View style={{ position: 'absolute', top: 100, left: 10, padding: 10, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 8, zIndex: 2000, pointerEvents: 'none' }}>
-                <Text style={{ color: '#00FF00', fontFamily: 'monospace', fontSize: 12, fontWeight: 'bold' }}>
-                    DEBUG MODE
-                </Text>
-                <Text style={{ color: 'white', fontFamily: 'monospace', fontSize: 12 }}>
-                    Phase: {scanPhase}
-                </Text>
-                <Text style={{ color: 'white', fontFamily: 'monospace', fontSize: 12 }}>
-                    R: {debugRGB.r.toFixed(0)} | G: {debugRGB.g.toFixed(0)} | B: {debugRGB.b.toFixed(0)}
-                </Text>
-                <Text style={{ color: 'white', fontFamily: 'monospace', fontSize: 12 }}>
-                    Quality: {signalQuality?.score.toFixed(0) || 0} ({signalQuality?.level})
-                </Text>
-            </View>
+
         </View >
     );
 };
