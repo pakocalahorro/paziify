@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.30.5) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.31.0) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.30.5** consolida la unificación de buckets de storage y el sistema de carpetas dinámicas.
+Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.31.0** consolida la unificación de buckets de storage, el sistema de carpetas dinámicas, y documenta la persistencia local del Sistema de Evolución.
 
 ---
 
@@ -17,6 +17,20 @@ Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase 
 | `audio_config`| JSONB | Configuración de Binaurales y Soundscapes. |
 | `breathing_config`| JSONB | Tiempos de inhalación/exhalación. |
 | `time_of_day` | TEXT | Categorización temporal (mañana/noche). |
+
+### `real_stories` 📚
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | UUID | Identificador único. |
+| `title` | TEXT | Título de la historia. |
+| `story_text` | TEXT | Contenido narrativo completo. |
+| `character_name` | TEXT | Nombre del protagonista. |
+| `category` | TEXT | Categoría unificada (ver sección 6). |
+| `tags` | TEXT[] | Etiquetas temáticas. |
+| `reading_time_minutes` | INT | Tiempo estimado de lectura. |
+| `is_featured` | BOOL | Destacada en la Home. |
+| `is_premium` | BOOL | Contenido premium. |
+| `thumbnail_url` | TEXT | URL de la portada. |
 
 ### 3. Esquema Educativo (Academia v2.8.10) 🎓
 | Tabla | Propósito |
@@ -87,5 +101,16 @@ Con la introducción del **Escáner Cardio Premium** en v2.11.0, se establece un
 Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confianza del usuario.
 
 ---
-*Última revisión: 22 de Febrero de 2026 - Versión 2.30.5 (Dynamic Content & Admin Sync)*
+
+## 8. Persistencia Local del Sistema de Evolución (v2.31.0) 🎯
+
+El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **exclusivamente en AsyncStorage**, sin enviar ningún dato al cloud:
+
+- **`activeChallenge`**: Objeto `ActiveChallenge` con id, slug, type, title, startDate, daysCompleted, totalDays, currentSessionSlug.
+- **`hasAcceptedMonthlyChallenge`**: Flag booleano.
+- **Persistencia**: Se guarda como parte del `UserState` bajo la clave `@paziify_user_state`.
+- **Sin Cloud**: Decisión deliberada para mantener la privacidad del progreso personal.
+
+---
+*Última revisión: 24 de Febrero de 2026 - Versión 2.31.0 (Evolution Focus)*
 

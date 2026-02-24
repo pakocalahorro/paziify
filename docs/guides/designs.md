@@ -56,6 +56,48 @@ El CMS ha sido diseñado para una gestión técnica sin fricciones:
 
 ---
 
+## 13. Santuario de Alta Fidelidad (v2.31.0) 🏛️
+El Santuario (modal de sintonización) ha sido rediseñado para priorizar claridad y disciplina:
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Opacidad del fondo** | 98% (`rgba(15, 23, 42, 0.98)`) |
+| **Border Radius** | 40 |
+| **Título dinámico** | `PROGRAMA "[NOMBRE]" ACTIVADO` |
+| **Modos bloqueados** | Sanar/Crecer deshabilitados visualmente durante reto activo |
+| **Guía Biblioteca** | Bloque con background `rgba(0,0,0,0.4)`, padding 16, gap 12 |
+| **Tipografía misión** | `Caveat_700Bold` en títulos |
+
+---
+
+## 14. Paleta de Evolución (v2.31.0) 🎨
+Cada programa del Sistema de Evolución tiene gradientes propios para identidad visual instantánea:
+
+| Programa | Tipo | Gradiente | Icono |
+|----------|------|-----------|-------|
+| Desafío Paziify | Desafío (30d) | `#6366F1` → `#4F46E5` (Indigo) | trophy |
+| Senda de la Calma | Reto (7d) | `#2DD4BF` → `#0D9488` (Teal) | leaf |
+| Senda del Foco | Reto (7d) | `#FBBF24` → `#D97706` (Amber) | flash |
+| Sprint SOS | Misión (3d) | `#EF4444` → `#B91C1C` (Rojo) | fitness |
+| Pausa Express | Misión (3d) | `#8B5CF6` → `#6D28D9` (Violeta) | infinite |
+
+### ChallengeDetailsModal
+- **BlurView**: Intensity 90, tint dark
+- **Border**: 1px `rgba(255,255,255,0.1)`, radius 32
+- **CTA**: Gradiente lineal horizontal con colores del programa
+- **Icono**: Contenedor circular 70px, background con opacidad 20%
+
+---
+
+## 15. Gamificación Visual (Mini-juegos) 🎮
+Componentes de mini-juegos accesibles desde el Santuario:
+- **GameContainer**: Orquestador con estados de selección, juego y resultado
+- **NebulaBreathGame**: Mecánica de respiración con partículas de nebulosa
+- **OrbFlowGame**: Flujo de orbes con interacción gestual
+- **Tema visual**: Se adapta al `lifeMode` (healing = emerald, growth = solar)
+
+---
+
 ## 12. Estilo Premium Editorial (v2.13.0) 📖
 Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas", la Home Screen adopta un diseño tipo catálogo de arte o portada de revista:
 
@@ -75,4 +117,4 @@ Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas"
 
 ---
 
-*Última revisión: 21 de Febrero de 2026 - Master Audit v2.30.0 (Premium Evolution)*
+*Última revisión: 24 de Febrero de 2026 - Versión 2.31.0 (Evolution Focus)*

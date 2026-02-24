@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.30.5) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.31.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.30.5 (Universal Sync)**. Esta versión transforma la app en una experiencia de meditación de alto nivel con guiones premium y una gestión técnica impecable.
+Bienvenido a la guía oficial de **Paziify v2.31.0 (Evolution Focus)**. Esta versión consolida la experiencia de meditación premium con el Sistema de Evolución y guiones SSML de alta calidad.
 
 ---
 
@@ -14,14 +14,14 @@ Paziify v2.30 introduce 119 sesiones de meditación elevadas a calidad **Premium
 ---
 
 ## 2. Zero-Egress Caching (Navegación sin Gastar Datos) 🛡️
-Paziify v2.8 introduce un motor de caché inteligente que protege tu plan de datos:
+Paziify integra un motor de caché inteligente que protege tu plan de datos:
 - **Carga Instantánea**: Una vez que escuchas una sesión o ves una carátula, la app la guarda en tu móvil para siempre.
 - **Modo Offline Automático**: Si pierdes la conexión, todo el contenido que ya hayas visitado seguirá disponible sin esperas.
 - **Optimización de Almacenamiento**: Hemos reducido la redundancia de archivos en un 50%, asegurando que cada lección de la Academia ocupe el mínimo espacio necesario.
 
 ---
 
-## 2. Experiencia Premium Editorial (Home Screen) 💎
+## 3. Experiencia Premium Editorial (Home Screen) 💎
 La pantalla de inicio (Home) ha sido rediseñada para ofrecer una experiencia limpia, inmersiva y altamente curada, dividida en 3 áreas clave que evitan la sobrecarga cognitiva:
 
 - **1. Tu Estado (Analíticas Compactas)**: El panel superior de bienvenida ahora integra un cristal oscurecido (`Glassmorphism`) con dos indicadores visuales contiguos (Círculos Zen de "Hoy" y "Semana"), junto a métricas compactadas estilo widget nativo.
@@ -30,7 +30,38 @@ La pantalla de inicio (Home) ha sido rediseñada para ofrecer una experiencia li
 
 ---
 
-## 2. Academia Paziify: Cursos y Lecciones 🎓
+## 4. Sistema de Evolución (Rutas, Desafíos y Misiones) 🚀
+Paziify v2.31 introduce un ecosistema completo de **programas de crecimiento personal** con tres niveles de compromiso:
+
+### Tipos de Programas
+| Tipo | Duración | Ejemplo | Propósito |
+|------|----------|---------|-----------|
+| **Desafío** | 30 días | Desafío Paziify | Transformación profunda y hábito consolidado |
+| **Reto** | 7 días | Senda de la Calma, Senda del Foco | Semana de intensidad temática |
+| **Misión** | 3 días | Sprint SOS, Pausa Express | Intervención rápida para crisis |
+
+### Cómo funciona
+1. **Accede al Catálogo de Evolución** desde el menú flotante o la Home.
+2. **Elige tu programa**: Cada tarjeta muestra duración, beneficios y un gradiente de color propio.
+3. **Pulsa "Confirmar y Empezar"**: Se activa tu compromiso diario.
+4. **Tu Home se transforma**: Mientras tengas un programa activo, la pantalla principal se enfoca 100% en tu sesión del día (Misión Prioritaria).
+5. **Progresa día a día**: Completa la sesión diaria para avanzar en tu reto.
+
+### Widget Nativo
+¿Quieres seguir tu progreso sin abrir la app? Pulsa el tutorial de "Zen Widget" en el catálogo para aprender a añadir un widget de seguimiento a tu escritorio (compatible con iOS y Android).
+
+---
+
+## 5. Misión Prioritaria y Santuario Blindado 🎯
+Cuando tienes un programa de evolución activo, Paziify protege tu disciplina:
+
+- **Home Blindada**: La pantalla principal muestra SOLO la sesión de tu programa activo, eliminando distracciones y recomendaciones SOS que podrían desviar tu atención.
+- **Santuario Rediseñado**: El modal del Santuario ahora tiene opacidad al 98%, título dinámico ("PROGRAMA [NOMBRE] ACTIVADO"), y los modos "Sanar" y "Crecer" se deshabilitan visualmente para evitar cambios de sintonía durante tu compromiso.
+- **Guía a la Biblioteca**: Si deseas sesiones adicionales fuera de tu programa, la app te guía suavemente a la Biblioteca.
+
+---
+
+## 6. Academia Paziify: Cursos y Lecciones 🎓
 La Academia ahora cuenta con 10 cursos completos dedicados a tu salud mental:
 - **Novedad: Adiós al Insomnio**: Recuperado íntegramente con la voz relajante de **Éter**.
 - **Audio Profesional**: Todas las lecciones han sido optimizadas para una calidad de estudio constante.
@@ -38,7 +69,7 @@ La Academia ahora cuenta con 10 cursos completos dedicados a tu salud mental:
 
 ---
 
-## 3. Escáner Cardio de Grado Médico (v2.12.0) 🫀✨
+## 7. Escáner Cardio de Grado Médico (v2.12.0) 🫀✨
 Transforma tu cámara en un sensor de bienestar emocional con tecnología rPPG (remote PhotoPlethysmoGraphy) y algoritmos médicos validados.
 
 ### Sistema de Medición Progresiva (Reliability First)
@@ -50,7 +81,7 @@ Transforma tu cámara en un sensor de bienestar emocional con tecnología rPPG (
    - **Validación Automática**: El sistema solo comienza cuando detecta una señal de pulso estable y limpia.
 
 #### **FASE 2: Escaneo por Acumulación de Calidad**
-Olvídate de los temporizadores que fallan si te mueves al final.
+Olvídate de los temporizadores que fallan si te mueves.
 - **Barra de Progreso Inteligente**: No avanza por tiempo, sino por **cantidad de latidos válidos recolectados**.
 - **Si te mueves**: La barra se pausa o retrocede ligeramente.
 - **Si mantienes la calma**: La barra avanza fluida hacia el 100%.
@@ -68,11 +99,6 @@ El sistema interpreta tus métricas con un tono de cuidado:
 - **Agotamiento Físico**: Pulso Muy Bajo/Alto → Recomendación: Energía Suave.
 - **Equilibrio Vital**: Métricas en Rango Óptimo → Recomendación: Mantener Práctica.
 
-### Tecnología rPPG con Algoritmo POS
-- **Precisión Clínica**: ±3 BPM vs ECG
-- **Robusto al Movimiento**: Tolera movimiento moderado
-- **Universal**: Funciona en todos los tonos de piel
-- **Validado Científicamente**: Basado en paper de De Haan & Jeanne (2013)
 ### Privacidad Total
 - ✅ **Análisis Local**: Todo el procesamiento ocurre en tu dispositivo
 - ✅ **Cero Almacenamiento**: No se guardan imágenes ni videos de tu dedo
@@ -80,14 +106,14 @@ El sistema interpreta tus métricas con un tono de cuidado:
 
 ---
 
-## 4. Onboarding Zen y Flujo Espiritual ✨
-Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspección:
+## 8. Onboarding Zen y Flujo Espiritual ✨
+Paziify ha simplificado el viaje del usuario para maximizar la introspección:
 - **Paso 1: Spiritual Preloader**: La app te recibe con una pausa de 3.5 segundos que decide inteligentemente si llevarte a la Brújula (Nexus) o directo a la Home.
 - **Paso 2: Brújula Adaptativa (Nexus)**: Selección directa de tu intención ("Sanar" con Emerald Heart o "Crecer" con Solar Plasma).
 
 ---
 
-## 5. El Menú de Navegación Flotante 🛸💎
+## 9. El Menú de Navegación Flotante 🛸💎
 **Componente:** `CustomTabBar`
 - **Isla de Cristal**: Un menú ergonómico que flota sobre el contenido.
 - **Efecto Orbital**: El botón central late orgánicamente reflejando tu energía actual.
@@ -95,18 +121,18 @@ Paziify v2.6 ha simplificado el viaje del usuario para maximizar la introspecci�
 
 ---
 
-## 6. Sincronización 100% Cloud y Perfil 3.0 🌟
+## 10. Sincronización 100% Cloud y Perfil 3.0 🌟
 - **Tu Oasis te Sigue**: Favoritos, historial y ajustes persistidos en Supabase.
 - **Árbol de Resiliencia Dinámico**: El árbol crece proporcionalmente a la duración de tu programa (3, 7, 30 días).
 
 ---
 
-## 7. Consultar Detalles del Reto (Info Button) ℹ️
-En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo en cualquier momento para recordar los beneficios y el propósito del programa en el que estás inscrito.
+## 11. Consultar Detalles del Reto (Info Button) ℹ️
+En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo en cualquier momento para recordar los beneficios y el propósito del programa en el que estás inscrito. Se abre el `ChallengeDetailsModal` con BlurView premium.
 
 ---
 
-## 8. Panel de Administración (CMS Profesional) ⚙️ (v2.30.5 Upgraded)
+## 12. Panel de Administración (CMS Profesional) ⚙️ (v2.30.5 Upgraded)
 **Acceso:** Panel Web dedicado.
 
 - **Listado Dinámico**: La tabla de meditaciones ahora es una herramienta de productividad:
@@ -121,13 +147,12 @@ En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo e
 
 ---
 
-## 8. Modo Offline "Zero-Egress" Total 🛡️
+## 13. Modo Offline "Zero-Egress" Total 🛡️
 - **Independencia de la Red**: La aplicación detecta si no tienes internet o si falla el servidor.
 - **Contenido Siempre Disponible**: Carga automáticamente versiones locales de alta calidad para Meditaciones, Historias y Paisajes Sonoros.
 - **Sin Pantallas en Blanco**: El sistema "Resiliencia" garantiza que siempre haya contenido que mostrar.
 
 
 ---
-*Última revisión: 22 de Febrero de 2026 - Versión 2.30.5 (Universal Sync)*  
+*Última revisión: 24 de Febrero de 2026 - Versión 2.31.0 (Evolution Focus)*  
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`
-

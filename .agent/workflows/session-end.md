@@ -32,6 +32,23 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
    5. **`docs/guides/designs.md`**: Si hay nuevos componentes o cambios estéticos.
    6. **`docs/guides/database.md`**: Si hubo cambios en Supabase o lógica de datos.
 
+### 3.5. Verificación Mecánica de Guías (ANTI-OLVIDO) 🔒
+   **NO confíes en tu memoria. Ejecuta estos checks OBLIGATORIAMENTE:**
+
+   1. **Archivos nuevos vs structure.md**: Ejecutar `git diff --name-only` y para CADA archivo nuevo/modificado en `src/screens/`, `src/components/`, `src/services/`, `src/constants/`, `src/hooks/`, `src/utils/` o `src/data/`, verificar que aparece documentado en `structure.md`. Si no → añadirlo.
+
+   2. **Versión unificada**: Ejecutar grep de versión en las 5 guías:
+      ```powershell
+      Select-String -Path "docs/guides/*.md" -Pattern "v[0-9]+\.[0-9]+\.[0-9]+"
+      ```
+      → Todas deben coincidir con la versión de `package.json`. Si alguna no coincide → actualizarla.
+
+   3. **Hooks y Utils reales**: Cruzar los archivos existentes en `src/hooks/` y `src/utils/` contra lo documentado en `structure.md`. Eliminar fantasmas, añadir lo nuevo.
+
+   4. **Tipos nuevos**: Si `src/types/index.ts` fue modificado durante la sesión, verificar que `structure.md` refleja los tipos actuales.
+
+   5. **Fecha de revisión**: Actualizar la línea `*Última revisión:*` al final de CADA guía que se haya tocado.
+
 ### 4. Reconciliación Cruzada (Garantía CEO) ✅
    - Hazte la pregunta: **"¿Si el CEO revisa esto con su papel y boli, encontrará todo lo que hemos hablado hoy?"**.
    - Si detectas vacíos, vuelve al paso 1. No cierres la sesión hasta que el Walkthrough sea indistinguible del historial real.
@@ -40,9 +57,6 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
    - **Versión**: Actualizar `package.json` (SemVer).
    - **Commit**: Mensaje profesional con los hitos resumidos.
    - **Tagging**: Crear `git tag vX.X.X` coincidente. Sin tag de versión, el ecosistema de documentación se considera desfasado.
-
----
-*Este protocolo es el único muro contra la pérdida de conocimiento en sesiones complejas.*
 
 ---
 *Este protocolo es innegociable para asegurar la continuidad del proyecto Paziify.*

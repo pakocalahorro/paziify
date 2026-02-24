@@ -18,7 +18,8 @@
 
 **Paziify** es una aplicación móvil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versión**: 2.31.0 (Evolution Focus)
+**Versión**: 2.31.0 (Evolution Focus)  
+**Última actualización**: 24 de Febrero de 2026
 
 ---
 
@@ -412,7 +413,20 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ---
 
-### 11. Social - Comunidad
+### 11. Challenges - Sistema de Evolución
+
+#### `src/screens/Challenges/EvolutionCatalogScreen.tsx`
+**Función**: Catálogo de programas de evolución personal
+**Contenido**:
+- Grid de programas disponibles (Desafíos, Retos, Misiones)
+- Selección y activación de un programa
+- Modal de detalle (`ChallengeDetailsModal`) con beneficios
+- Integración con `challenges.ts` como fuente única de verdad
+- Navegación: `animation: 'slide_from_bottom'`
+
+---
+
+### 12. Social - Comunidad
 
 #### `src/screens/Social/CommunityScreen.tsx`
 **Función**: Pantalla de comunidad
@@ -429,14 +443,26 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ## Componentes
 
-### Componentes de Retos
+### Componentes de Retos (Sistema de Evolución)
 
 #### `src/components/Challenges/ChallengeDetailsModal.tsx`
-**Función**: Modal informativo de programas
+**Función**: Modal informativo de programas con diseño premium
+**Props**: visible, onClose, challenge (ChallengeInfo), onActivate, hideActivateButton
 **Contenido**:
 - Título, duración y descripción del reto
-- Listado de beneficios
-- Efectos de desenfoque premium (BlurView)
+- Listado de beneficios con iconos de color dinámico
+- Botón CTA con gradiente por programa
+- Efectos de desenfoque premium (BlurView intensity 90)
+- Border radius 32, borde semitransparente
+
+#### `src/components/Challenges/WidgetTutorialModal.tsx`
+**Función**: Tutorial para añadir widget nativo al escritorio
+**Props**: isVisible, onClose
+**Contenido**:
+- Mockup visual del widget
+- Pasos diferenciados por plataforma (iOS vs Android)
+- Diseño premium con BlurView
+- Instrucciones paso a paso numeradas
 
 ### Componentes de Home
 
@@ -554,6 +580,30 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Patrones de respiración configurables
 - Colores dinámicos
 - Efectos de partículas
+
+---
+
+### Componentes de Gamificación
+
+#### `src/components/Gamification/GameContainer.tsx`
+**Función**: Orquestador de mini-juegos de mindfulness
+**Props**: mode ('healing' \| 'growth'), onClose, onComplete
+**Características**:
+- Pantalla de selección de juego
+- Estados: selection → playing → result
+- Resultados con puntuación y feedback
+
+#### `src/components/Gamification/NebulaBreathGame.tsx`
+**Función**: Mini-juego de respiración nebular
+**Características**:
+- Mecánica de timing con respiración
+- Efectos de partículas y nebulosa
+
+#### `src/components/Gamification/OrbFlowGame.tsx`
+**Función**: Mini-juego de flujo de orbes
+**Características**:
+- Mecánica de gestos táctiles
+- Orbes de energía que fluyen en pantalla
 
 ---
 
@@ -804,7 +854,7 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 #### `src/components/SleepTimerModal.tsx`
 **Función**: Modal de temporizador para dormir
 **Props**: visible, onSet, options
-**Caracteridades**:
+**Características**:
 - Opciones de tiempo predefinidas
 - Slider personalizado
 - Volumen gradual
@@ -897,23 +947,30 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - `submitQuiz(quizId, answers)` - Enviar respuestas
 
 ### `src/services/analyticsService.ts`
-**Función**: Analytics y métricas
+**Función**: Analytics y métricas de usuario
 **Métodos**:
-- `trackEvent(event, params)` - Trackear eventos
-- `trackScreen(screen)` - Trackear navegación
-- `setUserProperties(props)` - Propiedades de usuario
-- `logSession(duration)` - Registrar sesión
+- `getUserStats(userId)` - Estadísticas globales (totalMinutes, sessionsCount, streak, resilienceScore)
+- `getTodayStats(userId)` - Minutos y sesiones del día
+- `getWeeklyActivity(userId)` - Actividad por día de la semana
+- `getCategoryDistribution(userId)` - Distribución de categorías consumidas
+- `recordSession(userId, sessionId, duration, mood)` - Registrar sesión completada
 
 ### `src/services/AudioEngineService.ts`
-**Función**: Motor de audio principal
-**Métodos**:
-- `loadAudio(source)` - Cargar audio
-- `play()` - Reproducir
-- `pause()` - Pausar
-- `seek(position)` - Buscar posición
-- `setRate(rate)` - Cambiar velocidad
-- `setVolume(volume)` - Ajustar volumen
-- `mixAudio(sources)` - Mezclar múltiples fuentes
+**Función**: Motor de audio multi-capa (Clase Singleton)
+**Capas**: voice, soundscape, binaural, elements
+**Métodos principales**:
+- `initialize()` - Configurar modo background
+- `loadSession(config)` - Cargar sesión con sus 4 capas de audio
+- `playAll()` / `pauseAll()` - Control sincronizado de todas las capas
+- `playSelectedLayers(layers)` - Reproducción selectiva
+- `setLayerVolume(layer, volume)` / `getVolumes()` - Control de volumen por capa
+- `fadeOut(durationMs)` - Fade out suave (por defecto 3000ms)
+- `swapSoundscape(id)` / `swapBinaural(id)` - Hot-swap de capas sin detener otras
+- `preloadCues(messages)` / `playVoiceCue(type)` - Sistema de instrucciones de voz
+- `startSilentAudio()` / `stopSilentAudio()` - "Silent Audio Trick" para mantener JS activo en background
+- `unloadAll()` - Liberación de recursos
+- `setStatusCallback(callback)` - Master Clock para UI
+**Nota**: `loadProVoice()` está desactivado en producción (ahorro 99% TTS).
 
 ### `src/services/AuthService.ts`
 **Función**: Autenticación de usuarios
@@ -937,13 +994,19 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - `stopScan()` - Detener escaneo
 
 ### `src/services/CacheService.ts`
-**Función**: Gestión de caché
+**Función**: Gestión de caché dual (Zero-Egress Shield)
+**Arquitectura**:
+- **Persistente** (`documentDirectory/paziify_assets/`) → Audio y Soundscapes (NUNCA se borran)
+- **Volátil** (`cacheDirectory/paziify_cache/`) → Imágenes (limpiables)
 **Métodos**:
-- `set(key, value, ttl)` - Guardar en caché
-- `get(key)` - Obtener de caché
-- `remove(key)` - Eliminar
-- `clear()` - Limpiar todo
-- `isExpired(key)` - Verificar expiración
+- `get(url, type)` - Obtener recurso (descarga si no existe, devuelve path local)
+- `clearVolatileCache()` - Borrar solo caché de imágenes
+- `getCacheSize()` - Tamaño total (persistente + volátil)
+**Características**:
+- Hash MD5 de URLs para nombres de archivo
+- Descarga atómica (temporal → mover)
+- Headers de autenticación Supabase automáticos
+- Fallback a URL remota si la descarga falla
 
 ### `src/services/CardioService.ts`
 **Función**: Gestión de datos de cardio (Local & Zero-Egress)
@@ -957,14 +1020,32 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Separación de contextos (baseline vs post_session)
 
 ### `src/services/contentService.ts`
-**Función**: Gestión de contenido dinámico
-**Métodos**:
-- `getMeditations()` - Obtener meditaciones
-- `getAudiobooks()` - Obtener audiolibros
-- `getStories()` - Obtener historias
-- `getCategories()` - Obtener categorías
-- `searchContent(query)` - Buscar
-- `getRecommendations()` - Recomendaciones
+**Función**: Gestión de contenido dinámico (5 sub-servicios exportados)
+
+**`sessionsService`**:
+- `getAll()` - Todas las sesiones de meditación
+- `getById(id)` / `getByLegacyId(legacyId)` - Búsqueda por ID
+- `getByCategory(category)` - Filtro por categoría
+- `getDaily()` - Sesión diaria recomendada
+
+**`soundscapesService`**:
+- `getAll()` - Con fallback local para Zero Egress
+- `getById(id)` - Con prioridad local
+
+**`audiobooksService`**:
+- `getAll()`, `getByCategory()`, `getFeatured()`, `getById()`, `search(query)`
+
+**`storiesService`**:
+- `getAll()`, `getByCategory()`, `getFeatured()`, `getById()`, `search(query)`
+- `populateStories()` - Poblar desde datos de Mentes Maestras
+
+**`favoritesService`** (Cloud + Offline):
+- `add(userId, contentType, contentId)` / `remove()` → Supabase
+- `isFavorited(userId, contentType, contentId)` → Check
+- `getFavoriteAudiobooks(userId)` / `getFavoriteStories(userId)` → Con cache AsyncStorage offline
+
+**`contentService`**:
+- `getRandomCategoryImage(mode)` - Imagen aleatoria según intención (healing/growth)
 
 ### `src/services/LocalAnalyticsService.ts`
 **Función**: Analytics locales (sin conexión)
@@ -996,28 +1077,32 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ### `src/context/AppContext.tsx`
 **Función**: Contexto principal de la aplicación
-**Estado**:
-- `user` - Usuario actual (guest/registrado)
-- `isAuthenticated` - Estado de autenticación
-- `isGuest` - Modo invitado
-- `settings` - Configuraciones de usuario
-- `favorites` - Contenidos favoritos
-- `stats` - Estadísticas del usuario
-- `streak` - Racha actual
-- `notifications` - Configuración de notificaciones
+**Estado (`UserState`)**:
+- `id`, `name`, `email`, `avatarUrl` - Identidad
+- `isRegistered`, `isGuest` - Estado de autenticación
+- `streak`, `resilienceScore`, `totalMinutes` - Métricas
+- `isDailySessionDone`, `hasMissedDay` - Ritual diario
+- `lifeMode: 'growth' \| 'healing'` - Sintonización persistida
+- `activeChallenge: ActiveChallenge \| null` - Programa activo
+- `hasAcceptedMonthlyChallenge` - Flag de reto mensual
+- `favoriteSessionIds`, `completedSessionIds`, `completedLessons` - Progreso
+- `dailyGoalMinutes`, `weeklyGoalMinutes` - Objetivos
+- `lastEntryDate`, `lastSessionDate` - Tracking temporal
+- `settings` - Notificaciones (morning, night, streak, quiet hours)
 
 **Métodos**:
-- `setUser(user)` - Establecer usuario
-- `updateSettings(settings)` - Actualizar configuraciones
-- `toggleFavorite(id)` - Añadir/Quitar favorito
-- `updateStats(stats)` - Actualizar estadísticas
-- `resetStreak()` - Reiniciar racha
-- `syncWithSupabase()` - Sincronizar con backend
+- `updateUserState(updates)` - Actualizar estado parcial
+- `toggleFavorite(sessionId)` - Añadir/Quitar favorito
+- `signInWithGoogle()` - Google OAuth
+- `continueAsGuest()` / `exitGuestMode()` - Modo invitado
+- `markEntryAsDone()` - Marcar entrada diaria
+- `signOut()` - Cerrar sesión
 
 **Integraciones**:
-- Supabase Auth
-- AsyncStorage para persistencia
-- Event listeners de autenticación
+- Supabase Auth + perfil automático
+- AsyncStorage para persistencia local
+- Reminders programados (`scheduleDailyMeditationReminder`)
+- Primera entrada del día (`isFirstEntryOfDay`)
 
 ### `src/context/AudioPlayerContext.tsx`
 **Función**: Contexto del reproductor de audio
@@ -1140,29 +1225,13 @@ admin/
 
 ## Hooks Personalizados
 
-### `src/hooks/useAuth.ts`
-**Función**: Manejo de autenticación
-**Retorna**: user, isAuthenticated, login, logout, register
-
-### `src/hooks/useAudioPlayer.ts`
-**Función**: Control del reproductor
-**Retorna**: currentTrack, isPlaying, play, pause, seek, etc.
-
 ### `src/hooks/useContent.ts`
-**Función**: Obtención de contenido
-**Retorna**: meditations, audiobooks, stories, loading, error
+**Función**: Obtención de contenido con React Query
+**Hooks exportados**:
+- `useSessions()` - Sesiones de meditación
+- Integración con `sessionsService` de `contentService.ts`
 
-### `src/hooks/useProgress.ts`
-**Función**: Seguimiento de progreso
-**Retorna**: progress, updateProgress, completedSessions
-
-### `src/hooks/useStreak.ts`
-**Función**: Gestión de rachas
-**Retorna**: currentStreak, bestStreak, checkIn, resetStreak
-
-### `src/hooks/useNotifications.ts`
-**Función**: Gestión de notificaciones
-**Retorna**: scheduleNotification, cancelNotification, getScheduled
+> **Nota**: La lógica de auth, audio player, progreso, rachas y notificaciones está integrada directamente en `AppContext`, `AudioPlayerContext` y los servicios, no en hooks separados.
 
 ---
 
@@ -1173,8 +1242,13 @@ admin/
 **Exporta**:
 - `requestPermissions()` - Solicitar permisos
 - `scheduleLocalNotification()` - Programar local
+- `scheduleDailyMeditationReminder()` - Recordatorio diario
 - `cancelNotification()` - Cancelar
 - `setNotificationHandler()` - Manejador
+
+### `src/utils/notifications.web.ts`
+**Función**: Stub de notificaciones para plataforma web
+**Exporta**: Mismas funciones que `notifications.ts` pero como no-ops
 
 ### `src/utils/storage.ts`
 **Función**: Wrappers para AsyncStorage
@@ -1185,12 +1259,11 @@ admin/
 - `clear()` - Limpiar todo
 - `multiGet(keys)` - Múltiples
 
-### `src/utils/formatters.ts`
-**Función**: Formateo de datos
+### `src/utils/rgbExtraction.ts`
+**Función**: Extracción de datos RGB de frames de cámara para Cardio Scan (rPPG)
 **Exporta**:
-- `formatDuration(seconds)` - Formatear tiempo
-- `formatDate(date)` - Formatear fecha
-- `formatNumber(num)` - Formatear números
+- `extractRGBFromFrame(pixels, pixelFormat)` - Extracción real con soporte YUV y RGB (worklet)
+- `extractRGBFallback(width, height)` - Fallback cuando `toArrayBuffer()` no está disponible
 
 ---
 
@@ -1228,6 +1301,16 @@ admin/
 - Iconos
 - Descripciones
 
+### `src/constants/challenges.ts`
+**Contenido**: Fuente única de verdad del Sistema de Evolución
+- `ChallengeInfo` interface (id, title, type, days, description, benefits, sessionSlug, colors, icon)
+- `CHALLENGES` Record con 5 programas:
+  - `paziify-master` (Desafío, 30d, Indigo)
+  - `senda-calma` (Reto, 7d, Teal)
+  - `senda-foco` (Reto, 7d, Amber)
+  - `sprint-sos` (Misión, 3d, Rojo)
+  - `pausa-express` (Misión, 3d, Violeta)
+
 ### `src/constants/images.ts`
 **Contenido**:
 - Importaciones de imágenes
@@ -1235,9 +1318,26 @@ admin/
 - Icons
 - URLs de assets remotos
 
+### `src/constants/visualThemes.ts`
+**Contenido**:
+- Temas visuales para sesiones de meditación
+- Gradientes e intensidades por modo
+
 ---
 
-## Configuración de Expo
+## Datos Estáticos (`src/data/`)
+
+| Archivo | Tamaño | Propósito |
+|---------|--------|----------|
+| `sessionsData.ts` | 153 KB | 119 sesiones de meditación con URLs, configs y metadatos |
+| `academyData.ts` | 49 KB | 10 cursos CBT con módulos y lecciones |
+| `realStories.ts` | 51 KB | Historias de Mentes Maestras |
+| `quizData.ts` | 12 KB | Preguntas de evaluación para cursos |
+| `soundscapesData.ts` | 12 KB | Paisajes sonoros y ondas binaurales |
+| `audiobooksData.ts` | 3 KB | Catálogo de audiolibros |
+| `socialData.ts` | 1 KB | Datos de comunidad |
+| `newSessionsGenerated.json` | 113 KB | JSON de generación masiva (migración) |
+| `real_stories_data.sql` | 40 KB | Script SQL de semillas para historias |
 
 ### `app.json`
 **Configuración**:
@@ -1326,8 +1426,8 @@ admin/
 
 ---
 
-*Documento generado el 19 de febrero de 2026*
-*Versión del proyecto: 2.12.0*
-*Total de pantallas: 30+*
-*Total de componentes: 40+*
-*Total de servicios: 10+*
+*Documento actualizado el 24 de Febrero de 2026*  
+*Versión del proyecto: 2.31.0 (Evolution Focus)*  
+*Total de pantallas: 32*  
+*Total de componentes: 50+*  
+*Total de servicios: 12*

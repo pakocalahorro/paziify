@@ -28,7 +28,15 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
       - `docs/guides/designs.md`: Sistema de diseño Skia e identidad visual.
     - Esto garantiza que no reinventemos la rueda ni rompamos la consistencia.
 
-
+4. **Validación de Sincronización de Guías (ANTI-DESINCRONÍA)** 🔒
+   - Ejecutar grep de versión en las 5 guías y comparar con `package.json`:
+     ```powershell
+     Select-String -Path "docs/guides/*.md" -Pattern "v[0-9]+\.[0-9]+\.[0-9]+"
+     ```
+   - Si CUALQUIER guía tiene una versión diferente a `package.json`:
+     - ⚠️ **Alertar al usuario**: "La guía X dice vY.Y.Y pero package.json dice vZ.Z.Z."
+     - Proponer actualización antes de empezar a trabajar.
+   - Si todas coinciden → ✅ Las guías están al día.
 
 5. **Health Check (Sanidad del Proyecto)**
    - Revisar archivos modificados recientemente (`git status`).
