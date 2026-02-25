@@ -167,32 +167,44 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                         <BlurView intensity={20} tint="dark" style={styles.chartCard}>
                             {hasActivityData ? (
                                 <>
-                                    <BarChart
-                                        data={{
-                                            labels: DAY_LABELS,
-                                            datasets: [{
-                                                data: activityValues.map(v => v === 0 ? 0.1 : v),
-                                                colors: activityValues.map(v =>
-                                                    (opacity: number) => v >= dailyGoal
-                                                        ? `rgba(16,185,129,${opacity})`
-                                                        : `rgba(212,175,55,${opacity * 0.7})`
-                                                ),
-                                            }],
-                                        }}
-                                        width={CHART_WIDTH - 32}
-                                        height={180}
-                                        chartConfig={chartConfig}
-                                        yAxisLabel=""
-                                        yAxisSuffix="m"
-                                        style={styles.chart}
-                                        fromZero
-                                        withCustomBarColorFromData
-                                        flatColor
-                                    />
-                                    <Text style={styles.chartLegend}>
-                                        <Text style={{ color: '#10B981' }}>■</Text> Meta superada{'  '}
-                                        <Text style={{ color: '#D4AF37' }}>■</Text> En progreso
-                                    </Text>
+                                    <View style={styles.hrvBarsContainer}>
+                                        {activityValues.map((val, i) => {
+                                            const maxActivity = Math.max(...activityValues, dailyGoal, 1);
+                                            const heightPct = val > 0 ? Math.max(val / maxActivity, 0.08) : 0.05;
+                                            const isGoalMet = val >= dailyGoal;
+
+                                            // Actividad usa Verde (meta) o Dorado (en progreso)
+                                            const gradient: [string, string] = isGoalMet
+                                                ? ['#10B981', 'rgba(16, 185, 129, 0.4)']
+                                                : ['#D4AF37', 'rgba(212, 175, 55, 0.4)'];
+
+                                            const finalGradient: [string, string] = val > 0
+                                                ? gradient
+                                                : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)'];
+
+                                            return (
+                                                <View key={i} style={styles.hrvBarItem}>
+                                                    <Text style={styles.hrvBarValue}>{val > 0 ? `${val}m` : ''}</Text>
+                                                    <View style={styles.hrvBarTrack}>
+                                                        <LinearGradient
+                                                            colors={finalGradient}
+                                                            start={{ x: 0, y: 0 }}
+                                                            end={{ x: 0, y: 1 }}
+                                                            style={[styles.hrvBarFill, { flex: heightPct }]}
+                                                        />
+                                                        <View style={{ flex: 1 - heightPct }} />
+                                                    </View>
+                                                    <Text style={styles.hrvBarLabel}>{DAY_LABELS[i]}</Text>
+                                                </View>
+                                            );
+                                        })}
+                                    </View>
+                                    <View style={{ marginTop: 8 }}>
+                                        <Text style={styles.chartLegend}>
+                                            <Text style={{ color: '#10B981' }}>■</Text> Meta superada{'  '}
+                                            <Text style={{ color: '#D4AF37' }}>■</Text> En progreso
+                                        </Text>
+                                    </View>
                                 </>
                             ) : (
                                 <EmptyState message="Completa sesiones para ver tu actividad diaria" />
