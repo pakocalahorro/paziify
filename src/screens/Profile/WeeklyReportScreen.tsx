@@ -236,8 +236,6 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                             ) : (
                                 <EmptyState
                                     message="Sin escaneos esta semana"
-                                    cta="Escanear ahora"
-                                    onCta={() => navigation.navigate(Screen.CARDIO_SCAN)}
                                 />
                             )}
                         </BlurView>

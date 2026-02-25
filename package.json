@@ -1,6 +1,6 @@
 {
   "name": "paziify",
-  "version": "2.33.5",
+  "version": "2.33.6",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
