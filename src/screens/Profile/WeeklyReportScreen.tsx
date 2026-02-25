@@ -60,11 +60,11 @@ function buildActivityWeekData(activity: DailyActivity[]): number[] {
     return activity.map(d => Math.round(d.minutes));
 }
 
-const diagnosisColor: Record<string, string> = {
-    equilibrio: '#10B981',
-    agotamiento: '#F59E0B',
-    sobrecarga: '#EF4444',
-    none: 'rgba(255,255,255,0.06)',
+const diagnosisGradient: Record<string, [string, string]> = {
+    equilibrio: ['#10B981', 'rgba(16, 185, 129, 0.4)'],
+    agotamiento: ['#F59E0B', 'rgba(245, 158, 11, 0.4)'],
+    sobrecarga: ['#EF4444', 'rgba(239, 68, 68, 0.4)'],
+    none: ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)'],
 };
 
 const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
@@ -209,13 +209,13 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                                         {hrvValues.map((val, i) => {
                                             const maxHrv = Math.max(...hrvValues.filter(v => v > 0), 1);
                                             const heightPct = val > 0 ? Math.max(val / maxHrv, 0.08) : 0.05;
-                                            const color = val > 0 ? diagnosisColor[diagnoses[i]] : 'rgba(255,255,255,0.06)';
+                                            const gradient = diagnosisGradient[val > 0 ? diagnoses[i] : 'none'];
                                             return (
                                                 <View key={i} style={styles.hrvBarItem}>
                                                     <Text style={styles.hrvBarValue}>{val > 0 ? val : ''}</Text>
                                                     <View style={styles.hrvBarTrack}>
                                                         <LinearGradient
-                                                            colors={[color, `${color.slice(0, -2)}0.4)`]}
+                                                            colors={gradient}
                                                             start={{ x: 0, y: 0 }}
                                                             end={{ x: 0, y: 1 }}
                                                             style={[styles.hrvBarFill, { flex: heightPct }]}
