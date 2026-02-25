@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.32.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.33.5) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.32.0 (Cardio Scan v2)**. Esta versión mejora la fiabilidad del escáner cardíaco, añade perfil de salud y refina el flujo pre/post meditación.
+Bienvenido a la guía oficial de **Paziify v2.33.5**. Esta versión presenta el rediseño de Perfil y Ajustes, con gestión de metas "Mi Propósito" y notificaciones inteligentes de racha.
 
 ---
 
@@ -186,5 +186,21 @@ Según tu estado, recibirás un mensaje personalizado:
 - **Marea Calma** (🟡 Agotamiento): "Tu energía está baja para volver con fuerza"
 
 ---
-*Última revisión: 24 de Febrero de 2026 - Versión 2.32.0 (Cardio Scan v2)*
+## 15. Tu Propósito y Ajustes (v2.33.5) 🎯
+
+### Mi Propósito
+- Configura tus metas de meditación diarias y semanales desde **Ajustes**.
+- Usa los controles `+` y `-` para ajustar tus objetivos de bienestar.
+
+### Notificaciones Inteligentes
+- **Rutinas**: Recordatorios de mañana y noche sincronizados con tu ritmo circadiano.
+- **Protección de Racha**: Alertas automáticas a las 21:30 si aún no has meditado.
+- **Zona de Calma**: Silencio absoluto de notificaciones durante tus horas de sueño.
+
+### Perfil de Salud Pro
+- Gestión de edad, género, altura y peso con guardado automático.
+- Los datos alimentan la precisión del **Cardio Scan**.
+
+---
+*Última revisión: 25 de Febrero de 2026 - Versión 2.33.5 (Oasis Settings & Profile)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.32.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.33.5) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.32.0** introduce el **Cardio Scan v2** con calibración premium, arquetipos positivos y continuidad visual en el flujo de meditación.
+Esta guía define el ADN visual de Paziify. La versión **v2.33.5** introduce el rediseño integral de Perfil y Ajustes bajo la estética **Oasis Design**, con unificación de reportes y gestión proactiva de salud.
 
 ---
 
@@ -152,4 +152,19 @@ Todas las pantallas del flujo de meditación usan la `thumbnailUrl` de la sesió
 
 ---
 
-*Última revisión: 24 de Febrero de 2026 - Versión 2.32.0 (Cardio Scan v2)*
+## 17. Oasis Settings & Profile Redesign (v2.33.5) 🌿
+Rediseño integral para maximizar la claridad y reducir la fricción.
+
+### Perfil (ProfileScreen)
+- **Fusión de Reportes**: Unificación de botones en "Ver Reporte Semanal".
+- **Composición**: Bento grid con `BlurView` y `Ionicons sparkles` para el acceso al reporte.
+- **Header ergonómico**: Logout (izq) y Ajustes (der).
+
+### Ajustes (SettingsScreen)
+- **Glassmorphism Groups**: Secciones agrupadas en contenedores con `backgroundColor: 'rgba(255, 255, 255, 0.03)'` y `borderWidth: 1`.
+- **Health Auto-Sync**: Eliminación de botones de guardado; sincronización inmediata con feedback visual en inputs.
+- **Controles +/-**: Para metas diarias/semanales con `goalButton` de 32x32px.
+
+---
+
+*Última revisión: 25 de Febrero de 2026 - Versión 2.33.5 (Oasis Settings & Profile)*

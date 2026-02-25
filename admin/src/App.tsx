@@ -35,6 +35,8 @@ import { SoundscapeEdit } from "./pages/soundscapes/edit";
 import { RealStoriesList } from "./pages/real-stories/list";
 import { RealStoriesCreate } from "./pages/real-stories/create";
 import { RealStoriesEdit } from "./pages/real-stories/edit";
+import { NotificationTemplateList } from "./pages/notifications/list";
+import { NotificationTemplateEdit } from "./pages/notifications/edit";
 
 import "@refinedev/antd/dist/reset.css";
 
@@ -101,6 +103,12 @@ function App() {
                     create: "/soundscapes/create",
                     edit: "/soundscapes/edit/:id",
                     meta: { label: "Música Fondo" }
+                  },
+                  {
+                    name: "notification_templates",
+                    list: "/notifications",
+                    edit: "/notifications/edit/:id",
+                    meta: { label: "Notifications" }
                   }
                 ]}
               >
@@ -160,6 +168,10 @@ function App() {
                       <Route index element={<RealStoriesList />} />
                       <Route path="create" element={<RealStoriesCreate />} />
                       <Route path="edit/:id" element={<RealStoriesEdit />} />
+                    </Route>
+                    <Route path="/notifications">
+                      <Route index element={<NotificationTemplateList />} />
+                      <Route path="edit/:id" element={<NotificationTemplateEdit />} />
                     </Route>
                     <Route path="*" element={<AuthPage type="login" />} />
                   </Route>

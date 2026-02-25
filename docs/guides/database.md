@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.31.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.33.5) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify alojada en **Supabase (PostgreSQL)**. La versión **v2.31.0** consolida la unificación de buckets de storage, el sistema de carpetas dinámicas, y documenta la persistencia local del Sistema de Evolución.
+Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.33.5** añade el sistema de plantillas de notificaciones dinámicas y la persistencia de metas de usuario.
 
 ---
 
@@ -108,9 +108,20 @@ El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **e
 
 - **`activeChallenge`**: Objeto `ActiveChallenge` con id, slug, type, title, startDate, daysCompleted, totalDays, currentSessionSlug.
 - **`hasAcceptedMonthlyChallenge`**: Flag booleano.
+- **`dailyGoalMinutes` / `weeklyGoalMinutes`**: Enteros para gestión de metas.
 - **Persistencia**: Se guarda como parte del `UserState` bajo la clave `@paziify_user_state`.
-- **Sin Cloud**: Decisión deliberada para mantener la privacidad del progreso personal.
 
 ---
-*Última revisión: 24 de Febrero de 2026 - Versión 2.31.0 (Evolution Focus)*
+## 9. Sistema de Notificaciones (Supabase) 🔔
+
+### `notification_templates`
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `type` | TEXT | Identificador técnico (morning, night, streak_3, etc.) |
+| `title` | TEXT | Título con soporte de variables `{name}` |
+| `body` | TEXT | Cuerpo del mensaje con variables `{streak}` |
+| `is_active`| BOOL | Control de publicación instantánea |
+
+---
+*Última revisión: 25 de Febrero de 2026 - Versión 2.33.5 (Oasis Settings & Profile)*
 

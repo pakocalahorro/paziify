@@ -17,6 +17,7 @@ import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { analyticsService, UserStats, DailyActivity } from '../../services/analyticsService';
+import { CardioService, CardioResult } from '../../services/CardioService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import WidgetTutorialModal from '../../components/Challenges/WidgetTutorialModal';
@@ -39,6 +40,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const [dailyActivity, setDailyActivity] = useState<DailyActivity[]>([]);
     const [loading, setLoading] = useState(true);
     const [dominantMode, setDominantMode] = useState<'healing' | 'growth' | 'neutral'>('neutral');
+    const [todayBaseline, setTodayBaseline] = useState<CardioResult | null>(null);
 
     const visualMode = userState.lifeMode || (isNightMode ? 'healing' : 'growth');
     const [showWidgetTutorial, setShowWidgetTutorial] = useState(false);
@@ -54,9 +56,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 const fetchedStats = await analyticsService.getUserStats(user.id);
                 const distribution = await analyticsService.getCategoryDistribution(user.id);
                 const activity = await analyticsService.getWeeklyActivity(user.id);
+                const baseline = await CardioService.getTodayBaseline();
 
                 setStats(fetchedStats);
                 setDailyActivity(activity);
+                setTodayBaseline(baseline);
 
                 // Determine dominant mode for Aura
                 const healingCount = distribution
@@ -95,10 +99,27 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     {/* Header */}
                     <View style={styles.header}>
-                        <View style={styles.headerSpacer} />
+                        {!isGuest && (
+                            <TouchableOpacity
+                                style={styles.headerIconButton}
+                                onPress={() => {
+                                    Alert.alert(
+                                        "Cerrar Sesión",
+                                        "¿Estás seguro de que quieres salir?",
+                                        [
+                                            { text: "Cancelar", style: "cancel" },
+                                            { text: "Salir", style: "destructive", onPress: signOut }
+                                        ]
+                                    );
+                                }}
+                            >
+                                <Ionicons name="log-out-outline" size={22} color={theme.colors.textMuted} />
+                            </TouchableOpacity>
+                        )}
+                        {isGuest && <View style={styles.headerSpacer} />}
                         <Text style={styles.headerTitle}>Tu Evolución</Text>
                         <TouchableOpacity
-                            style={styles.settingsButton}
+                            style={styles.headerIconButton}
                             onPress={() => navigation.navigate(Screen.NOTIFICATION_SETTINGS)}
                         >
                             <Ionicons name="settings-outline" size={22} color={theme.colors.textMain} />
@@ -159,14 +180,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                             </TouchableOpacity>
                         )}
 
-                        <TouchableOpacity
-                            style={[styles.guestCTA, { marginTop: userState.activeChallenge ? 8 : 16, backgroundColor: 'rgba(100, 108, 255, 0.1)', borderColor: 'rgba(100, 108, 255, 0.2)' }]}
-                            onPress={() => setShowWidgetTutorial(true)}
-                        >
-                            <Ionicons name="apps-outline" size={14} color={theme.colors.primary} />
-                            <Text style={[styles.guestCTAText, { color: theme.colors.primary }]}>Instalar Zen Widget</Text>
-                        </TouchableOpacity>
-
                         {isGuest && !userState.activeChallenge && (
                             <TouchableOpacity
                                 style={styles.guestCTA}
@@ -178,58 +191,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         )}
                     </BlurView>
 
-                    {/* SECCIÓN DE PROPÓSITO */}
-                    <View style={styles.sectionHeader}>
-                        <View style={styles.titleWithInfo}>
-                            <Text style={styles.sectionTitle}>Tu Propósito</Text>
-                            <TouchableOpacity onPress={() => Alert.alert("Tu Propósito", "Ajusta tus metas diarias y semanales para que se adapten a tu ritmo de vida actual.")}>
-                                <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
-                            </TouchableOpacity>
-                        </View>
-                        <Ionicons name="compass-outline" size={18} color={theme.colors.primary} />
-                    </View>
 
-                    <BlurView intensity={20} tint="dark" style={styles.goalPanel}>
-                        <View style={styles.goalRow}>
-                            <View>
-                                <Text style={styles.goalLabel}>META DIARIA</Text>
-                                <View style={styles.goalValueContainer}>
-                                    <TouchableOpacity
-                                        onPress={() => updateUserState({ dailyGoalMinutes: Math.max((userState.dailyGoalMinutes || 20) - 5, 5) })}
-                                        style={styles.goalButton}
-                                    >
-                                        <Ionicons name="remove" size={20} color="#FFF" />
-                                    </TouchableOpacity>
-                                    <Text style={styles.goalValue}>{userState.dailyGoalMinutes || 20}m</Text>
-                                    <TouchableOpacity
-                                        onPress={() => updateUserState({ dailyGoalMinutes: (userState.dailyGoalMinutes || 20) + 5 })}
-                                        style={styles.goalButton}
-                                    >
-                                        <Ionicons name="add" size={20} color="#FFF" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            <View style={styles.goalDivider} />
-                            <View>
-                                <Text style={styles.goalLabel}>META SEMANAL</Text>
-                                <View style={styles.goalValueContainer}>
-                                    <TouchableOpacity
-                                        onPress={() => updateUserState({ weeklyGoalMinutes: Math.max((userState.weeklyGoalMinutes || 150) - 10, 30) })}
-                                        style={styles.goalButton}
-                                    >
-                                        <Ionicons name="remove" size={20} color="#FFF" />
-                                    </TouchableOpacity>
-                                    <Text style={styles.goalValue}>{userState.weeklyGoalMinutes || 150}m</Text>
-                                    <TouchableOpacity
-                                        onPress={() => updateUserState({ weeklyGoalMinutes: (userState.weeklyGoalMinutes || 150) + 10 })}
-                                        style={styles.goalButton}
-                                    >
-                                        <Ionicons name="add" size={20} color="#FFF" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-                    </BlurView>
 
                     {/* Estadísticas de Camino de Paz */}
                     <View style={styles.sectionHeader}>
@@ -253,6 +215,29 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                 <Text style={styles.bentoValue}>{displayStats.currentStreak}</Text>
                                 <Text style={styles.bentoSubtitle}>Días en Calma</Text>
                             </BlurView>
+                        </View>
+
+                        <View style={styles.bentoRow}>
+                            <TouchableOpacity
+                                style={{ flex: 1 }}
+                                onPress={() => navigation.navigate(Screen.WEEKLY_REPORT)}
+                            >
+                                <BlurView intensity={25} tint="light" style={[styles.bentoWide, styles.weeklyReportButton]}>
+                                    <View style={styles.reportRow}>
+                                        <View style={styles.reportInfo}>
+                                            <View style={styles.reportTitleRow}>
+                                                <Ionicons name="sparkles" size={18} color={theme.colors.primary} />
+                                                <Text style={styles.reportLabel}>Sinfonía de Bienestar</Text>
+                                            </View>
+                                            <Text style={styles.reportTitle}>Tu Reporte Semanal</Text>
+                                            <Text style={styles.reportSubtitle}>Bio-Ritmo • Tendencias • Insights</Text>
+                                        </View>
+                                        <View style={styles.reportArrow}>
+                                            <Ionicons name="arrow-forward-circle" size={42} color={theme.colors.primary} />
+                                        </View>
+                                    </View>
+                                </BlurView>
+                            </TouchableOpacity>
                         </View>
 
                         <BlurView intensity={10} tint="dark" style={styles.bentoWide}>
@@ -337,25 +322,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
                     {/* Actions */}
                     <View style={styles.actionsContainer}>
-                        {!isGuest && (
-                            <TouchableOpacity
-                                style={styles.logoutButton}
-                                onPress={() => {
-                                    Alert.alert(
-                                        "Cerrar Sesión",
-                                        "¿Estás seguro de que quieres salir?",
-                                        [
-                                            { text: "Cancelar", style: "cancel" },
-                                            { text: "Salir", style: "destructive", onPress: signOut }
-                                        ]
-                                    );
-                                }}
-                            >
-                                <Ionicons name="log-out-outline" size={20} color={theme.colors.textMuted} />
-                                <Text style={styles.logoutText}>Cerrar Sesión</Text>
-                            </TouchableOpacity>
-                        )}
-                        <Text style={styles.versionText}>Paziify v2.5.0 • Oasis Design</Text>
+                        <Text style={styles.versionText}>Paziify v2.33.5 • Oasis Design</Text>
                     </View>
                 </ScrollView>
             </View>
@@ -389,12 +356,12 @@ const styles = StyleSheet.create({
         width: 44,
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: '800',
         color: theme.colors.textMain,
         letterSpacing: 0.5,
     },
-    settingsButton: {
+    headerIconButton: {
         width: 44,
         height: 44,
         justifyContent: 'center',
@@ -531,6 +498,52 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.1)',
         overflow: 'hidden',
+    },
+    bentoStatusDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        marginTop: 4,
+    },
+    weeklyReportButton: {
+        padding: 0,
+        backgroundColor: 'rgba(74, 103, 65, 0.15)',
+        borderColor: 'rgba(74, 103, 65, 0.3)',
+    },
+    reportRow: {
+        flexDirection: 'row',
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    reportInfo: {
+        flex: 1,
+    },
+    reportTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 4,
+    },
+    reportLabel: {
+        fontSize: 10,
+        fontWeight: '900',
+        color: theme.colors.primary,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    reportTitle: {
+        fontSize: 22,
+        fontWeight: '900',
+        color: theme.colors.textMain,
+    },
+    reportSubtitle: {
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.4)',
+        marginTop: 2,
+    },
+    reportArrow: {
+        marginLeft: 10,
     },
     bentoWide: {
         borderRadius: theme.borderRadius.xl,

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, UserState, Session } from '../types';
 import { supabase } from '../services/supabaseClient';
-import { scheduleDailyMeditationReminder } from '../utils/notifications';
+import { NotificationService } from '../services/NotificationService';
 import { User } from '@supabase/supabase-js';
 
 interface AppContextType {
@@ -104,6 +104,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         };
 
         loadStoredState();
+        NotificationService.initialize();
     }, []);
 
     // Check Supabase session
@@ -142,6 +143,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
                 if (!error && data) {
                     setUserState(prev => ({
+                        // ... prev mappings ...
                         ...prev,
                         name: data.full_name || prev.name,
                         avatarUrl: data.avatar_url,
@@ -160,6 +162,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         activeChallenge: data.active_challenge || prev.activeChallenge,
                         settings: data.notification_settings || prev.settings,
                     }));
+
+                    // Register for push notifications
+                    NotificationService.registerForPushNotificationsAsync(user.id);
                 }
             }
         };
@@ -214,29 +219,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         isLoading
     ]);
 
-    // Handle Challenge Reminders scheduling
+    // Handle Intelligent Notifications scheduling
     useEffect(() => {
-        if (!isLoading && userState.settings?.notificationMorning) {
+        if (!isLoading) {
             const scheduleReminders = async () => {
                 try {
-                    // Extract hour/minute from user settings
-                    // Assuming settings.morningTime is "08:00" format or similar
-                    // For now, using default 8:00 or current setting if available
-                    const [hour, minute] = [8, 0]; // Default or from settings if available
-
-                    await scheduleDailyMeditationReminder(
-                        hour,
-                        minute,
-                        userState.activeChallenge?.title,
-                        (userState.activeChallenge?.daysCompleted || 0) + 1
-                    );
+                    await NotificationService.rescheduleAll(userState.name, userState.streak);
                 } catch (error) {
-                    console.error('Error scheduling challenge reminders:', error);
+                    console.error('Error scheduling intelligent notifications:', error);
                 }
             };
             scheduleReminders();
         }
-    }, [userState.activeChallenge?.id, userState.activeChallenge?.daysCompleted, userState.settings?.notificationMorning]);
+    }, [userState.activeChallenge?.id, userState.streak, userState.name, isLoading]);
 
     // Determine night mode based on real time
     useEffect(() => {

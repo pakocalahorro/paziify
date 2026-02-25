@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
+import { NotificationService, NotificationSettings as SettingsType } from '../../services/NotificationService';
 
 type NotificationSettingsScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -27,18 +28,35 @@ interface Props {
 }
 
 const NotificationSettings: React.FC<Props> = ({ navigation }) => {
-    const { userState, updateUserState } = useApp();
+    const { userState, updateUserState, signOut, isGuest } = useApp();
     const settings = userState.settings;
 
-    // Health Profile State
+    // Local state for smooth UI before syncing
     const [birthDate, setBirthDate] = useState(userState.birthDate || '');
     const [gender, setGender] = useState<'male' | 'female' | 'other'>(userState.gender || 'other');
     const [heightCm, setHeightCm] = useState(userState.heightCm?.toString() || '');
     const [weightKg, setWeightKg] = useState(userState.weightKg?.toString() || '');
-    const [profileSaved, setProfileSaved] = useState(false);
+    const [notifSettings, setNotifSettings] = useState<SettingsType | null>(null);
 
-    const handleSaveProfile = () => {
-        // Validate date format (YYYY-MM-DD or DD/MM/YYYY)
+    useEffect(() => {
+        const loadNotifSettings = async () => {
+            const s = await NotificationService.getSettings();
+            setNotifSettings(s);
+        };
+        loadNotifSettings();
+    }, []);
+
+    const updateNotifSetting = async (key: keyof SettingsType, value: any) => {
+        if (!notifSettings) return;
+        const newSettings = { ...notifSettings, [key]: value };
+        setNotifSettings(newSettings);
+        await NotificationService.saveSettings(newSettings);
+
+        if (key === 'morningRoutine') updateUserState({ settings: { ...userState.settings, notificationMorning: value } });
+        if (key === 'nightRoutine') updateUserState({ settings: { ...userState.settings, notificationNight: value } });
+    };
+
+    const syncHealthData = () => {
         let isoDate = birthDate;
         if (birthDate.includes('/')) {
             const parts = birthDate.split('/');
@@ -46,7 +64,6 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 isoDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
             }
         }
-
         const h = parseInt(heightCm);
         const w = parseInt(weightKg);
 
@@ -56,10 +73,13 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
             heightCm: isNaN(h) ? undefined : h,
             weightKg: isNaN(w) ? undefined : w,
         });
-
-        setProfileSaved(true);
-        setTimeout(() => setProfileSaved(false), 2000);
     };
+
+    // Auto-sync when health inputs change (debounced feeling)
+    useEffect(() => {
+        const timer = setTimeout(syncHealthData, 1000);
+        return () => clearTimeout(timer);
+    }, [birthDate, gender, heightCm, weightKg]);
 
     const calculateAge = (): number | null => {
         if (!birthDate) return null;
@@ -75,29 +95,9 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
 
     const age = calculateAge();
 
-    if (!settings) {
-        return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="chevron-back" size={28} color={theme.colors.textMain} />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Ajustes</Text>
-                    <View style={{ width: 28 }} />
-                </View>
-                <View style={[styles.scrollContent, { justifyContent: 'center', alignItems: 'center' }]}>
-                    <Text style={{ color: theme.colors.textMuted }}>Cargando ajustes...</Text>
-                </View>
-            </SafeAreaView>
-        );
-    }
-
     const handleToggle = (key: keyof typeof settings) => {
         updateUserState({
-            settings: {
-                ...settings,
-                [key]: !settings[key]
-            }
+            settings: { ...settings, [key]: !settings[key] }
         });
     };
 
@@ -108,28 +108,73 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={28} color={theme.colors.textMain} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Ajustes</Text>
+                <Text style={styles.headerTitle}>Ajustes de Perfil</Text>
                 <View style={{ width: 28 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                {/* ====================== */}
-                {/* HEALTH PROFILE SECTION */}
-                {/* ====================== */}
-                <View style={styles.infoCard}>
-                    <View style={styles.infoTitleRow}>
-                        <Ionicons name="heart-circle" size={18} color="#FF4B4B" />
-                        <Text style={[styles.infoLabel, { color: '#FF4B4B' }]}>MI PERFIL DE SALUD</Text>
+                {/* 1. SECCIÓN DE PROPÓSITO (Metas) */}
+                <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionLabel}>MI PROPÓSITO</Text>
+                    <Ionicons name="compass" size={16} color={theme.colors.primary} />
+                </View>
+
+                <View style={styles.settingsGroup}>
+                    <View style={styles.goalRow}>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingTitle}>Meta Diaria</Text>
+                            <Text style={styles.settingSubtitle}>Compromiso del día</Text>
+                        </View>
+                        <View style={styles.goalValueContainer}>
+                            <TouchableOpacity
+                                onPress={() => updateUserState({ dailyGoalMinutes: Math.max((userState.dailyGoalMinutes || 20) - 5, 5) })}
+                                style={styles.goalButton}
+                            >
+                                <Ionicons name="remove" size={18} color="#FFF" />
+                            </TouchableOpacity>
+                            <Text style={styles.goalValue}>{userState.dailyGoalMinutes || 20}m</Text>
+                            <TouchableOpacity
+                                onPress={() => updateUserState({ dailyGoalMinutes: (userState.dailyGoalMinutes || 20) + 5 })}
+                                style={styles.goalButton}
+                            >
+                                <Ionicons name="add" size={18} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                    <Text style={styles.infoContent}>
-                        Estos datos mejoran la precisión del
-                        <Text style={[styles.infoHighlight, { color: '#FF4B4B' }]}> Escáner Cardio</Text>
-                        . Se guardan solo en tu dispositivo.
-                    </Text>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.goalRow}>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingTitle}>Meta Semanal</Text>
+                            <Text style={styles.settingSubtitle}>Progreso acumulado</Text>
+                        </View>
+                        <View style={styles.goalValueContainer}>
+                            <TouchableOpacity
+                                onPress={() => updateUserState({ weeklyGoalMinutes: Math.max((userState.weeklyGoalMinutes || 150) - 10, 30) })}
+                                style={styles.goalButton}
+                            >
+                                <Ionicons name="remove" size={18} color="#FFF" />
+                            </TouchableOpacity>
+                            <Text style={styles.goalValue}>{userState.weeklyGoalMinutes || 150}m</Text>
+                            <TouchableOpacity
+                                onPress={() => updateUserState({ weeklyGoalMinutes: (userState.weeklyGoalMinutes || 150) + 10 })}
+                                style={styles.goalButton}
+                            >
+                                <Ionicons name="add" size={18} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+
+                {/* 2. SECCIÓN DE SALUD */}
+                <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionLabel}>MI PERFIL DE SALUD</Text>
+                    <Ionicons name="heart" size={16} color="#FF4B4B" />
                 </View>
 
                 <View style={styles.settingsGroup}>
@@ -192,59 +237,30 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                             <Ionicons name="resize" size={20} color="#FF4B4B" />
                         </View>
                         <View style={styles.settingInfo}>
-                            <Text style={styles.settingTitle}>Altura</Text>
+                            <Text style={styles.settingTitle}>Altura y Peso</Text>
                         </View>
-                        <TextInput
-                            style={styles.healthInput}
-                            value={heightCm}
-                            onChangeText={setHeightCm}
-                            placeholder="cm"
-                            placeholderTextColor="rgba(255,255,255,0.2)"
-                            keyboardType="numeric"
-                            maxLength={3}
-                        />
-                        <Text style={styles.healthUnit}>cm</Text>
-                    </View>
-
-                    <View style={styles.divider} />
-
-                    <View style={styles.settingRow}>
-                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
-                            <Ionicons name="barbell" size={20} color="#FF4B4B" />
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <TextInput
+                                style={[styles.healthInput, { minWidth: 60 }]}
+                                value={heightCm}
+                                onChangeText={setHeightCm}
+                                placeholder="cm"
+                                placeholderTextColor="rgba(255,255,255,0.2)"
+                                keyboardType="numeric"
+                                maxLength={3}
+                            />
+                            <TextInput
+                                style={[styles.healthInput, { minWidth: 60 }]}
+                                value={weightKg}
+                                onChangeText={setWeightKg}
+                                placeholder="kg"
+                                placeholderTextColor="rgba(255,255,255,0.2)"
+                                keyboardType="numeric"
+                                maxLength={3}
+                            />
                         </View>
-                        <View style={styles.settingInfo}>
-                            <Text style={styles.settingTitle}>Peso</Text>
-                        </View>
-                        <TextInput
-                            style={styles.healthInput}
-                            value={weightKg}
-                            onChangeText={setWeightKg}
-                            placeholder="kg"
-                            placeholderTextColor="rgba(255,255,255,0.2)"
-                            keyboardType="numeric"
-                            maxLength={3}
-                        />
-                        <Text style={styles.healthUnit}>kg</Text>
                     </View>
                 </View>
-
-                {/* Save Profile Button */}
-                <TouchableOpacity
-                    style={[styles.saveProfileButton, profileSaved && styles.saveProfileButtonSaved]}
-                    onPress={handleSaveProfile}
-                >
-                    <Ionicons
-                        name={profileSaved ? 'checkmark-circle' : 'save'}
-                        size={18}
-                        color={profileSaved ? '#10B981' : '#FF4B4B'}
-                    />
-                    <Text style={[
-                        styles.saveProfileText,
-                        { color: profileSaved ? '#10B981' : '#FF4B4B' }
-                    ]}>
-                        {profileSaved ? 'Guardado ✓' : 'Guardar Perfil'}
-                    </Text>
-                </TouchableOpacity>
 
                 {/* ====================== */}
                 {/* NOTIFICATIONS SECTION  */}
@@ -297,9 +313,48 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                             trackColor={{ false: '#323232', true: theme.colors.primary }}
                             thumbColor="#FFFFFF"
                             ios_backgroundColor="#323232"
-                            onValueChange={() => handleToggle('notificationNight')}
-                            value={settings.notificationNight}
+                            onValueChange={() => updateNotifSetting('nightRoutine', !notifSettings?.nightRoutine)}
+                            value={notifSettings?.nightRoutine ?? settings.notificationNight}
                         />
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.timeSelectionRow}>
+                        <View style={styles.timeBox}>
+                            <Text style={styles.timeLabel}>MAÑANA</Text>
+                            <TouchableOpacity
+                                style={styles.timeDisplay}
+                                onPress={() => {
+                                    Alert.alert("Hora de Mañana", "Selecciona tu hora preferida", [
+                                        { text: "07:00", onPress: () => updateNotifSetting('morningTime', "07:00") },
+                                        { text: "08:00", onPress: () => updateNotifSetting('morningTime', "08:00") },
+                                        { text: "09:00", onPress: () => updateNotifSetting('morningTime', "09:00") },
+                                        { text: "Cancelar", style: "cancel" }
+                                    ]);
+                                }}
+                            >
+                                <Text style={styles.timeText}>{notifSettings?.morningTime || "08:00"}</Text>
+                                <Ionicons name="time-outline" size={14} color={theme.colors.primary} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.timeBox}>
+                            <Text style={styles.timeLabel}>NOCHE</Text>
+                            <TouchableOpacity
+                                style={styles.timeDisplay}
+                                onPress={() => {
+                                    Alert.alert("Hora de Noche", "Selecciona tu hora preferida", [
+                                        { text: "21:30", onPress: () => updateNotifSetting('nightTime', "21:30") },
+                                        { text: "22:00", onPress: () => updateNotifSetting('nightTime', "22:00") },
+                                        { text: "22:30", onPress: () => updateNotifSetting('nightTime', "22:30") },
+                                        { text: "Cancelar", style: "cancel" }
+                                    ]);
+                                }}
+                            >
+                                <Text style={styles.timeText}>{notifSettings?.nightTime || "21:30"}</Text>
+                                <Ionicons name="time-outline" size={14} color={theme.colors.primary} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
 
@@ -318,8 +373,27 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                             trackColor={{ false: '#323232', true: theme.colors.primary }}
                             thumbColor="#FFFFFF"
                             ios_backgroundColor="#323232"
-                            onValueChange={() => handleToggle('notificationStreak')}
-                            value={settings.notificationStreak}
+                            onValueChange={() => updateNotifSetting('streakReminder', !notifSettings?.streakReminder)}
+                            value={notifSettings?.streakReminder ?? settings.notificationStreak}
+                        />
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.settingRow}>
+                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
+                            <Ionicons name="warning-outline" size={20} color="#F59E0B" />
+                        </View>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingTitle}>Alerta Racha en Peligro</Text>
+                            <Text style={styles.settingSubtitle}>Aviso a las 21:30 si no has meditado</Text>
+                        </View>
+                        <Switch
+                            trackColor={{ false: '#323232', true: theme.colors.primary }}
+                            thumbColor="#FFFFFF"
+                            ios_backgroundColor="#323232"
+                            onValueChange={() => updateNotifSetting('streakDangerToggle', !notifSettings?.streakDangerToggle)}
+                            value={notifSettings?.streakDangerToggle ?? true}
                         />
                     </View>
                 </View>
@@ -366,10 +440,28 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     </Text>
                 </View>
 
+                {/* 5. SECCIÓN DE CUENTA */}
+                <Text style={styles.sectionLabel}>SISTEMA Y CUENTA</Text>
+                <View style={styles.settingsGroup}>
+                    <TouchableOpacity
+                        style={styles.settingRow}
+                        onPress={() => signOut()}
+                    >
+                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
+                            <Ionicons name="log-out" size={20} color={theme.colors.textMuted} />
+                        </View>
+                        <View style={styles.settingInfo}>
+                            <Text style={[styles.settingTitle, { color: theme.colors.textMuted }]}>Cerrar Sesión</Text>
+                            <Text style={styles.settingSubtitle}>Salir de la cuenta actual</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.2)" />
+                    </TouchableOpacity>
+                </View>
+
                 {/* Footer Brand */}
                 <View style={styles.brandFooter}>
                     <Ionicons name="leaf" size={24} color={theme.colors.primary} />
-                    <Text style={styles.brandText}>PAZIIFY WELLNESS OS V2.4</Text>
+                    <Text style={styles.brandText}>PAZIIFY WELLNESS OS V2.33.5</Text>
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -444,8 +536,60 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
+    timeSelectionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    timeBox: {
+        alignItems: 'center',
+        gap: 8,
+    },
+    timeDisplay: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        gap: 6,
+    },
+    timeText: {
+        color: theme.colors.textMain,
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    goalRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+    },
+    goalValueContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: 4,
+        borderRadius: 14,
+    },
+    goalValue: {
+        fontSize: 16,
+        fontWeight: '900',
+        color: '#FFF',
+        minWidth: 40,
+        textAlign: 'center',
+    },
+    goalButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     settingsGroup: {
-        backgroundColor: theme.colors.surface,
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
         borderRadius: 24,
         padding: 16,
         marginBottom: 32,

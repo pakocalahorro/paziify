@@ -18,8 +18,8 @@
 
 **Paziify** es una aplicación móvil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versión**: 2.31.0 (Evolution Focus)  
-**Última actualización**: 24 de Febrero de 2026
+**Versión**: 2.33.5 (Oasis Settings & Profile)  
+**Última actualización**: 25 de Febrero de 2026
 
 ---
 
@@ -349,15 +349,13 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Modo invitado
 
 #### `src/screens/Onboarding/NotificationSettings.tsx`
-**Función**: Ajustes (Notificaciones + Perfil de Salud)
+**Función**: Ajustes de Perfil (Propósito, Salud, Notificaciones, Sistema)
 **Contenido**:
-- **Mi Perfil de Salud**: Fecha de nacimiento (DatePicker), género (3 opciones), altura/peso
-- Nota de privacidad: "Datos guardados solo en tu dispositivo"
-- Permiso de notificaciones push
-- Configurar recordatorios diarios
-- Horario de meditación
-- Recordatorios de racha
-- Notificaciones de contenido nuevo
+- **Mi Propósito**: Gestión de metas diarias y semanales con controles +/-.
+- **Mi Perfil de Salud**: Auto-sync de edad, género, altura y peso.
+- **Notificaciones Inteligentes**: Rutina mañana/noche, protección de racha y zona de calma.
+- **Cuenta**: Acceso a cierre de sesión unificado.
+- **Estética**: Oasis Design (Glassmorphism, micro-bordes, tipografía premium).
 
 #### `src/screens/Onboarding/RegisterScreen.tsx`
 **Función**: Registro de nuevos usuarios
@@ -397,16 +395,13 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 ### 9. Profile - Perfil de Usuario
 
 #### `src/screens/Profile/ProfileScreen.tsx`
-**Función**: Perfil del usuario
+**Función**: Dashboard de Progreso y Evolución
 **Contenido**:
-- Avatar y nombre de usuario
-- Estadísticas personales (sesiones, tiempo, racha)
-- Configuración de cuenta
-- Preferencias
-- Suscripción actual
-- Centro de ayuda
-- Cerrar sesión
-- Eliminar cuenta
+- **Header**: Logout (izq), Ajustes (der).
+- **Tu Camino de Paz**: Acceso unificado "Ver Reporte Semanal" con diseño Bento.
+- **Árbol de Resiliencia**: Visualización de crecimiento de retos activos.
+- **Ritmo de Calma**: Gráfico de barras de actividad semanal.
+- **Esencias**: Colección de badges obtenidos.
 
 #### `src/screens/Profile/WeeklyReportScreen.tsx`
 **Función**: Reporte semanal de bienestar
