@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.33.5) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.33.8) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.33.5** introduce el rediseño integral de Perfil y Ajustes bajo la estética **Oasis Design**, con unificación de reportes y gestión proactiva de salud.
+Esta guía define el ADN visual de Paziify. La versión **v2.33.8** introduce el rediseño integral de Perfil y Ajustes bajo la estética **Oasis Design**, con unificación de reportes y sistema de gráficas coordinado.
 
 ---
 
@@ -163,8 +163,12 @@ Rediseño integral para maximizar la claridad y reducir la fricción.
 ### Ajustes (SettingsScreen)
 - **Glassmorphism Groups**: Secciones agrupadas en contenedores con `backgroundColor: 'rgba(255, 255, 255, 0.03)'` y `borderWidth: 1`.
 - **Health Auto-Sync**: Eliminación de botones de guardado; sincronización inmediata con feedback visual en inputs.
+### Gráficas y Datos (Oasis Analytics)
+- **Barra de Actividad/Bio-Ritmo**: Se ha unificado el diseño de barras crecientes con `LinearGradient`.
+- **Temática**: No se usan gráficos externos; se prefiere la visualización nativa con estados de "Meta" (Verde) y "Progreso" (Dorado).
+
 - **Controles +/-**: Para metas diarias/semanales con `goalButton` de 32x32px.
 
 ---
 
-*Última revisión: 25 de Febrero de 2026 - Versión 2.33.5 (Oasis Settings & Profile)*
+*Última revisión: 25 de Febrero de 2026 - Versión 2.33.8 (Chart Unification)*

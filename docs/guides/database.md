@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.33.5) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.33.8) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.33.5** añade el sistema de plantillas de notificaciones dinámicas y la persistencia de metas de usuario.
+Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.33.8** añade el sistema de plantillas de notificaciones dinámicas y consolida la persistencia local de salud.
 
 ---
 
@@ -123,5 +123,4 @@ El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **e
 | `is_active`| BOOL | Control de publicación instantánea |
 
 ---
-*Última revisión: 25 de Febrero de 2026 - Versión 2.33.5 (Oasis Settings & Profile)*
-
+*Última revisión: 25 de Febrero de 2026 - Versión 2.33.8 (Oasis Settings & Profile)*

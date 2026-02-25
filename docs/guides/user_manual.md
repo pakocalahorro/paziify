@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.33.5) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.33.8) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.33.5**. Esta versión presenta el rediseño de Perfil y Ajustes, con gestión de metas "Mi Propósito" y notificaciones inteligentes de racha.
+Bienvenido a la guía oficial de **Paziify v2.33.8**. Esta versión presenta el rediseño de Perfil y Ajustes, con gestión de metas inteligente y un nuevo Reporte Semanal visualmente unificado.
 
 ---
 
@@ -202,5 +202,6 @@ Según tu estado, recibirás un mensaje personalizado:
 - Los datos alimentan la precisión del **Cardio Scan**.
 
 ---
-*Última revisión: 25 de Febrero de 2026 - Versión 2.33.5 (Oasis Settings & Profile)*
+
+*Última revisión: 25 de Febrero de 2026 - Versión 2.33.8 (Oasis Settings & Profile)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`
