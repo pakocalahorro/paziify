@@ -21,6 +21,7 @@ import { CardioService, CardioResult } from '../../services/CardioService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import WidgetTutorialModal from '../../components/Challenges/WidgetTutorialModal';
+import { adminHooks } from '../../utils/oasisExperiments';
 
 const { width } = Dimensions.get('window');
 
@@ -205,12 +206,12 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
                     <View style={styles.statsBento}>
                         <View style={styles.bentoRow}>
-                            <BlurView intensity={15} tint="light" style={styles.bentoSmall}>
+                            <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
                                 <Text style={styles.bentoLabel}>Presencia Total</Text>
                                 <Text style={styles.bentoValue}>{Math.round(displayStats.totalMinutes / 60)}h</Text>
                                 <Text style={styles.bentoSubtitle}>Tiempo dedicado</Text>
                             </BlurView>
-                            <BlurView intensity={15} tint="light" style={styles.bentoSmall}>
+                            <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
                                 <Text style={styles.bentoLabel}>Constancia</Text>
                                 <Text style={styles.bentoValue}>{displayStats.currentStreak}</Text>
                                 <Text style={styles.bentoSubtitle}>Días en Calma</Text>
@@ -222,7 +223,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                 style={{ flex: 1 }}
                                 onPress={() => navigation.navigate(Screen.WEEKLY_REPORT)}
                             >
-                                <BlurView intensity={25} tint="light" style={[styles.bentoWide, styles.weeklyReportButton]}>
+                                <BlurView intensity={45} tint="dark" style={[styles.bentoWide, styles.weeklyReportButton]}>
                                     <View style={styles.reportRow}>
                                         <View style={styles.reportInfo}>
                                             <View style={styles.reportTitleRow}>
@@ -240,7 +241,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
 
-                        <BlurView intensity={10} tint="dark" style={styles.bentoWide}>
+                        <BlurView intensity={35} tint="dark" style={styles.bentoWide}>
                             <View style={styles.bentoWideHeader}>
                                 <View style={styles.titleWithInfo}>
                                     <View>
@@ -320,9 +321,21 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         </View>
                     </ScrollView>
 
-                    {/* Actions */}
+                    {/* Actions & Admin */}
                     <View style={styles.actionsContainer}>
                         <Text style={styles.versionText}>Paziify v2.33.5 • Oasis Design</Text>
+
+                        {/* THE ADMIN GATE */}
+                        {adminHooks.useIsAdmin() && (
+                            <TouchableOpacity
+                                style={{ marginTop: 12, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }}
+                                onPress={() => navigation.navigate(Screen.OASIS_SHOWCASE)}
+                            >
+                                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800', fontFamily: 'Outfit_800ExtraBold', letterSpacing: 1 }}>
+                                    ✨ OASIS SHOWCASE (ADMIN)
+                                </Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </ScrollView>
             </View>
@@ -356,8 +369,8 @@ const styles = StyleSheet.create({
         width: 44,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '800',
+        fontSize: 32,
+        fontFamily: 'Satisfy_400Regular', // PDS v3.0 Title Typography
         color: theme.colors.textMain,
         letterSpacing: 0.5,
     },
@@ -430,11 +443,10 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     sectionTitle: {
-        fontSize: 16,
-        fontWeight: '900',
-        color: 'rgba(255,255,255,0.6)',
-        letterSpacing: 1.5,
-        textTransform: 'uppercase',
+        fontSize: 24,
+        fontFamily: 'Satisfy_400Regular', // Premium touch
+        color: theme.colors.textMain,
+        letterSpacing: 0.5,
     },
     goalPanel: {
         borderRadius: 20,
@@ -507,8 +519,8 @@ const styles = StyleSheet.create({
     },
     weeklyReportButton: {
         padding: 0,
-        backgroundColor: 'rgba(74, 103, 65, 0.15)',
-        borderColor: 'rgba(74, 103, 65, 0.3)',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     reportRow: {
         flexDirection: 'row',

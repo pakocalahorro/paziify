@@ -164,7 +164,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
 
                         {/* ② Actividad Semanal */}
                         <SectionHeader title="Actividad Semanal" icon="time-outline" />
-                        <BlurView intensity={20} tint="dark" style={styles.chartCard}>
+                        <BlurView intensity={35} tint="dark" style={styles.chartCard}>
                             {hasActivityData ? (
                                 <>
                                     <View style={styles.hrvBarsContainer}>
@@ -213,7 +213,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
 
                         {/* ③ Bio-Ritmo HRV */}
                         <SectionHeader title="Bio-Ritmo Semanal" icon="pulse-outline" accent="#10B981" />
-                        <BlurView intensity={20} tint="dark" style={styles.chartCard}>
+                        <BlurView intensity={35} tint="dark" style={styles.chartCard}>
                             {hasHrvData ? (
                                 <>
                                     {/* HRV custom bars coloreadas por diagnosis */}
@@ -253,7 +253,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                         </BlurView>
 
                         {/* ④ Stats rápidos */}
-                        <BlurView intensity={15} tint="dark" style={styles.statsRow}>
+                        <BlurView intensity={30} tint="dark" style={styles.statsRow}>
                             <StatLine label="Tiempo total histórico" value={`${Math.round((userState.totalMinutes || 0) / 60)}h ${(userState.totalMinutes || 0) % 60}m`} />
                             <View style={styles.statDivider} />
                             <StatLine label="Racha actual" value={`${userState.streak} días`} />
@@ -286,7 +286,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
 // --- Sub-components ---
 
 const KpiCard: React.FC<{ icon: string; value: string; label: string }> = ({ icon, value, label }) => (
-    <BlurView intensity={20} tint="dark" style={styles.kpiCard}>
+    <BlurView intensity={35} tint="dark" style={styles.kpiCard}>
         <Text style={styles.kpiIcon}>{icon}</Text>
         <Text style={styles.kpiValue}>{value}</Text>
         <Text style={styles.kpiLabel}>{label}</Text>
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between', marginBottom: 24,
     },
     backButton: { width: 36, height: 36, justifyContent: 'center' },
-    headerTitle: { fontSize: 18, fontWeight: '800', color: '#FFF', letterSpacing: 0.3 },
+    headerTitle: { fontSize: 32, fontFamily: 'Satisfy_400Regular', color: '#FFF', letterSpacing: 0.5 },
     loadingContainer: { alignItems: 'center', paddingTop: 80, gap: 16 },
     loadingText: { color: 'rgba(255,255,255,0.4)', fontSize: 14 },
 
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     // Charts
     chartCard: {
         borderRadius: 20, padding: 16, marginBottom: 24,
-        borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)',
+        borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
         overflow: 'hidden',
     },
     chart: { borderRadius: 12 },
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     // Stats row
     statsRow: {
         borderRadius: 20, padding: 16, marginBottom: 24,
-        borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)',
+        borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
         overflow: 'hidden', gap: 10,
     },
     statLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

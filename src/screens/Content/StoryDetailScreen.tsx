@@ -174,7 +174,11 @@ const StoryDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     return (
         <View style={styles.container}>
             {/* Background Parallax Image */}
-            <Animated.View style={[styles.headerContainer, { transform: [{ scale: headerScale }] }]}>
+            {/* @ts-ignore - Reanimated types issue */}
+            <Animated.View
+                {...({ sharedTransitionTag: `story.image.${storyId}` } as any)}
+                style={[styles.headerContainer, { transform: [{ scale: headerScale }] }]}
+            >
                 <ImageBackground
                     source={CATEGORY_ASSETS[story.category]}
                     style={styles.headerImage}

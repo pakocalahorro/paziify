@@ -330,14 +330,14 @@ const BackgroundPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
                     <Text style={styles.soundDesc}>{soundscape.description}</Text>
 
                     <TouchableOpacity
-                        style={styles.playBtn}
+                        style={styles.playPauseButtonContainer}
                         onPress={togglePlay}
                         activeOpacity={0.8}
                     >
-                        <BlurView intensity={30} tint="light" style={styles.playBlur}>
+                        <BlurView intensity={50} tint="light" style={styles.playPauseBlur}>
                             <Ionicons
                                 name={isPlaying ? "pause" : "play"}
-                                size={48}
+                                size={44}
                                 color="#FFF"
                                 style={{ marginLeft: isPlaying ? 0 : 4 }}
                             />
@@ -478,10 +478,10 @@ const styles = StyleSheet.create({
     soundTitle: {
         fontSize: 40,
         fontWeight: '800',
+        fontFamily: 'Satisfy_400Regular', // PDS v3.0 Title Typography
         color: '#FFF',
         marginBottom: 12,
         textAlign: 'center',
-        letterSpacing: -1,
     },
     soundDesc: {
         fontSize: 18,
@@ -491,22 +491,21 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 24,
     },
-    playBtn: {
-        borderRadius: 60,
-        overflow: 'hidden',
+    playPauseButtonContainer: {
         elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.5,
-        shadowRadius: 20,
+        shadowColor: '#FFF',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+        marginVertical: 20,
     },
-    playBlur: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+    playPauseBlur: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.15)',
+        backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1.5,
         borderColor: 'rgba(255,255,255,0.4)',
     },

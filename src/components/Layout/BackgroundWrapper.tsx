@@ -7,21 +7,22 @@ import SunriseBackground from '../Sanctuary/SunriseBackground';
 interface Props {
     children?: React.ReactNode;
     nebulaMode?: 'healing' | 'growth';
+    remoteImageUri?: string | null;
 }
 
-const BackgroundWrapper: React.FC<Props> = ({ children, nebulaMode = 'healing' }) => {
+const BackgroundWrapper: React.FC<Props> = ({ children, nebulaMode = 'healing', remoteImageUri }) => {
     const { isNightMode, userState } = useApp();
 
-    // If there is a custom background selected in Compass, it should override everything
-    // We use NebulaBackground as the base container for custom images because it supports blurring and overlays
-    const showCustomBackground = !!userState.lastSelectedBackgroundUri;
+    // Prioritize explicitly passed remote image (like category background), then user preference, then night mode background
+    const finalCustomBackground = remoteImageUri || userState.lastSelectedBackgroundUri;
+    const showCustomBackground = !!finalCustomBackground;
 
     return (
         <View style={StyleSheet.absoluteFill}>
             {showCustomBackground || isNightMode ? (
                 <NebulaBackground
                     mode={userState.lifeMode || nebulaMode}
-                    customBackgroundImage={userState.lastSelectedBackgroundUri}
+                    customBackgroundImage={finalCustomBackground || undefined}
                 />
             ) : (
                 <SunriseBackground />

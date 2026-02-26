@@ -30,6 +30,7 @@ import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
 import CardioScanScreen from '../screens/Bio/CardioScanScreen';
 import CardioResultScreen from '../screens/Bio/CardioResultScreen';
 import EvolutionCatalogScreen from '../screens/Challenges/EvolutionCatalogScreen';
+import OasisShowcaseScreen from '../screens/OasisShowcaseScreen'; // PDS Showcase
 
 import { View, ActivityIndicator } from 'react-native';
 
@@ -114,6 +115,11 @@ const AppNavigatorContent = () => {
                             name={Screen.EVOLUTION_CATALOG}
                             component={EvolutionCatalogScreen}
                             options={{ animation: 'slide_from_bottom' }}
+                        />
+                        <Stack.Screen
+                            name={Screen.OASIS_SHOWCASE}
+                            component={OasisShowcaseScreen}
+                            options={{ animation: 'fade' }}
                         />
                     </>
                 )}

@@ -29,7 +29,7 @@ import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { AcademyModule } from '../../data/academyData';
 import { AcademyService } from '../../services/AcademyService';
-import CourseCard from '../../components/CourseCard';
+import { OasisCard } from '../../components/Oasis/OasisCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import SoundWaveHeader from '../../components/SoundWaveHeader';
 
@@ -72,6 +72,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
 
     // Animations
     const scrollX = useRef(new Animated.Value(0)).current;
+    const scrollY = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const searchAnim = useRef(new Animated.Value(0)).current;
 
@@ -257,18 +258,65 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
             {/* Background */}
             <View style={StyleSheet.absoluteFill}>
                 <BackgroundWrapper nebulaMode="growth" />
-                <LinearGradient
-                    colors={['rgba(2, 6, 23, 0.3)', 'rgba(2, 6, 23, 0.8)']}
-                    style={StyleSheet.absoluteFill}
-                />
+
+                {/* Parallax Image Mapping - Fading the light part as we scroll */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [1, 0],
+                        extrapolate: 'clamp'
+                    }),
+                    transform: [{
+                        scale: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [1.2, 1, 1],
+                            extrapolate: 'clamp'
+                        })
+                    }, {
+                        translateY: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
+                            extrapolate: 'clamp'
+                        })
+                    }]
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
+                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
+                {/* Dark Background that stays for content */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [0, 1],
+                        extrapolate: 'clamp'
+                    })
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                <View style={{ flex: 1 }}>
+                <Animated.ScrollView
+                    contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+                    showsVerticalScrollIndicator={false}
+                    scrollEventThrottle={16}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: true }
+                    )}
+                >
                     {renderHeader()}
 
                     {/* Carousel */}
-                    <View style={[styles.carouselContainer, { marginBottom: insets.bottom + 100 }]}>
+                    <View style={styles.carouselContainer}>
                         <SoundWaveHeader title="Elige tu curso" accentColor="#FB7185" />
                         {filteredCourses.length === 0 ? (
                             <View style={styles.emptyState}>
@@ -316,13 +364,22 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                                     return (
                                         <View style={{ width: ITEM_WIDTH }}>
                                             <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
-                                                <CourseCard
-                                                    course={item as AcademyModule}
-                                                    onPress={(course) => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
-                                                        courseId: course.id,
-                                                        courseData: course // Prop-Passing (Zero Egress 2.0)
+                                                <OasisCard
+                                                    superTitle={(item as any).category}
+                                                    title={(item as any).title}
+                                                    subtitle={`${(item as any).duration || 0} mins · ${(item as any).author || 'Guía'}`}
+                                                    imageUri={(item as any).thumbnailUrl}
+                                                    onPress={() => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                                                        courseId: item.id,
+                                                        courseData: item as any
                                                     })}
-                                                    isLargeCard={true}
+                                                    icon="school-outline"
+                                                    badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
+                                                    actionText="Ver Curso"
+                                                    actionIcon="school"
+                                                    variant="hero"
+                                                    accentColor="#FB7185"
+                                                    sharedTransitionTag={`course.image.${item.id}`}
                                                 />
                                             </Animated.View>
                                         </View>
@@ -331,7 +388,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                             />
                         )}
                     </View>
-                </View>
+                </Animated.ScrollView>
             </Animated.View>
         </View>
     );

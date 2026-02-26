@@ -37,7 +37,7 @@ import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList, Session } from '../../types';
 import { theme } from '../../constants/theme';
 import { IMAGES, SESSION_ASSETS } from '../../constants/images';
-import SessionCard from '../../components/SessionCard';
+import { OasisCard } from '../../components/Oasis/OasisCard';
 import SessionPreviewModal from '../../components/SessionPreviewModal';
 // import { MEDITATION_SESSIONS, MeditationSession } from '../../data/sessionsData'; // Removed static
 import { MeditationSession } from '../../data/sessionsData'; // Keep type
@@ -557,24 +557,68 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             <StatusBar barStyle="light-content" />
 
             {/* Premium Background */}
-            {/* Premium Background */}
             <View style={StyleSheet.absoluteFill}>
                 <BackgroundWrapper nebulaMode="healing" />
-                {/* Visual Fix: High-Intensity Day Sky (0-50%) -> Deep Focus for Cards (70-100%) */}
-                <LinearGradient
-                    colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
-                    locations={[0, 0.15, 0.45, 0.75, 0.98]}
-                    style={StyleSheet.absoluteFill}
-                />
+
+                {/* Parallax Image Mapping - Fading the light part as we scroll */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [1, 0],
+                        extrapolate: 'clamp'
+                    }),
+                    transform: [{
+                        scale: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [1.2, 1, 1],
+                            extrapolate: 'clamp'
+                        })
+                    }, {
+                        translateY: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
+                            extrapolate: 'clamp'
+                        })
+                    }]
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
+                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
+                {/* Dark Background that stays for content */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [0, 1],
+                        extrapolate: 'clamp'
+                    })
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                <Animated.FlatList
-                    data={sessionsByRow}
-                    keyExtractor={(item) => item.title}
-                    ListHeaderComponent={renderHeader}
-                    renderItem={({ item, index }) => (
+                <Animated.ScrollView
+                    contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
+                    showsVerticalScrollIndicator={false}
+                    scrollEventThrottle={16}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: true }
+                    )}
+                >
+                    {renderHeader()}
+
+                    {sessionsByRow.map((item, index) => (
                         <CategoryRow
+                            key={item.title}
                             title={item.title}
                             sessions={item.data}
                             icon={item.icon}
@@ -589,37 +633,33 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                             isResults={item.title === 'Resultados'}
                             variant={item.variant}
                             index={index}
+                            sharedTransitionTagPrefix="session.image"
                         />
-                    )}
-                    contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
-                    showsVerticalScrollIndicator={false}
-                    onScroll={Animated.event(
-                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                        { useNativeDriver: true }
-                    )}
-                    scrollEventThrottle={16}
-                />
+                    ))}
+                </Animated.ScrollView>
             </Animated.View>
 
-            {selectedSession && (
-                <SessionPreviewModal
-                    isVisible={!!selectedSession}
-                    session={selectedSession}
-                    guideAvatar={GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar}
-                    onClose={() => setSelectedSession(null)}
-                    onStart={() => {
-                        const medData = sessions.find(s => s.id === selectedSession.id);
-                        setSelectedSession(null);
-                        if (medData) {
-                            navigation.navigate(Screen.BREATHING_TIMER, {
-                                sessionId: medData.id,
-                                sessionData: medData
-                            });
-                        }
-                    }}
-                />
-            )}
-        </View>
+            {
+                selectedSession && (
+                    <SessionPreviewModal
+                        isVisible={!!selectedSession}
+                        session={selectedSession}
+                        guideAvatar={GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar}
+                        onClose={() => setSelectedSession(null)}
+                        onStart={() => {
+                            const medData = sessions.find(s => s.id === selectedSession.id);
+                            setSelectedSession(null);
+                            if (medData) {
+                                navigation.navigate(Screen.BREATHING_TIMER, {
+                                    sessionId: medData.id,
+                                    sessionData: medData
+                                });
+                            }
+                        }}
+                    />
+                )
+            }
+        </View >
     );
 };
 

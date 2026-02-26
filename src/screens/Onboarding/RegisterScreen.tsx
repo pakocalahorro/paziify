@@ -2,22 +2,22 @@ import React, { useState } from 'react';
 import {
     View,
     Text,
-    TextInput,
-    TouchableOpacity,
     StyleSheet,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
+    Dimensions,
     Alert,
-    ActivityIndicator,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
 import { supabase } from '../../services/supabaseClient';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
+
+// PDS Primitives
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisInput } from '../../components/Oasis/OasisInput';
+import { OasisButton } from '../../components/Oasis/OasisButton';
+
+const { height } = Dimensions.get('window');
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -75,256 +75,125 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardView}
-            >
-                <ScrollView
-                    contentContainerStyle={styles.scrollContent}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <Text style={styles.title}>
-                            Bienvenido a{'\n'}
-                            <Text style={styles.titleAccent}>Paziify</Text>
-                        </Text>
-                        <Text style={styles.subtitle}>Tu santuario te espera.</Text>
-                    </View>
+        <OasisScreen style={styles.container} preset="scroll">
+            <View style={styles.content}>
 
-                    {/* Form */}
-                    <View style={styles.form}>
-                        {/* Name Input */}
-                        <View style={styles.inputContainer}>
-                            <Ionicons
-                                name="person-outline"
-                                size={20}
-                                color={theme.colors.textMuted}
-                                style={styles.inputIcon}
-                            />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Nombre"
-                                placeholderTextColor={theme.colors.textMuted}
-                                value={name}
-                                onChangeText={setName}
-                                autoCapitalize="words"
-                            />
-                        </View>
+                {/* Header Section */}
+                <View style={styles.header}>
+                    <Text style={styles.signature}>Comienza tu viaje</Text>
+                    <Text style={styles.title}>Crea tu Santuario</Text>
+                    <Text style={styles.subtitle}>Escribe tu historia desde este instante de paz.</Text>
+                </View>
 
-                        {/* Email Input */}
-                        <View style={styles.inputContainer}>
-                            <Ionicons
-                                name="mail-outline"
-                                size={20}
-                                color={theme.colors.textMuted}
-                                style={styles.inputIcon}
-                            />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Correo electrónico"
-                                placeholderTextColor={theme.colors.textMuted}
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
-                        </View>
+                {/* Main Action Form / Inputs */}
+                <View style={styles.formContainer}>
+                    <OasisInput
+                        label="Nombre"
+                        value={name}
+                        onChangeText={setName}
+                        autoCapitalize="words"
+                        icon="user"
+                    />
 
-                        {/* Password Input */}
-                        <View style={styles.inputContainer}>
-                            <Ionicons
-                                name="lock-closed-outline"
-                                size={20}
-                                color={theme.colors.textMuted}
-                                style={styles.inputIcon}
-                            />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Contraseña"
-                                placeholderTextColor={theme.colors.textMuted}
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                            />
-                        </View>
+                    <OasisInput
+                        label="Correo electrónico"
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        icon="mail"
+                    />
 
-                        {/* Submit Button */}
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={handleRegister}
-                            disabled={loading}
-                            activeOpacity={0.8}
-                        >
-                            {loading ? (
-                                <ActivityIndicator color="#FFF" />
-                            ) : (
-                                <>
-                                    <Text style={styles.buttonText}>Crear Cuenta</Text>
-                                    <Ionicons
-                                        name="arrow-forward"
-                                        size={20}
-                                        color="#FFFFFF"
-                                    />
-                                </>
-                            )}
-                        </TouchableOpacity>
+                    <OasisInput
+                        label="Contraseña"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        icon="lock"
+                    />
 
-                        {/* Divider */}
-                        <View style={styles.dividerContainer}>
-                            <View style={styles.divider} />
-                            <Text style={styles.dividerText}>o regístrate con</Text>
-                            <View style={styles.divider} />
-                        </View>
+                    <OasisButton
+                        title="Crear Cuenta"
+                        onPress={handleRegister}
+                        variant="primary"
+                        icon="leaf-outline"
+                        loading={loading}
+                        style={{ marginTop: theme.spacing.md }}
+                    />
+                </View>
 
-                        {/* Social Login Buttons */}
-                        <View style={styles.socialContainer}>
-                            <TouchableOpacity style={styles.socialButton}>
-                                <Ionicons name="logo-google" size={24} color="#EA4335" />
-                                <Text style={styles.socialButtonText}>Google</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.socialButton}>
-                                <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
-                                <Text style={styles.socialButtonText}>Apple</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                {/* Footer Link */}
+                <View style={styles.footer}>
+                    <Text style={styles.footerText}>¿Ya tienes cuenta? </Text>
+                    <Text
+                        style={styles.footerLink}
+                        onPress={() => navigation.navigate(Screen.LOGIN)}
+                    >
+                        Cruzar el Portal
+                    </Text>
+                </View>
 
-                    {/* Footer */}
-                    <View style={styles.footer}>
-                        <Text style={styles.footerText}>
-                            ¿Ya tienes cuenta?{' '}
-                            <Text
-                                style={styles.footerLink}
-                                onPress={() => navigation.navigate(Screen.LOGIN)}
-                            >
-                                Iniciar sesión
-                            </Text>
-                        </Text>
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+            </View>
+        </OasisScreen>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
     },
-    keyboardView: {
+    content: {
         flex: 1,
-    },
-    scrollContent: {
-        flexGrow: 1,
         justifyContent: 'center',
-        padding: theme.spacing.lg,
+        paddingVertical: height * 0.02,
     },
     header: {
-        marginBottom: theme.spacing.xxl,
+        marginBottom: theme.spacing.xl,
+        alignItems: 'center',
+    },
+    signature: {
+        fontFamily: 'Caveat_700Bold',
+        fontSize: 32,
+        color: theme.colors.accent,
+        transform: [{ rotate: '-2deg' }],
+        marginBottom: 8,
     },
     title: {
-        fontSize: 36,
-        fontWeight: '700',
-        color: theme.colors.textMain,
-        marginBottom: theme.spacing.sm,
-        lineHeight: 42,
-    },
-    titleAccent: {
-        color: theme.colors.primary,
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 42,
+        color: '#FFFFFF',
+        letterSpacing: 1,
+        marginBottom: 8,
+        textAlign: 'center',
     },
     subtitle: {
-        fontSize: 18,
-        color: theme.colors.textMuted,
-    },
-    form: {
-        gap: theme.spacing.md,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.xl,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        paddingHorizontal: theme.spacing.md,
-    },
-    inputIcon: {
-        marginRight: theme.spacing.sm,
-    },
-    input: {
-        flex: 1,
-        color: theme.colors.textMain,
+        fontFamily: 'Outfit_400Regular',
         fontSize: 16,
-        paddingVertical: theme.spacing.md,
+        color: 'rgba(255,255,255,0.7)',
+        textAlign: 'center',
+        lineHeight: 24,
+        paddingHorizontal: theme.spacing.lg,
     },
-    button: {
-        backgroundColor: theme.colors.primary,
-        borderRadius: theme.borderRadius.xl,
-        paddingVertical: theme.spacing.md,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: theme.spacing.sm,
-        marginTop: theme.spacing.lg,
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: '700',
+    formContainer: {
+        width: '100%',
+        gap: theme.spacing.md,
     },
     footer: {
         marginTop: theme.spacing.xl,
+        flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
     },
     footerText: {
         fontSize: 14,
-        color: theme.colors.textMuted,
+        color: 'rgba(255,255,255,0.5)',
+        fontFamily: 'Outfit_400Regular',
     },
     footerLink: {
-        color: theme.colors.accent,
-        fontWeight: '700',
-    },
-    dividerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 25,
-    },
-    divider: {
-        flex: 1,
-        height: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    },
-    dividerText: {
-        color: theme.colors.textMuted,
-        paddingHorizontal: 15,
-        fontSize: 12,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-    },
-    socialContainer: {
-        flexDirection: 'row',
-        gap: 15,
-    },
-    socialButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: theme.borderRadius.xl,
-        paddingVertical: 14,
-        gap: 10,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.08)',
-    },
-    socialButtonText: {
         color: '#FFFFFF',
-        fontSize: 15,
-        fontWeight: '600',
+        fontSize: 14,
+        fontFamily: 'Outfit_700Bold',
+        letterSpacing: 0.5,
     },
 });
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import { StyleSheet, View, Dimensions, Animated, Easing, Image } from 'react-native';
+import { StyleSheet, View, Dimensions, Animated, Easing } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 
@@ -85,14 +86,15 @@ const NebulaBackground: React.FC<NebulaBackgroundProps> = ({ mode = 'healing', c
     return (
         <View style={styles.container}>
             {customBackgroundImage ? (
-                <>
+                <View style={StyleSheet.absoluteFillObject}>
                     <Image
                         source={{ uri: customBackgroundImage }}
                         style={StyleSheet.absoluteFillObject}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        transition={1000}
                     />
                     <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                </>
+                </View>
             ) : (
                 <LinearGradient colors={colors} style={StyleSheet.absoluteFillObject} />
             )}

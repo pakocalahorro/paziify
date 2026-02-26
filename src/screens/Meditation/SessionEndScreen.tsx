@@ -32,7 +32,6 @@ import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { analyticsService } from '../../services/analyticsService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
-import ZenMeter from '../../components/Home/ZenMeter';
 
 type SessionEndScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,

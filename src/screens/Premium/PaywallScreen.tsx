@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
@@ -72,7 +73,7 @@ const PaywallScreen: React.FC<Props> = ({ navigation }) => {
                 </Text>
 
                 {/* Comparative Table */}
-                <View style={styles.table}>
+                <BlurView intensity={20} tint="dark" style={styles.table}>
                     <View style={styles.tableHeader}>
                         <Text style={[styles.columnLabel, { flex: 1.5 }]}>CARACTERÍSTICA</Text>
                         <Text style={styles.columnLabel}>GRATIS</Text>
@@ -104,7 +105,7 @@ const PaywallScreen: React.FC<Props> = ({ navigation }) => {
                             </View>
                         </View>
                     ))}
-                </View>
+                </BlurView>
 
                 {/* Period Selector */}
                 <View style={styles.periodSelector}>
@@ -124,50 +125,54 @@ const PaywallScreen: React.FC<Props> = ({ navigation }) => {
 
                 {/* Plans */}
                 <TouchableOpacity
-                    style={[styles.planCard, period === 'annual' && styles.planCardActive]}
+                    style={[{ width: '100%', marginBottom: 16 }]}
                     onPress={() => setPeriod('annual')}
                 >
-                    {period === 'annual' && (
-                        <View style={styles.bestValueBadge}>
-                            <Text style={styles.bestValueText}>MEJOR VALOR</Text>
-                        </View>
-                    )}
-                    <View style={styles.planRow}>
-                        <View style={[styles.radio, period === 'annual' && styles.radioActive]}>
-                            {period === 'annual' && <View style={styles.radioInner} />}
-                        </View>
-                        <View style={styles.planInfo}>
-                            <Text style={styles.planTitle}>Plan Anual</Text>
-                            <Text style={styles.planDesc}>Solo $4.99/mes. Facturado anualmente.</Text>
-                            <View style={styles.trialBadge}>
-                                <Ionicons name="checkmark-circle" size={14} color={theme.colors.primary} />
-                                <Text style={styles.trialText}>Prueba de 7 días incluida</Text>
+                    <BlurView intensity={25} tint="dark" style={[styles.planCard, period === 'annual' && styles.planCardActive]}>
+                        {period === 'annual' && (
+                            <View style={styles.bestValueBadge}>
+                                <Text style={styles.bestValueText}>MEJOR VALOR</Text>
+                            </View>
+                        )}
+                        <View style={styles.planRow}>
+                            <View style={[styles.radio, period === 'annual' && styles.radioActive]}>
+                                {period === 'annual' && <View style={styles.radioInner} />}
+                            </View>
+                            <View style={styles.planInfo}>
+                                <Text style={styles.planTitle}>Plan Anual</Text>
+                                <Text style={styles.planDesc}>Solo $4.99/mes. Facturado anualmente.</Text>
+                                <View style={styles.trialBadge}>
+                                    <Ionicons name="checkmark-circle" size={14} color={theme.colors.primary} />
+                                    <Text style={styles.trialText}>Prueba de 7 días incluida</Text>
+                                </View>
+                            </View>
+                            <View style={styles.planPriceBox}>
+                                <Text style={styles.price}>$59.99</Text>
+                                <Text style={styles.pricePeriod}>/ año</Text>
                             </View>
                         </View>
-                        <View style={styles.planPriceBox}>
-                            <Text style={styles.price}>$59.99</Text>
-                            <Text style={styles.pricePeriod}>/ año</Text>
-                        </View>
-                    </View>
+                    </BlurView>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.planCard, period === 'monthly' && styles.planCardActive]}
+                    style={[{ width: '100%', marginBottom: 16 }]}
                     onPress={() => setPeriod('monthly')}
                 >
-                    <View style={styles.planRow}>
-                        <View style={[styles.radio, period === 'monthly' && styles.radioActive]}>
-                            {period === 'monthly' && <View style={styles.radioInner} />}
+                    <BlurView intensity={25} tint="dark" style={[styles.planCard, period === 'monthly' && styles.planCardActive]}>
+                        <View style={styles.planRow}>
+                            <View style={[styles.radio, period === 'monthly' && styles.radioActive]}>
+                                {period === 'monthly' && <View style={styles.radioInner} />}
+                            </View>
+                            <View style={styles.planInfo}>
+                                <Text style={styles.planTitle}>Plan Mensual</Text>
+                                <Text style={styles.planDesc}>Compromiso flexible. Cancela cuando quieras.</Text>
+                            </View>
+                            <View style={styles.planPriceBox}>
+                                <Text style={styles.price}>$9.99</Text>
+                                <Text style={styles.pricePeriod}>/ mes</Text>
+                            </View>
                         </View>
-                        <View style={styles.planInfo}>
-                            <Text style={styles.planTitle}>Plan Mensual</Text>
-                            <Text style={styles.planDesc}>Compromiso flexible. Cancela cuando quieras.</Text>
-                        </View>
-                        <View style={styles.planPriceBox}>
-                            <Text style={styles.price}>$9.99</Text>
-                            <Text style={styles.pricePeriod}>/ mes</Text>
-                        </View>
-                    </View>
+                    </BlurView>
                 </TouchableOpacity>
 
                 {/* Primary Button */}
@@ -234,8 +239,8 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
     },
     title: {
-        fontSize: 32,
-        fontWeight: '800',
+        fontSize: 38,
+        fontFamily: 'Satisfy_400Regular',
         color: '#FFF',
         marginBottom: 12,
         alignSelf: 'flex-start',
@@ -252,12 +257,12 @@ const styles = StyleSheet.create({
     },
     table: {
         width: '100%',
-        backgroundColor: 'rgba(255,255,255,0.03)',
         borderRadius: 20,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.05)',
         padding: 16,
         marginBottom: 32,
+        overflow: 'hidden',
     },
     tableHeader: {
         flexDirection: 'row',
@@ -323,16 +328,15 @@ const styles = StyleSheet.create({
     },
     planCard: {
         width: '100%',
-        backgroundColor: 'rgba(255,255,255,0.03)',
         borderRadius: 20,
         borderWidth: 2,
         borderColor: 'rgba(255,255,255,0.05)',
         padding: 20,
-        marginBottom: 16,
+        overflow: 'hidden',
     },
     planCardActive: {
         borderColor: theme.colors.accent,
-        backgroundColor: 'rgba(212, 175, 55, 0.05)',
+        backgroundColor: 'rgba(212, 175, 55, 0.15)',
     },
     bestValueBadge: {
         position: 'absolute',

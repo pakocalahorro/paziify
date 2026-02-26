@@ -1,6 +1,6 @@
-# 🎙️ Guía Maestra de Audio - Paziify (v2.32.0) 💎
+# 🎙️ Guía Maestra de Audio - Paziify (v2.34.0) 💎
 
-Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.32.0** mantiene el **Enfoque en Evolución**, con sintonización de guías premium y optimización de cuotas.
+Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.34.0** mantiene el **Enfoque en Evolución**, con sintonización de guías premium y optimización de cuotas.
 
 ---
 
@@ -107,4 +107,4 @@ Para evitar sorpresas con la facturación de Google Cloud, el motor integra un s
 > Los scripts que apuntan a buckets legacy (`meditation-voice`) han sido movidos a `scripts/LEGACY_OLD_STRUCTURE/`. **No usarlos** para nuevas cargas masivas. Usa el Panel Admin.
 
 ---
-*Última revisión: 25 de Febrero de 2026 - Versión 2.32.0 (Cardio Scan v2)*
+*Última revisión: 25 de Febrero de 2026 - Versión 2.33.8 (Oasis Settings & Profile Redesign)*

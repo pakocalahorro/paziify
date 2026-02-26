@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.33.8) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.34.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.33.8**. Esta versión presenta el rediseño de Perfil y Ajustes, con gestión de metas inteligente y un nuevo Reporte Semanal visualmente unificado.
+Bienvenido a la guía oficial de **Paziify v2.34.0**. Esta versión presenta el rediseño de Perfil y Ajustes, con gestión de metas inteligente y un nuevo Reporte Semanal visualmente unificado.
 
 ---
 
@@ -186,7 +186,7 @@ Según tu estado, recibirás un mensaje personalizado:
 - **Marea Calma** (🟡 Agotamiento): "Tu energía está baja para volver con fuerza"
 
 ---
-## 15. Tu Propósito y Ajustes (v2.33.5) 🎯
+## 15. Tu Propósito y Ajustes (v2.34.0) 🎯
 
 ### Mi Propósito
 - Configura tus metas de meditación diarias y semanales desde **Ajustes**.
@@ -203,5 +203,19 @@ Según tu estado, recibirás un mensaje personalizado:
 
 ---
 
-*Última revisión: 25 de Febrero de 2026 - Versión 2.33.8 (Oasis Settings & Profile)*
+## 16. Inmersión Sonora Ininterrumpida (v2.34.0) 🎧
+Paziify introduce una de sus mayores actualizaciones en la experiencia de usuario: **El Mini-Reproductor Global**.
+
+### Navegación Ininterrumpida
+- Ahora puedes comenzar a escuchar un Audiolibro, una Historia Real o un Sonido de Fondo y **seguir navegando por toda la aplicación**.
+- Un elegante mini-reproductor de cristal (Glassmorphism) te acompañará justo por encima del menú inferior de navegación.
+- **Controles Rápidos**: Pausa o reanuda la escucha al instante con respuesta háptica.
+- **Acceso Total**: Toca la tarjeta flotante en cualquier momento para volver al reproductor a pantalla completa.
+
+### Reporte Semanal Elevado
+- El **Reporte Semanal** (Tu Ritmo) ha sido rediseñado visualmente. Ahora presenta gráficas con estilo cristal oscuro e información inmersiva sobre tu Bio-Ritmo y Actividad.
+
+---
+
+*Última revisión: 26 de Febrero de 2026 - Versión 2.34.0 (PDS v3.0 Oasis Edition)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

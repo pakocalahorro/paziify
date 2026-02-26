@@ -9,7 +9,7 @@ import {
     Dimensions,
     TouchableOpacity
 } from 'react-native';
-import SessionCard from './SessionCard';
+import { OasisCard } from './Oasis/OasisCard';
 import { Ionicons } from '@expo/vector-icons';
 import { Session } from '../types';
 import SoundwaveSeparator from './Shared/SoundwaveSeparator';
@@ -29,6 +29,7 @@ interface Props {
     isResults?: boolean;
     index: number;
     variant?: 'overlay' | 'standard' | 'poster' | 'wide' | 'hero' | 'section-header';
+    sharedTransitionTagPrefix?: string;
 }
 
 const { width } = Dimensions.get('window');
@@ -49,7 +50,8 @@ const CategoryRow: React.FC<Props> = ({
     scrollY,
     isResults = false,
     index,
-    variant = 'overlay'
+    variant = 'overlay',
+    sharedTransitionTagPrefix
 }) => {
     if (variant === 'section-header') {
         return <SoundwaveSeparator title={title} />;
@@ -183,16 +185,19 @@ const CategoryRow: React.FC<Props> = ({
                             isWide && { width: width * 0.90, marginRight: 12 }, // Wide wrapper
                             isHero && { width: width - 56, marginRight: 12 } // Hero wrapper (Reduced width)
                         ]}>
-                            <SessionCard
-                                session={item}
-                                onPress={onSessionPress}
-                                onFavoritePress={onFavoritePress}
-                                isPlusMember={isPlusMember}
-                                isFavorite={favoriteSessionIds.includes(item.id)}
-                                isCompleted={completedSessionIds.includes(item.id)}
-                                scrollY={scrollY}
-                                index={index}
-                                variant={variant}
+                            <OasisCard
+                                superTitle={(item as any).category}
+                                title={(item as any).title}
+                                subtitle={`${(item as any).duration || 0} mins · ${(item as any).creatorName || 'Guía'}`}
+                                imageUri={(item as any).thumbnailUrl || (item as any).image}
+                                onPress={() => onSessionPress(item)}
+                                icon={icon as any}
+                                badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
+                                actionText="Comenzar"
+                                actionIcon="play"
+                                variant={isCompact(variant) ? 'compact' : (isHero ? 'hero' : 'default')}
+                                accentColor={accentColor}
+                                sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${item.id}` : undefined}
                             />
                         </View>
                     )}
@@ -201,6 +206,10 @@ const CategoryRow: React.FC<Props> = ({
         </View>
     );
 };
+
+function isCompact(variant: string | undefined): boolean {
+    return variant === 'poster' || variant === 'standard' || variant === 'overlay' || variant === undefined;
+}
 
 const styles = StyleSheet.create({
     container: {

@@ -468,6 +468,32 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ## Componentes
 
+### Componentes Oasis (PDS v3.0)
+
+#### `src/components/Oasis/OasisInput.tsx`
+**Función**: Campo de texto premium
+**Props**: label, error, leftIcon, rightIcon
+**Características**:
+- Glassmorphism con BlurView
+- Label flotante animado (Reanimated)
+- Haptics al enfocar
+
+#### `src/components/Oasis/OasisToggle.tsx`
+**Función**: Switch animado premium
+**Props**: value, onValueChange
+**Características**:
+- Switch con retroalimentación háptica
+- Animación suave de color y posición
+- Borde glassmorphism translúcido
+
+#### `src/components/Oasis/OasisSkeleton.tsx`
+**Función**: Esqueleto de carga inmersivo
+**Props**: width, height, borderRadius
+**Características**:
+- Animación de shimmer continua
+- Fondos de gradiente que simulan cristal
+- Usado para skeleton states en catálogos
+
 ### Componentes de Retos (Sistema de Evolución)
 
 #### `src/components/Challenges/ChallengeDetailsModal.tsx`
@@ -491,15 +517,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ### Componentes de Home
 
-#### `src/components/Home/BentoCard.tsx`
-**Función**: Tarjeta individual del grid Bento
-**Props**: title, icon, color, onPress, badge
-**Características**:
-- Diseño minimalista
-- Icono centrado
-- Título descriptivo
-- Indicador de notificaciones (badge)
-- Animación al presionar
 
 #### `src/components/Home/BentoGrid.tsx`
 **Función**: Grid de accesos rápidos estilo Bento
@@ -528,25 +545,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Icono representativo
 - Color según tendencia
 
-#### `src/components/Home/WeeklyChart.tsx`
-**Función**: Gráfico de actividad semanal
-**Props**: data (array de días/valores)
-**Características**:
-- Gráfico de barras
-- Días de la semana
-- Animación de entrada
-- Tooltip al presionar
-- Color según objetivo cumplido
-
-#### `src/components/Home/ZenMeter.tsx`
-**Función**: Indicador de nivel de bienestar
-**Props**: level (0-100), label
-**Características**:
-- Visualización circular o gauge
-- Gradiente de colores (rojo → verde)
-- Número central
-- Etiqueta descriptiva
-- Animación suave
 
 ---
 
@@ -690,50 +688,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ### Componentes del Santuario
 
-#### `src/components/Sanctuary/AtmosphereShader.tsx`
-**Función**: Shader atmosférico con Skia
-**Props**: time, mood
-**Características**:
-- Efectos atmosféricos dinámicos
-- Cambio según estado de ánimo
-- Animación continua
-- Alto rendimiento
-
-#### `src/components/Sanctuary/LiquidOrb.tsx`
-**Función**: Orbe líquido animado
-**Props**: color, size, intensity
-**Características**:
-- Simulación de fluidos
-- Deformación orgánica
-- Reflejos y sombras
-- Interacción táctil
-
-#### `src/components/Sanctuary/MagicalNexus.tsx`
-**Función**: Centro mágico de energía
-**Props**: energy, connections
-**Características**:
-- Nodo central con energía pulsante
-- Conexiones a otros elementos
-- Partículas flotantes
-- Efectos de luz
-
-#### `src/components/Sanctuary/NebulaBackground.tsx`
-**Función**: Fondo de nebulosa
-**Props**: colors, speed
-**Características**:
-- Efecto de nebulosa espacial
-- Colores vibrantes
-- Movimiento lento y orgánico
-- Profundidad de campo
-
-#### `src/components/Sanctuary/NoiseBackground.tsx`
-**Función**: Fondo con ruido/perlin noise
-**Props**: opacity, scale
-**Características**:
-- Textura de ruido
-- Movimiento sutil
-- Añade textura visual
-- Optimizado con shaders
 
 #### `src/components/Sanctuary/PortalBackground.tsx`
 **Función**: Fondo tipo portal
@@ -766,6 +720,15 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ### Componentes Compartidos
 
+#### `src/components/Player/GlobalMiniPlayer.tsx`
+**Función**: Mini reproductor persistente sobre la TabBar
+**Características**:
+- Flota en todas las pantallas principales
+- Renderiza tanto Audiobooks como BackgroundSounds
+- Animación de FadeInDown y blur intenso
+- Botones de control con feedback háptico
+- Sincronizado dinámicamente con `AudioPlayerContext` y `AppContext`
+
 #### `src/components/Shared/BacklitSilhouette.tsx`
 **Función**: Silueta con retroiluminación
 **Props**: source, intensity
@@ -775,15 +738,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Luz ambiental
 - Atmósfera misteriosa
 
-#### `src/components/Shared/MiniPlayer.tsx`
-**Función**: Mini reproductor persistente
-**Props**: track, onExpand, controls
-**Características**:
-- Siempre visible durante reproducción
-- Controles básicos (play/pause)
-- Información de la pista
-- Expandir a pantalla completa
-- Colapsar al finalizar
 
 #### `src/components/Shared/SoundwaveSeparator.tsx`
 **Función**: Separador con forma de onda
@@ -798,24 +752,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 ### Componentes Individuales
 
-#### `src/components/AudiobookCard.tsx`
-**Función**: Tarjeta de audiolibro
-**Props**: book, onPress, progress
-**Características**:
-- Portada del libro
-- Título y autor
-- Progreso de lectura
-- Rating
-- Duración total
-
-#### `src/components/BreathingOrb.tsx`
-**Función**: Orbe de respiración básico
-**Props**: pattern, isPlaying
-**Características**:
-- Expansión y contracción
-- Guía visual de respiración
-- Colores calmantes
-- Simple y efectivo
 
 #### `src/components/CategoryRow.tsx`
 **Función**: Fila de categorías
@@ -826,25 +762,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Selección múltiple
 - Indicador de activo
 
-#### `src/components/CourseCard.tsx`
-**Función**: Tarjeta de curso
-**Props**: course, progress, onPress
-**Características**:
-- Imagen del curso
-- Título y descripción
-- Barra de progreso
-- Instructor
-- Duración estimada
-
-#### `src/components/GGAssistant.tsx`
-**Función**: Asistente virtual "Guía Galáctica"
-**Props**: message, actions
-**Características**:
-- Avatar animado
-- Burbujas de mensaje
-- Sugerencias de acción
-- Personalidad amigable
-- Contexto conversacional
 
 #### `src/components/GuestBanner.tsx`
 **Función**: Banner para usuarios invitados
@@ -855,16 +772,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Información de limitaciones
 - Botón de registro
 
-#### `src/components/SessionCard.tsx`
-**Función**: Tarjeta de sesión de meditación
-**Props**: session, duration, category
-**Características**:
-- Imagen representativa
-- Título y categoría
-- Duración
-- Dificultad
-- Instructor
-- Botón de reproducción
 
 #### `src/components/SessionPreviewModal.tsx`
 **Función**: Modal de previsualización de sesión
@@ -903,15 +810,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Preview del cambio
 - Cancelar/Confirmar
 
-#### `src/components/StoryCard.tsx`
-**Función**: Tarjeta de historia
-**Props**: story, onPress
-**Características**:
-- Ilustración
-- Título y extracto
-- Tiempo de lectura
-- Categoría
-- Valoración
 
 ---
 
@@ -1336,6 +1234,12 @@ admin/
   - `sprint-sos` (Misión, 3d, Rojo)
   - `pausa-express` (Misión, 3d, Violeta)
 
+### `src/constants/oasisExperiments.ts`
+**Contenido**: Infraestructura de Feature Flags (Gate)
+- Rutas PDS controladas por variable de entorno o Role
+- Activa o desactiva las vistas experimentales
+- Determina qué usuarios ven la experiencia premium (role === 'admin')
+
 ### `src/constants/images.ts`
 **Contenido**:
 - Importaciones de imágenes
@@ -1451,8 +1355,8 @@ admin/
 
 ---
 
-*Documento actualizado el 24 de Febrero de 2026*  
-*Versión del proyecto: 2.31.0 (Evolution Focus)*  
+*Documento actualizado el 26 de Febrero de 2026*  
+*Versión del proyecto: 2.34.0 (PDS v3.0)*  
 *Total de pantallas: 32*  
 *Total de componentes: 50+*  
 *Total de servicios: 12*

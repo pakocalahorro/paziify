@@ -37,7 +37,7 @@ import { Screen, RootStackParamList, Audiobook } from '../../types';
 import { theme } from '../../constants/theme';
 import { useAudiobooks } from '../../hooks/useContent';
 import { useApp } from '../../context/AppContext';
-import AudiobookCard from '../../components/AudiobookCard';
+import { OasisCard } from '../../components/Oasis/OasisCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 
 type AudiobooksScreenNavigationProp = NativeStackNavigationProp<
@@ -148,26 +148,21 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' is key for "Todo"
     const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
-    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
     // Animations
     const scrollX = useRef(new Animated.Value(0)).current;
+    const scrollY = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const searchAnim = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => {
-        Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-        }).start();
-    }, []);
+    // Search Animation (Standardized)
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const searchAnim = useRef(new Animated.Value(0)).current;
 
     const toggleSearch = () => {
         const toValue = isSearchExpanded ? 0 : 1;
         Animated.spring(searchAnim, {
             toValue,
-            useNativeDriver: false,
+            useNativeDriver: false, // height/marginBottom
             friction: 8,
             tension: 40
         }).start();
@@ -175,61 +170,42 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         if (isSearchExpanded) setSearchQuery('');
     };
 
-    // ** Dynamic Categories **
-    const availableCategories = useMemo(() => {
-        const uniqueCats = Array.from(new Set(audiobooks.map(b => b.category)));
-        const dynamicCats = uniqueCats.map(cat => {
-            const config = CATEGORY_CONFIG[cat] || {
-                label: cat.charAt(0).toUpperCase() + cat.slice(1),
-                icon: 'bookmark-outline',
-                color: '#90CAF9'
-            };
-            return { id: cat, ...config };
-        });
-        return [
-            { id: 'all', label: 'Todo', icon: 'apps-outline', color: '#646CFF' },
-            ...dynamicCats
-        ];
-    }, [audiobooks]);
 
-    // ** Dynamic Guides **
-    // Filter ALL_GUIDES to only includes those who have narrated at least one audiobook in the current list
-    const activeGuides = useMemo(() => {
-        // Get all unique narrator names (normalized) from audiobooks
-        // Use 'narrator' field which corresponds to the Guides (Aria, Ziro, etc.)
-        const audiobookNarrators = new Set(audiobooks.map(b => (b.narrator || '').toLowerCase().trim()));
+    useEffect(() => {
+        if (!loading) {
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }).start();
+        }
+    }, [loading]);
 
-        return ALL_GUIDES.filter(guide => {
-            // Check if guide name is part of any narrator name
-            const guideName = guide.name.toLowerCase();
-            for (let narrator of audiobookNarrators) {
-                if (narrator.includes(guideName)) return true;
-            }
-            return false;
-        });
-    }, [audiobooks]);
-
-
+    // ** UPDATED FILTERING LOGIC **
+    // Now compatible with both local mock data and real Supabase strings.
     const filteredAudiobooks = useMemo(() => {
-        return audiobooks.filter(book => {
-            // Filter by Category
-            const matchesCategory = selectedCategory === 'all' || book.category === selectedCategory;
+        const query = searchQuery.toLowerCase();
 
-            // Filter by Search (Title, Author, or Narrator)
-            const query = searchQuery.toLowerCase();
+        return audiobooks.filter(book => {
+            // 1. Search Match
             const matchesSearch = book.title.toLowerCase().includes(query) ||
                 book.author.toLowerCase().includes(query) ||
-                (book.narrator && book.narrator.toLowerCase().includes(query));
+                book.narrator.toLowerCase().includes(query);
 
-            // Filter by Guide (Narrator)
-            // If selectedGuide is set, check if book.narrator includes that guide's name
-            const matchesGuide = !selectedGuide || (book.narrator && book.narrator.toLowerCase().includes(selectedGuide.toLowerCase()));
+            // 2. Guide/Narrator Filter
+            // Real names in Supabase match the ID in the catalog, but case might vary.
+            // We'll normalize to lowercase. If mock IDs were used previously, checking substring might help.
+            const matchesGuide = !selectedGuide || book.narrator.toLowerCase().includes(selectedGuide.toLowerCase());
 
-            return matchesCategory && matchesSearch && matchesGuide;
+            // 3. Category Filter
+            // Make sure normalization applies so "Ciencia Ficción" matches "ciencia ficción" map if needed.
+            // Using exact matching for categories since it's driven by our UI buttons.
+            const matchesCategory = selectedCategory === 'all' || book.category.toLowerCase() === selectedCategory.toLowerCase();
+
+            return matchesSearch && matchesGuide && matchesCategory;
         });
-    }, [audiobooks, selectedCategory, searchQuery, selectedGuide]);
+    }, [audiobooks, searchQuery, selectedCategory, selectedGuide]);
 
-    // Data for Carousel with spacer items
     const carouselData = useMemo(() => {
         if (filteredAudiobooks.length === 0) return [];
         return [{ id: 'empty-left' }, ...filteredAudiobooks, { id: 'empty-right' }];
@@ -237,23 +213,49 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
 
 
     const handleRefresh = () => {
-        refetch();
+        refetch(); // Call the useQuery refetch
     };
 
-    const handleAudiobookPress = (audiobook: Audiobook) => {
-        if (audiobook.is_premium && !isPlusMember) {
+    const handleBookPress = (book: Audiobook) => {
+        if (book.is_premium && !isPlusMember) {
             navigation.navigate(Screen.PAYWALL);
             return;
         }
         navigation.navigate(Screen.AUDIOBOOK_PLAYER as any, {
-            audiobookId: audiobook.id,
-            audiobook: audiobook // Prop-Passing (Zero Egress 2.0)
+            audiobookId: book.id,
+            audiobook: book // Prop-Passing (Zero Egress 2.0)
         });
     };
 
+    // Derived active categories and guides basd on current data
+    const activeCategories = useMemo(() => {
+        const set = new Set(audiobooks.map(a => a.category.toLowerCase()));
+        return ['all', ...Array.from(set)];
+    }, [audiobooks]);
+
+    const activeGuides = useMemo(() => {
+        // Collect narrators found in audiobooks and try to map them to ALL_GUIDES
+        const set = new Set(audiobooks.map(a => a.narrator.toLowerCase()));
+        return ALL_GUIDES.filter(g => {
+            // Check if any narrator includes the guide name (handles 'Voz de Aria' etc.)
+            return Array.from(set).some(narrator => narrator.includes(g.name.toLowerCase()));
+        });
+    }, [audiobooks]);
+
+    const availableCategories = useMemo(() => {
+        return activeCategories.map(cat => {
+            if (cat === 'all') return { id: 'all', label: 'Todos', icon: 'apps-outline', color: '#646CFF' };
+            // Attempt to find config
+            const configKey = Object.keys(CATEGORY_CONFIG).find(k => k.toLowerCase() === cat);
+            if (configKey) return { id: cat, ...CATEGORY_CONFIG[configKey] };
+            // Fallback for unknown categories
+            return { id: cat, label: cat.charAt(0).toUpperCase() + cat.slice(1), icon: 'book-outline', color: '#90CAF9' };
+        });
+    }, [activeCategories]);
+
     const renderHeader = () => (
         <View style={styles.headerContent}>
-            {/* 1. Top Header Row (Unified Single Line) */}
+            {/* Nav / Title / Search Toggle */}
             <View style={styles.header}>
                 <View style={styles.headerRow}>
                     <View style={styles.headerLeft}>
@@ -270,37 +272,29 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                             <Ionicons
                                 name={isSearchExpanded ? "close-outline" : "search-outline"}
                                 size={20}
-                                color={isSearchExpanded ? "#FB7185" : "#FFF"}
+                                color={isSearchExpanded ? "#FB7185" : "#FFF"} // Highlight color when open
                             />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.headerTitleContainer}>
-                        <Text style={styles.headerTitleInline} numberOfLines={1}>
-                            Audiolibros
-                        </Text>
+                        <Text style={styles.headerTitleInline}>Audiolibros</Text>
                     </View>
 
-                    {/* Icon inline/right */}
                     <View style={styles.headerIconContainer}>
-                        <Ionicons name="book-outline" size={24} color="#FB7185" />
+                        {/* Optional decorative icon on right */}
+                        <Ionicons name="headset-outline" size={24} color="#FB7185" />
                     </View>
                 </View>
             </View>
 
-            {/* Search Bar (Animated) */}
+            {/* Search Bar (Collapsible) */}
             <Animated.View style={[
                 styles.searchBaseContainer,
                 {
-                    height: searchAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, 60]
-                    }),
+                    height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 60] }),
                     opacity: searchAnim,
-                    marginBottom: searchAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, 15]
-                    }),
+                    marginBottom: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 15] }),
                     overflow: 'hidden'
                 }
             ]}>
@@ -308,21 +302,16 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Buscar audiolibros..."
+                        placeholder="Buscar libros o autores..."
                         placeholderTextColor="rgba(255,255,255,0.3)"
                         value={searchQuery}
                         onChangeText={setSearchQuery}
-                        autoFocus={isSearchExpanded}
+                        autoFocus={false}
                     />
                 </View>
             </Animated.View>
 
-            {/* 2. Our Guides (Dynamic) - MOVED UP as per typical layout or user preference? 
-               User said: "me gustaria que aparezca centrado los guias" 
-               Let's keep order but center content. 
-            */}
-
-            {/* 3. Categories Filter */}
+            {/* Categories */}
             <View style={styles.categoryWrap}>
                 <FlatList
                     horizontal
@@ -360,42 +349,33 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                 />
             </View>
 
-            {/* 2. Our Guides (Dynamic) */}
+            {/* Sub-Header / Guides Filter (Optional/Dynamic) */}
             {activeGuides.length > 0 && (
                 <View style={styles.guidesSection}>
                     <View style={styles.moodHeaderCentered}>
-                        <Ionicons name="people" size={14} color="#FB7185" style={{ marginRight: 8 }} />
-                        <Text style={styles.moodSectionTitleLarge}>NUESTROS GUÍAS</Text>
+                        <Text style={styles.moodSectionTitleLarge}>Voces Populares</Text>
                     </View>
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.guidesListCentered}
                     >
-                        {activeGuides.map(guide => {
-                            const isActive = selectedGuide === guide.name;
+                        {activeGuides.map((guide) => {
+                            const isSelected = selectedGuide === guide.name;
                             return (
                                 <TouchableOpacity
                                     key={guide.id}
+                                    onPress={() => setSelectedGuide(isSelected ? null : guide.name)}
+                                    activeOpacity={0.8}
                                     style={styles.guideItem}
-                                    onPress={() => setSelectedGuide(isActive ? null : guide.name)}
                                 >
                                     <View style={styles.avatarWrapper}>
-                                        {isActive && (
-                                            <Canvas style={styles.avatarGlow}>
-                                                <Circle cx={32} cy={32} r={32}>
-                                                    <RadialGradient
-                                                        c={vec(32, 32)}
-                                                        r={32}
-                                                        colors={[guide.color, 'transparent']}
-                                                    />
-                                                    <Blur blur={10} />
-                                                </Circle>
-                                            </Canvas>
+                                        {isSelected && (
+                                            <View style={[styles.avatarGlow, { backgroundColor: guide.color }]} />
                                         )}
                                         <View style={[
                                             styles.avatarContainer,
-                                            isActive && { borderColor: guide.color, borderWidth: 2 }
+                                            isSelected && { borderColor: guide.color, borderWidth: 2 }
                                         ]}>
                                             <Image
                                                 source={{ uri: guide.avatar }}
@@ -403,20 +383,19 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                                             />
                                         </View>
                                     </View>
-                                    <Text style={[
-                                        styles.guideName,
-                                        isActive && { color: guide.color, fontWeight: 'bold' }
-                                    ]}>
+                                    <Text style={[styles.guideName, isSelected && { color: guide.color, fontWeight: '700' }]}>
                                         {guide.name}
                                     </Text>
-                                    {/* <Text style={styles.guideSpecialty}>{guide.specialty}</Text> Removed specialty for cleaner look if centering? Or keep it. keeping it. */}
-                                    <Text style={styles.guideSpecialty}>{guide.specialty}</Text>
+                                    {!isSelected && (
+                                        <Text style={styles.guideSpecialty}>{guide.specialty}</Text>
+                                    )}
                                 </TouchableOpacity>
-                            );
+                            )
                         })}
                     </ScrollView>
                 </View>
             )}
+
         </View>
     );
 
@@ -424,26 +403,71 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
 
-            {/* Background */}
             <View style={StyleSheet.absoluteFill}>
-                <BackgroundWrapper nebulaMode="healing" />
-                <LinearGradient
-                    colors={['rgba(2, 6, 23, 0.3)', 'rgba(2, 6, 23, 0.8)']}
-                    style={StyleSheet.absoluteFill}
-                />
+                <BackgroundWrapper nebulaMode="growth" />
+
+                {/* Parallax Image Mapping - Fading the light part as we scroll */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [1, 0],
+                        extrapolate: 'clamp'
+                    }),
+                    transform: [{
+                        scale: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [1.2, 1, 1],
+                            extrapolate: 'clamp'
+                        })
+                    }, {
+                        translateY: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
+                            extrapolate: 'clamp'
+                        })
+                    }]
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
+                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
+                {/* Dark Background that stays for content */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [0, 1],
+                        extrapolate: 'clamp'
+                    })
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                <View style={{ flex: 1 }}>
+                <Animated.ScrollView
+                    contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
+                    showsVerticalScrollIndicator={false}
+                    scrollEventThrottle={16}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: true }
+                    )}
+                >
                     {renderHeader()}
 
-                    {/* Carousel Area */}
-                    <View style={[styles.carouselContainer, { marginBottom: insets.bottom + 100 }]}>
+                    <View style={styles.carouselContainer}>
                         {loading && !isRefetching ? (
                             <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 50 }} />
                         ) : filteredAudiobooks.length === 0 ? (
                             <View style={styles.emptyState}>
-                                <Ionicons name="library-outline" size={48} color="rgba(255,255,255,0.3)" />
+                                <Ionicons name="book-outline" size={48} color="rgba(255,255,255,0.3)" />
                                 <Text style={styles.emptyText}>No se encontraron audiolibros.</Text>
                             </View>
                         ) : (
@@ -475,19 +499,12 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
 
                                     const translateY = scrollX.interpolate({
                                         inputRange,
-                                        outputRange: [50, 0, 50],
+                                        outputRange: [40, 0, 40],
                                         extrapolate: 'clamp',
                                     });
-
                                     const scale = scrollX.interpolate({
                                         inputRange,
                                         outputRange: [0.9, 1, 0.9],
-                                        extrapolate: 'clamp',
-                                    });
-
-                                    const opacity = scrollX.interpolate({
-                                        inputRange,
-                                        outputRange: [0.6, 1, 0.6],
                                         extrapolate: 'clamp',
                                     });
 
@@ -496,15 +513,21 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                                             <Animated.View
                                                 style={{
                                                     transform: [{ translateY }, { scale }],
-                                                    opacity,
                                                 }}
                                             >
-                                                <AudiobookCard
-                                                    audiobook={item as Audiobook}
-                                                    onPress={handleAudiobookPress}
-                                                    isPlusMember={isPlusMember}
-                                                    isLargeCard={true}
-                                                    guide={ALL_GUIDES.find(g => ((item as Audiobook).narrator || '').toLowerCase().includes(g.name.toLowerCase()))}
+                                                <OasisCard
+                                                    superTitle={(item as any).category}
+                                                    title={(item as any).title}
+                                                    subtitle={`${(item as any).duration_m || 0} mins · ${(item as any).author || 'Autor'}`}
+                                                    imageUri={(item as any).cover_url}
+                                                    onPress={() => handleBookPress(item as any)}
+                                                    icon="book-outline"
+                                                    badgeText={(item as any).is_premium ? "PREMIUM" : "LIBRE"}
+                                                    actionText="Leer Libro"
+                                                    actionIcon="book"
+                                                    variant="hero"
+                                                    accentColor="#FB7185"
+                                                    sharedTransitionTag={`session.image.${item.id}`}
                                                 />
                                             </Animated.View>
                                         </View>
@@ -513,7 +536,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                             />
                         )}
                     </View>
-                </View>
+                </Animated.ScrollView>
             </Animated.View>
         </View>
     );

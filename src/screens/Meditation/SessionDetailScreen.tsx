@@ -138,13 +138,18 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            <AnimatedImage
-                source={bgImage as any}
+            <Animated.View
+                {...({ sharedTransitionTag: `session.image.${sessionId}` } as any)}
                 style={[styles.parallaxImage, headerImageStyle]}
-                contentFit="cover"
-                transition={1000}
-                cachePolicy="memory-disk"
-            />
+            >
+                <Image
+                    source={bgImage as any}
+                    style={StyleSheet.absoluteFillObject}
+                    contentFit="cover"
+                    transition={1000}
+                    cachePolicy="memory-disk"
+                />
+            </Animated.View>
             <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.5)', '#020617']}
                 style={StyleSheet.absoluteFill}

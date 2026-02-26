@@ -36,7 +36,7 @@ const CardioResultScreen = () => {
     const route = useRoute();
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
-    const { userState, updateUserState, setLastSelectedBackgroundUri } = useApp();
+    const { userState, updateUserState } = useApp();
 
     const params = route.params as CardioResultParams | undefined;
     const diagnosis = params?.diagnosis || 'equilibrio';
@@ -153,8 +153,6 @@ const CardioResultScreen = () => {
             lastSelectedBackgroundUri: bgUri as string || undefined,
             lastEntryDate: new Date().toISOString().split('T')[0],
         });
-
-        if (bgUri) setLastSelectedBackgroundUri(bgUri as string);
 
         // 2. Navigate Home
         navigation.navigate('MainTabs', { screen: 'Home' });

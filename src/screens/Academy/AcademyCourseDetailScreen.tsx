@@ -13,6 +13,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
+import Animated from 'react-native-reanimated';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
@@ -170,11 +172,18 @@ const AcademyCourseDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            {/* Header Image Background */}
-            <ImageBackground
-                source={typeof module.image === 'string' ? { uri: module.image } : module.image}
+            {/* Header Image Background (Animated for Shared Element Transition) */}
+            <Animated.View
+                {...({ sharedTransitionTag: `course.image.${courseId}` } as any)}
                 style={styles.headerImage}
             >
+                <Image
+                    source={typeof module.image === 'string' ? { uri: module.image } : module.image as any}
+                    style={StyleSheet.absoluteFillObject}
+                    contentFit="cover"
+                    transition={1000}
+                    cachePolicy="memory-disk"
+                />
                 <LinearGradient
                     colors={['rgba(0,0,0,0.3)', '#020617']}
                     style={StyleSheet.absoluteFill}
@@ -187,7 +196,7 @@ const AcademyCourseDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                         <Ionicons name="arrow-back" size={24} color="#FFF" />
                     </TouchableOpacity>
                 </SafeAreaView>
-            </ImageBackground>
+            </Animated.View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} style={{ marginTop: -40 }}>
                 <View style={styles.courseInfoContainer}>

@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.33.8) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.34.0) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.33.8** añade el sistema de plantillas de notificaciones dinámicas y consolida la persistencia local de salud.
+Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.34.0** añade el sistema de plantillas de notificaciones dinámicas y consolida la persistencia local de salud.
 
 ---
 

@@ -1,22 +1,24 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Image,
     Dimensions,
-    ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Video, ResizeMode } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get('window');
+// PDS Primitives
+import { OasisButton } from '../../components/Oasis/OasisButton';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+
+const { width, height } = Dimensions.get('window');
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -29,7 +31,8 @@ interface Props {
 
 const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
     const { continueAsGuest, signInWithGoogle } = useApp();
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = useState(false);
+    const videoRef = useRef<Video>(null);
 
     const handleGoogleLogin = async () => {
         setLoading(true);
@@ -42,68 +45,84 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <LinearGradient
-                colors={['#0A0E1A', '#1A1F35', '#0A0E1A']}
-                style={StyleSheet.absoluteFill}
-            />
+            {/* 1. Immersive Video Background (Lowest Layer) */}
+            <View style={StyleSheet.absoluteFillObject}>
+                {/* Fallback majestic gradient while video loads or if it fails */}
+                <LinearGradient
+                    colors={['#0F2027', '#203A43', '#2C5364']}
+                    style={StyleSheet.absoluteFillObject}
+                />
+                {/* Immersive Video Player (expo-av) */}
+                <Video
+                    ref={videoRef}
+                    source={{
+                        // Placeholder video to preview the Vanguard layout (Google Cloud Storage)
+                        // TODO [CEO]: Reemplazar por tu enlace de Supabase Storage una vez subas el video inmersivo final.
+                        uri: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                    }}
+                    style={StyleSheet.absoluteFillObject}
+                    resizeMode={ResizeMode.COVER}
+                    shouldPlay
+                    isLooping
+                    isMuted
+                    posterSource={require('../../../assets/splash-icon.png')}
+                    posterStyle={{ resizeMode: 'cover' }}
+                    onError={(error) => console.log('Video Playback Error (Supabase):', error)}
+                />
+                {/* 2. Night-mode mist overlay to ensure text readability */}
+                <LinearGradient
+                    colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,10,20,0.95)']}
+                    style={StyleSheet.absoluteFillObject}
+                />
+            </View>
 
-            <SafeAreaView style={styles.safeArea}>
-                <View style={styles.header}>
-                    <View style={styles.logoContainer}>
-                        <LinearGradient
-                            colors={['#646CFF', '#9B6BFF']}
-                            style={styles.logoGradient}
-                        >
-                            <Ionicons name="leaf" size={40} color="#FFFFFF" />
-                        </LinearGradient>
+            {/* 3. Foreground Content with transparent OasisScreen */}
+            <OasisScreen style={styles.transparentOverlay} hideBackground preset="fixed">
+                <View style={styles.contentWrapper}>
+
+                    {/* Spiritual Header */}
+                    <View style={styles.header}>
+                        <View style={styles.brandBadge}>
+                            <Ionicons name="leaf" size={24} color={theme.colors.accent} />
+                        </View>
+                        <Text style={styles.title}>Paziify</Text>
+                        <Text style={styles.signature}>Tu Santuario Digital</Text>
                     </View>
-                    <Text style={styles.title}>Paziify</Text>
-                    <Text style={styles.subtitle}>Tu Santuario de Paz Digital</Text>
-                </View>
 
-                <View style={styles.content}>
-                    <Text style={styles.description}>
-                        Reduce el estrés y recupera el control de tu bienestar con meditación y ciencia.
-                    </Text>
-                </View>
+                    {/* Footer Controls */}
+                    <View style={styles.footer}>
 
-                <View style={styles.footer}>
-                    <TouchableOpacity
-                        style={styles.googleButton}
-                        onPress={handleGoogleLogin}
-                        disabled={loading}
-                        activeOpacity={0.8}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="#FFFFFF" />
-                        ) : (
-                            <>
-                                <Ionicons name="logo-google" size={24} color="#FFFFFF" />
-                                <Text style={styles.googleButtonText}>Continuar con Google</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.guestButton}
-                        onPress={continueAsGuest}
-                        activeOpacity={0.7}
-                    >
-                        <Text style={styles.guestButtonText}>Explorar como invitado</Text>
-                        <Ionicons name="arrow-forward" size={18} color={theme.colors.textMuted} />
-                    </TouchableOpacity>
-
-                    <View style={styles.loginOption}>
-                        <Text style={styles.loginText}>¿Ya tienes una cuenta? </Text>
-                        <Text
-                            style={styles.loginLink}
-                            onPress={() => navigation.navigate(Screen.LOGIN)}
-                        >
-                            Iniciar sesión
+                        <Text style={styles.manifesto}>
+                            Descubre la calma interior.{'\n'}Comienza tu viaje de transformación.
                         </Text>
+
+                        <View style={styles.buttonGroup}>
+                            <OasisButton
+                                title="Empieza tu viaje"
+                                onPress={handleGoogleLogin}
+                                variant="primary"
+                                icon="logo-google"
+                                loading={loading}
+                            />
+
+                            <OasisButton
+                                title="Explorar el Santuario"
+                                onPress={continueAsGuest}
+                                variant="glass"
+                                icon="compass-outline"
+                            />
+                        </View>
+
+                        <View style={styles.loginOption}>
+                            <Text style={styles.loginText}>¿Ya eres miembro? </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate(Screen.LOGIN)}>
+                                <Text style={styles.loginLink}>Cruzar el Portal</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
+
                 </View>
-            </SafeAreaView>
+            </OasisScreen>
         </View>
     );
 };
@@ -111,105 +130,83 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0A0E1A',
+        backgroundColor: '#000',
     },
-    safeArea: {
+    transparentOverlay: {
+        backgroundColor: 'transparent',
+    },
+    contentWrapper: {
         flex: 1,
-        paddingHorizontal: theme.spacing.xl,
         justifyContent: 'space-between',
-        paddingVertical: theme.spacing.xxl,
+        paddingHorizontal: theme.spacing.xl,
+        paddingTop: height * 0.15,
+        paddingBottom: theme.spacing.xxl,
     },
     header: {
         alignItems: 'center',
-        marginTop: 40,
     },
-    logoContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 25,
-        overflow: 'hidden',
-        marginBottom: 20,
-        elevation: 10,
-        shadowColor: '#646CFF',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-    },
-    logoGradient: {
-        flex: 1,
-        alignItems: 'center',
+    brandBadge: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.spacing.lg,
+        shadowColor: theme.colors.accent,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
     },
     title: {
-        fontSize: 42,
-        fontWeight: '800',
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 52,
         color: '#FFFFFF',
         letterSpacing: 2,
+        marginBottom: 8,
     },
-    subtitle: {
-        fontSize: 18,
-        color: '#9B6BFF',
-        fontWeight: '600',
-        marginTop: 5,
-    },
-    content: {
-        alignItems: 'center',
-    },
-    description: {
-        fontSize: 18,
-        color: theme.colors.textMuted,
-        textAlign: 'center',
-        lineHeight: 28,
-        paddingHorizontal: 10,
+    signature: {
+        fontFamily: 'Caveat_700Bold', // Immersive typography
+        fontSize: 34,
+        color: theme.colors.accent,
+        transform: [{ rotate: '-2deg' }],
+        opacity: 0.9,
     },
     footer: {
-        gap: 20,
-        marginBottom: 20,
-    },
-    googleButton: {
-        backgroundColor: theme.colors.primary,
-        flexDirection: 'row',
+        width: '100%',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 18,
-        borderRadius: theme.borderRadius.xl,
-        gap: 12,
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
     },
-    googleButtonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: '700',
-    },
-    guestButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 14,
-        gap: 8,
-    },
-    guestButtonText: {
-        color: theme.colors.textMuted,
+    manifesto: {
+        fontFamily: 'Outfit_400Regular',
         fontSize: 16,
-        fontWeight: '600',
+        color: 'rgba(255,255,255,0.7)',
+        textAlign: 'center',
+        lineHeight: 24,
+        marginBottom: theme.spacing.xxl,
+        letterSpacing: 0.5,
+    },
+    buttonGroup: {
+        width: '100%',
+        gap: theme.spacing.md,
+        marginBottom: theme.spacing.xl,
     },
     loginOption: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginTop: 10,
+        alignItems: 'center',
     },
     loginText: {
-        color: theme.colors.textMuted,
+        color: 'rgba(255,255,255,0.5)',
         fontSize: 14,
+        fontFamily: 'Outfit_400Regular',
     },
     loginLink: {
-        color: theme.colors.accent,
+        color: '#FFFFFF',
         fontSize: 14,
-        fontWeight: '700',
+        fontFamily: 'Outfit_700Bold',
+        letterSpacing: 0.5,
     },
 });
 

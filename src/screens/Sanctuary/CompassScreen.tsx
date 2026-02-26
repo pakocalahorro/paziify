@@ -48,7 +48,7 @@ const CompassScreen = () => {
         growth: null
     });
 
-    const { setLastSelectedBackgroundUri, markEntryAsDone, updateUserState } = useApp();
+    const { markEntryAsDone, updateUserState } = useApp();
 
     React.useEffect(() => {
         const loadBgs = async () => {
@@ -81,18 +81,16 @@ const CompassScreen = () => {
         // 1. Use already loaded background for this session
         const bgUri = backgrounds[mode];
         if (bgUri) {
-            setLastSelectedBackgroundUri(bgUri); // Context state
+            // 2. Actualizar estado global y la imagen aleatoria que es la nueva fuente
+            updateUserState({
+                lifeMode: mode,
+                lastSelectedBackgroundUri: bgUri as string | undefined, // Se guarda el background en el único source of truth
+                lastEntryDate: new Date().toISOString().split('T')[0],
+            });
         }
 
-        // 2. Mark ritual as done for today and persist mode + specific image
-        updateUserState({
-            lastEntryDate: new Date().toISOString().split('T')[0],
-            lifeMode: mode,
-            lastSelectedBackgroundUri: bgUri || undefined
-        });
-
         // 3. Go directly to Home (MainTabs)
-        navigation.replace('MainTabs', { mode });
+        navigation.replace('MainTabs' as any, { mode });
     };
 
     const gesture = Gesture.Pan()

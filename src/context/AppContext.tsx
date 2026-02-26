@@ -22,8 +22,6 @@ interface AppContextType {
     signOut: () => Promise<void>;
     signInWithGoogle: () => Promise<void>;
     toggleFavorite: (sessionId: string) => void;
-    lastSelectedBackgroundUri: string | null;
-    setLastSelectedBackgroundUri: (uri: string | null) => void;
     isFirstEntryOfDay: boolean;
     markEntryAsDone: () => void;
 }
@@ -66,7 +64,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isNightMode, setIsNightMode] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [lastSelectedBackgroundUri, setLastSelectedBackgroundUri] = useState<string | null>(null);
     const [isFirstEntryOfDay, setIsFirstEntryOfDay] = useState(false);
 
     // Track first entry of the day
@@ -147,6 +144,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         ...prev,
                         name: data.full_name || prev.name,
                         avatarUrl: data.avatar_url,
+                        role: data.role || prev.role,
                         streak: data.streak || 0,
                         resilienceScore: data.resilience_score || 50,
                         isPlusMember: data.is_plus_member || false,
@@ -306,8 +304,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 signOut,
                 signInWithGoogle,
                 toggleFavorite,
-                lastSelectedBackgroundUri,
-                setLastSelectedBackgroundUri,
                 isFirstEntryOfDay,
                 markEntryAsDone,
             }}

@@ -30,10 +30,8 @@ import { Svg, Circle } from 'react-native-svg';
 import { useSessions, useAudiobooks, useStories, useAcademyModules, useSoundscapes } from '../../hooks/useContent';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import BentoGrid from '../../components/Home/BentoGrid';
-import BentoCard from '../../components/Home/BentoCard';
-import ZenMeter from '../../components/Home/ZenMeter';
 import StatsCard from '../../components/Home/StatsCard';
-import WeeklyChart from '../../components/Home/WeeklyChart';
+import OasisCard from '../../components/Oasis/OasisCard';
 import { analyticsService } from '../../services/analyticsService';
 import PurposeModal from '../../components/Home/PurposeModal';
 import SoundWaveHeader from '../../components/SoundWaveHeader';
@@ -208,16 +206,67 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
         };
     }, [allSessions, allBooks, allStories, academyModules, allSoundscapes, visualMode, userState.activeChallenge]);
 
+    // 6. Dynamic Background Logic (Vanguard Tier)
+    const dynamicBackgroundUri = useMemo(() => {
+        // Fallback Master Constants
+        const fallbacks = {
+            healing: [
+                'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/meditation_forest.webp',
+                'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/meditation_temple.webp'
+            ],
+            growth: [
+                'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/meditation_cave.webp',
+                'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/meditation_cosmos.webp'
+            ]
+        };
+
+        // If the Orb or previous navigation explicitly set a background, use it!
+        if (userState.lastSelectedBackgroundUri) {
+            return userState.lastSelectedBackgroundUri;
+        }
+
+        if (allSessions && allSessions.length > 0) {
+            // Target categories map
+            const targetCats = visualMode === 'healing'
+                ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
+                : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
+
+            // Find ALL sessions matching the current mega-category with a valid image
+            const matchingSessions = allSessions.filter(s =>
+                targetCats.includes(s.category as string) &&
+                s.thumbnail_url &&
+                s.thumbnail_url.startsWith('http')
+            );
+
+            if (matchingSessions.length > 0) {
+                // Pick a random session from the matching ones to extract its background image
+                const randomSession = matchingSessions[Math.floor(Math.random() * matchingSessions.length)];
+                return randomSession.thumbnail_url || null;
+            }
+        }
+
+        // If no sessions match (or still loading), pick a random fallback guaranteed
+        const randomFallbackIndex = Math.floor(Math.random() * 2);
+        return visualMode === 'healing' ? fallbacks.healing[randomFallbackIndex] : fallbacks.growth[randomFallbackIndex];
+    }, [visualMode, allSessions, userState.lastSelectedBackgroundUri]);
+
     const dailyGoal = userState.dailyGoalMinutes || 20;
     const weeklyGoal = userState.weeklyGoalMinutes || 150;
     const dailyProgress = Math.min(todayStats.minutes / dailyGoal, 1);
     const weeklyProgress = Math.min(weeklyStats.minutes / weeklyGoal, 1);
 
+    console.log('[HomeScreen Debug] visualMode:', visualMode);
+    console.log('[HomeScreen Debug] allSessions length:', allSessions?.length);
+    console.log('[HomeScreen Debug] dynamicBackgroundUri:', dynamicBackgroundUri);
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            <BackgroundWrapper nebulaMode={visualMode === 'healing' ? 'healing' : 'growth'} />
+            <BackgroundWrapper
+                nebulaMode={visualMode === 'healing' ? 'healing' : 'growth'}
+                remoteImageUri={dynamicBackgroundUri}
+            />
 
             {/* BARRA DE CRISTAL FIJA (TOP SAFE AREA) */}
             <BlurView
@@ -278,6 +327,14 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                                             onPress={() => setShowChallengeInfo(true)}
                                         >
                                             <Ionicons name="information-circle-outline" size={18} color="#FFF" />
+                                        </TouchableOpacity>
+
+                                        {/* Hidden Showcase Button for Dev Testing */}
+                                        <TouchableOpacity
+                                            style={[styles.retoButton, { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }]}
+                                            onPress={() => navigation.navigate(Screen.OASIS_SHOWCASE as any)}
+                                        >
+                                            <Ionicons name="color-palette-outline" size={18} color="#2DD4BF" />
                                         </TouchableOpacity>
 
                                         <TouchableOpacity
@@ -360,6 +417,14 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                                     <Text style={styles.retoButtonText}>ACTIVA TU EVOLUCIÓN</Text>
                                 </TouchableOpacity>
                             </Animated.View>
+
+                            {/* Hidden Showcase Button for Dev Testing */}
+                            <TouchableOpacity
+                                style={[styles.retoButton, { backgroundColor: 'transparent', borderWidth: 0, paddingHorizontal: 8 }]}
+                                onPress={() => navigation.navigate(Screen.OASIS_SHOWCASE as any)}
+                            >
+                                <Ionicons name="color-palette-outline" size={20} color="#2DD4BF" />
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.userProfileRow}>
                             <TouchableOpacity
@@ -382,8 +447,14 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         <BlurView intensity={70} tint="dark" style={styles.dashboardBlur}>
                             <View style={styles.dashboardContent}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                    <ZenMeter progress={dailyProgress} size={75} label="HOY" />
-                                    <ZenMeter progress={weeklyProgress} size={75} label="SEM" />
+                                    <View style={{ alignItems: 'center' }}>
+                                        <Text style={{ color: '#FFF', fontSize: 24, fontWeight: 'bold' }}>{Math.round(dailyProgress * 100)}%</Text>
+                                        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: 1 }}>HOY</Text>
+                                    </View>
+                                    <View style={{ alignItems: 'center' }}>
+                                        <Text style={{ color: '#FFF', fontSize: 24, fontWeight: 'bold' }}>{Math.round(weeklyProgress * 100)}%</Text>
+                                        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: 1 }}>SEM</Text>
+                                    </View>
                                 </View>
                                 <View style={styles.dashboardSeparator} />
                                 <View style={[styles.dashboardStats, { justifyContent: 'center', gap: 12, marginLeft: 8 }]}>
@@ -681,18 +752,21 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         </View>
 
                         <View style={{ marginBottom: 16 }}>
-                            <BentoCard
-                                title={""} // Title handled externally now
-                                icon="play"
-                                largeIcon={false}
-                                variant="vinyl"
-                                badgeText="SONIDO"
-                                mood={visualMode === 'healing' ? 'healing' : 'growth'}
-                                backgroundImage={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
+                            <OasisCard
+                                superTitle="SONIDO"
+                                title=""
+                                subtitle="Música ambiente"
+                                imageUri={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
                                 onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
                                     soundscapeId: recommendations.sounds.id,
                                     soundscape: recommendations.sounds
                                 })}
+                                icon="play-circle"
+                                badgeText="SONIDO"
+                                actionText="Escuchar"
+                                actionIcon="play"
+                                variant="hero"
+                                accentColor="#10B981"
                             />
                         </View>
                     </View>

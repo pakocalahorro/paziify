@@ -24,7 +24,7 @@ import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import { useApp } from '../../context/AppContext';
 import { savePlaybackPosition, getPlaybackPosition, savePlaybackSpeed, getPlaybackSpeed } from '../../services/playbackStorage';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 type AudiobookPlayerScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -288,20 +288,20 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                 {/* Header */}
                 <View style={[styles.header, { paddingTop: insets.top }]}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-                        <Ionicons name="chevron-down" size={28} color="#FFF" />
+                        <Ionicons name="chevron-down" size={32} color="#FFF" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Audiolibro</Text>
+                    <Text style={styles.headerTitle}>Audio de Inmersión</Text>
                     <TouchableOpacity onPress={toggleFavorite} style={styles.iconButton}>
                         <Ionicons
                             name={isFavorite ? "heart" : "heart-outline"}
-                            size={26}
+                            size={28}
                             color={isFavorite ? theme.colors.primary : "#FFF"}
                         />
                     </TouchableOpacity>
                 </View>
 
                 {/* Cover Art */}
-                <View style={styles.coverContainer}>
+                <View style={[styles.coverContainer, { marginTop: height * 0.05 }]}>
                     <Image
                         source={typeof audiobook.image_url === 'number' ? audiobook.image_url : { uri: audiobook.image_url }}
                         style={styles.coverImage}
@@ -314,7 +314,10 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                     <Text style={styles.title} numberOfLines={2}>{audiobook.title}</Text>
                     <Text style={styles.author}>{audiobook.author}</Text>
                     {audiobook.narrator && (
-                        <Text style={styles.narrator}>Narrado por {audiobook.narrator}</Text>
+                        <View style={styles.narratorBadge}>
+                            <Ionicons name="mic-outline" size={12} color="rgba(255,255,255,0.6)" />
+                            <Text style={styles.narrator}>Narrado por {audiobook.narrator}</Text>
+                        </View>
                     )}
                 </View>
 
@@ -340,20 +343,26 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                 {/* Controls */}
                 <View style={styles.controlsContainer}>
                     <TouchableOpacity onPress={() => skipBackward()} style={styles.controlButton}>
-                        <Ionicons name="play-back" size={32} color="#FFF" />
+                        <BlurView intensity={30} tint="light" style={styles.smallControlBlur}>
+                            <Ionicons name="play-back" size={24} color="#FFF" />
+                        </BlurView>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={togglePlayback} style={styles.playPauseButton}>
-                        <Ionicons
-                            name={isPlaying && currentTrack?.id === audiobook.id ? "pause" : "play"}
-                            size={48}
-                            color="#000"
-                            style={!isPlaying ? { marginLeft: 4 } : {}}
-                        />
+                    <TouchableOpacity onPress={togglePlayback} style={styles.playPauseButtonContainer} activeOpacity={0.8}>
+                        <BlurView intensity={50} tint="light" style={styles.playPauseBlur}>
+                            <Ionicons
+                                name={isPlaying && currentTrack?.id === audiobook.id ? "pause" : "play"}
+                                size={44}
+                                color="#FFF"
+                                style={!isPlaying ? { marginLeft: 4 } : {}}
+                            />
+                        </BlurView>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => skipForward()} style={styles.controlButton}>
-                        <Ionicons name="play-forward" size={32} color="#FFF" />
+                        <BlurView intensity={30} tint="light" style={styles.smallControlBlur}>
+                            <Ionicons name="play-forward" size={24} color="#FFF" />
+                        </BlurView>
                     </TouchableOpacity>
                 </View>
 
@@ -543,21 +552,33 @@ const styles = StyleSheet.create({
     },
     title: {
         color: '#FFF',
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 28,
+        fontWeight: '800',
         textAlign: 'center',
         marginBottom: 8,
+        letterSpacing: -0.5,
     },
     author: {
+        fontFamily: 'Satisfy_400Regular', // Satisfy font applied (Hardcoded to avoid theme config errors)
         color: theme.colors.primary,
-        fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 4,
+        fontSize: 24,
+        marginBottom: 10,
+    },
+    narratorBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 6,
     },
     narrator: {
-        color: '#FFF',
-        fontSize: 14,
-        opacity: 0.6,
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 11,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     sliderContainer: {
         paddingHorizontal: 30,
@@ -581,19 +602,38 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 50,
+        marginBottom: height * 0.05,
     },
     controlButton: {
-        padding: 20,
+        padding: 10,
     },
-    playPauseButton: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: '#FFF',
+    smallControlBlur: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)'
+    },
+    playPauseButtonContainer: {
         marginHorizontal: 30,
+        elevation: 10,
+        shadowColor: '#FFF',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+    },
+    playPauseBlur: {
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.4)',
     },
     footerOptions: {
         flexDirection: 'row',
@@ -603,12 +643,20 @@ const styles = StyleSheet.create({
     },
     optionItem: {
         alignItems: 'center',
-        opacity: 0.8,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        minWidth: 80,
     },
     optionText: {
         color: '#FFF',
         fontSize: 10,
-        marginTop: 4,
+        fontWeight: '700',
+        marginTop: 6,
+        letterSpacing: 0.5,
     },
     modalOverlay: {
         flex: 1,

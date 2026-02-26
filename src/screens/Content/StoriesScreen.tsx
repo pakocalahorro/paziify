@@ -23,7 +23,7 @@ import { theme } from '../../constants/theme';
 import { storiesService } from '../../services/contentService';
 import { useStories } from '../../hooks/useContent';
 import { useApp } from '../../context/AppContext';
-import StoryCard from '../../components/StoryCard';
+import { OasisCard } from '../../components/Oasis/OasisCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import { CONTENT_CATEGORIES } from '../../constants/categories'; // Import unified categories
 import { SESSION_ASSETS, IMAGES } from '../../constants/images'; // Import shared assets
@@ -286,42 +286,94 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
 
+            {/* Premium Background */}
             <View style={StyleSheet.absoluteFill}>
                 <BackgroundWrapper nebulaMode="healing" />
+
+                {/* Parallax Image Mapping - Fading the light part as we scroll */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [1, 0],
+                        extrapolate: 'clamp'
+                    }),
+                    transform: [{
+                        scale: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [1.2, 1, 1],
+                            extrapolate: 'clamp'
+                        })
+                    }, {
+                        translateY: scrollY.interpolate({
+                            inputRange: [-100, 0, 100],
+                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
+                            extrapolate: 'clamp'
+                        })
+                    }]
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
+                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
+                {/* Dark Background that stays for content */}
+                <Animated.View style={[StyleSheet.absoluteFill, {
+                    opacity: scrollY.interpolate({
+                        inputRange: [0, 200],
+                        outputRange: [0, 1],
+                        extrapolate: 'clamp'
+                    })
+                }]}>
+                    <LinearGradient
+                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
+
             </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                <Animated.FlatList
-                    data={filteredStories}
-                    keyExtractor={(item) => item.id}
-                    ListHeaderComponent={renderHeader}
-                    ListFooterComponent={
-                        <TouchableOpacity
-                            onPress={handlePopulate}
-                            style={{ padding: 20, alignItems: 'center', opacity: 0.3 }}
-                        >
-                            <Text style={{ color: '#FFF', fontSize: 10 }}>Regenerar Contenido (Dev)</Text>
-                        </TouchableOpacity>
-                    }
-                    renderItem={({ item, index }) => (
-                        <StoryCard
-                            story={item}
-                            onPress={handleStoryPress}
-                            isPlusMember={userState.isPlusMember}
-                            scrollY={scrollY}
-                            index={index}
-                        />
-                    )}
+                <Animated.ScrollView
                     contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 20 }]}
                     showsVerticalScrollIndicator={false}
-                    onRefresh={handleRefresh}
-                    refreshing={isRefetching}
+                    scrollEventThrottle={16}
                     onScroll={Animated.event(
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: true }
                     )}
-                    scrollEventThrottle={16}
-                />
+                >
+                    {renderHeader()}
+
+                    <View style={{ paddingHorizontal: 20 }}>
+                        {filteredStories.map((item, index) => (
+                            <View style={{ marginBottom: 16 }} key={item.id}>
+                                <OasisCard
+                                    superTitle={(item as any).category}
+                                    title={(item as any).title}
+                                    subtitle={`${(item as any).duration_m || 0} mins · ${(item as any).character_name || 'Historia'}`}
+                                    imageUri={(item as any).thumbnail_url}
+                                    onPress={() => handleStoryPress(item)}
+                                    icon="sparkles-outline"
+                                    badgeText={(item as any).is_premium ? "PREMIUM" : "LIBRE"}
+                                    actionText="Leer Biografía"
+                                    actionIcon="book"
+                                    variant="hero"
+                                    accentColor="#FBBF24"
+                                    sharedTransitionTag={`story.image.${item.id}`}
+                                />
+                            </View>
+                        ))}
+                    </View>
+
+                    <TouchableOpacity
+                        onPress={handlePopulate}
+                        style={{ padding: 20, alignItems: 'center', opacity: 0.3 }}
+                    >
+                        <Text style={{ color: '#FFF', fontSize: 10 }}>Regenerar Contenido (Dev)</Text>
+                    </TouchableOpacity>
+                </Animated.ScrollView>
             </Animated.View>
 
             {loading && !isRefetching && (

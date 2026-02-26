@@ -29,6 +29,7 @@ export enum Screen {
     CARDIO_SCAN = 'CARDIO_SCAN',
     CARDIO_RESULT = 'CARDIO_RESULT',
     EVOLUTION_CATALOG = 'EVOLUTION_CATALOG',
+    OASIS_SHOWCASE = 'OASIS_SHOWCASE', // Hidden route for design testing
 }
 
 export type ChallengeType = 'desafio' | 'reto' | 'mision';
@@ -57,6 +58,7 @@ export interface UserState {
     streak: number;
     resilienceScore: number;
     isPlusMember: boolean;
+    role?: string; // e.g., 'admin', 'user'
     totalMinutes?: number;
     lastSessionDate?: string;
     lastEntryDate?: string; // New: To track daily ritual
@@ -225,6 +227,7 @@ export type RootStackParamList = {
     [Screen.CARDIO_SCAN]: { context?: 'baseline' | 'post_session' } | undefined;
     [Screen.CARDIO_RESULT]: { diagnosis: 'stress' | 'fatigue' | 'balanced' };
     [Screen.EVOLUTION_CATALOG]: undefined;
+    [Screen.OASIS_SHOWCASE]: undefined;
 }
 
 

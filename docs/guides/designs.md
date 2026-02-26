@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.33.8) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.34.0) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.33.8** introduce el rediseño integral de Perfil y Ajustes bajo la estética **Oasis Design**, con unificación de reportes y sistema de gráficas coordinado.
+Esta guía define el ADN visual de Paziify. La versión **v2.34.0** introduce el rediseño integral de Perfil y Ajustes bajo la estética **Oasis Design**, con unificación de reportes y sistema de gráficas coordinado.
 
 ---
 
@@ -152,7 +152,7 @@ Todas las pantallas del flujo de meditación usan la `thumbnailUrl` de la sesió
 
 ---
 
-## 17. Oasis Settings & Profile Redesign (v2.33.5) 🌿
+## 17. Oasis Settings & Profile Redesign (v2.34.0) 🌿
 Rediseño integral para maximizar la claridad y reducir la fricción.
 
 ### Perfil (ProfileScreen)
@@ -171,4 +171,24 @@ Rediseño integral para maximizar la claridad y reducir la fricción.
 
 ---
 
-*Última revisión: 25 de Febrero de 2026 - Versión 2.33.8 (Chart Unification)*
+## 18. Paziify Design System (PDS) v3.0 - "Oasis Edition" (v2.34.0) 🪐
+La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado por tres pilares fundamentales que dictan la estética de todas las pantallas:
+
+### 1. Profundidad a través de Glassmorphism (BlurViews)
+- Adiós a los fondos grises y negros sólidos (`#1E293B`, `#0F172A`). Las tarjetas, modales y reproductores utilizan ahora `BlurView` nativos (vía `expo-blur`) con `tint="dark"` y niveles de `intensity` variables:
+  - **Paneles base**: `intensity={15-20}`
+  - **Reproductores flotantes/Widgets**: `intensity={35-45}`
+  - **Modales superpuestos**: `intensity={70-90}`
+- Los bordes se refinan con un trazo sutil de `borderWidth: 1` y `borderColor: 'rgba(255,255,255,0.05 a 0.15)'`.
+
+### 2. Tipografía "Premium Editorial"
+- Se eleva la jerarquía de las cabeceras principales mediante la fuente secundaria decorativa `Satisfy_400Regular`.
+- Se mantiene `Outfit` para dar carácter moderno a las cards y `Inter` para la legibilidad del texto en párrafos.
+
+### 3. "The Floating Island" (GlobalMiniPlayer)
+- La experiencia de audio inmersivo ahora descansa en un Mini-Reproductor global flotante que se anexa al `CustomTabBar`. 
+- Incorpora animaciones de entrada (`FadeInDown.springify()`) y feedback háptico en cada interacción de reproducción, unificando Audiolibros, Historias y Sonidos de Fondo bajo la misma sombrilla.
+
+---
+
+*Última revisión: 26 de Febrero de 2026 - Versión 2.34.0 (PDS v3.0 Oasis Edition)*

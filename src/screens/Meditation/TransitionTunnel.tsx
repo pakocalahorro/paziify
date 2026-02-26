@@ -52,7 +52,7 @@ const TransitionTunnel: React.FC<Props> = ({ navigation, route }) => {
 
         const timer = setTimeout(() => {
             navigation.replace(Screen.BREATHING_TIMER, {
-                sessionId: route.params?.sessionId
+                sessionId: route.params?.sessionId || 'default-session'
             });
         }, 4500);
 

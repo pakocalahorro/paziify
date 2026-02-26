@@ -30,12 +30,13 @@ import * as Haptics from 'expo-haptics';
 import StarCore from '../components/Sanctuary/StarCore';
 import { useSessions } from '../hooks/useContent';
 import { CHALLENGES } from '../constants/challenges';
+import GlobalMiniPlayer from '../components/Player/GlobalMiniPlayer';
 
 const { width } = Dimensions.get('window');
 
 const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation }) => {
     const insets = useSafeAreaInsets();
-    const { userState, updateUserState, setLastSelectedBackgroundUri } = useApp();
+    const { userState, updateUserState } = useApp();
     const [isSantuarioOpen, setIsSantuarioOpen] = useState(false);
 
     // Shared value for StarCore with smooth transition
@@ -74,19 +75,15 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
         if (userState.activeChallenge) return; // Desactivado si hay reto
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-        // 1. Obtener imagen aleatoria igual que en la Brújula
+        // 1. Obtener imagen garantizada del servidor (nunca null)
         const bgUri = await contentService.getRandomCategoryImage(mode);
 
         // 2. Actualizar estado global
         updateUserState({
             lifeMode: mode,
-            lastSelectedBackgroundUri: bgUri as string || undefined,
+            lastSelectedBackgroundUri: bgUri as string | undefined,
             lastEntryDate: new Date().toISOString().split('T')[0],
         });
-
-        if (bgUri) {
-            setLastSelectedBackgroundUri(bgUri as string);
-        }
 
         setIsSantuarioOpen(false);
     };
@@ -108,6 +105,11 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
 
     return (
         <View style={[styles.container, { paddingBottom: insets.bottom > 0 ? insets.bottom : 30 }]}>
+            {/* Global Mini-Player anclado encima de las tabs */}
+            <View style={{ position: 'absolute', bottom: 90, width: '100%', alignItems: 'center' }}>
+                <GlobalMiniPlayer />
+            </View>
+
             <View style={styles.buttonsContainer}>
                 {/* Primeros dos botones: Inicio y Biblioteca */}
                 {routes.slice(0, 2).map((route, index) => {
