@@ -25,6 +25,9 @@ import { useStories } from '../../hooks/useContent';
 import { useApp } from '../../context/AppContext';
 import { OasisCard } from '../../components/Oasis/OasisCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { CONTENT_CATEGORIES } from '../../constants/categories'; // Import unified categories
 import { SESSION_ASSETS, IMAGES } from '../../constants/images'; // Import shared assets
 
@@ -190,34 +193,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
     const renderHeader = () => (
         <View style={styles.headerContent}>
             <View style={styles.header}>
-                <View style={styles.headerRow}>
-                    <View style={styles.headerLeft}>
-                        <TouchableOpacity
-                            style={styles.backBtnAbsolute}
-                            onPress={() => navigation.goBack()}
-                        >
-                            <Ionicons name="arrow-back" size={20} color="#FFF" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.searchToggleBtn}
-                            onPress={toggleSearch}
-                        >
-                            <Ionicons
-                                name={isSearchExpanded ? "close-outline" : "search-outline"}
-                                size={20}
-                                color={isSearchExpanded ? "#2DD4BF" : "#FFF"}
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.headerTitleContainer}>
-                        <Text style={styles.headerTitleInline}>Historias Reales</Text>
-                    </View>
-
-                    <View style={styles.headerIconContainer}>
-                        <Ionicons name="sparkles-outline" size={24} color="#FBBF24" />
-                    </View>
-                </View>
+                {/* Antiguo bloque de encabezado removido - Ahora manejado por OasisHeader en OasisScreen */}
             </View>
 
             {/* Search Bar (Collapsible) */}
@@ -283,56 +259,28 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <StatusBar barStyle="light-content" />
-
-            {/* Premium Background */}
-            <View style={StyleSheet.absoluteFill}>
-                <BackgroundWrapper nebulaMode="healing" />
-
-                {/* Parallax Image Mapping - Fading the light part as we scroll */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [1, 0],
-                        extrapolate: 'clamp'
-                    }),
-                    transform: [{
-                        scale: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [1.2, 1, 1],
-                            extrapolate: 'clamp'
-                        })
-                    }, {
-                        translateY: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
-                            extrapolate: 'clamp'
-                        })
-                    }]
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
-                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
-
-                {/* Dark Background that stays for content */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [0, 1],
-                        extrapolate: 'clamp'
-                    })
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
-
-            </View>
+        <OasisScreen
+            header={
+                <OasisHeader
+                    title="HISTORIAS"
+                    path={["Oasis", "Biblioteca"]}
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                        if (index === 1) navigation.navigate(Screen.LIBRARY as any);
+                    }}
+                    onSearchPress={toggleSearch}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                />
+            }
+            themeMode="healing"
+            disableContentPadding={true}
+            preset="fixed"
+        >
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.ScrollView
@@ -345,6 +293,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     )}
                 >
                     {renderHeader()}
+                    <SoundwaveSeparator title="Relatos Reales" accentColor="#FBBF24" />
 
                     <View style={{ paddingHorizontal: 20 }}>
                         {filteredStories.map((item, index) => (
@@ -359,6 +308,8 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                                     badgeText={(item as any).is_premium ? "PREMIUM" : "LIBRE"}
                                     actionText="Leer Biografía"
                                     actionIcon="book"
+                                    duration={(item as any).duration_m ? `${(item as any).duration_m} min` : undefined}
+                                    level={(item as any).difficulty}
                                     variant="hero"
                                     accentColor="#FBBF24"
                                     sharedTransitionTag={`story.image.${item.id}`}
@@ -381,7 +332,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                     <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>
             )}
-        </View>
+        </OasisScreen>
     );
 };
 
@@ -496,7 +447,7 @@ const styles = StyleSheet.create({
         zIndex: 1000,
     },
     listContent: {
-        paddingHorizontal: 20,
+        // paddingHorizontal: 20 removed to allow full-width SoundwaveSeparator
     },
 });
 

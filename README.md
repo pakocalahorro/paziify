@@ -2,9 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Paziify - AI Studio App (v2.31.0) 🚀
+# Paziify - AI Studio App (v2.34.1) 🚀
 
-Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.31.0 (Evolution Focus)**, que introduce una navegación blindada para retos activos, el Santuario de alta fidelidad y un sistema de información de programas integrado.
+Bienvenido al repositorio oficial de Paziify. Esta es la versión **v2.34.1 (Master Header Edition)**, que consolida la navegación narrativa premium, la identidad visual unificada y el diseño de "Rayo" de borde a borde.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1rb4V4qU4vKVmVlB2WCQHu2lJA3GEgg29
 
@@ -51,11 +51,14 @@ Paziify se rige por 4 pilares de documentación que deben estar siempre sincroni
 
 ---
 
-- **[NEW] Premium Evolution (v2.30.0)**: Transformación total de 119 guiones a formato **SSML Premium**. Unificación de buckets de storage con estrategia de carpetas dinámicas. Panel Admin optimizado con previsualización de audio y borrado inteligente de archivos.
-- **[PREVIOUS] Premium Audio & Admin Sync (v2.15.0)**: Migración a voces **Chirp3-HD** y **Studio**. Motor de audio con **Quota Tracker** y chunking por bytes (4800b). Sincronización total del Panel Admin con la App mediante constantes centralizadas y autosync de `legacy_id`.
+- **[NEW] Master Header Edition (v2.34.1)**: Refinamiento estratégico del sistema de navegación. Identidad unificada (Avatar/Nombre) en cabeceras. Estandarización global del SoundwaveSeparator (borde a borde). Navegación de perfil persistente (Tabs visibles).
+
+- **[NEW] Oasis Edition (v2.34.0)**: Rediseño integral basado en PDS v3.0 (Glassmorphism, Blur, Caveat Font). Introducción del Mini-Reproductor Global y unificación de catálogos mediante OasisCard.
+
+- **[PREVIOUS] Premium Evolution (v2.31.0)**: Transformación total de guiones a formato SSML Premium. Introducción del Sistema de Evolución (Retos/Misiones) y Widget nativo.
 
 ---
 
-**Última actualización:** 21 de Febrero de 2026 - **Versión v2.30.0** (Premium Evolution)
+**Última actualización:** 28 de Febrero de 2026 - **Versión v2.34.1** (Master Header Edition)
 
 

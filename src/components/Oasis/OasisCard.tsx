@@ -3,8 +3,17 @@ import { View, Text, StyleSheet, TouchableOpacity, StyleProp, ViewStyle, TextSty
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import { Ionicons, Feather } from '@expo/vector-icons';
+import Animated, { FadeInUp, FadeInRight, FadeIn, withRepeat, withSequence, withTiming, withDelay, useSharedValue, useAnimatedStyle, Easing } from 'react-native-reanimated';
+
+// Helper to deduce icon for tags
+const getTagIcon = (tag: string): keyof typeof Feather.glyphMap | null => {
+    const text = tag.toLowerCase();
+    if (text.includes('min') || text.includes('hora')) return 'clock';
+    if (text.includes('principiante') || text.includes('medio') || text.includes('avanzado')) return 'trending-up';
+    if (text.includes('libre') || text.includes('gratis')) return 'unlock';
+    return null;
+};
 
 interface OasisCardProps {
     superTitle?: string;    // e.g "Curso" or "Audiolibro"
@@ -20,6 +29,9 @@ interface OasisCardProps {
     variant?: 'default' | 'compact' | 'hero';
     accentColor?: string;   // Drives the super-title and glow
     sharedTransitionTag?: string; // Links the image in a Shared Element Transition
+    duration?: string;      // e.g. '15 min'
+    level?: string;         // e.g. 'Principiante'
+    isPremium?: boolean;    // Shows PLUS or LIBRE ribbon
 }
 
 /**
@@ -39,10 +51,33 @@ export const OasisCard: React.FC<OasisCardProps> = ({
     style,
     variant = 'default',
     accentColor = '#2DD4BF', // Healing default
-    sharedTransitionTag
+    sharedTransitionTag,
+    duration,
+    level,
+    isPremium = false
 }) => {
     const isHero = variant === 'hero';
     const isCompact = variant === 'compact';
+
+    // Animated values for the Premium Ribbon Glow
+    const ribbonGlow = useSharedValue(0.4);
+
+    React.useEffect(() => {
+        if (isPremium) {
+            ribbonGlow.value = withRepeat(
+                withSequence(
+                    withTiming(1, { duration: 1500 }),
+                    withTiming(0.4, { duration: 1500 })
+                ),
+                -1,
+                true
+            );
+        }
+    }, [isPremium]);
+
+    const animatedRibbonStyle = useAnimatedStyle(() => ({
+        opacity: ribbonGlow.value,
+    }));
 
     // The image card height
     const cardHeight = isHero ? 280 : isCompact ? 100 : 200;
@@ -137,21 +172,59 @@ export const OasisCard: React.FC<OasisCardProps> = ({
                     {/* Content inside the image card */}
                     <View style={styles.cardContentBox}>
 
-                        {/* Top Left Badge */}
+                        {/* Neo-Minimalist Top Left Badge */}
                         {!!badgeText && (
-                            <View style={styles.badgeWrapper}>
-                                <BlurView intensity={50} tint="light" style={styles.badgeBlur}>
-                                    {!!icon && <Ionicons name={icon} size={14} color="#FFFFFF" style={styles.badgeIcon} />}
-                                    <Text style={styles.badgeText}>{badgeText}</Text>
+                            <View style={styles.neoBadgeWrapper}>
+                                {!!icon && <Ionicons name={icon} size={10} color={accentColor} style={styles.neoBadgeIcon} />}
+                                {!icon && <View style={[styles.neoBadgeDot, { backgroundColor: accentColor }]} />}
+                                <Text style={[styles.neoBadgeText, { color: accentColor }]}>{badgeText}</Text>
+                            </View>
+                        )}
+
+                        {/* Top Right Ribbon (Anchored Structural: PLUS / LIBRE) */}
+                        <View style={styles.premiumRibbonWrapper}>
+                            <Animated.View entering={FadeInRight.delay(200).springify()}>
+                                <View style={styles.premiumRibbonRotator}>
+                                    <LinearGradient colors={isPremium ? ['#F59E0B', '#FDE047'] : ['#334155', '#94A3B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumRibbon}>
+                                        <Text style={[styles.premiumRibbonText, !isPremium && { color: '#FFFFFF' }]}>{isPremium ? 'PLUS' : 'LIBRE'}</Text>
+                                    </LinearGradient>
+                                    {/* Animated Pulse Overlay (Only for Premium) */}
+                                    {isPremium && (
+                                        <Animated.View style={[StyleSheet.absoluteFill, animatedRibbonStyle]}>
+                                            <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={StyleSheet.absoluteFill} />
+                                        </Animated.View>
+                                    )}
+                                </View>
+                            </Animated.View>
+                        </View>
+
+                        {/* Bottom Left Duration Corner */}
+                        {!!duration && (
+                            <View style={styles.durationCorner}>
+                                <BlurView intensity={30} tint="dark" style={styles.durationBlur}>
+                                    <Text style={styles.durationText}>{duration.replace(/\D/g, '')}</Text>
+                                    <Feather name={getTagIcon(duration) || 'clock'} size={10} color="rgba(255,255,255,0.8)" style={{ marginLeft: 4 }} />
                                 </BlurView>
                             </View>
                         )}
 
-                        {/* Center Action Button (Play) */}
-                        <View style={styles.actionButtonContainer}>
-                            <View style={styles.actionButton}>
-                                <Ionicons name={actionIcon} size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
-                                <Text style={styles.actionButtonText}>{actionText}</Text>
+                        <View style={styles.centerActionArea}>
+                            {/* Center Action Button (Play with Level metadata) */}
+                            <View style={styles.actionButtonContainer}>
+                                <BlurView intensity={30} tint="light" style={styles.actionButtonBlur}>
+                                    <View style={styles.actionButton}>
+                                        <Ionicons name={actionIcon} size={28} color="#FFF" style={{ marginRight: 12 }} />
+                                        <View style={styles.actionButtonTextCol}>
+                                            <Text style={styles.actionButtonText}>{actionText}</Text>
+                                            {!!level && (
+                                                <View style={styles.levelRow}>
+                                                    <Feather name={getTagIcon(level) || "trending-up"} size={11} color="rgba(255,255,255,0.8)" style={{ marginRight: 4 }} />
+                                                    <Text style={styles.levelText}>{level}</Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    </View>
+                                </BlurView>
                             </View>
                         </View>
 
@@ -185,7 +258,7 @@ const styles = StyleSheet.create({
         marginBottom: -8,
     },
     mainTitle: {
-        fontFamily: 'Outfit_800ExtraBold',
+        fontFamily: 'Outfit_900Black',
         fontSize: 20,
         color: '#FFFFFF',
         textAlign: 'left',
@@ -218,8 +291,8 @@ const styles = StyleSheet.create({
     cardContentBox: {
         flex: 1,
         padding: 16,
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     // Compact styles
     contentCompact: {
@@ -254,52 +327,113 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'rgba(255,255,255,0.6)',
     },
-    badgeWrapper: {
+    neoBadgeWrapper: {
         position: 'absolute',
-        top: 16,
-        left: 16,
-        overflow: 'hidden',
-        borderRadius: 30,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: 'rgba(255,255,255,0.4)',
-    },
-    badgeBlur: {
+        top: 20,
+        left: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        borderRadius: 12,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
-    badgeIcon: {
+    neoBadgeDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        marginRight: 6,
+        shadowColor: '#FFF',
+        shadowOpacity: 0.8,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 0 },
+    },
+    neoBadgeIcon: {
         marginRight: 4,
     },
-    badgeText: {
-        color: '#FFFFFF',
-        fontSize: 10,
-        fontWeight: '800',
-        letterSpacing: 1,
+    neoBadgeText: {
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 9,
+        letterSpacing: 1.5,
         textTransform: 'uppercase',
+    },
+    premiumRibbonWrapper: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: 80,
+        height: 80,
+        overflow: 'hidden',
+        borderTopRightRadius: 24, // Matches card radius
+    },
+    premiumRibbonRotator: {
+        position: 'absolute',
+        top: 14,
+        right: -28,
+        width: 120,
+        transform: [{ rotate: '45deg' }],
+        shadowColor: '#F59E0B',
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 5,
+    },
+    premiumRibbon: {
+        width: '100%',
+        paddingVertical: 4,
+        alignItems: 'center',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: 'rgba(255,255,255,0.5)',
+    },
+    premiumRibbonText: {
+        color: '#78350F',
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 9,
+        letterSpacing: 3,
     },
     actionButtonContainer: {
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: 8,
+    },
+    actionButtonBlur: {
+        borderRadius: 30,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
     actionButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        paddingHorizontal: 32,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        paddingHorizontal: 20,
         paddingVertical: 14,
-        borderRadius: 40,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.4)',
+    },
+    actionButtonTextCol: {
+        alignItems: 'flex-start',
+        justifyContent: 'center',
     },
     actionButtonText: {
         color: '#FFF',
-        fontWeight: '900',
-        fontSize: 15,
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 16,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
+    },
+    levelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 2,
+    },
+    levelText: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 9,
+        color: 'rgba(255,255,255,0.85)',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     descriptionText: {
         fontFamily: 'Outfit_400Regular',
@@ -308,6 +442,34 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         marginTop: 16,
         paddingHorizontal: 4,
+    },
+    centerActionArea: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+    },
+    durationCorner: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        borderTopRightRadius: 16,
+        overflow: 'hidden',
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderRightWidth: StyleSheet.hairlineWidth,
+        borderColor: 'rgba(255,255,255,0.15)',
+    },
+    durationBlur: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    durationText: {
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 12,
+        color: '#FFFFFF',
+        letterSpacing: 1,
     }
 });
 

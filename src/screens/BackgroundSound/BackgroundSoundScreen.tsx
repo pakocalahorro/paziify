@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Dimensions,
-    ScrollView
+    ScrollView,
+    TextInput
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,11 +18,14 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Screen, RootStackParamList } from '../../types';
+import { useApp } from '../../context/AppContext';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { Soundscape } from '../../data/soundscapesData';
 import SoundscapeCard from './components/SoundscapeCard';
 import { soundscapesService } from '../../services/contentService';
-import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import BacklitSilhouette from '../../components/Shared/BacklitSilhouette';
 
 const { width } = Dimensions.get('window');
@@ -37,9 +41,18 @@ interface Props {
 
 const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
+    const { userState } = useApp();
     const [soundscapes, setSoundscapes] = useState<Soundscape[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTag, setSelectedTag] = useState('Todos');
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+    const toggleSearch = () => {
+        setIsSearchExpanded(!isSearchExpanded);
+        if (isSearchExpanded) setSearchQuery('');
+    };
 
     useEffect(() => {
         const loadContent = async () => {
@@ -70,15 +83,30 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
         return Array.from(tags);
     }, [soundscapes]);
 
-    // Filtered list based on selection
+    // Filtered list based on selection and search
     const filteredSoundscapes = useMemo(() => {
-        if (selectedTag === 'Todos') return soundscapes;
-        return soundscapes.filter(s =>
-            s.recommendedFor && s.recommendedFor.some(tag =>
-                tag.toLowerCase() === selectedTag.toLowerCase()
-            )
-        );
-    }, [soundscapes, selectedTag]);
+        let list = soundscapes;
+
+        // 1. Tag filter
+        if (selectedTag !== 'Todos') {
+            list = list.filter(s =>
+                s.recommendedFor && s.recommendedFor.some(tag =>
+                    tag.toLowerCase() === selectedTag.toLowerCase()
+                )
+            );
+        }
+
+        // 2. Search filter
+        if (searchQuery.trim() !== '') {
+            const query = searchQuery.toLowerCase();
+            list = list.filter(s =>
+                s.name.toLowerCase().includes(query) ||
+                (s.description && s.description.toLowerCase().includes(query))
+            );
+        }
+
+        return list;
+    }, [soundscapes, selectedTag, searchQuery]);
 
     const handlePress = (item: Soundscape) => {
         navigation.navigate(Screen.BACKGROUND_PLAYER, {
@@ -89,21 +117,22 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContainer}>
-            {/* Fila 1: Flecha + Titulo + Icono */}
-            <View style={styles.headerRow1}>
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    style={styles.backBtn}
-                >
-                    <Ionicons name="arrow-back" size={24} color="#FFF" />
-                </TouchableOpacity>
-                <View style={styles.headerTitleContainer}>
-                    <Text style={styles.headerTitle}>Espacio Sonoro</Text>
+            {/* Search Bar (Collapsible) */}
+            {isSearchExpanded && (
+                <View style={[styles.searchBaseContainer, { marginBottom: 15 }]}>
+                    <View style={styles.searchWrapper}>
+                        <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Buscar paisajes sonoros..."
+                            placeholderTextColor="rgba(255,255,255,0.3)"
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            autoFocus={true}
+                        />
+                    </View>
                 </View>
-                <View style={styles.silhouetteWrapper}>
-                    <BacklitSilhouette size={80} iconName="musical-notes-outline" />
-                </View>
-            </View>
+            )}
 
             {/* Fila 2: Filtro "Recomendaciones" */}
             <View style={styles.headerRow2}>
@@ -142,7 +171,7 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
                 </ScrollView>
             </View>
 
-            {/* Fila 3: Ondas de frecuencia */}
+            {/* Fila 3: Ondas de frecuencia (Full Width) */}
             <View style={styles.headerRow3}>
                 <SoundwaveSeparator title="Elige tu ambiente..." />
             </View>
@@ -150,17 +179,28 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <StatusBar barStyle="light-content" />
-
-            <View style={StyleSheet.absoluteFill}>
-                <BackgroundWrapper nebulaMode="healing" />
-                <LinearGradient
-                    colors={['rgba(255,255,255,0.4)', 'transparent', 'rgba(2, 6, 23, 0.8)', 'rgba(2, 6, 23, 1.0)']}
-                    locations={[0, 0.4, 0.8, 0.98]}
-                    style={StyleSheet.absoluteFill}
+        <OasisScreen
+            header={
+                <OasisHeader
+                    title="SONIDOS"
+                    path={["Oasis", "Biblioteca"]}
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                        if (index === 1) navigation.navigate(Screen.LIBRARY as any);
+                    }}
+                    onSearchPress={toggleSearch}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
                 />
-            </View>
+            }
+            themeMode="healing"
+            disableContentPadding={true}
+            preset="fixed"
+        >
 
             <View style={styles.content}>
                 {loading ? (
@@ -190,7 +230,7 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
                     />
                 )}
             </View>
-        </View>
+        </OasisScreen>
     );
 };
 
@@ -205,12 +245,26 @@ const styles = StyleSheet.create({
     headerContainer: {
         paddingTop: 10,
         marginBottom: 10,
+        paddingHorizontal: 0, // Now managed by children to allow full-width elements
     },
-    headerRow1: {
+    searchBaseContainer: {
+        paddingHorizontal: 20,
+    },
+    searchWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        marginBottom: 20,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        height: 48,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        color: '#FFF',
+        fontSize: 15,
     },
     headerRow2: {
         marginBottom: 16,

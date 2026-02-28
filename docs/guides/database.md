@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.34.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.34.1) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.34.0** añade el sistema de plantillas de notificaciones dinámicas y consolida la persistencia local de salud.
+Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.34.1** se sincroniza con el rediseño Oasis v3.
 
 ---
 
@@ -123,4 +123,4 @@ El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **e
 | `is_active`| BOOL | Control de publicación instantánea |
 
 ---
-*Última revisión: 25 de Febrero de 2026 - Versión 2.33.8 (Oasis Settings & Profile)*
+*Última revisión: 28 de Febrero de 2026 - Versión 2.34.1 (PDS v3.0 Master Header Edition)*

@@ -15,7 +15,6 @@ import TransitionTunnel from '../screens/Meditation/TransitionTunnel';
 import BreathingTimer from '../screens/Meditation/BreathingTimer';
 import SessionEndScreen from '../screens/Meditation/SessionEndScreen';
 import NotificationSettings from '../screens/Onboarding/NotificationSettings';
-import WeeklyReportScreen from '../screens/Profile/WeeklyReportScreen';
 import CBTDetailScreen from '../screens/Academy/CBTDetailScreen';
 import PaywallScreen from '../screens/Premium/PaywallScreen';
 import QuizScreen from '../screens/Academy/QuizScreen';
@@ -67,12 +66,10 @@ const AppNavigatorContent = () => {
                         <Stack.Screen name={Screen.SPIRITUAL_PRELOADER} component={SpiritualPreloader} />
                         <Stack.Screen name={Screen.COMPASS} component={CompassScreen} />
                         <Stack.Screen name="MainTabs" component={TabNavigator} />
-                        <Stack.Screen name={Screen.NOTIFICATION_SETTINGS} component={NotificationSettings} />
                         <Stack.Screen name={Screen.STORY_DETAIL} component={StoryDetailScreen} />
                         <Stack.Screen name={Screen.TRANSITION_TUNNEL} component={TransitionTunnel} />
                         <Stack.Screen name={Screen.BREATHING_TIMER} component={BreathingTimer} />
                         <Stack.Screen name={Screen.SESSION_END} component={SessionEndScreen} />
-                        <Stack.Screen name={Screen.WEEKLY_REPORT} component={WeeklyReportScreen} />
                         <Stack.Screen name={Screen.CBT_DETAIL} component={CBTDetailScreen} />
                         <Stack.Screen name={Screen.ACADEMY_COURSE_DETAIL} component={AcademyCourseDetailScreen} />
                         <Stack.Screen name={Screen.CBT_QUIZ} component={QuizScreen} />

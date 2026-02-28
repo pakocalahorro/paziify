@@ -98,7 +98,8 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
             case Screen.HOME: return focused ? 'home' : 'home-outline';
             case 'LibraryTab': return focused ? 'library' : 'library-outline';
             case Screen.CBT_ACADEMY: return focused ? 'school' : 'school-outline';
-            case Screen.PROFILE: return focused ? 'person' : 'person-outline';
+            case Screen.PROFILE:
+            case 'ProfileTab': return focused ? 'person' : 'person-outline';
             default: return 'help-outline';
         }
     };

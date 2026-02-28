@@ -3,12 +3,10 @@ import {
     View,
     Text,
     StyleSheet,
-    FlatList,
     TextInput,
     TouchableOpacity,
     Animated,
     Dimensions,
-    Image,
     StatusBar,
     ImageBackground,
 } from 'react-native';
@@ -21,8 +19,9 @@ import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { IMAGES } from '../../constants/images';
-import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
-import SoundWaveHeader from '../../components/SoundWaveHeader';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width * 0.75;
@@ -92,16 +91,12 @@ const CATEGORIES: LibraryCategory[] = [
 ];
 
 const LibraryScreen: React.FC<Props> = ({ navigation }) => {
-    const insets = useSafeAreaInsets();
     const { userState } = useApp();
-
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const insets = useSafeAreaInsets();
 
     // Animations
     const scrollX = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const searchAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -111,78 +106,9 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
         }).start();
     }, []);
 
-    const toggleSearch = () => {
-        const toValue = isSearchExpanded ? 0 : 1;
-        Animated.spring(searchAnim, {
-            toValue,
-            useNativeDriver: false,
-            friction: 8,
-            tension: 40
-        }).start();
-        setIsSearchExpanded(!isSearchExpanded);
-        if (isSearchExpanded) setSearchQuery('');
-    };
-
     const carouselData = useMemo(() => {
         return [{ id: 'empty-left' }, ...CATEGORIES, { id: 'empty-right' }];
     }, []);
-
-    const renderHeader = () => (
-        <View style={styles.headerContent}>
-            <View style={styles.header}>
-                <View style={styles.headerRow}>
-                    <View style={styles.headerLeft}>
-                        <TouchableOpacity
-                            style={styles.backBtnAbsolute}
-                            onPress={() => navigation.goBack()}
-                        >
-                            <Ionicons name="arrow-back" size={20} color="#FFF" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.searchToggleBtn}
-                            onPress={toggleSearch}
-                        >
-                            <Ionicons
-                                name={isSearchExpanded ? "close-outline" : "search-outline"}
-                                size={20}
-                                color={isSearchExpanded ? "#2DD4BF" : "#FFF"}
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.headerTitleContainer}>
-                        <Text style={styles.headerTitleInline}>Biblioteca</Text>
-                    </View>
-
-                    <View style={styles.headerIconContainer}>
-                        <Ionicons name="library-outline" size={24} color="#2DD4BF" />
-                    </View>
-                </View>
-            </View>
-
-            {/* Search Bar */}
-            <Animated.View style={[
-                styles.searchBaseContainer,
-                {
-                    height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 60] }),
-                    opacity: searchAnim,
-                    marginBottom: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 15] }),
-                    overflow: 'hidden'
-                }
-            ]}>
-                <View style={styles.searchWrapper}>
-                    <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Buscar en la biblioteca..."
-                        placeholderTextColor="rgba(255,255,255,0.3)"
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
-                </View>
-            </Animated.View>
-        </View>
-    );
 
     const renderCategoryCard = (item: LibraryCategory, index: number) => {
         const inputRange = [
@@ -246,23 +172,32 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <OasisScreen
+            header={
+                <OasisHeader
+                    path={['Oasis']}
+                    title="Biblioteca"
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                    }}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                />
+            }
+            themeMode="healing"
+            showSafeOverlay={false}
+            disableContentPadding={true}
+        >
             <StatusBar barStyle="light-content" />
 
-            {/* Background */}
-            <View style={StyleSheet.absoluteFill}>
-                <BackgroundWrapper nebulaMode="healing" />
-                <LinearGradient
-                    colors={['rgba(2, 6, 23, 0.3)', 'rgba(2, 6, 23, 0.8)']}
-                    style={StyleSheet.absoluteFill}
-                />
-            </View>
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                {renderHeader()}
-
                 <View style={styles.carouselContainer}>
-                    <SoundWaveHeader title="Tu Santuario" accentColor="#2DD4BF" />
+                    <SoundwaveSeparator title="Tu Santuario" accentColor="#2DD4BF" />
 
                     <Animated.FlatList
                         showsHorizontalScrollIndicator={false}
@@ -287,64 +222,16 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                     />
                 </View>
             </Animated.View>
-        </View>
+        </OasisScreen>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#020617',
-    },
-    headerContent: {
-        zIndex: 10,
-    },
-    header: {
-        marginBottom: 8,
-        paddingHorizontal: 20,
-        marginTop: 10,
-    },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    backBtnAbsolute: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 8,
-    },
     searchToggleBtn: {
         width: 36,
         height: 36,
         borderRadius: 18,
         backgroundColor: 'rgba(255,255,255,0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitleContainer: {
-        flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: 8,
-    },
-    headerTitleInline: {
-        fontSize: 26,
-        fontWeight: '900',
-        color: '#FFFFFF',
-        letterSpacing: -0.5,
-        textAlign: 'center',
-    },
-    headerIconContainer: {
-        width: 36,
-        height: 36,
         justifyContent: 'center',
         alignItems: 'center',
     },

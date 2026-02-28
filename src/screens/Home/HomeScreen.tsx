@@ -30,17 +30,28 @@ import { Svg, Circle } from 'react-native-svg';
 import { useSessions, useAudiobooks, useStories, useAcademyModules, useSoundscapes } from '../../hooks/useContent';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import BentoGrid from '../../components/Home/BentoGrid';
-import StatsCard from '../../components/Home/StatsCard';
 import OasisCard from '../../components/Oasis/OasisCard';
+import { OasisMeter } from '../../components/Oasis/OasisMeter';
 import { analyticsService } from '../../services/analyticsService';
 import PurposeModal from '../../components/Home/PurposeModal';
-import SoundWaveHeader from '../../components/SoundWaveHeader';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { CHALLENGES } from '../../constants/challenges';
 import { ChallengeDetailsModal } from '../../components/Challenges/ChallengeDetailsModal';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
 
 const { width } = Dimensions.get('window');
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, Screen.HOME>;
+
+const formatDifficultyLevel = (level?: string) => {
+    if (!level) return undefined;
+    const lower = level.toLowerCase();
+    if (lower === 'beginner' || lower === 'principiante') return 'Principiante';
+    if (lower === 'intermediate' || lower === 'intermedio') return 'Intermedio';
+    if (lower === 'advanced' || lower === 'avanzado') return 'Avanzado';
+    return level;
+};
 
 const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const navigation = _nav as HomeScreenNavigationProp;
@@ -260,25 +271,28 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     console.log('[HomeScreen Debug] dynamicBackgroundUri:', dynamicBackgroundUri);
 
     return (
-        <View style={styles.container}>
+        <OasisScreen
+            header={
+                <OasisHeader
+                    title="Home"
+                    path={["Oasis"]}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState?.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG)}
+                    onProfilePress={() => navigation.navigate(Screen.PROFILE)}
+                    onAdminPress={() => navigation.navigate(Screen.OASIS_SHOWCASE)}
+                    activeChallengeType={userState.activeChallenge?.type as any}
+                />
+            }
+            themeMode={visualMode === 'healing' ? 'healing' : 'growth'}
+            remoteImageUri={dynamicBackgroundUri}
+            showSafeOverlay={false}
+            disableContentPadding={true}
+        >
             <StatusBar barStyle="light-content" />
 
-            <BackgroundWrapper
-                nebulaMode={visualMode === 'healing' ? 'healing' : 'growth'}
-                remoteImageUri={dynamicBackgroundUri}
-            />
-
-            {/* BARRA DE CRISTAL FIJA (TOP SAFE AREA) */}
-            <BlurView
-                intensity={90}
-                tint="dark"
-                style={[styles.safeHeaderBlur, { height: insets.top }]}
-            />
-
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 100 }]}
-            >
+            <View style={{ paddingBottom: insets.bottom + 40 }}>
                 <ChallengeDetailsModal
                     visible={showChallengeInfo}
                     challenge={userState.activeChallenge ? CHALLENGES[userState.activeChallenge.id] : null}
@@ -291,155 +305,6 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                     onAccept={handleAcceptChallenge}
                     onClose={() => setShowPurposeModal(false)}
                 />
-                {/* HEADER... (mantener igual) */}
-                {userState.activeChallenge ? (
-                    <View style={styles.headerFullWidth}>
-                        <BlurView
-                            intensity={80}
-                            tint="dark"
-                            style={styles.headerFullWidthGlass}
-                        >
-                            {/* Glass Reflection Shimmer */}
-                            <LinearGradient
-                                colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.02)', 'transparent']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={StyleSheet.absoluteFill}
-                            />
-
-                            {/* "Verde Clarito" Base Tint */}
-                            <View style={[
-                                styles.headerInnerTint,
-                                { backgroundColor: 'rgba(45, 212, 191, 0.18)' }
-                            ]} />
-
-                            <View style={styles.headerContent}>
-                                <View style={styles.greetingRow}>
-                                    <View>
-                                        <Text style={styles.dayText}>DÍA {(userState.activeChallenge.daysCompleted || 0) + 1}</Text>
-                                        <Text style={[styles.challengeTitle, { fontFamily: 'Caveat_700Bold' }]}>
-                                            {userState.activeChallenge.title}
-                                        </Text>
-                                    </View>
-                                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                                        <TouchableOpacity
-                                            style={[styles.retoButton, { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }]}
-                                            onPress={() => setShowChallengeInfo(true)}
-                                        >
-                                            <Ionicons name="information-circle-outline" size={18} color="#FFF" />
-                                        </TouchableOpacity>
-
-                                        {/* Hidden Showcase Button for Dev Testing */}
-                                        <TouchableOpacity
-                                            style={[styles.retoButton, { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }]}
-                                            onPress={() => navigation.navigate(Screen.OASIS_SHOWCASE as any)}
-                                        >
-                                            <Ionicons name="color-palette-outline" size={18} color="#2DD4BF" />
-                                        </TouchableOpacity>
-
-                                        <TouchableOpacity
-                                            style={styles.retoButton}
-                                            onPress={() => navigation.navigate(Screen.PROFILE as any)}
-                                        >
-                                            <Ionicons name="checkmark-circle" size={14} color="#FFF" />
-                                            <Text style={styles.retoButtonText}>PROGRESO</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                                <View style={styles.userProfileRow}>
-                                    <TouchableOpacity
-                                        onPress={() => navigation.navigate(Screen.PROFILE as any)}
-                                        style={styles.avatarContainer}
-                                    >
-                                        <View style={styles.ringOverlay}>
-                                            <Svg width={54} height={54} viewBox="0 0 54 54">
-                                                <Circle
-                                                    cx="27"
-                                                    cy="27"
-                                                    r="25"
-                                                    stroke="rgba(255,255,255,0.1)"
-                                                    strokeWidth="2"
-                                                    fill="none"
-                                                />
-                                                <Circle
-                                                    cx="27"
-                                                    cy="27"
-                                                    r="25"
-                                                    stroke={
-                                                        userState.activeChallenge.type === 'desafio' ? '#6366F1' :
-                                                            userState.activeChallenge.type === 'reto' ? '#2DD4BF' : '#EF4444'
-                                                    }
-                                                    strokeWidth="3"
-                                                    strokeDasharray={`${2 * Math.PI * 25}`}
-                                                    strokeDashoffset={`${2 * Math.PI * 25 * (1 - (userState.activeChallenge.daysCompleted / userState.activeChallenge.totalDays))}`}
-                                                    strokeLinecap="round"
-                                                    fill="none"
-                                                    transform="rotate(-90 27 27)"
-                                                />
-                                            </Svg>
-                                        </View>
-                                        <Image
-                                            source={{ uri: userState.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' }}
-                                            style={styles.avatar}
-                                        />
-                                    </TouchableOpacity>
-                                    <Text style={styles.userName} numberOfLines={1}>{userState.name || 'Pazificador'}</Text>
-                                </View>
-
-                                <View style={styles.progressLineContainer}>
-                                    <LinearGradient
-                                        colors={[
-                                            userState.activeChallenge.type === 'desafio' ? '#6366F1' :
-                                                userState.activeChallenge.type === 'reto' ? '#2DD4BF' : '#EF4444',
-                                            'transparent'
-                                        ]}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 0 }}
-                                        style={[
-                                            styles.progressLine,
-                                            { width: `${(userState.activeChallenge.daysCompleted / userState.activeChallenge.totalDays) * 100}%` }
-                                        ]}
-                                    />
-                                </View>
-                            </View>
-                        </BlurView>
-                    </View>
-                ) : (
-                    <View style={styles.header}>
-                        <View style={styles.greetingRow}>
-                            <Text style={styles.greeting}>{greeting}</Text>
-                            <Animated.View style={animatedButtonStyle}>
-                                <TouchableOpacity
-                                    style={styles.retoButton}
-                                    onPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG)}
-                                >
-                                    <Ionicons name="sparkles-outline" size={14} color="#FFF" />
-                                    <Text style={styles.retoButtonText}>ACTIVA TU EVOLUCIÓN</Text>
-                                </TouchableOpacity>
-                            </Animated.View>
-
-                            {/* Hidden Showcase Button for Dev Testing */}
-                            <TouchableOpacity
-                                style={[styles.retoButton, { backgroundColor: 'transparent', borderWidth: 0, paddingHorizontal: 8 }]}
-                                onPress={() => navigation.navigate(Screen.OASIS_SHOWCASE as any)}
-                            >
-                                <Ionicons name="color-palette-outline" size={20} color="#2DD4BF" />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.userProfileRow}>
-                            <TouchableOpacity
-                                onPress={() => navigation.navigate(Screen.PROFILE as any)}
-                                style={styles.avatarContainer}
-                            >
-                                <Image
-                                    source={{ uri: userState.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' }}
-                                    style={styles.avatar}
-                                />
-                            </TouchableOpacity>
-                            <Text style={styles.userName} numberOfLines={1}>{userState.name || 'Pazificador'}</Text>
-                        </View>
-                    </View>
-                )}
 
                 {/* ÁREA 1: TU ESTADO (DASHBOARD COMPACTO) */}
                 <View style={styles.dashboardSection}>
@@ -447,14 +312,18 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         <BlurView intensity={70} tint="dark" style={styles.dashboardBlur}>
                             <View style={styles.dashboardContent}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                    <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ color: '#FFF', fontSize: 24, fontWeight: 'bold' }}>{Math.round(dailyProgress * 100)}%</Text>
-                                        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: 1 }}>HOY</Text>
-                                    </View>
-                                    <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ color: '#FFF', fontSize: 24, fontWeight: 'bold' }}>{Math.round(weeklyProgress * 100)}%</Text>
-                                        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: 1 }}>SEM</Text>
-                                    </View>
+                                    <OasisMeter
+                                        progress={dailyProgress}
+                                        size={70}
+                                        label="HOY"
+                                        accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
+                                    />
+                                    <OasisMeter
+                                        progress={weeklyProgress}
+                                        size={70}
+                                        label="SEM"
+                                        accentColor={theme.colors.primary}
+                                    />
                                 </View>
                                 <View style={styles.dashboardSeparator} />
                                 <View style={[styles.dashboardStats, { justifyContent: 'center', gap: 12, marginLeft: 8 }]}>
@@ -520,259 +389,123 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                     </View>
                 </View>
 
-                {/* ÁREA 2: FOCO PRINCIPAL (HERO CARD DE DOSIS DIARIA) */}
-                <View style={{ marginBottom: 32 }}>
-                    <SoundWaveHeader
-                        title={userState.activeChallenge ? "Tu misión de hoy" : "Tu práctica de hoy"}
+                <SoundwaveSeparator
+                    title={userState.activeChallenge ? "Tu misión de hoy" : "Tu práctica de hoy"}
+                    accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
+                />
+
+                <View style={styles.featuredSection}>
+                    <OasisCard
+                        superTitle={userState.activeChallenge ? userState.activeChallenge.type : "Meditación"}
+                        title={recommendations?.daily?.title || "Cargando..."}
+                        subtitle={recommendations?.daily?.description || "Tu sesión recomendada para hoy."}
+                        imageUri={(recommendations?.daily as any)?.thumbnail_url || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"}
+                        onPress={() => recommendations?.daily && navigation.navigate(Screen.SESSION_DETAIL, {
+                            sessionId: recommendations?.daily?.id,
+                            sessionData: recommendations?.daily
+                        })}
+                        badgeText={(recommendations?.daily as any)?.is_premium ? "PREMIUM" : "LIBRE"}
+                        duration={(recommendations?.daily as any)?.duration_minutes ? `${(recommendations?.daily as any).duration_minutes} min` : undefined}
+                        level={formatDifficultyLevel((recommendations?.daily as any)?.difficulty_level)}
+                        variant="default"
                         accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
+                        actionText="Comenzar"
+                        actionIcon="play"
                     />
+                </View>
+            </View>
 
-                    <View style={styles.featuredSection}>
-                        {/* Title Above */}
-                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#A0AEC0', marginBottom: -8 }}>
-                                {userState.activeChallenge ? userState.activeChallenge.type.toUpperCase() : "Meditación"}
-                            </Text>
-                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
-                                {recommendations?.daily?.title || "Cargando..."}
-                            </Text>
-                        </View>
+            {/* ÁREA 3: ARSENAL TERAPÉUTICO (BENTO GRID UNIFICADO) */}
+            <View style={{ paddingBottom: 40, width: '100%', marginTop: -20 }}>
+                <SoundwaveSeparator
+                    title="Consejos del día"
+                    accentColor={visualMode === 'healing' ? '#8B5CF6' : '#2DD4BF'}
+                />
 
-                        <View style={[styles.featuredCardWrapper, { shadowColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24' }]}>
-                            <TouchableOpacity
-                                style={styles.featuredCard}
-                                activeOpacity={0.9}
-                                onPress={() => recommendations?.daily && navigation.navigate(Screen.SESSION_DETAIL, {
-                                    sessionId: recommendations.daily.id,
-                                    sessionData: recommendations.daily
-                                })}
-                            >
-                                <Image
-                                    source={{ uri: typeof recommendations?.daily?.thumbnail_url === 'string' ? recommendations.daily.thumbnail_url : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" }}
-                                    style={styles.featuredImage}
-                                    transition={500}
-                                    cachePolicy="memory-disk"
-                                />
-                                <LinearGradient
-                                    colors={visualMode === 'healing'
-                                        ? ['rgba(0,0,0,0.0)', 'rgba(2, 6, 23, 0.4)', 'rgba(15, 23, 42, 0.95)']
-                                        : ['rgba(0,0,0,0.0)', 'rgba(9, 9, 11, 0.5)', 'rgba(217, 119, 6, 0.85)']}
-                                    style={styles.featuredOverlay}
-                                />
-                                <View style={[styles.featuredInnerBorder, { borderRadius: 24 }]} pointerEvents="none" />
+                <View style={styles.gridSection}>
+                    {/* 1. ACADEMIA PAZIIFY (Bento Wide Top) */}
+                    {/* Title Above */}
+                    <View style={{ marginBottom: 24 }}>
+                        <OasisCard
+                            superTitle="Academia"
+                            title={recommendations?.academy?.title || "Manejo del Estrés"}
+                            subtitle={recommendations?.academy?.description || "Aprende herramientas cognitivas."}
+                            imageUri={(recommendations?.academy as any)?.image || "https://images.unsplash.com/photo-1434031211b08-39916fcad442?w=800"}
+                            onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                                courseId: recommendations?.academy?.id || '',
+                                courseData: recommendations?.academy
+                            })}
+                            badgeText="CURSO"
+                            variant="default"
+                            accentColor="#A855F7"
+                            actionText="Ver"
+                            actionIcon="school"
+                        />
+                    </View>
 
-                                {/* Info inside card -> Centered content */}
-                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
-                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
-                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Comenzar</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
+                    {/* 2. Audiolibros - Hero Card */}
+                    {/* Title Above */}
+                    <View style={{ marginBottom: 24 }}>
+                        <OasisCard
+                            superTitle="Audiolibro"
+                            title={recommendations?.audiobook?.title || "El poder del Ahora"}
+                            subtitle={recommendations?.audiobook?.author || "Eckhart Tolle"}
+                            imageUri={(recommendations?.audiobook as any)?.image_url || 'https://paziify.app/placeholder-audiobook.jpg'}
+                            onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
+                                audiobookId: recommendations?.audiobook?.id || '',
+                                audiobook: recommendations?.audiobook
+                            })}
+                            badgeText="AUDIOLIBRO"
+                            duration={(recommendations?.audiobook as any)?.duration_minutes ? `${(recommendations?.audiobook as any).duration_minutes} min` : undefined}
+                            variant="default"
+                            accentColor={theme.colors.primary}
+                            actionText="Oír"
+                            actionIcon="headset"
+                        />
+                    </View>
 
-                        {/* Subtitle Below */}
-                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
-                            {recommendations?.daily?.description || "Tu sesión recomendada para hoy."}
-                        </Text>
+                    {/* 3. Historias (Silhouette Card) */}
+                    {/* Title Above */}
+                    <View style={{ marginBottom: 24 }}>
+                        <OasisCard
+                            superTitle="Relato"
+                            title={recommendations?.stories?.title || "Elías y el Mar"}
+                            subtitle={"Una historia real de superación personal."}
+                            imageUri="https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/true_stories_background.webp"
+                            onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, {
+                                storyId: recommendations?.stories?.id || '',
+                                story: recommendations?.stories
+                            })}
+                            badgeText="RELATO"
+                            duration={(recommendations?.stories as any)?.reading_time_minutes ? `${(recommendations?.stories as any).reading_time_minutes} min` : undefined}
+                            variant="default"
+                            accentColor="#38BDF8"
+                            actionText="Leer"
+                            actionIcon="book"
+                        />
+                    </View>
+
+                    {/* 4. Sonidos (Literal Vinyl Player) */}
+                    <View style={{ marginBottom: 16 }}>
+                        <OasisCard
+                            superTitle="Música ambiente"
+                            title={recommendations?.sounds?.title || "Frecuencia de Sanación"}
+                            subtitle="Sonidos inmersivos para tu práctica."
+                            imageUri={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
+                            onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
+                                soundscapeId: recommendations.sounds.id,
+                                soundscape: recommendations.sounds
+                            })}
+                            badgeText="SONIDO"
+                            variant="default"
+                            accentColor="#10B981"
+                            actionText="Oír"
+                            actionIcon="musical-notes"
+                        />
                     </View>
                 </View>
-
-                {/* ÁREA 3: ARSENAL TERAPÉUTICO (BENTO GRID UNIFICADO) */}
-                <View style={{ paddingBottom: 40 }}>
-                    <SoundWaveHeader
-                        title="Consejos del día"
-                        accentColor={visualMode === 'healing' ? '#8B5CF6' : '#2DD4BF'}
-                    />
-
-                    <View style={styles.gridSection}>
-                        {/* 1. ACADEMIA PAZIIFY (Bento Wide Top) */}
-                        {/* Title Above */}
-                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#A855F7', marginBottom: -8 }}>Curso</Text>
-                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
-                                {recommendations?.academy?.title || "Manejo del Estrés"}
-                            </Text>
-                        </View>
-
-                        <View style={[styles.featuredCardWrapper, { shadowColor: '#A855F7' }]}>
-                            <TouchableOpacity
-                                style={styles.featuredCard}
-                                activeOpacity={0.9}
-                                onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
-                                    courseId: recommendations.academy.id,
-                                    courseData: recommendations.academy
-                                })}
-                            >
-                                <Image
-                                    source={{ uri: typeof recommendations?.academy?.image === 'string' ? recommendations.academy.image : "https://images.unsplash.com/photo-1434031211b08-39916fcad442?w=800" }}
-                                    style={styles.featuredImage}
-                                    transition={500}
-                                    cachePolicy="memory-disk"
-                                />
-                                <LinearGradient
-                                    colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.6)', 'rgba(67, 20, 119, 0.9)']}
-                                    style={styles.featuredOverlay}
-                                />
-                                <View style={styles.featuredInnerBorder} pointerEvents="none" />
-
-                                {/* Info inside card -> Centered content */}
-                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
-                                    <View style={{ marginBottom: 16, overflow: 'hidden', borderRadius: 30, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.4)' }}>
-                                        <BlurView intensity={50} tint="light" style={[styles.badgeBlur, { paddingHorizontal: 16, paddingVertical: 8 }]}>
-                                            <Ionicons name="school-outline" size={14} color="#FFFFFF" style={styles.badgeIconStyle} />
-                                            <Text style={[styles.badgeText, { fontSize: 10 }]}>FORMACIÓN</Text>
-                                        </BlurView>
-                                    </View>
-
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
-                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
-                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Accede al curso</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Subtitle Below */}
-                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, marginBottom: 32, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
-                            {recommendations?.academy?.description || "Aprende herramientas cognitivas."}
-                        </Text>
-
-                        {/* 2. Audiolibros - Hero Card */}
-                        {/* Title Above */}
-                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: theme.colors.primary, marginBottom: -8 }}>Audiolibro</Text>
-                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
-                                {recommendations?.audiobook?.title || "El poder del Ahora"}
-                            </Text>
-                        </View>
-
-                        <View style={[styles.featuredCardWrapper, { shadowColor: theme.colors.primary }]}>
-                            <TouchableOpacity
-                                style={styles.featuredCard}
-                                activeOpacity={0.9}
-                                onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
-                                    audiobookId: recommendations.audiobook.id,
-                                    audiobook: recommendations.audiobook
-                                })}
-                            >
-                                <Image
-                                    source={{ uri: recommendations?.audiobook?.image_url || 'https://paziify.app/placeholder-audiobook.jpg' }}
-                                    style={styles.featuredImage}
-                                    transition={500}
-                                    cachePolicy="memory-disk"
-                                />
-                                <LinearGradient
-                                    colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.5)', `rgba(2, 6, 23, 0.95)`]}
-                                    style={styles.featuredOverlay}
-                                />
-                                <View style={styles.featuredInnerBorder} pointerEvents="none" />
-
-                                {/* Info inside card -> Centered content */}
-                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
-                                    <View style={{ marginBottom: 16, overflow: 'hidden', borderRadius: 30, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.4)' }}>
-                                        <BlurView intensity={50} tint="light" style={[styles.badgeBlur, { paddingHorizontal: 16, paddingVertical: 8 }]}>
-                                            <Ionicons name="headset-outline" size={14} color="#FFFFFF" style={styles.badgeIconStyle} />
-                                            <Text style={[styles.badgeText, { fontSize: 10 }]}>AUDIOLIBRO</Text>
-                                        </BlurView>
-                                    </View>
-
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
-                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
-                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Accede al audiolibro</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Subtitle Below */}
-                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, marginBottom: 32, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
-                            {recommendations?.audiobook?.author || "Eckhart Tolle"}
-                        </Text>
-
-                        {/* 3. Historias (Silhouette Card) */}
-                        {/* Title Above */}
-                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#38BDF8', marginBottom: -8 }}>Relato</Text>
-                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
-                                {recommendations?.stories?.title || "Elías y el Mar"}
-                            </Text>
-                        </View>
-
-                        <View style={[styles.featuredCardWrapper, { shadowColor: '#38BDF8' }]}>
-                            <TouchableOpacity
-                                style={styles.featuredCard}
-                                activeOpacity={0.9}
-                                onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, {
-                                    storyId: recommendations.stories.id,
-                                    story: recommendations.stories
-                                })}
-                            >
-                                <Image
-                                    source={{ uri: "https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/true_stories_background.webp" }}
-                                    style={styles.featuredImage}
-                                    transition={500}
-                                    cachePolicy="memory-disk"
-                                />
-                                <LinearGradient
-                                    colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)']}
-                                    style={styles.featuredOverlay}
-                                />
-                                <View style={styles.featuredInnerBorder} pointerEvents="none" />
-
-                                {/* Info inside card -> Centered content */}
-                                <View style={[styles.featuredInfo, { alignItems: 'center', justifyContent: 'center' }]}>
-                                    <View style={{ marginBottom: 16, overflow: 'hidden', borderRadius: 30, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.4)' }}>
-                                        <BlurView intensity={50} tint="light" style={[styles.badgeBlur, { paddingHorizontal: 16, paddingVertical: 8 }]}>
-                                            <Ionicons name="book-outline" size={14} color="#FFFFFF" style={styles.badgeIconStyle} />
-                                            <Text style={[styles.badgeText, { fontSize: 10 }]}>RELATO</Text>
-                                        </BlurView>
-                                    </View>
-
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
-                                        <Ionicons name="play" size={24} color="#FFF" style={{ marginRight: 10, marginLeft: 6 }} />
-                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15, letterSpacing: 1.5, textTransform: 'uppercase' }}>Leer relato</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Subtitle Below */}
-                        <Text style={[styles.featuredSubtitle, { textAlign: 'left', marginTop: 16, marginBottom: 32, paddingHorizontal: 4, opacity: 0.8 }]} numberOfLines={2}>
-                            {"Una historia real de superación personal."}
-                        </Text>
-
-                        {/* 4. Sonidos (Literal Vinyl Player) */}
-                        {/* Title Above */}
-                        <View style={{ marginBottom: 16, paddingHorizontal: 4 }}>
-                            <Text style={{ fontFamily: 'Caveat_700Bold', fontSize: 36, color: '#10B981', marginBottom: -8 }}>Música ambiente</Text>
-                            <Text style={[styles.featuredTitle, { fontSize: 20, textAlign: 'left', marginBottom: 0 }]} numberOfLines={2} adjustsFontSizeToFit>
-                                {recommendations?.sounds?.title || "Frecuencia de Sanación"}
-                            </Text>
-                        </View>
-
-                        <View style={{ marginBottom: 16 }}>
-                            <OasisCard
-                                superTitle="SONIDO"
-                                title=""
-                                subtitle="Música ambiente"
-                                imageUri={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
-                                onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
-                                    soundscapeId: recommendations.sounds.id,
-                                    soundscape: recommendations.sounds
-                                })}
-                                icon="play-circle"
-                                badgeText="SONIDO"
-                                actionText="Escuchar"
-                                actionIcon="play"
-                                variant="hero"
-                                accentColor="#10B981"
-                            />
-                        </View>
-                    </View>
-                </View>
-            </ScrollView>
-        </View>
+            </View>
+        </OasisScreen>
     );
 };
 
@@ -867,17 +600,18 @@ const styles = StyleSheet.create({
         flex: 1,
         fontFamily: 'Caveat_700Bold',
     },
-    // NUEVOS ESTILOS DASHBOARD COMPACTO
     dashboardSection: {
-        paddingHorizontal: 20,
-        marginBottom: 24,
+        width: '100%',
+        paddingHorizontal: 0,
+        marginBottom: 32,
     },
     dashboardCard: {
+        width: width - 40,
+        alignSelf: 'center',
         borderRadius: 24,
         overflow: 'hidden',
-        backgroundColor: 'rgba(2, 6, 23, 0.4)', // Darker base color for better contrast
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.15)',
     },
     dashboardBlur: {
         padding: 16,
@@ -988,10 +722,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.1)',
     },
     gridSection: {
+        width: '100%',
         paddingHorizontal: 20,
         marginBottom: 32,
     },
     featuredSection: {
+        width: '100%',
         paddingHorizontal: 20,
     },
     seeAllBtn: {
@@ -1103,24 +839,6 @@ const styles = StyleSheet.create({
     progressLine: {
         height: '100%',
         borderRadius: 1,
-    },
-    featuredTitle: {
-        fontSize: 24,
-        fontFamily: 'Outfit_900Black',
-        color: '#FFFFFF',
-        marginBottom: 6,
-        letterSpacing: -1,
-        textShadowColor: 'rgba(0,0,0,0.8)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 8,
-    },
-    featuredSubtitle: {
-        fontSize: 14,
-        fontFamily: 'Outfit_600SemiBold',
-        color: 'rgba(255,255,255,0.7)',
-        textShadowColor: 'rgba(0,0,0,0.8)',
-        textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 4,
     },
 });
 

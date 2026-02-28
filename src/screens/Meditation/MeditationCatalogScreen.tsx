@@ -45,6 +45,9 @@ import { sessionsService, adaptSession } from '../../services/contentService'; /
 import { useSessions } from '../../hooks/useContent'; // Import hook
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import CategoryRow from '../../components/CategoryRow';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 
 type MeditationCatalogScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -378,30 +381,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             {/* Header */}
             {/* Header */}
             <View style={styles.header}>
-                <View style={styles.headerRow}>
-                    <TouchableOpacity
-                        style={styles.backBtnAbsolute}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.searchToggleBtn}
-                        onPress={toggleSearch}
-                    >
-                        <Ionicons
-                            name={isSearchExpanded ? "close-outline" : "search-outline"}
-                            size={24}
-                            color={isSearchExpanded ? "#2DD4BF" : "#FFF"}
-                        />
-                    </TouchableOpacity>
-                    <View style={styles.headerTextContainer}>
-                        <Text style={styles.headerTitle} numberOfLines={1}>Oasis de Calma</Text>
-                    </View>
-                    <View style={styles.silhouetteAbsolute}>
-                        <BacklitSilhouette />
-                    </View>
-                </View>
+                {/* Antiguo bloque de encabezado removido - Ahora manejado por OasisHeader en OasisScreen */}
             </View>
 
             {/* Active Filter Header (Back Button) */}
@@ -553,56 +533,28 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <StatusBar barStyle="light-content" />
-
-            {/* Premium Background */}
-            <View style={StyleSheet.absoluteFill}>
-                <BackgroundWrapper nebulaMode="healing" />
-
-                {/* Parallax Image Mapping - Fading the light part as we scroll */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [1, 0],
-                        extrapolate: 'clamp'
-                    }),
-                    transform: [{
-                        scale: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [1.2, 1, 1],
-                            extrapolate: 'clamp'
-                        })
-                    }, {
-                        translateY: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
-                            extrapolate: 'clamp'
-                        })
-                    }]
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
-                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
-
-                {/* Dark Background that stays for content */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [0, 1],
-                        extrapolate: 'clamp'
-                    })
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
-
-            </View>
+        <OasisScreen
+            header={
+                <OasisHeader
+                    title="MEDITACIONES"
+                    path={["Oasis", "Biblioteca"]}
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                        if (index === 1) navigation.navigate(Screen.LIBRARY as any);
+                    }}
+                    onSearchPress={toggleSearch}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                />
+            }
+            themeMode="healing"
+            disableContentPadding={true}
+            preset="fixed"
+        >
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.ScrollView
@@ -615,6 +567,8 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     )}
                 >
                     {renderHeader()}
+
+
 
                     {sessionsByRow.map((item, index) => (
                         <CategoryRow
@@ -644,9 +598,10 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     <SessionPreviewModal
                         isVisible={!!selectedSession}
                         session={selectedSession}
-                        guideAvatar={GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar}
+                        guideAvatar={selectedSession ? GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar : undefined}
                         onClose={() => setSelectedSession(null)}
                         onStart={() => {
+                            if (!selectedSession) return;
                             const medData = sessions.find(s => s.id === selectedSession.id);
                             setSelectedSession(null);
                             if (medData) {
@@ -659,7 +614,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     />
                 )
             }
-        </View >
+        </OasisScreen>
     );
 };
 

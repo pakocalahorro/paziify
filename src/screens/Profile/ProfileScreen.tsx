@@ -19,9 +19,10 @@ import { theme } from '../../constants/theme';
 import { analyticsService, UserStats, DailyActivity } from '../../services/analyticsService';
 import { CardioService, CardioResult } from '../../services/CardioService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
-import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
-import WidgetTutorialModal from '../../components/Challenges/WidgetTutorialModal';
 import { adminHooks } from '../../utils/oasisExperiments';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import WidgetTutorialModal from '../../components/Challenges/WidgetTutorialModal';
 
 const { width } = Dimensions.get('window');
 
@@ -92,41 +93,38 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         resilienceScore: userState.resilienceScore || 50
     }, [stats, userState]);
 
-    return (
-        <View style={styles.root}>
-            <BackgroundWrapper nebulaMode={visualMode === 'healing' ? 'healing' : 'growth'} />
-            <StatusBar barStyle="light-content" />
-            <View style={[styles.container, { paddingTop: insets.top }]}>
-                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                    {/* Header */}
-                    <View style={styles.header}>
-                        {!isGuest && (
-                            <TouchableOpacity
-                                style={styles.headerIconButton}
-                                onPress={() => {
-                                    Alert.alert(
-                                        "Cerrar Sesión",
-                                        "¿Estás seguro de que quieres salir?",
-                                        [
-                                            { text: "Cancelar", style: "cancel" },
-                                            { text: "Salir", style: "destructive", onPress: signOut }
-                                        ]
-                                    );
-                                }}
-                            >
-                                <Ionicons name="log-out-outline" size={22} color={theme.colors.textMuted} />
-                            </TouchableOpacity>
-                        )}
-                        {isGuest && <View style={styles.headerSpacer} />}
-                        <Text style={styles.headerTitle}>Tu Evolución</Text>
-                        <TouchableOpacity
-                            style={styles.headerIconButton}
-                            onPress={() => navigation.navigate(Screen.NOTIFICATION_SETTINGS)}
-                        >
-                            <Ionicons name="settings-outline" size={22} color={theme.colors.textMain} />
-                        </TouchableOpacity>
-                    </View>
+    const formatDifficultyLevel = (level: number | undefined) => {
+        if (!level) return 'Básico';
+        if (level === 1) return 'Principiante';
+        if (level === 2) return 'Intermedio';
+        if (level === 3) return 'Avanzado';
+        return 'Zen';
+    };
 
+    return (
+        <OasisScreen
+            header={
+                <OasisHeader
+                    path={['Oasis']}
+                    title="Mi Perfil"
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                    }}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    activeChallengeType={userState.activeChallenge?.type as any}
+                />
+            }
+            themeMode={dominantMode === 'neutral' ? (visualMode === 'healing' ? 'healing' : 'growth') : (dominantMode as any)}
+            showSafeOverlay={false}
+            disableContentPadding={true}
+        >
+            <StatusBar barStyle="light-content" />
+            <View style={styles.container}>
+                <View style={styles.contentPadding}>
                     {/* Resilience Tree Section */}
                     <BlurView intensity={40} tint="dark" style={styles.treeSection}>
                         <TouchableOpacity
@@ -192,8 +190,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         )}
                     </BlurView>
 
-
-
                     {/* Estadísticas de Camino de Paz */}
                     <View style={styles.sectionHeader}>
                         <View style={styles.titleWithInfo}>
@@ -202,6 +198,13 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                 <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
                             </TouchableOpacity>
                         </View>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate(Screen.NOTIFICATION_SETTINGS)}
+                            style={styles.settingsAction}
+                        >
+                            <Ionicons name="settings-outline" size={18} color={theme.colors.primary} />
+                            <Text style={styles.settingsActionText}>AJUSTES</Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.statsBento}>
@@ -268,7 +271,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                             <View style={[
                                                 styles.miniBar,
                                                 {
-                                                    height: `${Math.max(10, percent)}%`, // At least 10% height
+                                                    height: `${Math.max(10, percent)}%`,
                                                     backgroundColor: percent >= 100 ? theme.colors.primary : theme.colors.accent
                                                 }
                                             ]} />
@@ -291,7 +294,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                 <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
                             </TouchableOpacity>
                         </View>
-                        <TouchableOpacity onPress={() => {/* Show all */ }}>
+                        <TouchableOpacity onPress={() => setShowWidgetTutorial(true)}>
                             <Text style={styles.seeAll}>Ver todas</Text>
                         </TouchableOpacity>
                     </View>
@@ -321,266 +324,202 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         </View>
                     </ScrollView>
 
-                    {/* Actions & Admin */}
+                    {/* BOTONES DE ACCIÓN */}
                     <View style={styles.actionsContainer}>
-                        <Text style={styles.versionText}>Paziify v2.33.5 • Oasis Design</Text>
+                        {!isGuest && (
+                            <TouchableOpacity
+                                style={styles.logoutButton}
+                                onPress={() => {
+                                    Alert.alert(
+                                        "Cerrar Sesión",
+                                        "¿Estás seguro de que quieres salir?",
+                                        [
+                                            { text: "Cancelar", style: "cancel" },
+                                            { text: "Salir", style: "destructive", onPress: signOut }
+                                        ]
+                                    );
+                                }}
+                            >
+                                <Ionicons name="log-out-outline" size={18} color={theme.colors.textMuted} />
+                                <Text style={styles.logoutText}>Cerrar Sesión</Text>
+                            </TouchableOpacity>
+                        )}
+                        <Text style={styles.versionText}>Paziify v3.0.0 • Oasis Edition</Text>
 
                         {/* THE ADMIN GATE */}
                         {adminHooks.useIsAdmin() && (
                             <TouchableOpacity
-                                style={{ marginTop: 12, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }}
+                                style={{ marginTop: 24, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }}
                                 onPress={() => navigation.navigate(Screen.OASIS_SHOWCASE)}
                             >
-                                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800', fontFamily: 'Outfit_800ExtraBold', letterSpacing: 1 }}>
+                                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800', letterSpacing: 1 }}>
                                     ✨ OASIS SHOWCASE (ADMIN)
                                 </Text>
                             </TouchableOpacity>
                         )}
                     </View>
-                </ScrollView>
+                </View>
             </View>
             <WidgetTutorialModal
                 isVisible={showWidgetTutorial}
                 onClose={() => setShowWidgetTutorial(false)}
             />
-        </View>
+        </OasisScreen>
     );
 };
 
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        backgroundColor: '#000',
-    },
     container: {
         flex: 1,
     },
-    scrollContent: {
-        paddingHorizontal: theme.spacing.lg,
-        paddingBottom: 100,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        height: 60,
-    },
-    headerSpacer: {
-        width: 44,
-    },
-    headerTitle: {
-        fontSize: 32,
-        fontFamily: 'Satisfy_400Regular', // PDS v3.0 Title Typography
-        color: theme.colors.textMain,
-        letterSpacing: 0.5,
-    },
-    headerIconButton: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
+    contentPadding: {
+        paddingHorizontal: 20,
+        paddingBottom: 40,
+        paddingTop: 10,
     },
     treeSection: {
+        borderRadius: 32,
+        padding: 30,
         alignItems: 'center',
-        marginVertical: theme.spacing.lg,
-        justifyContent: 'center',
-        padding: 20,
-        borderRadius: 30,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
-        backgroundColor: 'rgba(0,0,0,0.5)',
         overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        marginBottom: 30,
+    },
+    infoIconContainer: {
+        position: 'absolute',
+        top: 20,
+        right: 20,
+        zIndex: 10,
     },
     treeLabels: {
-        marginTop: 10,
         alignItems: 'center',
+        marginTop: 10,
     },
     treeScore: {
-        fontSize: 42,
+        fontSize: 32,
         fontWeight: '900',
-        color: theme.colors.textMain,
+        color: '#FFF',
+        letterSpacing: -1,
     },
     treeSubtext: {
         fontSize: 12,
+        color: 'rgba(255,255,255,0.6)',
         fontWeight: '600',
-        color: theme.colors.textMuted,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+        marginTop: 2,
     },
     guestCTA: {
-        marginTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+        paddingVertical: 10,
         paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(212, 175, 55, 0.2)',
+        borderColor: 'rgba(255,255,255,0.1)',
+        marginTop: 20,
+        gap: 8,
     },
     guestCTAText: {
-        fontSize: 12,
-        fontWeight: '700',
         color: theme.colors.accent,
+        fontSize: 12,
+        fontWeight: '800',
     },
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: theme.spacing.md,
-        marginTop: theme.spacing.lg,
+        marginBottom: 20,
+        marginTop: 10,
     },
     titleWithInfo: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
     },
-    infoIconContainer: {
-        position: 'absolute',
-        top: 15,
-        right: 15,
-        zIndex: 10,
-    },
     sectionTitle: {
-        fontSize: 24,
-        fontFamily: 'Satisfy_400Regular', // Premium touch
-        color: theme.colors.textMain,
-        letterSpacing: 0.5,
-    },
-    goalPanel: {
-        borderRadius: 20,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        backgroundColor: 'rgba(0,0,0,0.2)',
-        marginBottom: theme.spacing.lg,
-        overflow: 'hidden',
-    },
-    goalRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    goalLabel: {
-        fontSize: 9,
-        fontWeight: '800',
-        color: 'rgba(255,255,255,0.4)',
-        letterSpacing: 1,
-        marginBottom: 6,
-        textAlign: 'center',
-    },
-    goalValueContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    goalValue: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: '900',
         color: '#FFF',
-        minWidth: 45,
-        textAlign: 'center',
-    },
-    goalButton: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    goalDivider: {
-        width: 1,
-        height: 40,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        letterSpacing: -0.5,
     },
     statsBento: {
-        gap: theme.spacing.md,
-        marginBottom: theme.spacing.xxl,
+        gap: 12,
+        marginBottom: 30,
     },
     bentoRow: {
         flexDirection: 'row',
-        gap: theme.spacing.md,
+        gap: 12,
     },
     bentoSmall: {
         flex: 1,
-        borderRadius: theme.borderRadius.xl,
-        padding: theme.spacing.lg,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        padding: 20,
+        borderRadius: 24,
         overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
-    bentoStatusDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        marginTop: 4,
+    bentoWide: {
+        flex: 1,
+        padding: 20,
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    bentoLabel: {
+        fontSize: 10,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.4)',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    bentoValue: {
+        fontSize: 28,
+        fontWeight: '900',
+        color: '#FFF',
+        marginVertical: 4,
+    },
+    bentoSubtitle: {
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.6)',
+        fontWeight: '600',
     },
     weeklyReportButton: {
-        padding: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderColor: 'rgba(255, 255, 255, 0.2)',
+        backgroundColor: 'rgba(45, 212, 191, 0.05)',
+        borderColor: 'rgba(45, 212, 191, 0.2)',
     },
     reportRow: {
         flexDirection: 'row',
-        padding: 20,
         alignItems: 'center',
         justifyContent: 'space-between',
     },
     reportInfo: {
-        flex: 1,
+        gap: 4,
     },
     reportTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        marginBottom: 4,
     },
     reportLabel: {
         fontSize: 10,
-        fontWeight: '900',
+        fontWeight: '800',
         color: theme.colors.primary,
-        textTransform: 'uppercase',
         letterSpacing: 1,
     },
     reportTitle: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: '900',
-        color: theme.colors.textMain,
+        color: '#FFF',
     },
     reportSubtitle: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.4)',
-        marginTop: 2,
-    },
-    reportArrow: {
-        marginLeft: 10,
-    },
-    bentoWide: {
-        borderRadius: theme.borderRadius.xl,
-        padding: theme.spacing.lg,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        overflow: 'hidden',
-    },
-    bentoLabel: {
-        fontSize: 10,
-        fontWeight: '900',
-        color: 'rgba(255,255,255,0.3)',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: 8,
-    },
-    bentoValue: {
-        fontSize: 28,
-        fontWeight: '900',
-        color: theme.colors.textMain,
-    },
-    bentoSubtitle: {
         fontSize: 11,
         color: 'rgba(255,255,255,0.4)',
-        marginTop: 2,
+        fontWeight: '500',
+    },
+    reportArrow: {
+        opacity: 0.8,
     },
     bentoWideHeader: {
         flexDirection: 'row',
@@ -590,14 +529,15 @@ const styles = StyleSheet.create({
     },
     miniChart: {
         flexDirection: 'row',
-        height: 60,
-        alignItems: 'flex-end',
         justifyContent: 'space-between',
-        paddingHorizontal: 5,
+        alignItems: 'flex-end',
+        height: 60,
+        paddingTop: 10,
     },
     barContainer: {
         alignItems: 'center',
         gap: 6,
+        width: `${100 / 7}%`,
     },
     miniBar: {
         width: 8,
@@ -639,7 +579,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     actionsContainer: {
-        marginTop: theme.spacing.xxl,
+        marginTop: 40,
         alignItems: 'center',
         gap: 16,
     },
@@ -659,6 +599,23 @@ const styles = StyleSheet.create({
         fontSize: 10,
         color: theme.colors.textMuted,
         opacity: 0.5,
+    },
+    settingsAction: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    settingsActionText: {
+        fontSize: 10,
+        fontWeight: '900',
+        color: '#FFF',
+        letterSpacing: 1,
     },
 });
 

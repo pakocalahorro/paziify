@@ -31,7 +31,9 @@ import { AcademyModule } from '../../data/academyData';
 import { AcademyService } from '../../services/AcademyService';
 import { OasisCard } from '../../components/Oasis/OasisCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
-import SoundWaveHeader from '../../components/SoundWaveHeader';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
 
 type CBTAcademyScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -252,7 +254,26 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <OasisScreen
+            header={
+                <OasisHeader
+                    title="ACADEMIA"
+                    path={["Oasis"]}
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                    }}
+                    onSearchPress={toggleSearch}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                />
+            }
+            themeMode="growth"
+            disableContentPadding={true}
+        >
             <StatusBar barStyle="light-content" />
 
             {/* Background */}
@@ -301,96 +322,98 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                     />
                 </Animated.View>
 
-            </View>
-
-            <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                <Animated.ScrollView
-                    contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-                    showsVerticalScrollIndicator={false}
-                    scrollEventThrottle={16}
-                    onScroll={Animated.event(
-                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                        { useNativeDriver: true }
-                    )}
-                >
-                    {renderHeader()}
-
-                    {/* Carousel */}
-                    <View style={styles.carouselContainer}>
-                        <SoundWaveHeader title="Elige tu curso" accentColor="#FB7185" />
-                        {filteredCourses.length === 0 ? (
-                            <View style={styles.emptyState}>
-                                <Ionicons name="school-outline" size={48} color="rgba(255,255,255,0.3)" />
-                                <Text style={styles.emptyText}>No se encontraron cursos.</Text>
-                            </View>
-                        ) : (
-                            <Animated.FlatList
-                                showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}
-                                horizontal
-                                data={carouselData}
-                                keyExtractor={(item: any) => item.id}
-                                contentContainerStyle={{ alignItems: 'center' }}
-                                snapToInterval={ITEM_WIDTH}
-                                decelerationRate="fast"
-                                bounces={false}
-                                onScroll={Animated.event(
-                                    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                                    { useNativeDriver: true }
-                                )}
-                                scrollEventThrottle={16}
-                                renderItem={({ item, index }) => {
-                                    if (item.id === 'empty-left' || item.id === 'empty-right') {
-                                        return <View style={{ width: EMPTY_ITEM_SIZE }} />;
-                                    }
-
-                                    const inputRange = [
-                                        (index - 2) * ITEM_WIDTH,
-                                        (index - 1) * ITEM_WIDTH,
-                                        (index) * ITEM_WIDTH,
-                                    ];
-
-                                    const translateY = scrollX.interpolate({
-                                        inputRange,
-                                        outputRange: [50, 0, 50],
-                                        extrapolate: 'clamp',
-                                    });
-                                    const scale = scrollX.interpolate({
-                                        inputRange,
-                                        outputRange: [0.9, 1, 0.9],
-                                        extrapolate: 'clamp',
-                                    });
-
-                                    return (
-                                        <View style={{ width: ITEM_WIDTH }}>
-                                            <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
-                                                <OasisCard
-                                                    superTitle={(item as any).category}
-                                                    title={(item as any).title}
-                                                    subtitle={`${(item as any).duration || 0} mins · ${(item as any).author || 'Guía'}`}
-                                                    imageUri={(item as any).thumbnailUrl}
-                                                    onPress={() => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
-                                                        courseId: item.id,
-                                                        courseData: item as any
-                                                    })}
-                                                    icon="school-outline"
-                                                    badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
-                                                    actionText="Ver Curso"
-                                                    actionIcon="school"
-                                                    variant="hero"
-                                                    accentColor="#FB7185"
-                                                    sharedTransitionTag={`course.image.${item.id}`}
-                                                />
-                                            </Animated.View>
-                                        </View>
-                                    );
-                                }}
-                            />
+                {/* Content Overlay */}
+                <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+                    <Animated.ScrollView
+                        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+                        showsVerticalScrollIndicator={false}
+                        scrollEventThrottle={16}
+                        onScroll={Animated.event(
+                            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                            { useNativeDriver: true }
                         )}
-                    </View>
-                </Animated.ScrollView>
-            </Animated.View>
-        </View>
+                    >
+                        {renderHeader()}
+
+                        {/* Carousel */}
+                        <View style={styles.carouselContainer}>
+                            <SoundwaveSeparator title="Elige tu curso" accentColor="#FB7185" />
+                            {filteredCourses.length === 0 ? (
+                                <View style={styles.emptyState}>
+                                    <Ionicons name="school-outline" size={48} color="rgba(255,255,255,0.3)" />
+                                    <Text style={styles.emptyText}>No se encontraron cursos.</Text>
+                                </View>
+                            ) : (
+                                <Animated.FlatList
+                                    showsVerticalScrollIndicator={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    horizontal
+                                    data={carouselData}
+                                    keyExtractor={(item: any) => item.id}
+                                    contentContainerStyle={{ alignItems: 'center' }}
+                                    snapToInterval={ITEM_WIDTH}
+                                    decelerationRate="fast"
+                                    bounces={false}
+                                    onScroll={Animated.event(
+                                        [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                                        { useNativeDriver: true }
+                                    )}
+                                    scrollEventThrottle={16}
+                                    renderItem={({ item, index }) => {
+                                        if (item.id === 'empty-left' || item.id === 'empty-right') {
+                                            return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                                        }
+
+                                        const inputRange = [
+                                            (index - 2) * ITEM_WIDTH,
+                                            (index - 1) * ITEM_WIDTH,
+                                            (index) * ITEM_WIDTH,
+                                        ];
+
+                                        const translateY = scrollX.interpolate({
+                                            inputRange,
+                                            outputRange: [50, 0, 50],
+                                            extrapolate: 'clamp',
+                                        });
+                                        const scale = scrollX.interpolate({
+                                            inputRange,
+                                            outputRange: [0.9, 1, 0.9],
+                                            extrapolate: 'clamp',
+                                        });
+
+                                        return (
+                                            <View style={{ width: ITEM_WIDTH }}>
+                                                <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
+                                                    <OasisCard
+                                                        superTitle={(item as any).category}
+                                                        title={(item as any).title}
+                                                        subtitle={`${(item as any).duration || 0} mins · ${(item as any).author || 'Guía'}`}
+                                                        imageUri={(item as any).thumbnailUrl}
+                                                        onPress={() => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                                                            courseId: item.id,
+                                                            courseData: item as any
+                                                        })}
+                                                        icon="school-outline"
+                                                        badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
+                                                        actionText="Ver Curso"
+                                                        actionIcon="school"
+                                                        duration={(item as any).duration ? `${(item as any).duration} min` : undefined}
+                                                        level={(item as any).difficulty}
+                                                        variant="hero"
+                                                        accentColor="#FB7185"
+                                                        sharedTransitionTag={`course.image.${item.id}`}
+                                                    />
+                                                </Animated.View>
+                                            </View>
+                                        );
+                                    }}
+                                />
+                            )}
+                        </View>
+                    </Animated.ScrollView>
+                </Animated.View>
+            </View>
+        </OasisScreen>
     );
 };
 

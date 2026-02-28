@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
     soundTitle: {
         fontSize: 40,
         fontWeight: '800',
-        fontFamily: 'Satisfy_400Regular', // PDS v3.0 Title Typography
+        fontFamily: 'Caveat_400Regular', // PDS v3.0 Title Typography
         color: '#FFF',
         marginBottom: 12,
         textAlign: 'center',

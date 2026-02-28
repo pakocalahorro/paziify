@@ -4,19 +4,33 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
     ScrollView,
-    Switch,
-    TextInput,
     Alert,
     Platform,
+    StatusBar,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { NotificationService, NotificationSettings as SettingsType } from '../../services/NotificationService';
+
+// Oasis PDS
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import { OasisInput } from '../../components/Oasis/OasisInput';
+import { OasisToggle } from '../../components/Oasis/OasisToggle';
+
+const OasisSettingGroup = ({ children, style }: { children: React.ReactNode, style?: any }) => (
+    <View style={[styles.oasisGroupOuter, style]}>
+        <BlurView intensity={20} tint="dark" style={styles.oasisGroupInner}>
+            {children}
+        </BlurView>
+        <View style={styles.oasisGroupBorder} pointerEvents="none" />
+    </View>
+);
 
 type NotificationSettingsScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -106,15 +120,28 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="chevron-back" size={28} color={theme.colors.textMain} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Ajustes de Perfil</Text>
-                <View style={{ width: 28 }} />
-            </View>
-
+        <OasisScreen
+            header={
+                <OasisHeader
+                    path={['Oasis', 'Mi Perfil']}
+                    title="Ajustes"
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                        if (index === 1) (navigation as any).navigate('MainTabs', { screen: Screen.PROFILE });
+                    }}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    onProfilePress={() => (navigation as any).navigate('MainTabs', { screen: Screen.PROFILE })}
+                />
+            }
+            themeMode="healing"
+            disableContentPadding={true}
+            showSafeOverlay={false}
+        >
+            <StatusBar barStyle="light-content" />
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                 {/* 1. SECCIÓN DE PROPÓSITO (Metas) */}
@@ -123,7 +150,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     <Ionicons name="compass" size={16} color={theme.colors.primary} />
                 </View>
 
-                <View style={styles.settingsGroup}>
+                <OasisSettingGroup style={{ marginTop: 10 }}>
                     <View style={styles.goalRow}>
                         <View style={styles.settingInfo}>
                             <Text style={styles.settingTitle}>Meta Diaria</Text>
@@ -169,7 +196,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </View>
+                </OasisSettingGroup>
 
                 {/* 2. SECCIÓN DE SALUD */}
                 <View style={styles.sectionHeaderRow}>
@@ -177,34 +204,23 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     <Ionicons name="heart" size={16} color="#FF4B4B" />
                 </View>
 
-                <View style={styles.settingsGroup}>
-                    {/* Birth Date */}
-                    <View style={styles.settingRow}>
-                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
-                            <Ionicons name="calendar" size={20} color="#FF4B4B" />
-                        </View>
-                        <View style={styles.settingInfo}>
-                            <Text style={styles.settingTitle}>Fecha de nacimiento</Text>
-                            {age !== null && <Text style={styles.settingSubtitle}>{age} años</Text>}
-                        </View>
-                        <TextInput
-                            style={styles.healthInput}
-                            value={birthDate}
-                            onChangeText={setBirthDate}
-                            placeholder="DD/MM/AAAA"
-                            placeholderTextColor="rgba(255,255,255,0.2)"
-                            keyboardType="numbers-and-punctuation"
-                            maxLength={10}
-                        />
-                    </View>
+                <OasisSettingGroup style={{ marginTop: 10 }}>
+                    <OasisInput
+                        label="Fecha de Nacimiento"
+                        placeholder="DD/MM/AAAA"
+                        value={birthDate}
+                        onChangeText={setBirthDate}
+                        icon="calendar"
+                    />
+                    {age !== null && (
+                        <Text style={[styles.settingSubtitle, { marginTop: -8, marginLeft: 16, marginBottom: 16 }]}>
+                            {age} años
+                        </Text>
+                    )}
 
                     <View style={styles.divider} />
 
-                    {/* Gender */}
-                    <View style={styles.settingRow}>
-                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
-                            <Ionicons name="person" size={20} color="#FF4B4B" />
-                        </View>
+                    <View style={[styles.settingRow, { paddingVertical: 16 }]}>
                         <View style={[styles.settingInfo, { flex: 0, marginRight: 'auto' }]}>
                             <Text style={styles.settingTitle}>Género</Text>
                         </View>
@@ -231,36 +247,27 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
 
                     <View style={styles.divider} />
 
-                    {/* Height & Weight */}
-                    <View style={styles.settingRow}>
-                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(255, 75, 75, 0.1)' }]}>
-                            <Ionicons name="resize" size={20} color="#FF4B4B" />
-                        </View>
-                        <View style={styles.settingInfo}>
-                            <Text style={styles.settingTitle}>Altura y Peso</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                            <TextInput
-                                style={[styles.healthInput, { minWidth: 60 }]}
+                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                        <View style={{ flex: 1 }}>
+                            <OasisInput
+                                label="Altura (cm)"
+                                placeholder="175"
                                 value={heightCm}
                                 onChangeText={setHeightCm}
-                                placeholder="cm"
-                                placeholderTextColor="rgba(255,255,255,0.2)"
                                 keyboardType="numeric"
-                                maxLength={3}
                             />
-                            <TextInput
-                                style={[styles.healthInput, { minWidth: 60 }]}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <OasisInput
+                                label="Peso (kg)"
+                                placeholder="70"
                                 value={weightKg}
                                 onChangeText={setWeightKg}
-                                placeholder="kg"
-                                placeholderTextColor="rgba(255,255,255,0.2)"
                                 keyboardType="numeric"
-                                maxLength={3}
                             />
                         </View>
                     </View>
-                </View>
+                </OasisSettingGroup>
 
                 {/* ====================== */}
                 {/* NOTIFICATIONS SECTION  */}
@@ -281,40 +288,30 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
 
                 {/* Section: Rutinas Diarias */}
                 <Text style={styles.sectionLabel}>RUTINAS DIARIAS</Text>
-                <View style={styles.settingsGroup}>
+                <OasisSettingGroup>
                     <View style={styles.settingRow}>
-                        <View style={styles.settingIconBox}>
-                            <Ionicons name="sunny" size={20} color={theme.colors.accent} />
-                        </View>
                         <View style={styles.settingInfo}>
                             <Text style={styles.settingTitle}>Rutina de Mañana</Text>
-                            <Text style={styles.settingSubtitle}>Start with intention</Text>
+                            <Text style={styles.settingSubtitle}>Empezar con intención</Text>
                         </View>
-                        <Switch
-                            trackColor={{ false: '#323232', true: theme.colors.primary }}
-                            thumbColor="#FFFFFF"
-                            ios_backgroundColor="#323232"
-                            onValueChange={() => handleToggle('notificationMorning')}
+                        <OasisToggle
                             value={settings.notificationMorning}
+                            onValueChange={() => handleToggle('notificationMorning')}
+                            accentColor={theme.colors.accent}
                         />
                     </View>
 
                     <View style={styles.divider} />
 
                     <View style={styles.settingRow}>
-                        <View style={styles.settingIconBox}>
-                            <Ionicons name="moon" size={20} color="#818CF8" />
-                        </View>
                         <View style={styles.settingInfo}>
                             <Text style={styles.settingTitle}>Sugerencia Nocturna</Text>
-                            <Text style={styles.settingSubtitle}>Wind down properly</Text>
+                            <Text style={styles.settingSubtitle}>Desconectar correctamente</Text>
                         </View>
-                        <Switch
-                            trackColor={{ false: '#323232', true: theme.colors.primary }}
-                            thumbColor="#FFFFFF"
-                            ios_backgroundColor="#323232"
-                            onValueChange={() => updateNotifSetting('nightRoutine', !notifSettings?.nightRoutine)}
+                        <OasisToggle
                             value={notifSettings?.nightRoutine ?? settings.notificationNight}
+                            onValueChange={() => updateNotifSetting('nightRoutine', !notifSettings?.nightRoutine)}
+                            accentColor="#818CF8"
                         />
                     </View>
 
@@ -356,47 +353,37 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </View>
+                </OasisSettingGroup>
 
                 {/* Section: Motivación */}
                 <Text style={styles.sectionLabel}>MOTIVACIÓN</Text>
-                <View style={styles.settingsGroup}>
+                <OasisSettingGroup>
                     <View style={styles.settingRow}>
-                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-                            <Ionicons name="flame" size={20} color="#EF4444" />
-                        </View>
                         <View style={styles.settingInfo}>
                             <Text style={styles.settingTitle}>Recordatorio de Racha</Text>
-                            <Text style={styles.settingSubtitle}>Keep your momentum</Text>
+                            <Text style={styles.settingSubtitle}>Mantén tu impulso</Text>
                         </View>
-                        <Switch
-                            trackColor={{ false: '#323232', true: theme.colors.primary }}
-                            thumbColor="#FFFFFF"
-                            ios_backgroundColor="#323232"
-                            onValueChange={() => updateNotifSetting('streakReminder', !notifSettings?.streakReminder)}
+                        <OasisToggle
                             value={notifSettings?.streakReminder ?? settings.notificationStreak}
+                            onValueChange={() => updateNotifSetting('streakReminder', !notifSettings?.streakReminder)}
+                            accentColor="#EF4444"
                         />
                     </View>
 
                     <View style={styles.divider} />
 
                     <View style={styles.settingRow}>
-                        <View style={[styles.settingIconBox, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
-                            <Ionicons name="warning-outline" size={20} color="#F59E0B" />
-                        </View>
                         <View style={styles.settingInfo}>
                             <Text style={styles.settingTitle}>Alerta Racha en Peligro</Text>
                             <Text style={styles.settingSubtitle}>Aviso a las 21:30 si no has meditado</Text>
                         </View>
-                        <Switch
-                            trackColor={{ false: '#323232', true: theme.colors.primary }}
-                            thumbColor="#FFFFFF"
-                            ios_backgroundColor="#323232"
-                            onValueChange={() => updateNotifSetting('streakDangerToggle', !notifSettings?.streakDangerToggle)}
+                        <OasisToggle
                             value={notifSettings?.streakDangerToggle ?? true}
+                            onValueChange={() => updateNotifSetting('streakDangerToggle', !notifSettings?.streakDangerToggle)}
+                            accentColor="#F59E0B"
                         />
                     </View>
-                </View>
+                </OasisSettingGroup>
 
                 {/* Section: Zona de Calma */}
                 <View style={styles.sectionHeaderRow}>
@@ -406,21 +393,16 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     </View>
                 </View>
 
-                <View style={styles.settingsGroup}>
+                <OasisSettingGroup>
                     <View style={styles.settingRow}>
-                        <View style={styles.settingIconBox}>
-                            <Ionicons name="remove-circle" size={20} color={theme.colors.textMuted} />
-                        </View>
                         <View style={styles.settingInfo}>
                             <Text style={styles.settingTitle}>Horario de Silencio</Text>
-                            <Text style={styles.settingSubtitle}>Protects deep sleep cycles</Text>
+                            <Text style={styles.settingSubtitle}>Protege los ciclos de sueño</Text>
                         </View>
-                        <Switch
-                            trackColor={{ false: '#323232', true: theme.colors.primary }}
-                            thumbColor="#FFFFFF"
-                            ios_backgroundColor="#323232"
-                            onValueChange={() => handleToggle('notificationQuietMode')}
+                        <OasisToggle
                             value={settings.notificationQuietMode}
+                            onValueChange={() => handleToggle('notificationQuietMode')}
+                            accentColor={theme.colors.textMuted}
                         />
                     </View>
 
@@ -438,11 +420,11 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.footerNote}>
                         No se enviarán notificaciones durante estas horas para asegurar un descanso profundo y sin interrupciones.
                     </Text>
-                </View>
+                </OasisSettingGroup>
 
                 {/* 5. SECCIÓN DE CUENTA */}
                 <Text style={styles.sectionLabel}>SISTEMA Y CUENTA</Text>
-                <View style={styles.settingsGroup}>
+                <OasisSettingGroup>
                     <TouchableOpacity
                         style={styles.settingRow}
                         onPress={() => signOut()}
@@ -456,7 +438,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                         </View>
                         <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
-                </View>
+                </OasisSettingGroup>
 
                 {/* Footer Brand */}
                 <View style={styles.brandFooter}>
@@ -464,11 +446,27 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.brandText}>PAZIIFY WELLNESS OS V2.33.5</Text>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </OasisScreen>
     );
 };
 
 const styles = StyleSheet.create({
+    oasisGroupOuter: {
+        marginBottom: 20,
+        position: 'relative',
+    },
+    oasisGroupInner: {
+        borderRadius: 24,
+        overflow: 'hidden',
+        padding: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    oasisGroupBorder: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,

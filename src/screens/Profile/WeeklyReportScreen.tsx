@@ -21,6 +21,8 @@ import { CardioService, CardioResult } from '../../services/CardioService';
 import { analyticsService, DailyActivity } from '../../services/analyticsService';
 import { generateWeeklyInsight } from '../../utils/weeklyInsight';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
 
 const { width: screenWidth } = Dimensions.get('window');
 const CHART_WIDTH = screenWidth - 48;
@@ -124,24 +126,34 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
     const hasActivityData = activityValues.some(v => v > 0);
 
     return (
-        <View style={styles.root}>
-            <BackgroundWrapper nebulaMode="healing" />
-
-            {/* Safe area top blur */}
-            <BlurView intensity={90} tint="dark" style={[styles.safeBlur, { height: insets.top }]} />
-
+        <OasisScreen
+            header={
+                <OasisHeader
+                    path={['Oasis', 'Mi Perfil']}
+                    title="Reporte Semanal"
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    activeChallengeType={userState.activeChallenge?.type as any}
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                        if (index === 1) navigation.navigate(Screen.PROFILE as any);
+                    }}
+                />
+            }
+            themeMode="healing" // Matching the nebulaMode="healing"
+            showSafeOverlay={false}
+            disableContentPadding={true}
+        >
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 80 }]}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingBottom: insets.bottom + 40 }
+                ]}
             >
-                {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={22} color="#FFF" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Reporte Semanal</Text>
-                    <View style={{ width: 36 }} />
-                </View>
 
                 {loading ? (
                     <View style={styles.loadingContainer}>
@@ -279,7 +291,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                     </>
                 )}
             </ScrollView>
-        </View>
+        </OasisScreen>
     );
 };
 
@@ -329,7 +341,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between', marginBottom: 24,
     },
     backButton: { width: 36, height: 36, justifyContent: 'center' },
-    headerTitle: { fontSize: 32, fontFamily: 'Satisfy_400Regular', color: '#FFF', letterSpacing: 0.5 },
+    headerTitle: { fontSize: 32, fontFamily: 'Caveat_400Regular', color: '#FFF', letterSpacing: 0.5 },
     loadingContainer: { alignItems: 'center', paddingTop: 80, gap: 16 },
     loadingText: { color: 'rgba(255,255,255,0.4)', fontSize: 14 },
 

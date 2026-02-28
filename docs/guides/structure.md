@@ -18,8 +18,8 @@
 
 **Paziify** es una aplicación móvil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versión**: 2.34.0 (PDS v3 - Oasis Edition)
-**Última actualización**: 26 de Febrero de 2026
+**Versión**: 2.34.1 (PDS v3 - Master Header Edition)
+**Última actualización**: 28 de Febrero de 2026
 
 ---
 
@@ -70,6 +70,7 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 │   ├── guides/                 # Guías de desarrollo
 │   ├── plans/                  # Planes y roadmaps
 │   ├── scripts/                # Scripts de meditación
+│   ├── tutorials/              # [NEW] Tutoriales de diseño y uso
 │   └── sessions/               # Registro de sesiones
 ├── scripts/                    # Scripts SQL y utilidades
 ├── src/                        # Código fuente principal
@@ -792,12 +793,16 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 - Volumen gradual
 - Acción al finalizar (pausar/cerrar app)
 
-#### `src/components/SoundWaveHeader.tsx`
-**Función**: Header con animación de ondas
-**Props**: title, subtitle
+#### `src/components/Shared/SoundwaveSeparator.tsx`
+**Función**: Divisor oficial de secciones de borde a borde.
+**Props**: fullWidth, accentColor, title
 **Características**:
-- Título con ondas animadas
-- Subtítulo opcional
+- Reemplaza íntegramente al antiguo `SoundWaveHeader.tsx`.
+- Soporta renderizado sin márgenes laterales para diseño premium.
+- Texto centrado y tipografía `Caveat`.
+
+#### `src/components/SoundWaveHeader.tsx` [OBSOLETO]
+**Estado**: Eliminado / En proceso de limpieza. Sustituido por `SoundwaveSeparator.tsx`.
 - Efecto visual sonoro
 - Minimalista
 

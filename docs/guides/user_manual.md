@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.34.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.34.1) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.34.0**. Esta versión presenta el rediseño de Perfil y Ajustes, con gestión de metas inteligente y un nuevo Reporte Semanal visualmente unificado.
+Bienvenido a la guía oficial de **Paziify v2.34.1**. Esta versión consolida el refinamiento del **Master Header (Navegación Narrativa)** y la estandarización global de los divisores de sección.
 
 ---
 
@@ -211,11 +211,12 @@ Paziify introduce una de sus mayores actualizaciones en la experiencia de usuari
 - Un elegante mini-reproductor de cristal (Glassmorphism) te acompañará justo por encima del menú inferior de navegación.
 - **Controles Rápidos**: Pausa o reanuda la escucha al instante con respuesta háptica.
 - **Acceso Total**: Toca la tarjeta flotante en cualquier momento para volver al reproductor a pantalla completa.
+- **Navegación Persistente**: Al entrar en el Reporte Semanal o Ajustes desde el Perfil, el menú de navegación inferior permanece visible para una transición fluida entre secciones.
 
 ### Reporte Semanal Elevado
 - El **Reporte Semanal** (Tu Ritmo) ha sido rediseñado visualmente. Ahora presenta gráficas con estilo cristal oscuro e información inmersiva sobre tu Bio-Ritmo y Actividad.
 
 ---
 
-*Última revisión: 26 de Febrero de 2026 - Versión 2.34.0 (PDS v3.0 Oasis Edition)*
+*Última revisión: 28 de Febrero de 2026 - Versión 2.34.1 (PDS v3.0 Master Header Edition)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

@@ -5,11 +5,17 @@ import { useSharedValue, withRepeat, withTiming, Easing } from 'react-native-rea
 
 interface Props {
     title: string;
+    fullWidth?: boolean;
+    accentColor?: string;
 }
 
 const { width } = Dimensions.get('window');
 
-const SoundwaveSeparator: React.FC<Props> = ({ title }) => {
+const SoundwaveSeparator: React.FC<Props> = ({
+    title,
+    fullWidth = true,
+    accentColor = "#2DD4BF"
+}) => {
     const pulse = useSharedValue(0.3);
 
     React.useEffect(() => {
@@ -47,13 +53,19 @@ const SoundwaveSeparator: React.FC<Props> = ({ title }) => {
     wavePath.lineTo(width, centerY);
 
     return (
-        <View style={styles.container}>
+        <View style={[
+            styles.container,
+            fullWidth && { width: width, marginHorizontal: 0 }
+        ]}>
             {/* Glowing Wave */}
-            <Canvas style={styles.canvas}>
+            <Canvas style={[
+                styles.canvas,
+                fullWidth && { width: width }
+            ]}>
                 {/* Outer Glow */}
                 <Path
                     path={wavePath}
-                    color="#2DD4BF"
+                    color={accentColor}
                     style="stroke"
                     strokeWidth={4}
                     opacity={pulse}
@@ -63,7 +75,7 @@ const SoundwaveSeparator: React.FC<Props> = ({ title }) => {
                 {/* Inner Glow */}
                 <Path
                     path={wavePath}
-                    color="#2DD4BF"
+                    color={accentColor}
                     style="stroke"
                     strokeWidth={2}
                     opacity={pulse}
@@ -94,8 +106,8 @@ const styles = StyleSheet.create({
         width: width,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 24,
-        marginBottom: 16
+        marginTop: 16,
+        marginBottom: 8
     },
     canvas: {
         position: 'absolute',
@@ -109,6 +121,7 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         letterSpacing: 4,
         textTransform: 'uppercase',
+        textAlign: 'center',
         textShadowColor: 'rgba(0,0,0,1)',
         textShadowOffset: { width: 0, height: 0 },
         textShadowRadius: 10,

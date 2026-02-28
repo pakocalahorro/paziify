@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 38,
-        fontFamily: 'Satisfy_400Regular',
+        fontFamily: 'Caveat_400Regular',
         color: '#FFF',
         marginBottom: 12,
         alignSelf: 'flex-start',

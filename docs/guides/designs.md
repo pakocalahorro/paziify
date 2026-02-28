@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.34.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.34.1) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.34.0** introduce el rediseño integral de Perfil y Ajustes bajo la estética **Oasis Design**, con unificación de reportes y sistema de gráficas coordinado.
+Esta guía define el ADN visual de Paziify. La versión **v2.34.1** consolida la visión del **Master Header** y el diseño de secciones de borde a borde.
 
 ---
 
@@ -186,9 +186,12 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 - Se mantiene `Outfit` para dar carácter moderno a las cards y `Inter` para la legibilidad del texto en párrafos.
 
 ### 3. "The Floating Island" (GlobalMiniPlayer)
-- La experiencia de audio inmersivo ahora descansa en un Mini-Reproductor global flotante que se anexa al `CustomTabBar`. 
 - Incorpora animaciones de entrada (`FadeInDown.springify()`) y feedback háptico en cada interacción de reproducción, unificando Audiolibros, Historias y Sonidos de Fondo bajo la misma sombrilla.
+
+### 4. Navegación Narrativa (Master Header)
+- El encabezado superior actúa como un hilo conductor que elimina la desorientación. Incluye breadcrumbs interactivos y la identidad del usuario (Avatar/Nombre) en un marco de cristal persistente.
+- El botón de ajustes se desplaza al cuerpo del perfil para preservar el header exclusivamente para la navegación y la evolución.
 
 ---
 
-*Última revisión: 26 de Febrero de 2026 - Versión 2.34.0 (PDS v3.0 Oasis Edition)*
+*Última revisión: 28 de Febrero de 2026 - Versión 2.34.1 (PDS v3.0 Master Header Edition)*

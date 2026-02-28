@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
         letterSpacing: -0.5,
     },
     author: {
-        fontFamily: 'Satisfy_400Regular', // Satisfy font applied (Hardcoded to avoid theme config errors)
+        fontFamily: 'Caveat_400Regular', // Caveat font applied
         color: theme.colors.primary,
         fontSize: 24,
         marginBottom: 10,

@@ -53,9 +53,7 @@ const CategoryRow: React.FC<Props> = ({
     variant = 'overlay',
     sharedTransitionTagPrefix
 }) => {
-    if (variant === 'section-header') {
-        return <SoundwaveSeparator title={title} />;
-    }
+    // Variant section-header handled below in the main return for consistent container management
 
     if (sessions.length === 0) return null;
 
@@ -102,7 +100,7 @@ const CategoryRow: React.FC<Props> = ({
     }
 
     return (
-        <View style={[styles.container, isStandard && { marginBottom: 8 }]}>
+        <View style={[styles.container, isStandard && { marginBottom: 8 }, variant === 'section-header' && { paddingHorizontal: 0, marginBottom: 0 }]}>
             <View style={containerStyle}>
                 <View style={[
                     styles.header,
@@ -162,46 +160,52 @@ const CategoryRow: React.FC<Props> = ({
                     }} />
                 )}
 
-                <FlatList
-                    horizontal={!isResults}
-                    data={sessions}
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                        styles.listContent,
-                        isResults && styles.verticalList,
-                        // Ensure enough padding at the end
-                        !isResults && { paddingRight: 20 }
-                    ]}
-                    snapToAlignment="start"
-                    decelerationRate="fast"
-                    snapToInterval={snapInterval}
-                    renderItem={({ item, index }) => (
-                        <View style={[
-                            styles.cardWrapper,
-                            isResults && styles.fullWidthCard,
-                            isStandard && { width: width * 0.7 },
-                            isPoster && { width: (width - 68) / 3, marginRight: 8 }, // Poster wrapper
-                            isWide && { width: width * 0.90, marginRight: 12 }, // Wide wrapper
-                            isHero && { width: width - 56, marginRight: 12 } // Hero wrapper (Reduced width)
-                        ]}>
-                            <OasisCard
-                                superTitle={(item as any).category}
-                                title={(item as any).title}
-                                subtitle={`${(item as any).duration || 0} mins · ${(item as any).creatorName || 'Guía'}`}
-                                imageUri={(item as any).thumbnailUrl || (item as any).image}
-                                onPress={() => onSessionPress(item)}
-                                icon={icon as any}
-                                badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
-                                actionText="Comenzar"
-                                actionIcon="play"
-                                variant={isCompact(variant) ? 'compact' : (isHero ? 'hero' : 'default')}
-                                accentColor={accentColor}
-                                sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${item.id}` : undefined}
-                            />
-                        </View>
-                    )}
-                />
+                {variant === 'section-header' ? (
+                    <SoundwaveSeparator title={title} />
+                ) : (
+                    <FlatList
+                        horizontal={!isResults}
+                        data={sessions}
+                        keyExtractor={(item) => item.id}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={[
+                            styles.listContent,
+                            isResults && styles.verticalList,
+                            // Ensure enough padding at the end
+                            !isResults && { paddingRight: 20 }
+                        ]}
+                        snapToAlignment="start"
+                        decelerationRate="fast"
+                        snapToInterval={snapInterval}
+                        renderItem={({ item, index }) => (
+                            <View style={[
+                                styles.cardWrapper,
+                                isResults && styles.fullWidthCard,
+                                isStandard && { width: width * 0.7 },
+                                isPoster && { width: (width - 68) / 3, marginRight: 8 }, // Poster wrapper
+                                isWide && { width: width * 0.90, marginRight: 12 }, // Wide wrapper
+                                isHero && { width: width - 56, marginRight: 12 } // Hero wrapper (Reduced width)
+                            ]}>
+                                <OasisCard
+                                    superTitle={(item as any).category}
+                                    title={(item as any).title}
+                                    subtitle={`${(item as any).duration || 0} mins · ${(item as any).creatorName || 'Guía'}`}
+                                    imageUri={(item as any).thumbnailUrl || (item as any).image}
+                                    onPress={() => onSessionPress(item)}
+                                    icon={icon as any}
+                                    badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
+                                    actionText="Comenzar"
+                                    actionIcon="play"
+                                    duration={(item as any).duration ? `${(item as any).duration} min` : undefined}
+                                    level={(item as any).difficulty}
+                                    variant={isCompact(variant) ? 'compact' : (isHero ? 'hero' : 'default')}
+                                    accentColor={accentColor}
+                                    sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${item.id}` : undefined}
+                                />
+                            </View>
+                        )}
+                    />
+                )}
             </View>
         </View>
     );

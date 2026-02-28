@@ -27,10 +27,15 @@ export const OasisMeter: React.FC<OasisMeterProps> = ({
     label = "PROGRESO",
     accentColor = "#2DD4BF" // Default Healing Green 
 }) => {
-    const strokeWidth = 14;
+    // Dynamic scaling based on the base size of 150
+    const scale = size / 150;
+    const strokeWidth = Math.max(size * 0.09, 4); // Adaptive stroke
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
     const center = size / 2;
+
+    const labelSize = Math.max(10 * scale, 8);
+    const percentageSize = Math.max(32 * scale, 14);
 
     const animatedProgress = useSharedValue(0);
 
@@ -104,8 +109,8 @@ export const OasisMeter: React.FC<OasisMeterProps> = ({
             </Svg>
 
             <View style={styles.labelContainer}>
-                <Text style={styles.label}>{label}</Text>
-                <Text style={styles.percentage}>{Math.round(progress * 100)}%</Text>
+                <Text style={[styles.label, { fontSize: labelSize }]}>{label}</Text>
+                <Text style={[styles.percentage, { fontSize: percentageSize }]}>{Math.round(progress * 100)}%</Text>
             </View>
         </View>
     );
@@ -122,15 +127,13 @@ const styles = StyleSheet.create({
     },
     label: {
         fontFamily: 'Outfit_800ExtraBold',
-        fontSize: 10,
         color: 'rgba(255,255,255,0.5)',
-        letterSpacing: 2,
+        letterSpacing: 1, // Reduced for smaller sizes
         textTransform: 'uppercase',
     },
     percentage: {
         fontFamily: 'Outfit_800ExtraBold',
-        fontSize: 32,
         color: '#FFFFFF',
-        marginTop: -4,
+        marginTop: -2,
     },
 });

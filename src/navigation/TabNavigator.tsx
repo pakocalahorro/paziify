@@ -15,14 +15,17 @@ import MeditationCatalogScreen from '../screens/Meditation/MeditationCatalogScre
 import AudiobooksScreen from '../screens/Content/AudiobooksScreen';
 import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
 import StoriesScreen from '../screens/Content/StoriesScreen';
+import NotificationSettings from '../screens/Onboarding/NotificationSettings';
 import BackgroundSoundScreen from '../screens/BackgroundSound/BackgroundSoundScreen';
 import BackgroundPlayerScreen from '../screens/BackgroundSound/BackgroundPlayerScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MiniPlayer from '../components/Shared/MiniPlayer';
 import CustomTabBar from './CustomTabBar';
+import WeeklyReportScreen from '../screens/Profile/WeeklyReportScreen';
 
 const Tab = createBottomTabNavigator();
 const LibStack = createNativeStackNavigator<RootStackParamList>();
+const ProfStack = createNativeStackNavigator<RootStackParamList>();
 
 const LibraryStack = () => (
     <LibStack.Navigator screenOptions={{ headerShown: false }}>
@@ -33,6 +36,14 @@ const LibraryStack = () => (
         <LibStack.Screen name={Screen.BACKGROUND_SOUND} component={BackgroundSoundScreen} />
         <LibStack.Screen name={Screen.BACKGROUND_PLAYER} component={BackgroundPlayerScreen} />
     </LibStack.Navigator>
+);
+
+const ProfileStack = () => (
+    <ProfStack.Navigator screenOptions={{ headerShown: false }}>
+        <ProfStack.Screen name={Screen.PROFILE} component={ProfileScreen} />
+        <ProfStack.Screen name={Screen.WEEKLY_REPORT} component={WeeklyReportScreen} />
+        <ProfStack.Screen name={Screen.NOTIFICATION_SETTINGS} component={NotificationSettings} />
+    </ProfStack.Navigator>
 );
 
 export const TabNavigator = () => {
@@ -85,8 +96,8 @@ export const TabNavigator = () => {
                     }}
                 />
                 <Tab.Screen
-                    name={Screen.PROFILE}
-                    component={ProfileScreen}
+                    name="ProfileTab"
+                    component={ProfileStack}
                     options={{
                         tabBarLabel: 'Perfil',
                         tabBarIcon: ({ color, size }) => (

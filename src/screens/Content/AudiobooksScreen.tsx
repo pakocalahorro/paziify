@@ -39,6 +39,9 @@ import { useAudiobooks } from '../../hooks/useContent';
 import { useApp } from '../../context/AppContext';
 import { OasisCard } from '../../components/Oasis/OasisCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
+import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 
 type AudiobooksScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -257,35 +260,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.headerContent}>
             {/* Nav / Title / Search Toggle */}
             <View style={styles.header}>
-                <View style={styles.headerRow}>
-                    <View style={styles.headerLeft}>
-                        <TouchableOpacity
-                            style={styles.backBtnAbsolute}
-                            onPress={() => navigation.goBack()}
-                        >
-                            <Ionicons name="arrow-back" size={20} color="#FFF" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.searchToggleBtn}
-                            onPress={toggleSearch}
-                        >
-                            <Ionicons
-                                name={isSearchExpanded ? "close-outline" : "search-outline"}
-                                size={20}
-                                color={isSearchExpanded ? "#FB7185" : "#FFF"} // Highlight color when open
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.headerTitleContainer}>
-                        <Text style={styles.headerTitleInline}>Audiolibros</Text>
-                    </View>
-
-                    <View style={styles.headerIconContainer}>
-                        {/* Optional decorative icon on right */}
-                        <Ionicons name="headset-outline" size={24} color="#FB7185" />
-                    </View>
-                </View>
+                {/* Antiguo bloque de encabezado removido - Ahora manejado por OasisHeader en OasisScreen */}
             </View>
 
             {/* Search Bar (Collapsible) */}
@@ -400,55 +375,28 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
     );
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <StatusBar barStyle="light-content" />
-
-            <View style={StyleSheet.absoluteFill}>
-                <BackgroundWrapper nebulaMode="growth" />
-
-                {/* Parallax Image Mapping - Fading the light part as we scroll */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [1, 0],
-                        extrapolate: 'clamp'
-                    }),
-                    transform: [{
-                        scale: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [1.2, 1, 1],
-                            extrapolate: 'clamp'
-                        })
-                    }, {
-                        translateY: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
-                            extrapolate: 'clamp'
-                        })
-                    }]
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
-                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
-
-                {/* Dark Background that stays for content */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [0, 1],
-                        extrapolate: 'clamp'
-                    })
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
-
-            </View>
+        <OasisScreen
+            header={
+                <OasisHeader
+                    title="AUDIOLIBROS"
+                    path={["Oasis", "Biblioteca"]}
+                    onBack={() => navigation.goBack()}
+                    onPathPress={(index) => {
+                        if (index === 0) navigation.navigate(Screen.HOME as any);
+                        if (index === 1) navigation.navigate(Screen.LIBRARY as any);
+                    }}
+                    onSearchPress={toggleSearch}
+                    userName={userState.name || 'Pazificador'}
+                    avatarUrl={userState.avatarUrl}
+                    showEvolucion={true}
+                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                />
+            }
+            themeMode="healing"
+            disableContentPadding={true}
+            preset="fixed"
+        >
 
             <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
                 <Animated.ScrollView
@@ -461,6 +409,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     )}
                 >
                     {renderHeader()}
+                    <SoundwaveSeparator title="Sabiduría Eterna" accentColor="#FB7185" />
 
                     <View style={styles.carouselContainer}>
                         {loading && !isRefetching ? (
@@ -525,6 +474,8 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                                                     badgeText={(item as any).is_premium ? "PREMIUM" : "LIBRE"}
                                                     actionText="Leer Libro"
                                                     actionIcon="book"
+                                                    duration={(item as any).duration_m ? `${(item as any).duration_m} min` : undefined}
+                                                    level={(item as any).difficulty}
                                                     variant="hero"
                                                     accentColor="#FB7185"
                                                     sharedTransitionTag={`session.image.${item.id}`}
@@ -538,7 +489,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
                 </Animated.ScrollView>
             </Animated.View>
-        </View>
+        </OasisScreen>
     );
 };
 
