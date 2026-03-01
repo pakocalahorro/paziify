@@ -42,6 +42,7 @@ import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
+import { FilterActionSheet } from '../../components/Oasis/FilterActionSheet';
 
 type AudiobooksScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -95,36 +96,7 @@ const BacklitSilhouette: React.FC = () => {
 // --- CONSTANTS ---
 
 // Guides Data (Duplicated from MeditationCatalog for now, avoiding cross-dependency risks)
-const ALL_GUIDES = [
-    {
-        id: 'aria',
-        name: 'Aria',
-        specialty: 'Calma',
-        color: '#66DEFF',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/aria_avatar.webp'
-    },
-    {
-        id: 'eter',
-        name: 'Éter',
-        specialty: 'Sueño',
-        color: '#9575CD',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/eter_avatar.webp'
-    },
-    {
-        id: 'ziro',
-        name: 'Ziro',
-        specialty: 'Resiliencia',
-        color: '#646CFF',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/ziro_avatar.webp'
-    },
-    {
-        id: 'gaia',
-        name: 'Gaia',
-        specialty: 'Energía',
-        color: '#FFA726',
-        avatar: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/meditation/avatars/gaia_avatar.webp'
-    },
-];
+// Guides Data removed per request
 
 // Helper for visual properties of categories
 const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
@@ -150,7 +122,6 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' is key for "Todo"
-    const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
 
     // Animations
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -160,6 +131,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
     // Search Animation (Standardized)
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
     const searchAnim = useRef(new Animated.Value(0)).current;
+    const [showFilter, setShowFilter] = useState(false);
 
     const toggleSearch = () => {
         const toValue = isSearchExpanded ? 0 : 1;
@@ -184,30 +156,19 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         }
     }, [loading]);
 
-    // ** UPDATED FILTERING LOGIC **
-    // Now compatible with both local mock data and real Supabase strings.
     const filteredAudiobooks = useMemo(() => {
         const query = searchQuery.toLowerCase();
 
         return audiobooks.filter(book => {
-            // 1. Search Match
             const matchesSearch = book.title.toLowerCase().includes(query) ||
                 book.author.toLowerCase().includes(query) ||
                 book.narrator.toLowerCase().includes(query);
 
-            // 2. Guide/Narrator Filter
-            // Real names in Supabase match the ID in the catalog, but case might vary.
-            // We'll normalize to lowercase. If mock IDs were used previously, checking substring might help.
-            const matchesGuide = !selectedGuide || book.narrator.toLowerCase().includes(selectedGuide.toLowerCase());
-
-            // 3. Category Filter
-            // Make sure normalization applies so "Ciencia Ficción" matches "ciencia ficción" map if needed.
-            // Using exact matching for categories since it's driven by our UI buttons.
             const matchesCategory = selectedCategory === 'all' || book.category.toLowerCase() === selectedCategory.toLowerCase();
 
-            return matchesSearch && matchesGuide && matchesCategory;
+            return matchesSearch && matchesCategory;
         });
-    }, [audiobooks, searchQuery, selectedCategory, selectedGuide]);
+    }, [audiobooks, searchQuery, selectedCategory]);
 
     const carouselData = useMemo(() => {
         if (filteredAudiobooks.length === 0) return [];
@@ -236,14 +197,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         return ['all', ...Array.from(set)];
     }, [audiobooks]);
 
-    const activeGuides = useMemo(() => {
-        // Collect narrators found in audiobooks and try to map them to ALL_GUIDES
-        const set = new Set(audiobooks.map(a => a.narrator.toLowerCase()));
-        return ALL_GUIDES.filter(g => {
-            // Check if any narrator includes the guide name (handles 'Voz de Aria' etc.)
-            return Array.from(set).some(narrator => narrator.includes(g.name.toLowerCase()));
-        });
-    }, [audiobooks]);
+    const activeGuides = [] as any[];
 
     const availableCategories = useMemo(() => {
         return activeCategories.map(cat => {
@@ -285,211 +239,133 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                     />
                 </View>
             </Animated.View>
-
-            {/* Categories */}
-            <View style={styles.categoryWrap}>
-                <FlatList
-                    horizontal
-                    data={availableCategories}
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.categoryList}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            onPress={() => setSelectedCategory(item.id)}
-                            activeOpacity={0.7}
-                        >
-                            <BlurView
-                                intensity={selectedCategory === item.id ? 80 : 20}
-                                tint="dark"
-                                style={[
-                                    styles.categoryChip,
-                                    selectedCategory === item.id && { backgroundColor: item.color }
-                                ]}
-                            >
-                                <Ionicons
-                                    name={item.icon as any}
-                                    size={16}
-                                    color={selectedCategory === item.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)'}
-                                />
-                                <Text style={[
-                                    styles.categoryTextLabel,
-                                    selectedCategory === item.id && styles.categoryLabelActive
-                                ]}>
-                                    {item.label}
-                                </Text>
-                            </BlurView>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
-
-            {/* Sub-Header / Guides Filter (Optional/Dynamic) */}
-            {activeGuides.length > 0 && (
-                <View style={styles.guidesSection}>
-                    <View style={styles.moodHeaderCentered}>
-                        <Text style={styles.moodSectionTitleLarge}>Voces Populares</Text>
-                    </View>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.guidesListCentered}
-                    >
-                        {activeGuides.map((guide) => {
-                            const isSelected = selectedGuide === guide.name;
-                            return (
-                                <TouchableOpacity
-                                    key={guide.id}
-                                    onPress={() => setSelectedGuide(isSelected ? null : guide.name)}
-                                    activeOpacity={0.8}
-                                    style={styles.guideItem}
-                                >
-                                    <View style={styles.avatarWrapper}>
-                                        {isSelected && (
-                                            <View style={[styles.avatarGlow, { backgroundColor: guide.color }]} />
-                                        )}
-                                        <View style={[
-                                            styles.avatarContainer,
-                                            isSelected && { borderColor: guide.color, borderWidth: 2 }
-                                        ]}>
-                                            <Image
-                                                source={{ uri: guide.avatar }}
-                                                style={styles.avatarImage}
-                                            />
-                                        </View>
-                                    </View>
-                                    <Text style={[styles.guideName, isSelected && { color: guide.color, fontWeight: '700' }]}>
-                                        {guide.name}
-                                    </Text>
-                                    {!isSelected && (
-                                        <Text style={styles.guideSpecialty}>{guide.specialty}</Text>
-                                    )}
-                                </TouchableOpacity>
-                            )
-                        })}
-                    </ScrollView>
-                </View>
-            )}
-
         </View>
     );
 
+    const filterOptions = useMemo(() => availableCategories, [availableCategories]);
+
     return (
-        <OasisScreen
-            header={
-                <OasisHeader
-                    title="AUDIOLIBROS"
-                    path={["Oasis", "Biblioteca"]}
-                    onBack={() => navigation.goBack()}
-                    onPathPress={(index) => {
-                        if (index === 0) navigation.navigate(Screen.HOME as any);
-                        if (index === 1) navigation.navigate(Screen.LIBRARY as any);
-                    }}
-                    onSearchPress={toggleSearch}
-                    userName={userState.name || 'Pazificador'}
-                    avatarUrl={userState.avatarUrl}
-                    showEvolucion={true}
-                    onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
-                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
-                />
-            }
-            themeMode="healing"
-            disableContentPadding={true}
-            preset="fixed"
-        >
+        <>
+            <OasisScreen
+                header={
+                    <OasisHeader
+                        title="AUDIOLIBROS"
+                        path={["Oasis", "Biblioteca"]}
+                        onBack={() => navigation.goBack()}
+                        onPathPress={(index) => {
+                            if (index === 0) navigation.navigate(Screen.HOME as any);
+                            if (index === 1) navigation.navigate(Screen.LIBRARY as any);
+                        }}
+                        onSearchPress={toggleSearch}
+                        onFilterPress={() => setShowFilter(true)}
+                        userName={userState.name || 'Pazificador'}
+                        avatarUrl={userState.avatarUrl}
+                        showEvolucion={true}
+                        onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
+                        onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                    />
+                }
+                themeMode="healing"
+                disableContentPadding={true}
+                preset="fixed"
+            >
 
-            <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                <Animated.ScrollView
-                    contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
-                    showsVerticalScrollIndicator={false}
-                    scrollEventThrottle={16}
-                    onScroll={Animated.event(
-                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                        { useNativeDriver: true }
-                    )}
-                >
-                    {renderHeader()}
-                    <SoundwaveSeparator title="Sabiduría Eterna" accentColor="#FB7185" />
+                <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+                    <View style={{ flex: 1 }}>
+                        {renderHeader()}
+                        <SoundwaveSeparator title="Sabiduría Eterna" accentColor="#FB7185" />
 
-                    <View style={styles.carouselContainer}>
-                        {loading && !isRefetching ? (
-                            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 50 }} />
-                        ) : filteredAudiobooks.length === 0 ? (
-                            <View style={styles.emptyState}>
-                                <Ionicons name="book-outline" size={48} color="rgba(255,255,255,0.3)" />
-                                <Text style={styles.emptyText}>No se encontraron audiolibros.</Text>
-                            </View>
-                        ) : (
-                            <Animated.FlatList
-                                showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}
-                                horizontal
-                                data={carouselData}
-                                keyExtractor={(item: any) => item.id}
-                                contentContainerStyle={{ alignItems: 'center' }}
-                                snapToInterval={ITEM_WIDTH}
-                                decelerationRate="fast"
-                                bounces={false}
-                                onScroll={Animated.event(
-                                    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                                    { useNativeDriver: true }
-                                )}
-                                scrollEventThrottle={16}
-                                renderItem={({ item, index }) => {
-                                    if (item.id === 'empty-left' || item.id === 'empty-right') {
-                                        return <View style={{ width: EMPTY_ITEM_SIZE }} />;
-                                    }
+                        <View style={styles.carouselContainer}>
+                            {loading && !isRefetching ? (
+                                <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 50 }} />
+                            ) : filteredAudiobooks.length === 0 ? (
+                                <View style={styles.emptyState}>
+                                    <Ionicons name="book-outline" size={48} color="rgba(255,255,255,0.3)" />
+                                    <Text style={styles.emptyText}>No se encontraron audiolibros.</Text>
+                                </View>
+                            ) : (
+                                <Animated.FlatList
+                                    showsVerticalScrollIndicator={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    horizontal
+                                    data={carouselData}
+                                    keyExtractor={(item: any) => item.id}
+                                    contentContainerStyle={{ alignItems: 'center' }}
+                                    snapToInterval={ITEM_WIDTH}
+                                    decelerationRate="fast"
+                                    bounces={false}
+                                    directionalLockEnabled={true}
+                                    nestedScrollEnabled={false}
+                                    scrollEnabled={true}
+                                    onScroll={Animated.event(
+                                        [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                                        { useNativeDriver: true }
+                                    )}
+                                    scrollEventThrottle={16}
+                                    renderItem={({ item, index }) => {
+                                        if (item.id === 'empty-left' || item.id === 'empty-right') {
+                                            return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                                        }
 
-                                    const inputRange = [
-                                        (index - 2) * ITEM_WIDTH,
-                                        (index - 1) * ITEM_WIDTH,
-                                        (index) * ITEM_WIDTH,
-                                    ];
+                                        const inputRange = [
+                                            (index - 2) * ITEM_WIDTH,
+                                            (index - 1) * ITEM_WIDTH,
+                                            (index) * ITEM_WIDTH,
+                                        ];
 
-                                    const translateY = scrollX.interpolate({
-                                        inputRange,
-                                        outputRange: [40, 0, 40],
-                                        extrapolate: 'clamp',
-                                    });
-                                    const scale = scrollX.interpolate({
-                                        inputRange,
-                                        outputRange: [0.9, 1, 0.9],
-                                        extrapolate: 'clamp',
-                                    });
+                                        const translateY = scrollX.interpolate({
+                                            inputRange,
+                                            outputRange: [0, 0, 0],
+                                            extrapolate: 'clamp',
+                                        });
+                                        const scale = scrollX.interpolate({
+                                            inputRange,
+                                            outputRange: [0.9, 1, 0.9],
+                                            extrapolate: 'clamp',
+                                        });
 
-                                    return (
-                                        <View style={{ width: ITEM_WIDTH }}>
-                                            <Animated.View
-                                                style={{
-                                                    transform: [{ translateY }, { scale }],
-                                                }}
-                                            >
-                                                <OasisCard
-                                                    superTitle={(item as any).category}
-                                                    title={(item as any).title}
-                                                    subtitle={`${(item as any).duration_m || 0} mins · ${(item as any).author || 'Autor'}`}
-                                                    imageUri={(item as any).cover_url}
-                                                    onPress={() => handleBookPress(item as any)}
-                                                    icon="book-outline"
-                                                    badgeText={(item as any).is_premium ? "PREMIUM" : "LIBRE"}
-                                                    actionText="Leer Libro"
-                                                    actionIcon="book"
-                                                    duration={(item as any).duration_m ? `${(item as any).duration_m} min` : undefined}
-                                                    level={(item as any).difficulty}
-                                                    variant="hero"
-                                                    accentColor="#FB7185"
-                                                    sharedTransitionTag={`session.image.${item.id}`}
-                                                />
-                                            </Animated.View>
-                                        </View>
-                                    );
-                                }}
-                            />
-                        )}
+                                        return (
+                                            <View style={{ width: ITEM_WIDTH }}>
+                                                <Animated.View
+                                                    style={{
+                                                        transform: [{ translateY }, { scale }],
+                                                    }}
+                                                >
+                                                    <OasisCard
+                                                        superTitle={(item as any).category}
+                                                        title={(item as any).title}
+                                                        subtitle={`${(item as any).duration_m || 0} mins · ${(item as any).author || 'Autor'}`}
+                                                        imageUri={(item as any).cover_url}
+                                                        onPress={() => handleBookPress(item as any)}
+                                                        icon="book-outline"
+                                                        badgeText={(item as any).is_premium ? "PREMIUM" : "LIBRE"}
+                                                        actionText="Leer Libro"
+                                                        actionIcon="book"
+                                                        duration={(item as any).duration_m ? `${(item as any).duration_m} min` : undefined}
+                                                        level={(item as any).difficulty}
+                                                        variant="hero"
+                                                        accentColor="#FB7185"
+                                                        sharedTransitionTag={`session.image.${item.id}`}
+                                                    />
+                                                </Animated.View>
+                                            </View>
+                                        );
+                                    }}
+                                />
+                            )}
+                        </View>
                     </View>
-                </Animated.ScrollView>
-            </Animated.View>
-        </OasisScreen>
+                </Animated.View>
+            </OasisScreen>
+
+            <FilterActionSheet
+                visible={showFilter}
+                onClose={() => setShowFilter(false)}
+                options={filterOptions}
+                selectedId={selectedCategory}
+                onSelect={setSelectedCategory}
+            />
+        </>
     );
 };
 
@@ -502,9 +378,9 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     header: {
-        marginBottom: 8,
+        marginBottom: 0, // Eliminamos el margen inferior para subir todo
         paddingHorizontal: 20,
-        marginTop: 10,
+        marginTop: 0, // Quitamos margen superior extra
     },
     headerRow: {
         flexDirection: 'row',
@@ -609,75 +485,14 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
 
-    // Guides Section
-    guidesSection: {
-        marginBottom: 10,
-    },
-    moodHeaderCentered: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 12,
-    },
-    moodSectionTitleLarge: {
-        fontSize: 12,
-        fontWeight: '900',
-        color: '#FFFFFF',
-        letterSpacing: 1.5,
-    },
-    // Centered Guides
-    guidesListCentered: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        paddingHorizontal: 20,
-        paddingBottom: 10
-    },
-    guideItem: {
-        alignItems: 'center',
-        marginHorizontal: 12, // More symmetric spacing for centering
-        width: 60,
-    },
-    avatarWrapper: {
-        width: 56,
-        height: 56,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 6,
-    },
-    avatarGlow: {
-        width: 60,
-        height: 60,
-        position: 'absolute',
-    },
-    avatarContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        backgroundColor: '#000',
-    },
-    avatarImage: {
-        width: '100%',
-        height: '100%',
-    },
-    guideName: {
-        color: 'rgba(255,255,255,0.6)',
-        fontSize: 11,
-        fontWeight: '500',
-        marginBottom: 2,
-    },
-    guideSpecialty: {
-        color: 'rgba(255,255,255,0.3)',
-        fontSize: 9,
-    },
+    // Guides Section removed per request
+
 
     // Carousel
     carouselContainer: {
         flex: 1,
-        justifyContent: 'center',
-        minHeight: 400,
+        justifyContent: 'flex-start',
+        marginTop: -55, // Pegamos más las tarjetas al separador
     },
     emptyState: {
         alignItems: 'center',

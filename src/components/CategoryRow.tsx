@@ -7,7 +7,8 @@ import {
     StyleSheet,
     FlatList,
     Dimensions,
-    TouchableOpacity
+    TouchableOpacity,
+    Animated
 } from 'react-native';
 import { OasisCard } from './Oasis/OasisCard';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +34,8 @@ interface Props {
 }
 
 const { width } = Dimensions.get('window');
+const ITEM_WIDTH = width * 0.75;
+const EMPTY_ITEM_SIZE = (width - width * 0.75) / 2;
 
 
 
@@ -53,35 +56,23 @@ const CategoryRow: React.FC<Props> = ({
     variant = 'overlay',
     sharedTransitionTagPrefix
 }) => {
+    const scrollXResults = React.useRef(new Animated.Value(0)).current;
+
     // Variant section-header handled below in the main return for consistent container management
 
     if (sessions.length === 0) return null;
 
-    const hexToRgba = (hex: string, alpha: number) => {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    };
+    const carouselData = React.useMemo(() => {
+        if (isResults) {
+            return [{ id: 'empty-left' }, ...sessions, { id: 'empty-right' }];
+        }
+        return sessions;
+    }, [sessions, isResults]);
 
-    // Only apply glass block style if variant is NOT standard or poster (unless we want poster to be in glass block? Assume yes for now as it replaces a featured block)
-    // Actually, user wants poster for "Sesiones rapidas" which IS a glass block.
-    // So if variant == standard, no glass block.
     const isStandard = variant === 'standard';
     const isPoster = variant === 'poster';
     const isWide = variant === 'wide';
     const isHero = variant === 'hero';
-
-    // For standard, we removed glass block. For poster (in featured section), we might keep it?
-    // User request: "para el bloque de sesiones rapidas". That block has glass.
-    // Let's keep glass block for poster for now, unless instructed otherwise.
-
-    const containerStyle = isStandard ?
-        { marginTop: 0, paddingBottom: 4 } :
-        [
-            styles.glassBlock,
-            accentColor && { backgroundColor: hexToRgba(accentColor, 0.20) }
-        ];
 
     // Snap Calculation
     let snapInterval;
@@ -100,79 +91,91 @@ const CategoryRow: React.FC<Props> = ({
     }
 
     return (
-        <View style={[styles.container, isStandard && { marginBottom: 8 }, variant === 'section-header' && { paddingHorizontal: 0, marginBottom: 0 }]}>
-            <View style={containerStyle}>
-                <View style={[
-                    styles.header,
-                    isResults && { marginBottom: 10 },
-                    isStandard && {
-                        paddingVertical: 4,
-                        marginBottom: 10,
-                    }
-                ]}>
-                    <View style={styles.headerInfo}>
-                        <View style={[
-                            styles.titleContainer,
-                            { borderLeftColor: (isStandard) ? 'transparent' : accentColor },
-                            (isStandard) && { paddingLeft: 0, borderLeftWidth: 0 }
-                        ]}>
-                            {icon && !isStandard && (
-                                <View style={styles.iconBox}>
-                                    <Ionicons name={icon as any} size={18} color={accentColor} />
-                                </View>
-                            )}
-                            <Text style={[
-                                styles.title,
-                                isStandard && { fontSize: 20, marginBottom: 0 }
-                            ]}>{title}</Text>
-                        </View>
-                        {onSeeAll && (
-                            <TouchableOpacity
-                                activeOpacity={0.6}
-                                onPress={() => onSeeAll(title)}
-                                style={styles.seeAllContainer}
-                            >
-                                <View style={{
-                                    width: 32, height: 32, borderRadius: 16,
-                                    backgroundColor: isResults ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
-                                    justifyContent: 'center', alignItems: 'center'
-                                }}>
-                                    <Ionicons
-                                        name={isResults ? "remove" : "add"}
-                                        size={20}
-                                        color={accentColor || '#FFF'}
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                </View>
-
-                {/* Glass Separator Line (Restored) */}
-                {isStandard && (
-                    <View style={{
-                        height: 2,
-                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                        marginHorizontal: 16,
-                        marginBottom: 16,
-                        marginTop: -4,
-                        borderRadius: 1
-                    }} />
+        <View style={[styles.container, variant === 'section-header' && { marginBottom: 0 }]}>
+            <View style={styles.transparentBlock}>
+                {variant !== 'section-header' && (
+                    <SoundwaveSeparator
+                        title={title}
+                        accentColor={accentColor}
+                        onAction={onSeeAll ? () => onSeeAll(title) : undefined}
+                        actionIcon={isResults ? "remove" : "add"}
+                    />
                 )}
+
 
                 {variant === 'section-header' ? (
                     <SoundwaveSeparator title={title} />
+                ) : isResults ? (
+                    <Animated.FlatList
+                        horizontal
+                        data={carouselData}
+                        keyExtractor={(item: any) => item.id}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ alignItems: 'center', paddingBottom: 20 }}
+                        snapToInterval={ITEM_WIDTH}
+                        decelerationRate="fast"
+                        bounces={false}
+                        onScroll={Animated.event(
+                            [{ nativeEvent: { contentOffset: { x: scrollXResults } } }],
+                            { useNativeDriver: true }
+                        )}
+                        scrollEventThrottle={16}
+                        renderItem={({ item, index }) => {
+                            if ((item as any).id === 'empty-left' || (item as any).id === 'empty-right') {
+                                return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                            }
+
+                            const inputRange = [
+                                (index - 2) * ITEM_WIDTH,
+                                (index - 1) * ITEM_WIDTH,
+                                (index) * ITEM_WIDTH,
+                            ];
+
+                            const translateY = scrollXResults.interpolate({
+                                inputRange,
+                                outputRange: [0, -10, 0],
+                                extrapolate: 'clamp',
+                            });
+                            const scale = scrollXResults.interpolate({
+                                inputRange,
+                                outputRange: [0.92, 1, 0.92],
+                                extrapolate: 'clamp',
+                            });
+
+                            return (
+                                <View style={{ width: ITEM_WIDTH }}>
+                                    <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
+                                        <OasisCard
+                                            superTitle={(item as any).category}
+                                            title={(item as any).title}
+                                            subtitle={`${(item as any).duration || 0} mins · ${(item as any).creatorName || 'Guía'}`}
+                                            imageUri={(item as any).thumbnailUrl || (item as any).image}
+                                            onPress={() => onSessionPress(item as any)}
+                                            icon={icon as any}
+                                            badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
+                                            actionText="Comenzar"
+                                            actionIcon="play"
+                                            duration={(item as any).duration ? `${(item as any).duration} min` : undefined}
+                                            level={(item as any).difficulty}
+                                            variant="hero"
+                                            accentColor={accentColor}
+                                            sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${(item as any).id}` : undefined}
+                                        />
+                                    </Animated.View>
+                                </View>
+                            );
+                        }}
+                    />
                 ) : (
                     <FlatList
-                        horizontal={!isResults}
+                        horizontal={true}
                         data={sessions}
                         keyExtractor={(item) => item.id}
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={[
                             styles.listContent,
-                            isResults && styles.verticalList,
                             // Ensure enough padding at the end
-                            !isResults && { paddingRight: 20 }
+                            { paddingRight: 20 }
                         ]}
                         snapToAlignment="start"
                         decelerationRate="fast"
@@ -180,11 +183,10 @@ const CategoryRow: React.FC<Props> = ({
                         renderItem={({ item, index }) => (
                             <View style={[
                                 styles.cardWrapper,
-                                isResults && styles.fullWidthCard,
                                 isStandard && { width: width * 0.7 },
-                                isPoster && { width: (width - 68) / 3, marginRight: 8 }, // Poster wrapper
-                                isWide && { width: width * 0.90, marginRight: 12 }, // Wide wrapper
-                                isHero && { width: width - 56, marginRight: 12 } // Hero wrapper (Reduced width)
+                                isPoster && { width: (width - 68) / 3, marginRight: 8 },
+                                isWide && { width: width * 0.90, marginRight: 12 },
+                                isHero && { width: width - 56, marginRight: 12 }
                             ]}>
                                 <OasisCard
                                     superTitle={(item as any).category}
@@ -218,14 +220,12 @@ function isCompact(variant: string | undefined): boolean {
 const styles = StyleSheet.create({
     container: {
         marginBottom: 20,
-        paddingHorizontal: 12,
+        paddingHorizontal: 0,
     },
-    glassBlock: {
-        backgroundColor: 'rgba(255, 255, 255, 0.08)', // Increased opacity
+    transparentBlock: {
+        backgroundColor: 'transparent',
         borderRadius: 24,
-        paddingVertical: 12, // Reduced padding
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.12)',
+        paddingVertical: 0,
         overflow: 'hidden',
     },
     header: {
@@ -270,8 +270,8 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     listContent: {
-        paddingLeft: 12,
-        paddingRight: 12,
+        paddingLeft: 20,
+        paddingRight: 20,
     },
     verticalList: {
         paddingHorizontal: 12,

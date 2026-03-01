@@ -119,7 +119,7 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
 
         const translateY = scrollX.interpolate({
             inputRange,
-            outputRange: [50, 0, 50],
+            outputRange: [0, 0, 0],
             extrapolate: 'clamp',
         });
         const scale = scrollX.interpolate({
@@ -191,6 +191,7 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
             themeMode="healing"
             showSafeOverlay={false}
             disableContentPadding={true}
+            preset="fixed"
         >
             <StatusBar barStyle="light-content" />
 
@@ -208,6 +209,9 @@ const LibraryScreen: React.FC<Props> = ({ navigation }) => {
                         snapToInterval={ITEM_WIDTH}
                         decelerationRate="fast"
                         bounces={false}
+                        directionalLockEnabled={true}
+                        nestedScrollEnabled={false}
+                        scrollEnabled={true}
                         onScroll={Animated.event(
                             [{ nativeEvent: { contentOffset: { x: scrollX } } }],
                             { useNativeDriver: true }

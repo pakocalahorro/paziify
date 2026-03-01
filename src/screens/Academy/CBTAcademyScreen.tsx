@@ -11,29 +11,24 @@ import {
     Image,
     StatusBar,
     ScrollView,
+    InteractionManager,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
-    Canvas,
-    Circle,
-    RadialGradient,
-    Blur,
-    vec
-} from '@shopify/react-native-skia';
-import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { AcademyModule } from '../../data/academyData';
 import { AcademyService } from '../../services/AcademyService';
+import { Screen, RootStackParamList } from '../../types';
 import { OasisCard } from '../../components/Oasis/OasisCard';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import { FilterActionSheet } from '../../components/Oasis/FilterActionSheet';
 
 type CBTAcademyScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -71,10 +66,10 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const [showFilter, setShowFilter] = useState(false);
 
     // Animations
     const scrollX = useRef(new Animated.Value(0)).current;
-    const scrollY = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const searchAnim = useRef(new Animated.Value(0)).current;
 
@@ -155,42 +150,6 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
-            <View style={styles.header}>
-                <View style={styles.headerRow}>
-                    <View style={styles.headerLeft}>
-                        {/* 
-                         * Back button logic: 
-                         * If this is a main tab/screen, maybe no back button? 
-                         * But usually user wants to go back to Home.
-                         */}
-                        <TouchableOpacity
-                            style={styles.backBtnAbsolute}
-                            onPress={() => navigation.goBack()}
-                        >
-                            <Ionicons name="arrow-back" size={20} color="#FFF" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.searchToggleBtn}
-                            onPress={toggleSearch}
-                        >
-                            <Ionicons
-                                name={isSearchExpanded ? "close-outline" : "search-outline"}
-                                size={20}
-                                color={isSearchExpanded ? "#FB7185" : "#FFF"}
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.headerTitleContainer}>
-                        <Text style={styles.headerTitleInline}>Academia TCC</Text>
-                    </View>
-
-                    <View style={styles.headerIconContainer}>
-                        <Ionicons name="school-outline" size={24} color="#FB7185" />
-                    </View>
-                </View>
-            </View>
-
             {/* Search Bar */}
             <Animated.View style={[
                 styles.searchBaseContainer,
@@ -213,45 +172,15 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
             </Animated.View>
 
-            {/* Categories */}
-            <View style={styles.categoryWrap}>
-                <FlatList
-                    horizontal
-                    data={availableCategories}
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.categoryList}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            onPress={() => setSelectedCategory(item.id)}
-                            activeOpacity={0.7}
-                        >
-                            <BlurView
-                                intensity={selectedCategory === item.id ? 80 : 20}
-                                tint="dark"
-                                style={[
-                                    styles.categoryChip,
-                                    selectedCategory === item.id && { backgroundColor: item.color }
-                                ]}
-                            >
-                                <Ionicons
-                                    name={item.icon as any}
-                                    size={16}
-                                    color={selectedCategory === item.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)'}
-                                />
-                                <Text style={[
-                                    styles.categoryTextLabel,
-                                    selectedCategory === item.id && styles.categoryLabelActive
-                                ]}>
-                                    {item.label}
-                                </Text>
-                            </BlurView>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
         </View>
     );
+
+    const filterOptions = useMemo(() => availableCategories.map(cat => ({
+        id: cat.id,
+        label: cat.label,
+        icon: cat.icon,
+        color: cat.color
+    })), [availableCategories]);
 
     return (
         <OasisScreen
@@ -264,6 +193,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                         if (index === 0) navigation.navigate(Screen.HOME as any);
                     }}
                     onSearchPress={toggleSearch}
+                    onFilterPress={() => setShowFilter(true)}
                     userName={userState.name || 'Pazificador'}
                     avatarUrl={userState.avatarUrl}
                     showEvolucion={true}
@@ -273,147 +203,105 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
             }
             themeMode="growth"
             disableContentPadding={true}
+            preset="fixed"
         >
             <StatusBar barStyle="light-content" />
 
-            {/* Background */}
-            <View style={StyleSheet.absoluteFill}>
-                <BackgroundWrapper nebulaMode="growth" />
+            {/* Content Overlay */}
+            <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+                <View style={{ flex: 1 }}>
+                    {renderHeader()}
+                    <SoundwaveSeparator title="Elige tu curso" accentColor="#FB7185" />
 
-                {/* Parallax Image Mapping - Fading the light part as we scroll */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [1, 0],
-                        extrapolate: 'clamp'
-                    }),
-                    transform: [{
-                        scale: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [1.2, 1, 1],
-                            extrapolate: 'clamp'
-                        })
-                    }, {
-                        translateY: scrollY.interpolate({
-                            inputRange: [-100, 0, 100],
-                            outputRange: [-50, 0, 0], // Optional subtle vertical parallax Shift
-                            extrapolate: 'clamp'
-                        })
-                    }]
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(2, 6, 23, 0.5)', 'rgba(2, 6, 23, 1.0)']}
-                        locations={[0, 0.15, 0.45, 0.75, 0.98]}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
+                    {/* Carousel */}
+                    <View style={styles.carouselContainer}>
+                        {filteredCourses.length === 0 ? (
+                            <View style={styles.emptyState}>
+                                <Ionicons name="school-outline" size={48} color="rgba(255,255,255,0.3)" />
+                                <Text style={styles.emptyText}>No se encontraron cursos.</Text>
+                            </View>
+                        ) : (
+                            <Animated.FlatList
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                                horizontal
+                                data={carouselData}
+                                keyExtractor={(item: any) => item.id}
+                                contentContainerStyle={{ alignItems: 'center' }}
+                                snapToInterval={ITEM_WIDTH}
+                                decelerationRate="fast"
+                                bounces={false}
+                                directionalLockEnabled={true}
+                                nestedScrollEnabled={false}
+                                scrollEnabled={true}
+                                onScroll={Animated.event(
+                                    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                                    { useNativeDriver: true }
+                                )}
+                                scrollEventThrottle={16}
+                                renderItem={({ item, index }) => {
+                                    if (item.id === 'empty-left' || item.id === 'empty-right') {
+                                        return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                                    }
 
-                {/* Dark Background that stays for content */}
-                <Animated.View style={[StyleSheet.absoluteFill, {
-                    opacity: scrollY.interpolate({
-                        inputRange: [0, 200],
-                        outputRange: [0, 1],
-                        extrapolate: 'clamp'
-                    })
-                }]}>
-                    <LinearGradient
-                        colors={['rgba(2, 6, 23, 0.6)', 'rgba(2, 6, 23, 1.0)']}
-                        style={StyleSheet.absoluteFill}
-                    />
-                </Animated.View>
+                                    const inputRange = [
+                                        (index - 2) * ITEM_WIDTH,
+                                        (index - 1) * ITEM_WIDTH,
+                                        (index) * ITEM_WIDTH,
+                                    ];
 
-                {/* Content Overlay */}
-                <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-                    <Animated.ScrollView
-                        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-                        showsVerticalScrollIndicator={false}
-                        scrollEventThrottle={16}
-                        onScroll={Animated.event(
-                            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                            { useNativeDriver: true }
+                                    const translateY = scrollX.interpolate({
+                                        inputRange,
+                                        outputRange: [0, 0, 0],
+                                        extrapolate: 'clamp',
+                                    });
+                                    const scale = scrollX.interpolate({
+                                        inputRange,
+                                        outputRange: [0.9, 1, 0.9],
+                                        extrapolate: 'clamp',
+                                    });
+
+                                    return (
+                                        <View style={{ width: ITEM_WIDTH }}>
+                                            <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
+                                                <OasisCard
+                                                    superTitle={(item as any).category}
+                                                    title={(item as any).title}
+                                                    subtitle={`${(item as any).duration || 0} mins · ${(item as any).author || 'Guía'}`}
+                                                    imageUri={(item as any).thumbnailUrl}
+                                                    onPress={() => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                                                        courseId: item.id,
+                                                        courseData: item as any
+                                                    })}
+                                                    icon="school-outline"
+                                                    badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
+                                                    actionText="Ver Curso"
+                                                    actionIcon="school"
+                                                    duration={(item as any).duration ? `${(item as any).duration} min` : undefined}
+                                                    level={(item as any).difficulty}
+                                                    variant="hero"
+                                                    accentColor="#FB7185"
+                                                    sharedTransitionTag={`course.image.${item.id}`}
+                                                />
+                                            </Animated.View>
+                                        </View>
+                                    );
+                                }}
+                            />
                         )}
-                    >
-                        {renderHeader()}
+                    </View>
+                </View>
+            </Animated.View>
 
-                        {/* Carousel */}
-                        <View style={styles.carouselContainer}>
-                            <SoundwaveSeparator title="Elige tu curso" accentColor="#FB7185" />
-                            {filteredCourses.length === 0 ? (
-                                <View style={styles.emptyState}>
-                                    <Ionicons name="school-outline" size={48} color="rgba(255,255,255,0.3)" />
-                                    <Text style={styles.emptyText}>No se encontraron cursos.</Text>
-                                </View>
-                            ) : (
-                                <Animated.FlatList
-                                    showsVerticalScrollIndicator={false}
-                                    showsHorizontalScrollIndicator={false}
-                                    horizontal
-                                    data={carouselData}
-                                    keyExtractor={(item: any) => item.id}
-                                    contentContainerStyle={{ alignItems: 'center' }}
-                                    snapToInterval={ITEM_WIDTH}
-                                    decelerationRate="fast"
-                                    bounces={false}
-                                    onScroll={Animated.event(
-                                        [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                                        { useNativeDriver: true }
-                                    )}
-                                    scrollEventThrottle={16}
-                                    renderItem={({ item, index }) => {
-                                        if (item.id === 'empty-left' || item.id === 'empty-right') {
-                                            return <View style={{ width: EMPTY_ITEM_SIZE }} />;
-                                        }
-
-                                        const inputRange = [
-                                            (index - 2) * ITEM_WIDTH,
-                                            (index - 1) * ITEM_WIDTH,
-                                            (index) * ITEM_WIDTH,
-                                        ];
-
-                                        const translateY = scrollX.interpolate({
-                                            inputRange,
-                                            outputRange: [50, 0, 50],
-                                            extrapolate: 'clamp',
-                                        });
-                                        const scale = scrollX.interpolate({
-                                            inputRange,
-                                            outputRange: [0.9, 1, 0.9],
-                                            extrapolate: 'clamp',
-                                        });
-
-                                        return (
-                                            <View style={{ width: ITEM_WIDTH }}>
-                                                <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
-                                                    <OasisCard
-                                                        superTitle={(item as any).category}
-                                                        title={(item as any).title}
-                                                        subtitle={`${(item as any).duration || 0} mins · ${(item as any).author || 'Guía'}`}
-                                                        imageUri={(item as any).thumbnailUrl}
-                                                        onPress={() => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
-                                                            courseId: item.id,
-                                                            courseData: item as any
-                                                        })}
-                                                        icon="school-outline"
-                                                        badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
-                                                        actionText="Ver Curso"
-                                                        actionIcon="school"
-                                                        duration={(item as any).duration ? `${(item as any).duration} min` : undefined}
-                                                        level={(item as any).difficulty}
-                                                        variant="hero"
-                                                        accentColor="#FB7185"
-                                                        sharedTransitionTag={`course.image.${item.id}`}
-                                                    />
-                                                </Animated.View>
-                                            </View>
-                                        );
-                                    }}
-                                />
-                            )}
-                        </View>
-                    </Animated.ScrollView>
-                </Animated.View>
-            </View>
-        </OasisScreen>
+            <FilterActionSheet
+                visible={showFilter}
+                onClose={() => setShowFilter(false)}
+                options={filterOptions}
+                selectedId={selectedCategory}
+                onSelect={setSelectedCategory}
+                title="SABIDURÍA ACADÉMICA"
+            />
+        </OasisScreen >
     );
 };
 
@@ -426,53 +314,9 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     header: {
-        marginBottom: 8,
+        marginBottom: 0,
         paddingHorizontal: 20,
-        marginTop: 10,
-    },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    backBtnAbsolute: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    searchToggleBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitleContainer: {
-        flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: 8,
-    },
-    headerTitleInline: {
-        fontSize: 16,
-        fontWeight: '800',
-        color: '#FFFFFF',
-        letterSpacing: 0.5,
-        textAlign: 'center',
-    },
-    headerIconContainer: {
-        width: 36,
-        height: 36,
-        justifyContent: 'center',
-        alignItems: 'center',
+        marginTop: 0,
     },
     searchBaseContainer: {
         paddingHorizontal: 20,
@@ -531,8 +375,8 @@ const styles = StyleSheet.create({
     },
     carouselContainer: {
         flex: 1,
-        justifyContent: 'center',
-        minHeight: 400,
+        justifyContent: 'flex-start',
+        marginTop: -55, // Sincronizado con Audiolibros para misma posición del rayo
     },
     emptyState: {
         alignItems: 'center',

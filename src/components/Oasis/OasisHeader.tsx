@@ -17,6 +17,7 @@ interface OasisHeaderProps {
     onProfilePress?: () => void;
     onSettingsPress?: () => void;
     onSearchPress?: () => void;
+    onFilterPress?: () => void;
     onAdminPress?: () => void;
     activeChallengeType?: 'reto' | 'mision' | 'desafio' | null;
     style?: StyleProp<ViewStyle>;
@@ -39,6 +40,7 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
     onProfilePress,
     onSettingsPress,
     onSearchPress,
+    onFilterPress,
     onAdminPress,
     activeChallengeType,
     style,
@@ -73,20 +75,28 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
                 </View>
             ))}
             <Text style={styles.titleText}>{title.toUpperCase()}</Text>
+            {onFilterPress && (
+                <TouchableOpacity
+                    onPress={onFilterPress}
+                    style={styles.filterButtonInline}
+                    hitSlop={styles.hitSlop}
+                >
+                    <Ionicons name="options-outline" size={18} color="#FB7185" />
+                </TouchableOpacity>
+            )}
         </View>
     );
 
     return (
         <View style={[styles.masterWrapper, { paddingTop: insets.top }, style]}>
-            {/* Navy Blue Gradient Background - Fading out to transparent */}
+            {/* Smoke Gradient Background - Bleeding out to transparent */}
             <LinearGradient
-                colors={['rgba(30, 58, 138, 0.95)', 'rgba(17, 24, 39, 0.7)', 'transparent']}
-                style={StyleSheet.absoluteFill}
+                colors={['rgba(10, 14, 26, 1.0)', 'rgba(10, 14, 26, 0.85)', 'rgba(10, 14, 26, 0.45)', 'rgba(10, 14, 26, 0.15)', 'transparent']}
+                style={[StyleSheet.absoluteFill, { height: '170%' }]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
-                locations={[0, 0.6, 1]}
+                locations={[0, 0.45, 0.75, 0.9, 1]}
             />
-            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
 
             {/* Optional Glow for Active Challenge */}
             {activeChallengeType && (
@@ -227,16 +237,16 @@ const styles = StyleSheet.create({
     },
     headerContent: {
         paddingHorizontal: 20,
-        paddingBottom: 14,
+        paddingBottom: 6,
     },
     topRow: {
-        height: 56,
+        height: 42,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
     },
     bottomRow: {
-        marginTop: 4,
+        marginTop: 0,
         paddingHorizontal: 4,
     },
     bottomAlignment: {
@@ -287,6 +297,13 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         gap: 6,
     },
+    titleText: {
+        fontFamily: 'Outfit_900Black',
+        fontSize: 16,
+        color: '#FFF',
+        letterSpacing: 1,
+        marginTop: 2,
+    },
     evolucionText: {
         fontFamily: 'Outfit_900Black',
         fontSize: 10,
@@ -320,12 +337,16 @@ const styles = StyleSheet.create({
         marginTop: 4,
         marginHorizontal: 2,
     },
-    titleText: {
-        fontFamily: 'Outfit_900Black',
-        fontSize: 16,
-        color: '#FFF',
-        letterSpacing: 1,
-        marginTop: 2,
+    filterButtonInline: {
+        marginLeft: 8,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: 'rgba(251, 113, 133, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(251, 113, 133, 0.2)',
     },
     profileRow: {
         flexDirection: 'row',

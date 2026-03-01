@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.34.1) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.36.0) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.34.1** consolida la visión del **Master Header** y el diseño de secciones de borde a borde.
+Esta guía define el ADN visual de Paziify. La versión **v2.36.0** (Sensorial Revolution) consolida la visión del **Master Header**, el diseño de secciones **True Full-Width** y la exploración inmersiva mediante **Carruseles 3D**.
 
 ---
 
@@ -39,8 +39,13 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 
 ---
 
-## 7. Optimización de Safe Areas
-- **Bottom Elevation**: Elevación de carruseles a **+100px** para evitar colisiones con el menú flotante.
+## 7. Optimización de Bordes y Jerarquía
+- **True Full-Width**: Eliminación total de paddings estructurales en `CategoryRow` y `SoundwaveSeparator` para permitir que el diseño inmersivo ocupe el 100% del ancho del dispositivo.
+- **Carrusel de Resultados (v2.36.0)**:
+  - **Efecto 3D**: Uso de interpolaciones de `scale` y `opacity` en base al desplazamiento horizontal.
+  - **Foco Central**: El elemento central se eleva y escala, mientras los laterales se atenúan para guiar la atención.
+  - **Snap Precise**: Implementación de `snapToInterval` y `decelerationRate="fast"` para una navegación táctil ultra-fluida.
+- **Bottom Elevation**: Mantenemos elevación de carruseles a **+100px** para evitar colisiones con el menú flotante.
 
 ---
 
@@ -194,4 +199,4 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 
 ---
 
-*Última revisión: 28 de Febrero de 2026 - Versión 2.34.1 (PDS v3.0 Master Header Edition)*
+*Última revisión: 28 de Febrero de 2026 - Versión 2.35.0 (PDS v3.0 Master Header Edition)*

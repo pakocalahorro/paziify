@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.34.1) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.36.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.34.1**. Esta versión consolida el refinamiento del **Master Header (Navegación Narrativa)** y la estandarización global de los divisores de sección.
+Bienvenido a la guía oficial de **Paziify v2.36.0**. Esta versión presenta la **Revolución Sensorial**: exploración inmersiva "Edge-to-Edge" y filtrado premium centralizado.
 
 ---
 
@@ -21,12 +21,14 @@ Paziify integra un motor de caché inteligente que protege tu plan de datos:
 
 ---
 
-## 3. Experiencia Premium Editorial (Home Screen) 💎
-La pantalla de inicio (Home) ha sido rediseñada para ofrecer una experiencia limpia, inmersiva y altamente curada, dividida en 3 áreas clave que evitan la sobrecarga cognitiva:
+## 3. Exploración Inmersiva (Catálogo de Meditaciones) 💎
+El catálogo ha sido rediseñado para una inmersión sensorial absoluta:
 
-- **1. Tu Estado (Analíticas Compactas)**: El panel superior de bienvenida ahora integra un cristal oscurecido (`Glassmorphism`) con dos indicadores visuales contiguos (Círculos Zen de "Hoy" y "Semana"), junto a métricas compactadas estilo widget nativo.
-- **2. Tu Práctica (Extracto Out-of-box)**: La "Dosis Diaria" abandona el formato de grilla para presentar su título y subtítulo fuera de la imagen fotográfica, presidido por una firma caligráfica manual (fuente `Satisfy`).
-- **3. Consejos del Día (Bento Modular)**: Las herramientas complementarias (Academia, Historias Reales, Música Binaural, Audiolibros) se agrupan en una cuadrícula temática. Cada tarjeta implementa el mismo formato "Out-of-box" con firmas de categoría como "Curso" o "Relato", cediendo el 100% de la imagen fotográfica para lucir limpia junto a un botón interactivo masivo (CTA).
+- **Navegación "Edge-to-Edge"**: El diseño ahora ocupa todo el ancho de la pantalla, eliminando bordes innecesarios para que la identidad de Oasis fluya sin límites.
+- **Filtrado Premium Centralizado**: Pulsa el icono de filtro en el header para desplegar el menú de categorías. Hemos eliminado las tarjetas estáticas para que tengas más espacio para ver lo importante.
+- **Carrusel de Resultados 3D**: Cuando buscas o filtras, los resultados aparecen en un carrusel dinámico. La sesión central se eleva y escala automáticamente, guiándote visualmente hacia tu próxima práctica.
+- **Títulos Inteligentes**: La app te indica exactamente qué estás viendo (ej: `RESULTADOS: GAIA + SUEÑO`), asegurando que nunca pierdas el hilo de tu exploración.
+- **Reset Maestro**: El botón "-" en el título de resultados limpia todas las búsquedas y filtros con un solo toque, devolviéndote al inicio del catálogo.
 
 ---
 
@@ -186,7 +188,7 @@ Según tu estado, recibirás un mensaje personalizado:
 - **Marea Calma** (🟡 Agotamiento): "Tu energía está baja para volver con fuerza"
 
 ---
-## 15. Tu Propósito y Ajustes (v2.34.0) 🎯
+## 15. Tu Propósito y Ajustes (v2.35.0) 🎯
 
 ### Mi Propósito
 - Configura tus metas de meditación diarias y semanales desde **Ajustes**.
@@ -203,7 +205,7 @@ Según tu estado, recibirás un mensaje personalizado:
 
 ---
 
-## 16. Inmersión Sonora Ininterrumpida (v2.34.0) 🎧
+## 16. Inmersión Sonora Ininterrumpida (v2.35.0) 🎧
 Paziify introduce una de sus mayores actualizaciones en la experiencia de usuario: **El Mini-Reproductor Global**.
 
 ### Navegación Ininterrumpida
@@ -218,5 +220,5 @@ Paziify introduce una de sus mayores actualizaciones en la experiencia de usuari
 
 ---
 
-*Última revisión: 28 de Febrero de 2026 - Versión 2.34.1 (PDS v3.0 Master Header Edition)*
+*Última revisión: 28 de Febrero de 2026 - Versión 2.35.0 (PDS v3.0 Master Header Edition)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

@@ -53,6 +53,10 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
    - Hazte la pregunta: **"¿Si el CEO revisa esto con su papel y boli, encontrará todo lo que hemos hablado hoy?"**.
    - Si detectas vacíos, vuelve al paso 1. No cierres la sesión hasta que el Walkthrough sea indistinguible del historial real.
 
+### 4.5. Confirmación Obligatoria (STOP) 🛑
+   - **Antes de realizar cualquier commit o tag**, debes usar `notify_user` para presentar el resumen final de cambios.
+   - **ESPERA** explícitamente a que el usuario diga "Sí", "Procede" o similar. No asumas permiso tácito.
+
 ### 5. Consolidación de Git 💾
    - **Versión**: Actualizar `package.json` (SemVer).
    - **Commit**: Mensaje profesional con los hitos resumidos.
