@@ -32,6 +32,10 @@ interface OasisCardProps {
     duration?: string;      // e.g. '15 min'
     level?: string;         // e.g. 'Principiante'
     isPremium?: boolean;    // Shows PLUS or LIBRE ribbon
+    isFavorite?: boolean;   // Favorited status
+    onFavoritePress?: () => void; // Handle favorite toggle
+    guideName?: string;     // e.g. "Aria"
+    guideAvatar?: string;   // URL of the guide's avatar
 }
 
 /**
@@ -54,7 +58,11 @@ export const OasisCard: React.FC<OasisCardProps> = ({
     sharedTransitionTag,
     duration,
     level,
-    isPremium = false
+    isPremium = false,
+    isFavorite = false,
+    onFavoritePress,
+    guideName,
+    guideAvatar
 }) => {
     const isHero = variant === 'hero';
     const isCompact = variant === 'compact';
@@ -169,45 +177,71 @@ export const OasisCard: React.FC<OasisCardProps> = ({
                     {/* Glass effect borders */}
                     <View style={[styles.glassBorder, { borderRadius }]} pointerEvents="none" />
 
-                    {/* Content inside the image card */}
-                    <View style={styles.cardContentBox}>
+                    {/*
+                        ABSOLUTE OVERLAYS
+                        Moved outside of cardContentBox to ensure they anchor to the image edges,
+                        ignoring the center content's layout.
+                    */}
 
-                        {/* Neo-Minimalist Top Left Badge */}
-                        {!!badgeText && (
-                            <View style={styles.neoBadgeWrapper}>
-                                {!!icon && <Ionicons name={icon} size={10} color={accentColor} style={styles.neoBadgeIcon} />}
-                                {!icon && <View style={[styles.neoBadgeDot, { backgroundColor: accentColor }]} />}
-                                <Text style={[styles.neoBadgeText, { color: accentColor }]}>{badgeText}</Text>
-                            </View>
-                        )}
-
-                        {/* Top Right Ribbon (Anchored Structural: PLUS / LIBRE) */}
-                        <View style={styles.premiumRibbonWrapper}>
-                            <Animated.View entering={FadeInRight.delay(200).springify()}>
-                                <View style={styles.premiumRibbonRotator}>
-                                    <LinearGradient colors={isPremium ? ['#F59E0B', '#FDE047'] : ['#334155', '#94A3B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumRibbon}>
-                                        <Text style={[styles.premiumRibbonText, !isPremium && { color: '#FFFFFF' }]}>{isPremium ? 'PLUS' : 'LIBRE'}</Text>
-                                    </LinearGradient>
-                                    {/* Animated Pulse Overlay (Only for Premium) */}
-                                    {isPremium && (
-                                        <Animated.View style={[StyleSheet.absoluteFill, animatedRibbonStyle]}>
-                                            <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={StyleSheet.absoluteFill} />
-                                        </Animated.View>
-                                    )}
+                    {/* Neo-Minimalist Top Left Badge (Supports Category or Guide) */}
+                    {(!!badgeText || !!guideName) && (
+                        <View style={styles.neoBadgeWrapper}>
+                            {!!guideAvatar ? (
+                                <View style={[styles.guideAvatarWrapper, { borderColor: accentColor }]}>
+                                    <Image
+                                        source={{ uri: guideAvatar }}
+                                        style={styles.guideAvatarImage}
+                                        contentFit="cover"
+                                        transition={300}
+                                    />
                                 </View>
-                            </Animated.View>
+                            ) : (
+                                <>
+                                    {!!icon && <Ionicons name={icon} size={10} color={accentColor} style={styles.neoBadgeIcon} />}
+                                    {!icon && <View style={[styles.neoBadgeDot, { backgroundColor: accentColor }]} />}
+                                </>
+                            )}
+                            <Text style={[styles.neoBadgeText, { color: guideName ? '#FFF' : accentColor, marginLeft: guideAvatar ? 8 : 0 }]}>
+                                {guideName || badgeText}
+                            </Text>
                         </View>
+                    )}
 
-                        {/* Bottom Left Duration Corner */}
-                        {!!duration && (
-                            <View style={styles.durationCorner}>
-                                <BlurView intensity={30} tint="dark" style={styles.durationBlur}>
-                                    <Text style={styles.durationText}>{duration.replace(/\D/g, '')}</Text>
-                                    <Feather name={getTagIcon(duration) || 'clock'} size={10} color="rgba(255,255,255,0.8)" style={{ marginLeft: 4 }} />
-                                </BlurView>
+                    {/* Top Right Ribbon (Anchored Structural: PLUS / LIBRE) */}
+                    <View style={styles.premiumRibbonWrapper}>
+                        <Animated.View entering={FadeInRight.delay(200).springify()}>
+                            <View style={styles.premiumRibbonRotator}>
+                                <LinearGradient colors={isPremium ? ['#F59E0B', '#FDE047'] : ['#334155', '#94A3B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumRibbon}>
+                                    <Text style={[styles.premiumRibbonText, !isPremium && { color: '#FFFFFF' }]}>{isPremium ? 'PLUS' : 'LIBRE'}</Text>
+                                </LinearGradient>
+                                {/* Animated Pulse Overlay (Only for Premium) */}
+                                {isPremium && (
+                                    <Animated.View style={[StyleSheet.absoluteFill, animatedRibbonStyle]}>
+                                        <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={StyleSheet.absoluteFill} />
+                                    </Animated.View>
+                                )}
                             </View>
-                        )}
+                        </Animated.View>
+                    </View>
 
+                    {/* Bottom Right Favorite Corner */}
+                    <View style={styles.favoriteCorner}>
+                        <TouchableOpacity
+                            onPress={onFavoritePress}
+                            activeOpacity={0.7}
+                        >
+                            <BlurView intensity={30} tint="dark" style={styles.favoriteBlur}>
+                                <Ionicons
+                                    name={isFavorite ? 'heart' : 'heart-outline'}
+                                    size={18}
+                                    color={isFavorite ? '#FF4B4B' : 'rgba(255,255,255,0.9)'}
+                                />
+                            </BlurView>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* CENTERED CONTENT BOX */}
+                    <View style={styles.cardContentBox}>
                         <View style={styles.centerActionArea}>
                             {/* Center Action Button (Play with Level metadata) */}
                             <View style={styles.actionButtonContainer}>
@@ -216,10 +250,19 @@ export const OasisCard: React.FC<OasisCardProps> = ({
                                         <Ionicons name={actionIcon} size={28} color="#FFF" style={{ marginRight: 12 }} />
                                         <View style={styles.actionButtonTextCol}>
                                             <Text style={styles.actionButtonText}>{actionText}</Text>
-                                            {!!level && (
+                                            {(!!duration || !!level) && (
                                                 <View style={styles.levelRow}>
-                                                    <Feather name={getTagIcon(level) || "trending-up"} size={11} color="rgba(255,255,255,0.8)" style={{ marginRight: 4 }} />
-                                                    <Text style={styles.levelText}>{level}</Text>
+                                                    {!!duration && (
+                                                        <Text style={styles.levelText}>
+                                                            {duration.toUpperCase()}{level ? '  ·  ' : ''}
+                                                        </Text>
+                                                    )}
+                                                    {!!level && (
+                                                        <>
+                                                            <Feather name={getTagIcon(level) || "trending-up"} size={11} color="rgba(255,255,255,0.8)" style={{ marginRight: 4 }} />
+                                                            <Text style={styles.levelText}>{level}</Text>
+                                                        </>
+                                                    )}
                                                 </View>
                                             )}
                                         </View>
@@ -227,7 +270,6 @@ export const OasisCard: React.FC<OasisCardProps> = ({
                                 </BlurView>
                             </View>
                         </View>
-
                     </View>
                 </ContentWrapper>
             </View>
@@ -249,6 +291,8 @@ const styles = StyleSheet.create({
         marginBottom: 32, // Replaces external margins
     },
     headerTitles: {
+        minHeight: 90, // Estabiliza el espacio para títulos de 1 o 2 líneas
+        justifyContent: 'flex-end', // Alinea los títulos a la base para que la imagen empiece siempre en el mismo sitio
         marginBottom: 16,
         paddingHorizontal: 4,
     },
@@ -358,6 +402,18 @@ const styles = StyleSheet.create({
         fontSize: 9,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
+    },
+    guideAvatarWrapper: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        borderWidth: 1.2,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    guideAvatarImage: {
+        width: '100%',
+        height: '100%',
     },
     premiumRibbonWrapper: {
         position: 'absolute',
@@ -470,6 +526,24 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#FFFFFF',
         letterSpacing: 1,
+    },
+    favoriteCorner: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        borderTopLeftRadius: 16,
+        overflow: 'hidden',
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderLeftWidth: StyleSheet.hairlineWidth,
+        borderColor: 'rgba(255,255,255,0.15)',
+        zIndex: 50, // Ensure it's above the gradients and other content
+    },
+    favoriteBlur: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        backgroundColor: 'rgba(0,0,0,0.4)',
     }
 });
 

@@ -1,43 +1,104 @@
-import React from 'react';
-import { Canvas, Path, Skia, BlurMask } from '@shopify/react-native-skia';
-import { useSharedValue, withRepeat, withTiming, Easing } from 'react-native-reanimated';
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    Dimensions,
-    TouchableOpacity,
-    Animated
-} from 'react-native';
+import React, { memo, useRef, useMemo } from 'react';
+import { Dimensions, View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import { OasisCard } from './Oasis/OasisCard';
 import { Ionicons } from '@expo/vector-icons';
 import { Session } from '../types';
 import SoundwaveSeparator from './Shared/SoundwaveSeparator';
+import { getGuideAvatar } from '../constants/guides';
+import { BlurView } from 'expo-blur';
+
+const { width } = Dimensions.get('window');
+
+/**
+ * CONFIGURACIÓN DE MOTOR DE BIBLIOTECA (PDS 3.0)
+ * Replicamos exactamente las proporciones y el sistema de anclaje de LibraryScreen.
+ */
+const ITEM_WIDTH = width * 0.75;
+const EMPTY_ITEM_SIZE = (width - ITEM_WIDTH) / 2;
 
 interface Props {
     title: string;
     sessions: Session[];
     onSessionPress: (session: Session) => void;
     onFavoritePress?: (session: Session) => void;
-    isPlusMember: boolean;
+    isPlusMember?: boolean;
     favoriteSessionIds?: string[];
     completedSessionIds?: string[];
     icon?: string;
     accentColor?: string;
     onSeeAll?: (title: string) => void;
-    scrollY: any; // For animation if needed
+    scrollY?: any;
     isResults?: boolean;
-    index: number;
+    index?: number;
     variant?: 'overlay' | 'standard' | 'poster' | 'wide' | 'hero' | 'section-header';
     sharedTransitionTagPrefix?: string;
+    isLoading?: boolean;
+    cardVariant?: 'default' | 'compact' | 'hero';
 }
 
-const { width } = Dimensions.get('window');
-const ITEM_WIDTH = width * 0.75;
-const EMPTY_ITEM_SIZE = (width - width * 0.75) / 2;
+const CategoryCardItem = memo(({
+    item,
+    index,
+    onSessionPress,
+    icon,
+    accentColor,
+    sharedTransitionTagPrefix,
+    scrollX,
+    cardVariant
+}: any) => {
 
+    const inputRange = [
+        (index - 2) * ITEM_WIDTH,
+        (index - 1) * ITEM_WIDTH,
+        (index) * ITEM_WIDTH,
+    ];
 
+    const scale = scrollX.interpolate({
+        inputRange,
+        outputRange: [0.92, 1, 0.92],
+        extrapolate: 'clamp',
+    });
+
+    const opacity = scrollX.interpolate({
+        inputRange,
+        outputRange: [0.7, 1, 0.7],
+        extrapolate: 'clamp',
+    });
+
+    const handlePress = React.useCallback(() => {
+        onSessionPress(item);
+    }, [onSessionPress, item]);
+
+    return (
+        <View style={{ width: ITEM_WIDTH }}>
+            <Animated.View style={[
+                styles.cardWrapper,
+                { transform: [{ scale }], opacity }
+            ]}>
+                <OasisCard
+                    superTitle={item?.category}
+                    title={item?.title || 'Sin título'}
+                    subtitle={item?.description || item?.subtitle}
+                    imageUri={item?.thumbnailUrl || item?.image}
+                    onPress={handlePress}
+                    icon={icon as any}
+                    badgeText={item?.isPlus ? "PREMIUM" : "LIBRE"}
+                    guideName={item?.creatorName?.toUpperCase()}
+                    guideAvatar={getGuideAvatar(item?.creatorName)}
+                    actionText="Comenzar"
+                    actionIcon="play"
+                    duration={item?.duration ? `${item.duration} min` : (item?.duration_m ? `${item.duration_m} min` : undefined)}
+                    level={item?.difficulty}
+                    variant={cardVariant || "default"}
+                    accentColor={accentColor}
+                    sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${item?.id}` : undefined}
+                    isPremium={!!item?.isPlus}
+                    style={{ marginBottom: 0 }}
+                />
+            </Animated.View>
+        </View>
+    );
+});
 
 const CategoryRow: React.FC<Props> = ({
     title,
@@ -45,247 +106,191 @@ const CategoryRow: React.FC<Props> = ({
     icon,
     accentColor = '#2DD4BF',
     onSessionPress,
-    onFavoritePress,
     onSeeAll,
-    isPlusMember,
-    favoriteSessionIds = [],
-    completedSessionIds = [],
-    scrollY,
     isResults = false,
-    index,
     variant = 'overlay',
-    sharedTransitionTagPrefix
+    sharedTransitionTagPrefix,
+    isLoading = false,
+    cardVariant
 }) => {
-    const scrollXResults = React.useRef(new Animated.Value(0)).current;
 
-    // Variant section-header handled below in the main return for consistent container management
+    const scrollX = useRef(new Animated.Value(0)).current;
+    const flatListRef = useRef<Animated.FlatList>(null);
+    const scrollOffset = useRef(0);
 
-    if (sessions.length === 0) return null;
+    const finalData = useMemo(() => {
+        if (!sessions || sessions.length === 0) return [];
+        return [{ id: 'empty-left' }, ...sessions, { id: 'empty-right' }];
+    }, [sessions]);
 
-    const carouselData = React.useMemo(() => {
-        if (isResults) {
-            return [{ id: 'empty-left' }, ...sessions, { id: 'empty-right' }];
-        }
-        return sessions;
-    }, [sessions, isResults]);
+    const isEmpty = !sessions || sessions.length === 0;
 
-    const isStandard = variant === 'standard';
-    const isPoster = variant === 'poster';
-    const isWide = variant === 'wide';
-    const isHero = variant === 'hero';
+    const handleNext = () => {
+        const nextOffset = scrollOffset.current + ITEM_WIDTH;
+        // En versiones modernas de React Native/Animated, no se usa .getNode()
+        flatListRef.current?.scrollToOffset({
+            offset: nextOffset,
+            animated: true
+        });
+    };
 
-    // Snap Calculation
-    let snapInterval;
-    if (!isResults) {
-        if (isStandard) {
-            snapInterval = width * 0.7 + 12;
-        } else if (isPoster) {
-            snapInterval = ((width - 68) / 3) + 8; // Poster width + margin (Safe fit for 3)
-        } else if (isWide) {
-            snapInterval = width * 0.90 + 12; // Wide width + margin
-        } else if (isHero) {
-            snapInterval = (width - 56) + 12; // Reduced width for hero
-        } else {
-            snapInterval = width * 0.75 + 16; // Overlay width + margin
-        }
+    const handlePrev = () => {
+        const prevOffset = scrollOffset.current - ITEM_WIDTH;
+        flatListRef.current?.scrollToOffset({
+            offset: prevOffset,
+            animated: true
+        });
+    };
+
+    if (variant === 'section-header') {
+        return (
+            <View style={[styles.container, { marginBottom: 0 }]}>
+                <SoundwaveSeparator title={title} accentColor={accentColor} />
+            </View>
+        );
     }
 
+    if (isEmpty && !isResults) return null;
+
     return (
-        <View style={[styles.container, variant === 'section-header' && { marginBottom: 0 }]}>
+        <View style={styles.container}>
             <View style={styles.transparentBlock}>
-                {variant !== 'section-header' && (
-                    <SoundwaveSeparator
-                        title={title}
-                        accentColor={accentColor}
-                        onAction={onSeeAll ? () => onSeeAll(title) : undefined}
-                        actionIcon={isResults ? "remove" : "add"}
-                    />
-                )}
+                <SoundwaveSeparator
+                    title={title}
+                    accentColor={accentColor}
+                    onAction={onSeeAll ? () => onSeeAll(title) : undefined}
+                    actionIcon={isResults ? "remove-circle" : (onSeeAll ? "add-circle" : undefined)}
+                />
 
-
-                {variant === 'section-header' ? (
-                    <SoundwaveSeparator title={title} />
-                ) : isResults ? (
-                    <Animated.FlatList
-                        horizontal
-                        data={carouselData}
-                        keyExtractor={(item: any) => item.id}
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ alignItems: 'center', paddingBottom: 20 }}
-                        snapToInterval={ITEM_WIDTH}
-                        decelerationRate="fast"
-                        bounces={false}
-                        onScroll={Animated.event(
-                            [{ nativeEvent: { contentOffset: { x: scrollXResults } } }],
-                            { useNativeDriver: true }
-                        )}
-                        scrollEventThrottle={16}
-                        renderItem={({ item, index }) => {
-                            if ((item as any).id === 'empty-left' || (item as any).id === 'empty-right') {
-                                return <View style={{ width: EMPTY_ITEM_SIZE }} />;
-                            }
-
-                            const inputRange = [
-                                (index - 2) * ITEM_WIDTH,
-                                (index - 1) * ITEM_WIDTH,
-                                (index) * ITEM_WIDTH,
-                            ];
-
-                            const translateY = scrollXResults.interpolate({
-                                inputRange,
-                                outputRange: [0, -10, 0],
-                                extrapolate: 'clamp',
-                            });
-                            const scale = scrollXResults.interpolate({
-                                inputRange,
-                                outputRange: [0.92, 1, 0.92],
-                                extrapolate: 'clamp',
-                            });
-
-                            return (
-                                <View style={{ width: ITEM_WIDTH }}>
-                                    <Animated.View style={{ transform: [{ translateY }, { scale }] }}>
-                                        <OasisCard
-                                            superTitle={(item as any).category}
-                                            title={(item as any).title}
-                                            subtitle={`${(item as any).duration || 0} mins · ${(item as any).creatorName || 'Guía'}`}
-                                            imageUri={(item as any).thumbnailUrl || (item as any).image}
-                                            onPress={() => onSessionPress(item as any)}
-                                            icon={icon as any}
-                                            badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
-                                            actionText="Comenzar"
-                                            actionIcon="play"
-                                            duration={(item as any).duration ? `${(item as any).duration} min` : undefined}
-                                            level={(item as any).difficulty}
-                                            variant="hero"
-                                            accentColor={accentColor}
-                                            sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${(item as any).id}` : undefined}
-                                        />
-                                    </Animated.View>
-                                </View>
-                            );
-                        }}
-                    />
+                {isEmpty ? (
+                    isLoading ? (
+                        <View style={{ paddingLeft: 20, flexDirection: 'row', gap: 12 }}>
+                            {[1, 2, 3].map((i) => (
+                                <View key={i} style={{ width: ITEM_WIDTH, height: 180, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, opacity: 0.5 }} />
+                            ))}
+                        </View>
+                    ) : (
+                        <View style={{ padding: 40, alignItems: 'center' }}>
+                            <Ionicons name="search-outline" size={48} color="rgba(255,255,255,0.1)" />
+                            <Text style={{ color: 'rgba(255,255,255,0.4)', marginTop: 12, fontWeight: '600' }}>Sin resultados encontrados</Text>
+                        </View>
+                    )
                 ) : (
-                    <FlatList
-                        horizontal={true}
-                        data={sessions}
-                        keyExtractor={(item) => item.id}
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={[
-                            styles.listContent,
-                            // Ensure enough padding at the end
-                            { paddingRight: 20 }
-                        ]}
-                        snapToAlignment="start"
-                        decelerationRate="fast"
-                        snapToInterval={snapInterval}
-                        renderItem={({ item, index }) => (
-                            <View style={[
-                                styles.cardWrapper,
-                                isStandard && { width: width * 0.7 },
-                                isPoster && { width: (width - 68) / 3, marginRight: 8 },
-                                isWide && { width: width * 0.90, marginRight: 12 },
-                                isHero && { width: width - 56, marginRight: 12 }
-                            ]}>
-                                <OasisCard
-                                    superTitle={(item as any).category}
-                                    title={(item as any).title}
-                                    subtitle={`${(item as any).duration || 0} mins · ${(item as any).creatorName || 'Guía'}`}
-                                    imageUri={(item as any).thumbnailUrl || (item as any).image}
-                                    onPress={() => onSessionPress(item)}
-                                    icon={icon as any}
-                                    badgeText={(item as any).isPlus ? "PREMIUM" : "LIBRE"}
-                                    actionText="Comenzar"
-                                    actionIcon="play"
-                                    duration={(item as any).duration ? `${(item as any).duration} min` : undefined}
-                                    level={(item as any).difficulty}
-                                    variant={isCompact(variant) ? 'compact' : (isHero ? 'hero' : 'default')}
-                                    accentColor={accentColor}
-                                    sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${item.id}` : undefined}
-                                />
-                            </View>
-                        )}
-                    />
+                    <View style={styles.carouselContainer}>
+                        {/* Botones de Navegación Premium */}
+                        <TouchableOpacity
+                            onPress={handlePrev}
+                            style={[styles.navButton, styles.navButtonLeft]}
+                            activeOpacity={0.7}
+                        >
+                            <BlurView intensity={30} tint="dark" style={styles.navButtonBlur}>
+                                <Ionicons name="chevron-back" size={32} color="#FFF" />
+                            </BlurView>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={handleNext}
+                            style={[styles.navButton, styles.navButtonRight]}
+                            activeOpacity={0.7}
+                        >
+                            <BlurView intensity={30} tint="dark" style={styles.navButtonBlur}>
+                                <Ionicons name="chevron-forward" size={32} color="#FFF" />
+                            </BlurView>
+                        </TouchableOpacity>
+
+                        <Animated.FlatList
+                            ref={flatListRef}
+                            data={finalData}
+                            keyExtractor={(item: any) => item.id}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.listContent}
+                            snapToInterval={ITEM_WIDTH}
+                            snapToAlignment="start"
+                            decelerationRate="fast"
+                            bounces={false}
+                            scrollEventThrottle={16}
+                            onScroll={Animated.event(
+                                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                                {
+                                    useNativeDriver: true,
+                                    listener: (event: any) => {
+                                        scrollOffset.current = event.nativeEvent.contentOffset.x;
+                                    }
+                                }
+                            )}
+                            renderItem={({ item, index }) => {
+                                if (item.id === 'empty-left' || item.id === 'empty-right') {
+                                    return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                                }
+                                return (
+                                    <CategoryCardItem
+                                        item={item}
+                                        index={index}
+                                        onSessionPress={onSessionPress}
+                                        icon={icon}
+                                        accentColor={accentColor}
+                                        sharedTransitionTagPrefix={sharedTransitionTagPrefix}
+                                        scrollX={scrollX}
+                                        cardVariant={item?.cardVariant || cardVariant || "default"}
+                                    />
+                                );
+                            }}
+                        />
+                    </View>
                 )}
             </View>
         </View>
     );
 };
 
-function isCompact(variant: string | undefined): boolean {
-    return variant === 'poster' || variant === 'standard' || variant === 'overlay' || variant === undefined;
-}
-
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 20,
-        paddingHorizontal: 0,
+        marginBottom: 16,
     },
     transparentBlock: {
         backgroundColor: 'transparent',
-        borderRadius: 24,
-        paddingVertical: 0,
-        overflow: 'hidden',
     },
-    header: {
-        paddingHorizontal: 16,
-        marginBottom: 8, // Reduced margin
-    },
-    headerInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    seeAllContainer: {
-        // Removed margin/padding for cleaner button look
-    },
-    titleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingLeft: 12,
-        borderLeftWidth: 3,
-        gap: 10,
-    },
-    iconBox: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#FFFFFF',
-        letterSpacing: 0.5,
-    },
-    seeAll: {
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-        opacity: 0.9,
+    carouselContainer: {
+        marginTop: 0,
+        position: 'relative',
     },
     listContent: {
-        paddingLeft: 20,
-        paddingRight: 20,
-    },
-    verticalList: {
-        paddingHorizontal: 12,
+        paddingTop: 10,
+        paddingBottom: 40,
+        alignItems: 'flex-start',
     },
     cardWrapper: {
-        width: width * 0.7,
-        marginRight: 12,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
     },
-    fullWidthCard: {
-        width: width * 0.85,
-        alignSelf: 'center',
-        marginRight: 0,
-        marginBottom: 16,
+    navButton: {
+        position: 'absolute',
+        top: 216, // Posición fija para centrar exactamente en la imagen (10 padding + 90 header + 16 gap + 100 centro imagen)
+        transform: [{ translateY: -28 }], // Mitad de la altura del botón (56/2)
+        zIndex: 100,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
+    navButtonLeft: {
+        left: 8,
+    },
+    navButtonRight: {
+        right: 8,
+    },
+    navButtonBlur: {
+        width: 56,
+        height: 56,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+    }
 });
 
-export default CategoryRow;
+export default memo(CategoryRow);

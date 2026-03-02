@@ -30,7 +30,10 @@ import { Svg, Circle } from 'react-native-svg';
 import { useSessions, useAudiobooks, useStories, useAcademyModules, useSoundscapes } from '../../hooks/useContent';
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import BentoGrid from '../../components/Home/BentoGrid';
-import OasisCard from '../../components/Oasis/OasisCard';
+import { OasisCard } from '../../components/Oasis/OasisCard';
+import { useNavigation } from '@react-navigation/native';
+
+import { getGuideAvatar } from '../../constants/guides';
 import { OasisMeter } from '../../components/Oasis/OasisMeter';
 import { analyticsService } from '../../services/analyticsService';
 import PurposeModal from '../../components/Home/PurposeModal';
@@ -405,6 +408,8 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                             sessionData: recommendations?.daily
                         })}
                         badgeText={(recommendations?.daily as any)?.is_premium ? "PREMIUM" : "LIBRE"}
+                        guideName={(recommendations?.daily as any)?.creator_name?.toUpperCase()}
+                        guideAvatar={getGuideAvatar((recommendations?.daily as any)?.creator_name)}
                         duration={(recommendations?.daily as any)?.duration_minutes ? `${(recommendations?.daily as any).duration_minutes} min` : undefined}
                         level={formatDifficultyLevel((recommendations?.daily as any)?.difficulty_level)}
                         variant="default"

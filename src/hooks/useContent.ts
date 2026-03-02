@@ -3,7 +3,7 @@
  * React Query hooks for fetching content with caching and offline support.
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { sessionsService, audiobooksService, storiesService, soundscapesService } from '../services/contentService';
 import { AcademyService } from '../services/AcademyService';
 
@@ -17,12 +17,24 @@ export const QUERY_KEYS = {
     SOUNDSCAPES: 'soundscapes',
 };
 
-// 1. Hook for All Sessions
+// 1. Hook for All Sessions (Legacy/Small lists)
 export const useSessions = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.SESSIONS],
         queryFn: sessionsService.getAll,
         staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+};
+
+// 1.1 Hook for Paginated Sessions (Infinity Scroll)
+export const useInfiniteSessions = (filters: any = {}) => {
+    return useInfiniteQuery({
+        queryKey: [QUERY_KEYS.SESSIONS, 'infinite', filters],
+        queryFn: ({ pageParam = 0 }: any) => sessionsService.getPaginated({ page: pageParam, ...filters }),
+        initialPageParam: 0,
+        getNextPageParam: (lastPage: any, allPages: any) => {
+            return lastPage.hasMore ? allPages.length : undefined;
+        }
     });
 };
 

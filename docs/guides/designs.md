@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.36.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.37.0) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.36.0** (Sensorial Revolution) consolida la visión del **Master Header**, el diseño de secciones **True Full-Width** y la exploración inmersiva mediante **Carruseles 3D**.
+Esta guía define el ADN visual de Paziify. La versión **v2.37.0** (Oasis 3.0 Standardization) consolida la visión del **Master Header**, el diseño de secciones **True Full-Width** y la estandarización del **Modelo Único OasisCard**.
 
 ---
 
@@ -41,10 +41,12 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 
 ## 7. Optimización de Bordes y Jerarquía
 - **True Full-Width**: Eliminación total de paddings estructurales en `CategoryRow` y `SoundwaveSeparator` para permitir que el diseño inmersivo ocupe el 100% del ancho del dispositivo.
-- **Carrusel de Resultados (v2.36.0)**:
-  - **Efecto 3D**: Uso de interpolaciones de `scale` y `opacity` en base al desplazamiento horizontal.
-  - **Foco Central**: El elemento central se eleva y escala, mientras los laterales se atenúan para guiar la atención.
-  - **Snap Precise**: Implementación de `snapToInterval` y `decelerationRate="fast"` para una navegación táctil ultra-fluida.
+- **Carrusel de Resultados (v2.37.0)**:
+  - **Motor Perfect Movement**: Uso de `ITEM_WIDTH = 0.75` para snapping central perfecto.
+  - **Asistencia Premium**: Botones de flecha izquierda/derecha glassmorphic filtrados por `BlurView` y situados en **top: 216px** (centro matemático de la imagen de 200px).
+- **Modelo Único OasisCard**:
+  - **Altura Estándar (v2.37.0)**: Coherencia absoluta con altura de imagen de **200px** en todos los carruseles (Home, Meditación, Audiolibros y Academia).
+  - **Insignia de Guía**: Avatares circulares de 18px situados en la base de la imagen con nombre de autor.
 - **Bottom Elevation**: Mantenemos elevación de carruseles a **+100px** para evitar colisiones con el menú flotante.
 
 ---
@@ -199,4 +201,4 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 
 ---
 
-*Última revisión: 28 de Febrero de 2026 - Versión 2.35.0 (PDS v3.0 Master Header Edition)*
+*Última revisión: 2 de Marzo de 2026 - Versión 2.37.0 (PDS 3.0 Standardization Edition)*

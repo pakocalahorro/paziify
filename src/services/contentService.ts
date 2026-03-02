@@ -155,12 +155,72 @@ export const sessionsService = {
     },
 
     /**
+     * Get paginated sessions with optional filtering
+     */
+    async getPaginated({
+        page = 0,
+        limit = 10,
+        category,
+        searchQuery,
+        creatorName,
+        isTechnical,
+        isPremium
+    }: {
+        page?: number;
+        limit?: number;
+        category?: string;
+        searchQuery?: string;
+        creatorName?: string;
+        isTechnical?: boolean;
+        isPremium?: boolean;
+    } = {}): Promise<{ data: MeditationSessionContent[], hasMore: boolean }> {
+        try {
+            console.log(`[sessionsService] Fetching paginated sessions (page: ${page}, limit: ${limit})...`);
+
+            let query = supabase
+                .from('meditation_sessions_content')
+                .select('*', { count: 'exact' });
+
+            // Apply Filters
+            if (category && category !== 'all') query = query.eq('category', category);
+            if (creatorName) query = query.ilike('creator_name', `%${creatorName}%`);
+            if (isTechnical !== undefined) query = query.eq('is_technical', isTechnical);
+            if (isPremium !== undefined) query = query.eq('is_premium', isPremium);
+
+            if (searchQuery) {
+                query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,metadata->>scientific_benefits.ilike.%${searchQuery}%`);
+            }
+
+            // Pagination logic
+            const from = page * limit;
+            const to = from + limit - 1;
+
+            const { data, error, count } = await query
+                .order('created_at', { ascending: false })
+                .range(from, to);
+
+            if (error) throw error;
+
+            const hasMore = count ? (from + (data?.length || 0)) < count : false;
+
+            return {
+                data: data || [],
+                hasMore
+            };
+        } catch (error) {
+            console.error('[sessionsService] Paginated fetch error:', error);
+            // Fallback to local data for the first page if offline
+            if (page === 0) {
+                return { data: MEDITATION_SESSIONS as any[], hasMore: false };
+            }
+            return { data: [], hasMore: false };
+        }
+    },
+
+    /**
      * Get Daily Session (random or specific algorithm)
      */
     async getDaily(): Promise<MeditationSessionContent | null> {
-        // Simple random strategy for now, or pick first
-        // In V2 we might want a 'daily_sessions' table or logic.
-        // For now, let's pick "Respiración 4-7-8" as default or random.
         const { data, error } = await supabase
             .from('meditation_sessions_content')
             .select('*')

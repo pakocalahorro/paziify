@@ -1,10 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen, RootStackParamList } from '../types';
 import { OasisScreen } from '../components/Oasis/OasisScreen';
 import { OasisHeader } from '../components/Oasis/OasisHeader';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
 
 // PDS Components
 import { OasisButton } from '../components/Oasis/OasisButton';
@@ -21,8 +23,9 @@ export default function OasisShowcaseScreen() {
     const navigation = useNavigation<NavigationProp>();
 
     // Form & State Demo
-    const [email, setEmail] = React.useState('');
-    const [notificationsOn, setNotificationsOn] = React.useState(true);
+    const [email, setEmail] = useState('');
+    const [notificationsOn, setNotificationsOn] = useState(true);
+    const [isFavorite, setIsFavorite] = useState(false);
 
     return (
         <OasisScreen
@@ -61,44 +64,36 @@ export default function OasisShowcaseScreen() {
                 </View>
 
                 <View style={styles.section}>
-                    <SoundwaveSeparator title="2. Oasis Cards (Bento/Listas)" />
+                    <SoundwaveSeparator title="2. Oasis Card (Modelo Único)" />
+
+                    <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+                        <Text style={styles.sectionSubtitle}>
+                            Paginas que usan este modelo:
+                        </Text>
+                        <Text style={[styles.sectionSubtitle, { color: '#2DD4BF', fontFamily: 'Outfit_600SemiBold' }]}>
+                            Home, Meditation, Audiobooks, Academy
+                        </Text>
+                    </View>
 
                     <View style={{ paddingHorizontal: 20 }}>
                         <OasisCard
-                            title="Sesión de Meditación"
-                            subtitle="Paz Interior • 15 min"
-                            variant="hero"
-                            accentColor="#8B5CF6"
+                            superTitle="Meditación"
+                            title="Tu práctica de hoy"
+                            subtitle="Sesión recomendada para equilibrar tu sistema nervioso y encontrar calma."
+                            imageUri="https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/meditation_forest.webp"
                             onPress={() => { }}
-                        />
-
-                        <OasisCard
-                            title="Relatos de Sueño"
-                            subtitle="Bosque de Niebla"
+                            badgeText="SISTEMA NERVIOSO"
+                            guideName="ARIA"
+                            guideAvatar="https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/avatar_aria.webp"
+                            duration="15 min"
+                            level="Principiante"
                             variant="default"
-                            accentColor="#A78BFA"
-                            style={{ marginTop: 20 }}
-                            onPress={() => { }}
+                            accentColor="#2DD4BF"
+                            actionText="Comenzar"
+                            actionIcon="play"
+                            isFavorite={isFavorite}
+                            onFavoritePress={() => setIsFavorite(!isFavorite)}
                         />
-
-                        <View style={{ flexDirection: 'row', gap: 16, marginTop: 20 }}>
-                            <OasisCard
-                                title="Respiración"
-                                subtitle="4-7-8"
-                                variant="compact"
-                                accentColor="#F472B6"
-                                style={{ flex: 1 }}
-                                onPress={() => { }}
-                            />
-                            <OasisCard
-                                title="Sonidos"
-                                subtitle="Lluvia"
-                                variant="compact"
-                                accentColor="#60A5FA"
-                                style={{ flex: 1 }}
-                                onPress={() => { }}
-                            />
-                        </View>
                     </View>
                 </View>
 

@@ -98,21 +98,27 @@ const SoundwaveSeparator: React.FC<Props> = ({
                 />
             </Canvas>
 
-            {/* Text Overlay - Black Backlight */}
+            {/* Text and Action Overlay */}
             <View style={styles.contentWrapper}>
-                <Text style={styles.text}>
-                    {title}
-                </Text>
-
-                {onAction && (
-                    <TouchableOpacity
-                        onPress={onAction}
-                        style={[styles.actionButton, { borderColor: accentColor + '40' }]}
-                        activeOpacity={0.7}
+                <View style={styles.titleContainer}>
+                    <Text
+                        style={styles.text}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
                     >
-                        <Ionicons name={actionIcon as any} size={20} color={accentColor} />
-                    </TouchableOpacity>
-                )}
+                        {title}
+                    </Text>
+
+                    {onAction && (
+                        <TouchableOpacity
+                            onPress={onAction}
+                            style={[styles.actionButton, { borderColor: accentColor + '40' }]}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons name={actionIcon as any} size={20} color={accentColor} />
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
         </View>
     );
@@ -133,33 +139,39 @@ const styles = StyleSheet.create({
         height: 80
     },
     contentWrapper: {
+        width: '100%',
+        paddingHorizontal: 20,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    titleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.6)', // Solidify background for readability
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 24,
+        maxWidth: width - 40,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        gap: 8,
     },
     text: {
-        marginHorizontal: 16,
         color: '#FFFFFF',
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '900',
-        letterSpacing: 4,
+        letterSpacing: 2,
         textTransform: 'uppercase',
-        textAlign: 'center',
-        textShadowColor: 'rgba(0,0,0,1)',
-        textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 4,
-        backgroundColor: 'rgba(0,0,0,0.4)', // Darker background for text over wave
-        borderRadius: 20,
+        textShadowColor: 'rgba(0,0,0,0.8)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 4,
     },
     actionButton: {
-        position: 'absolute',
-        right: -50,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: 'rgba(255,255,255,0.15)',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,

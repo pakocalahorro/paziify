@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.36.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.37.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.36.0**. Esta versión presenta la **Revolución Sensorial**: exploración inmersiva "Edge-to-Edge" y filtrado premium centralizado.
+Bienvenido a la guía oficial de **Paziify v2.37.0**. Esta versión presenta la **Revolución Sensorial Oasis 3.0**: exploración inmersiva "Edge-to-Edge", navegación asistida premium y coherencia visual total.
 
 ---
 
@@ -27,8 +27,9 @@ El catálogo ha sido rediseñado para una inmersión sensorial absoluta:
 - **Navegación "Edge-to-Edge"**: El diseño ahora ocupa todo el ancho de la pantalla, eliminando bordes innecesarios para que la identidad de Oasis fluya sin límites.
 - **Filtrado Premium Centralizado**: Pulsa el icono de filtro en el header para desplegar el menú de categorías. Hemos eliminado las tarjetas estáticas para que tengas más espacio para ver lo importante.
 - **Carrusel de Resultados 3D**: Cuando buscas o filtras, los resultados aparecen en un carrusel dinámico. La sesión central se eleva y escala automáticamente, guiándote visualmente hacia tu próxima práctica.
+- **Navegación Asistida Premium (v2.37.0)**: Hemos añadido botones de flechas izquierda y derecha para facilitar el desplazamiento, situados siempre en el centro visual de la tarjeta para una ergonomía perfecta.
+- **Coherencia Visual Total**: Todas tus secciones (Meditación, Audiolibros y Academia) comparten ahora el mismo diseño de tarjeta y dimensiones de 200px.
 - **Títulos Inteligentes**: La app te indica exactamente qué estás viendo (ej: `RESULTADOS: GAIA + SUEÑO`), asegurando que nunca pierdas el hilo de tu exploración.
-- **Reset Maestro**: El botón "-" en el título de resultados limpia todas las búsquedas y filtros con un solo toque, devolviéndote al inicio del catálogo.
 
 ---
 
@@ -188,7 +189,7 @@ Según tu estado, recibirás un mensaje personalizado:
 - **Marea Calma** (🟡 Agotamiento): "Tu energía está baja para volver con fuerza"
 
 ---
-## 15. Tu Propósito y Ajustes (v2.35.0) 🎯
+## 15. Tu Propósito y Ajustes (v2.36.0) 🎯
 
 ### Mi Propósito
 - Configura tus metas de meditación diarias y semanales desde **Ajustes**.
@@ -205,7 +206,7 @@ Según tu estado, recibirás un mensaje personalizado:
 
 ---
 
-## 16. Inmersión Sonora Ininterrumpida (v2.35.0) 🎧
+## 16. Inmersión Sonora Ininterrumpida (v2.36.0) 🎧
 Paziify introduce una de sus mayores actualizaciones en la experiencia de usuario: **El Mini-Reproductor Global**.
 
 ### Navegación Ininterrumpida
@@ -220,5 +221,5 @@ Paziify introduce una de sus mayores actualizaciones en la experiencia de usuari
 
 ---
 
-*Última revisión: 28 de Febrero de 2026 - Versión 2.35.0 (PDS v3.0 Master Header Edition)*
+*Última revisión: 2 de Marzo de 2026 - Versión 2.37.0 (Oasis 3.0 Revolution)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

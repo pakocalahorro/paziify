@@ -35,13 +35,15 @@ import {
 } from 'react-native-reanimated';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList, Session } from '../../types';
+import { useSessions, useInfiniteSessions, QUERY_KEYS } from '../../hooks/useContent';
+import { AcademyService } from '../../services/AcademyService';
+import { FlashList } from '@shopify/flash-list';
 import { theme } from '../../constants/theme';
 import { IMAGES, SESSION_ASSETS } from '../../constants/images';
 import { OasisCard } from '../../components/Oasis/OasisCard';
 import SessionPreviewModal from '../../components/SessionPreviewModal';
 import { MeditationSession } from '../../data/sessionsData'; // Keep type
 import { sessionsService, adaptSession } from '../../services/contentService'; // Import service
-import { useSessions } from '../../hooks/useContent'; // Import hook
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import CategoryRow from '../../components/CategoryRow';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
@@ -140,6 +142,24 @@ const GUIDES = [
     },
 ];
 
+const convertToSession = (medSession: MeditationSession): Session => {
+    const categoryKey = medSession.category.toLowerCase();
+    const catInfo = CATEGORIES.find(c => c.key === categoryKey);
+    const dynamicThumbnail = medSession.thumbnailUrl;
+    const staticAsset = SESSION_ASSETS[categoryKey] || SESSION_ASSETS['default'];
+
+    return {
+        id: medSession.id,
+        title: medSession.title,
+        duration: medSession.durationMinutes,
+        category: catInfo ? catInfo.label : medSession.category,
+        isPlus: medSession.isPremium,
+        image: dynamicThumbnail || staticAsset,
+        thumbnailUrl: dynamicThumbnail,
+        creatorName: medSession.creatorName,
+    };
+};
+
 const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const { userState, isNightMode, toggleFavorite } = useApp();
@@ -152,6 +172,31 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
     const { data: rawSessions, isLoading: loading } = useSessions();
+
+    // Infinite Search Query for Results View
+    const infiniteFilters = useMemo(() => {
+        return {
+            category: selectedCategory,
+            searchQuery: searchQuery,
+            creatorName: selectedGuide
+        };
+    }, [selectedCategory, searchQuery, selectedGuide]);
+
+    const {
+        data: infiniteData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading: isInfiniteLoading
+    } = useInfiniteSessions(infiniteFilters);
+
+    const infiniteSessions = useMemo(() => {
+        if (!infiniteData) return [];
+        return infiniteData.pages
+            .flatMap((page: any) => page.data)
+            .map(adaptSession)
+            .map(convertToSession);
+    }, [infiniteData]);
 
     const sessions = useMemo(() => {
         if (!rawSessions) return [];
@@ -176,7 +221,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         }
     }, [loading]);
 
-    const toggleSearch = () => {
+    const toggleSearch = React.useCallback(() => {
         const toValue = isSearchExpanded ? 0 : 1;
         Animated.spring(searchAnim, {
             toValue,
@@ -186,25 +231,8 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         }).start();
         setIsSearchExpanded(!isSearchExpanded);
         if (isSearchExpanded) setSearchQuery('');
-    };
+    }, [isSearchExpanded, searchAnim]);
 
-    const convertToSession = (medSession: MeditationSession): Session => {
-        const categoryKey = medSession.category.toLowerCase();
-        const catInfo = CATEGORIES.find(c => c.key === categoryKey);
-        const dynamicThumbnail = medSession.thumbnailUrl;
-        const staticAsset = SESSION_ASSETS[categoryKey] || SESSION_ASSETS['default'];
-
-        return {
-            id: medSession.id,
-            title: medSession.title,
-            duration: medSession.durationMinutes,
-            category: catInfo ? catInfo.label : medSession.category,
-            isPlus: medSession.isPremium,
-            image: dynamicThumbnail || staticAsset,
-            thumbnailUrl: dynamicThumbnail,
-            creatorName: medSession.creatorName,
-        };
-    };
 
     const filteredSessions = useMemo(() => {
         if (loading) return [];
@@ -252,7 +280,13 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                 ? `RESULTADOS: ${titleParts.join(' + ')}`
                 : 'RESULTADOS';
 
-            return [{ title, data: filteredSessions }];
+            return [{
+                title,
+                data: infiniteSessions,
+                icon: undefined as any,
+                accentColor: undefined as any,
+                variant: 'standard' as any
+            }];
         }
 
         const rows: { title: string; data: Session[]; icon?: string; accentColor?: string; variant?: 'overlay' | 'standard' | 'poster' | 'wide' | 'hero' | 'section-header' }[] = [];
@@ -263,15 +297,14 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             rows.push({ title: 'Tus Favoritos', data: favorites, icon: 'heart', accentColor: '#FF6B6B' });
         }
 
-        const technicalSessions = shuffledSessions.filter(s => s.isTechnical).slice(0, 6).map(convertToSession);
+        const technicalSessions = sessions.filter(s => s.isTechnical).map(convertToSession);
         if (technicalSessions.length > 0) {
-            rows.push({ title: 'DESTACADOS', data: [], variant: 'section-header' });
             rows.push({
-                title: 'Meditaciones técnicas',
+                title: 'Técnicas de calma',
                 data: technicalSessions,
                 icon: 'shield-checkmark',
                 accentColor: '#2DD4BF',
-                variant: 'hero'
+                variant: 'standard'
             });
         }
 
@@ -282,17 +315,17 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                 data: flashSessions,
                 icon: 'flash',
                 accentColor: '#FBBF24',
-                variant: 'poster'
+                variant: 'standard'
             });
         }
 
         const newArrivals = [...sessions].reverse().slice(0, 5).map(convertToSession);
-        rows.push({ title: 'Mejor valoradas', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA', variant: 'wide' });
+        rows.push({ title: 'Mejor valoradas', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA', variant: 'standard' });
 
         return rows;
     }, [filteredSessions, selectedCategory, searchQuery, selectedGuide, userState.favoriteSessionIds, sessions, shuffledSessions, hasActiveFilter]);
 
-    const handleSeeAll = (sectionTitle: string) => {
+    const handleSeeAll = React.useCallback((sectionTitle: string) => {
         const cat = CATEGORIES.find(c => c.label.toLowerCase() === sectionTitle.toLowerCase());
         if (cat) {
             setSelectedCategory(cat.key);
@@ -321,14 +354,14 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         }
 
         scrollRef.current?.scrollTo({ y: 0, animated: true });
-    };
+    }, []);
 
-    const handleSessionClick = (session: Session) => {
+    const handleSessionClick = React.useCallback((session: Session) => {
         const fullSession = sessions.find(s => s.id === session.id);
         if (fullSession) {
             setSelectedSession(fullSession);
         }
-    };
+    }, [sessions]);
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
@@ -449,45 +482,48 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             disableContentPadding={true}
             preset="fixed"
         >
-            <Animated.ScrollView
-                ref={scrollRef as any}
-                contentContainerStyle={[
-                    styles.listContent,
-                    { paddingBottom: insets.bottom + 100 },
-                    { paddingTop: 10 }
-                ]}
-                style={{ flex: 1, opacity: fadeAnim }}
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={!hasActiveFilter}
-                scrollEventThrottle={16}
-                onScroll={Animated.event(
-                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                    { useNativeDriver: true }
-                )}
-            >
-                {renderHeader()}
-
-                {sessionsByRow.map((item, index) => (
+            <FlashList
+                data={sessionsByRow}
+                keyExtractor={(item, index) => item.title + index}
+                renderItem={({ item, index }) => (
                     <CategoryRow
-                        key={item.title}
                         title={item.title}
                         sessions={item.data}
                         icon={item.icon}
                         accentColor={item.accentColor}
                         onSessionPress={handleSessionClick}
                         onFavoritePress={(session) => toggleFavorite(session.id)}
-                        onSeeAll={item.title.toUpperCase().startsWith('RESULTADOS') ? handleSeeAll : undefined}
+                        onSeeAll={item.title?.toUpperCase?.().includes('RESULTADOS') ? handleSeeAll : undefined}
                         isPlusMember={userState.isPlusMember}
                         favoriteSessionIds={userState.favoriteSessionIds}
                         completedSessionIds={userState.completedSessionIds}
                         scrollY={scrollY}
-                        isResults={item.title.toUpperCase().startsWith('RESULTADOS')}
+                        isResults={hasActiveFilter}
                         variant={item.variant}
                         index={index}
                         sharedTransitionTagPrefix="session.image"
+                        isLoading={hasActiveFilter ? isInfiniteLoading : false}
                     />
-                ))}
-            </Animated.ScrollView>
+                )}
+                estimatedItemSize={250}
+                ListHeaderComponent={renderHeader()}
+                contentContainerStyle={[
+                    styles.listContent,
+                    { paddingBottom: insets.bottom + 100 },
+                    { paddingTop: 10 }
+                ]}
+                showsVerticalScrollIndicator={false}
+                onEndReached={() => {
+                    if (hasActiveFilter && hasNextPage && !isFetchingNextPage) {
+                        fetchNextPage();
+                    }
+                }}
+                onEndReachedThreshold={0.5}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: false } // FlashList with Animated.event often needs false or specific setup
+                )}
+            />
 
             {selectedSession && (
                 <SessionPreviewModal

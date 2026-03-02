@@ -18,8 +18,8 @@
 
 **Paziify** es una aplicación móvil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versión**: 2.36.0 (Sensorial Revolution - Edge-to-Edge Edition)
-**Última actualización**: 1 de Marzo de 2026
+**Versión**: 2.37.0 (Sensorial Revolution - PDS 3.0 Standard)
+**Última actualización**: 2 de Marzo de 2026
 
 ---
 
@@ -79,6 +79,7 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 │   │   ├── Challenges/         # [NEW] Modales de reto
 │   ├── constants/              # Constantes (temas, categorías, retos)
 │   │   ├── challenges.ts       # [NEW] Maestro de retos y slugs
+│   │   ├── guides.ts           # [NEW] Fuente de verdad de avatares de guías (Aria, Éter...)
 │   ├── context/                # Contextos de React
 │   ├── data/                   # Datos estáticos y mocks
 │   ├── hooks/                  # Custom hooks
@@ -755,13 +756,12 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 
 
 #### `src/components/CategoryRow.tsx`
-**Función**: Fila de categorías
-**Props**: categories, onSelect
+**Función**: Fila de categorías y motor de carrusel premium (Perfect Movement).
+**Props**: sessions, cardVariant, accentColor
 **Características**:
-- Scroll horizontal
-- Chips de categoría
-- Selección múltiple
-- Indicador de activo
+- Snapping centrado (`ITEM_WIDTH = 0.75`).
+- Navegación asistida (Flechas glassmorphic en `top: 216px`).
+- Optimización con `FlashList` y `React.memo`.
 
 
 #### `src/components/GuestBanner.tsx`
