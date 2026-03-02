@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.37.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.38.0) 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.37.0** (Oasis 3.0 Standardization) consolida la visión del **Master Header**, el diseño de secciones **True Full-Width** y la estandarización del **Modelo Único OasisCard**.
+Esta guía define el ADN visual de Paziify. La versión **v2.38.0** consolida el rediseño inmersivo "Edge-to-Edge" en los flujos de Onboarding, la vista de Evolución estructurada y las animaciones activas dinámicas del **Master Header**.
 
 ---
 
@@ -29,6 +29,16 @@ La Home y el Perfil se rigen por la organización celular y la transparencia.
 ## 5. El Menú Flotante (CustomTabBar) 🛸
 - **Concepto**: Isla de cristal suspendida sobre el `insets.bottom`.
 - **StarCore**: Orbe respiratorio central con feedback dinámico según el `life_mode`.
+
+---
+
+## 4. Onboarding inmersivo "Edge-to-Edge"
+Las pantallas de entrada (`Welcome`, `Login`, `SpiritualPreloader`) rompen con la topología de tarjetas. Utilizan los fondos de vídeo o renderizados inmersivos al 100% de la pantalla, inhabilitando las bandas de contención negras (Safe Area). El vídeo base del proceso de login continúa reproduciéndose fluidamente entre el registro inicial y el inicio de sesión.
+
+## 5. El Master Header Dinámico (OasisHeader)
+La cabecera maestra universal reacciona al estado global del usuario con transiciones de alta fidelidad:
+- **Estado Base:** Botón "✨ Evolución" con pastilla Glassmorphism sutil.
+- **Estado Activo (Desafío en curso):** El texto cambia a "✔ ACTIVO". La pastilla se vuelve transparente de alta intensidad (`tint="dark"` de BlurView) y un fino aro de luz con el color temático del reto "sangra" sutilmente alrededor del mismo con transiciones a 60FPS procesadas por Skia/Reanimated.
 
 ---
 

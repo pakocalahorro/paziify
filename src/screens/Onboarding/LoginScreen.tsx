@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     View,
     Text,
@@ -11,6 +11,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
+import { Video, ResizeMode } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // PDS Primitives
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
@@ -31,6 +33,7 @@ interface Props {
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const { signInWithGoogle } = useApp();
+    const videoRef = useRef<Video>(null);
 
     const handleGoogleLogin = async () => {
         setLoading(true);
@@ -42,42 +45,80 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <OasisScreen style={styles.container} preset="scroll">
-            <View style={styles.content}>
-
-                {/* Header Section */}
-                <View style={styles.header}>
-                    <Text style={styles.signature}>Bienvenido de nuevo</Text>
-                    <Text style={styles.title}>Cruza el Portal</Text>
-                    <Text style={styles.subtitle}>Retoma tu camino de paz donde lo dejaste.</Text>
-                </View>
-
-                {/* Main Action Form / Buttons */}
-                <View style={styles.formContainer}>
-                    <OasisButton
-                        title="Iniciar Sesión con Google"
-                        onPress={handleGoogleLogin}
-                        variant="primary"
-                        icon="logo-google"
-                        loading={loading}
-                    />
-
-                    <BlurView intensity={20} tint="dark" style={styles.infoBox}>
-                        <Ionicons name="shield-checkmark" size={24} color={theme.colors.accent} />
-                        <Text style={styles.infoText}>
-                            Usamos Google para asegurar que solo tú tengas acceso a tu progreso de forma instantánea.
-                        </Text>
-                    </BlurView>
-                </View>
-
+        <View style={styles.container}>
+            {/* 1. Immersive Video Background (Lowest Layer) */}
+            <View style={StyleSheet.absoluteFillObject}>
+                <LinearGradient
+                    colors={['#0F2027', '#203A43', '#2C5364']}
+                    style={StyleSheet.absoluteFillObject}
+                />
+                <Video
+                    ref={videoRef}
+                    source={{
+                        uri: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                    }}
+                    style={StyleSheet.absoluteFillObject}
+                    resizeMode={ResizeMode.COVER}
+                    shouldPlay
+                    isLooping
+                    isMuted
+                    posterSource={require('../../../assets/splash-icon.png')}
+                    posterStyle={{ resizeMode: 'cover' }}
+                />
+                {/* 2. Night-mode mist overlay to ensure text readability */}
+                <LinearGradient
+                    colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,10,20,0.95)']}
+                    style={StyleSheet.absoluteFillObject}
+                />
             </View>
-        </OasisScreen>
+
+            {/* 3. Foreground Content with transparent OasisScreen */}
+            <OasisScreen style={styles.transparentOverlay} hideBackground preset="scroll" showSafeOverlay={false}>
+                <View style={styles.content}>
+
+                    {/* Header Section */}
+                    <View style={styles.header}>
+                        <Text style={styles.signature}>Bienvenido de nuevo</Text>
+                        <Text style={styles.title}>Cruza el Portal</Text>
+                        <Text style={styles.subtitle}>Retoma tu camino de paz donde lo dejaste.</Text>
+                    </View>
+
+                    {/* Main Action Form / Buttons */}
+                    <View style={styles.formContainer}>
+                        <OasisButton
+                            title="Continuar con Google"
+                            onPress={handleGoogleLogin}
+                            variant="primary"
+                            icon="logo-google"
+                            loading={loading}
+                        />
+
+                        <BlurView intensity={20} tint="dark" style={styles.infoBox}>
+                            <Ionicons name="shield-checkmark" size={24} color={theme.colors.accent} />
+                            <Text style={styles.infoText}>
+                                Usamos Google para asegurar que solo tú tengas acceso a tu progreso de forma instantánea.
+                            </Text>
+                        </BlurView>
+                    </View>
+
+                    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                        <Ionicons name="arrow-back" size={20} color="#FFF" />
+                        <Text style={styles.backText}>Volver</Text>
+                    </TouchableOpacity>
+
+                </View>
+            </OasisScreen>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#000',
+    },
+    transparentOverlay: {
+        backgroundColor: 'transparent',
     },
     content: {
         flex: 1,
@@ -133,6 +174,19 @@ const styles = StyleSheet.create({
         color: 'rgba(255,255,255,0.6)',
         fontSize: 14,
         lineHeight: 20,
+    },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: theme.spacing.xl,
+        padding: theme.spacing.md,
+    },
+    backText: {
+        color: '#FFF',
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 16,
+        marginLeft: 8,
     },
 });
 

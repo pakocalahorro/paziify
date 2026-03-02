@@ -11,7 +11,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, Screen } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { theme } from '../../constants/theme';
-import AuraBackground from '../../components/Profile/AuraBackground';
+import { OasisScreen } from '../../components/Oasis/OasisScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -61,7 +61,7 @@ const SpiritualPreloader = () => {
     }, [isFirstEntryOfDay, userState.activeChallenge]);
 
     return (
-        <AuraBackground mode="neutral">
+        <OasisScreen hideBackground={false} preset="fixed" style={{ backgroundColor: '#0A0E1A' }} showSafeOverlay={false}>
             <View style={styles.container}>
                 <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
                     <Text style={styles.brandName}>PAZIIFY</Text>
@@ -74,10 +74,10 @@ const SpiritualPreloader = () => {
                 {/* Subtle pulse loader at bottom */}
                 <View style={styles.loaderContainer}>
                     <View style={styles.loaderDot} />
-                    <Text style={styles.loadingText}>Sincronizando con el Oasis...</Text>
+                    <Text style={styles.loadingText}>Sincronizando con el Santuario...</Text>
                 </View>
             </View>
-        </AuraBackground>
+        </OasisScreen>
     );
 };
 
@@ -92,39 +92,38 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     brandName: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 12,
-        color: 'rgba(255,255,255,0.4)',
-        fontWeight: '900',
+        color: 'rgba(255,255,255,0.2)',
         letterSpacing: 8,
         marginBottom: 20,
     },
     quoteMark: {
-        fontSize: 80,
-        color: 'rgba(255,255,255,0.1)',
-        fontFamily: 'serif',
-        marginBottom: -40,
+        fontFamily: 'Caveat_700Bold',
+        fontSize: 120,
+        color: 'rgba(255,255,255,0.08)',
+        marginBottom: -60,
     },
     quoteText: {
-        fontSize: 22,
-        color: theme.colors.textMain,
+        fontFamily: 'Outfit_300Light',
+        fontSize: 24,
+        color: '#FFFFFF',
         textAlign: 'center',
-        lineHeight: 34,
-        fontWeight: '300',
-        fontStyle: 'italic',
+        lineHeight: 36,
     },
     divider: {
         width: 40,
         height: 1,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: '#FFFFFF',
         marginVertical: 30,
-        opacity: 0.5,
+        opacity: 0.2,
     },
     author: {
+        fontFamily: 'Outfit_700Bold',
         fontSize: 12,
-        color: theme.colors.textMuted,
+        color: 'rgba(255,255,255,0.5)',
         textTransform: 'uppercase',
         letterSpacing: 4,
-        fontWeight: '700',
     },
     loaderContainer: {
         position: 'absolute',
@@ -136,12 +135,13 @@ const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: '#FFFFFF',
         opacity: 0.3,
     },
     loadingText: {
+        fontFamily: 'Outfit_600SemiBold',
         fontSize: 10,
-        color: theme.colors.textMuted,
+        color: 'rgba(255,255,255,0.3)',
         textTransform: 'uppercase',
         letterSpacing: 1,
     }

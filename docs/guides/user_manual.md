@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.37.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario (v2.38.0) 💎
 
-Bienvenido a la guía oficial de **Paziify v2.37.0**. Esta versión presenta la **Revolución Sensorial Oasis 3.0**: exploración inmersiva "Edge-to-Edge", navegación asistida premium y coherencia visual total.
+Bienvenido a la guía oficial de **Paziify v2.38.0**. Esta versión refina el catálogo de asimilación uniendo flujos visuales, rediseñando el acceso (Onboarding Inmersivo) y sincronizando los estados globales.
 
 ---
 
@@ -30,6 +30,13 @@ El catálogo ha sido rediseñado para una inmersión sensorial absoluta:
 - **Navegación Asistida Premium (v2.37.0)**: Hemos añadido botones de flechas izquierda y derecha para facilitar el desplazamiento, situados siempre en el centro visual de la tarjeta para una ergonomía perfecta.
 - **Coherencia Visual Total**: Todas tus secciones (Meditación, Audiolibros y Academia) comparten ahora el mismo diseño de tarjeta y dimensiones de 200px.
 - **Títulos Inteligentes**: La app te indica exactamente qué estás viendo (ej: `RESULTADOS: GAIA + SUEÑO`), asegurando que nunca pierdas el hilo de tu exploración.
+
+### Acceso Inmersivo "Edge-to-Edge" (Onboarding) 🌅
+El primer punto de contacto (Welcome y Login) abandona el diseño por contenedores. El motor de vídeo se extiende perimetralmente para crear un flujo sin fricciones visuales:
+- **"Empezar mi viaje"**: Portal principal con Google para altas de nuevos usuarios.
+- **"Visitar Santuario"**: Acceso rápido en "(CUENTA DE INVITADO)".
+- **"Cruzar el Portal"**: Redirige al registro continuo usando el mismo vídeo matriz en bucle.
+- **Transición Preloader**: Salta de nuevo al diseño oscuro profundo oficial con animaciones tipográficas orgánicas ("SpiritualPreloader").
 
 ---
 

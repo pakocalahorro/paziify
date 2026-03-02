@@ -77,7 +77,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             {/* 3. Foreground Content with transparent OasisScreen */}
-            <OasisScreen style={styles.transparentOverlay} hideBackground preset="fixed">
+            <OasisScreen style={styles.transparentOverlay} hideBackground preset="fixed" showSafeOverlay={false}>
                 <View style={styles.contentWrapper}>
 
                     {/* Spiritual Header */}
@@ -98,19 +98,22 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
 
                         <View style={styles.buttonGroup}>
                             <OasisButton
-                                title="Empieza tu viaje"
+                                title="Empezar mi viaje"
                                 onPress={handleGoogleLogin}
                                 variant="primary"
                                 icon="logo-google"
                                 loading={loading}
                             />
 
-                            <OasisButton
-                                title="Explorar el Santuario"
-                                onPress={continueAsGuest}
-                                variant="glass"
-                                icon="compass-outline"
-                            />
+                            <View style={{ width: '100%', alignItems: 'center' }}>
+                                <OasisButton
+                                    title="Visitar Santuario"
+                                    onPress={continueAsGuest}
+                                    variant="glass"
+                                    icon="compass-outline"
+                                />
+                                <Text style={styles.guestSubtitle}>(Cuenta de Invitado)</Text>
+                            </View>
                         </View>
 
                         <View style={styles.loginOption}>
@@ -196,6 +199,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: theme.spacing.md,
+    },
+    guestSubtitle: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 10,
+        fontFamily: 'Outfit_600SemiBold',
+        letterSpacing: 1,
+        marginTop: 6,
+        textTransform: 'uppercase',
     },
     loginText: {
         color: 'rgba(255,255,255,0.5)',

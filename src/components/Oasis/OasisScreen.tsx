@@ -65,7 +65,7 @@ export const OasisScreen: React.FC<OasisScreenProps> = ({
     );
 
     const content = (
-        <View style={styles.container}>
+        <View style={[styles.container, hideBackground && { backgroundColor: 'transparent' }]}>
             {!hideBackground && (
                 <BackgroundWrapper nebulaMode={nebulaTheme as 'healing' | 'growth'} remoteImageUri={remoteImageUri} />
             )}

@@ -1,4 +1,4 @@
-# Estructura del Proyecto Paziify
+# Estructura del Proyecto Paziify (v2.38.0)
 
 ## Índice
 1. [Visión General](#visión-general)
@@ -819,31 +819,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 ---
 
 ## Navegación
-
-### `src/navigation/AppNavigator.tsx`
-**Función**: Navigator principal (Stack Navigator)
-**Estructura**:
-- Stack de onboarding (Welcome → Login/Register)
-- Stack principal con Tabs (MainTabs)
-- Stacks anidados para secciones específicas
-- Configuración de headers
-- Transiciones personalizadas
-
-**Rutas principales**:
-- OnboardingStack
-- Preloader → Compass
-- MainTabs (Bottom Tab Navigator)
-- LibraryStack
-- PremiumStack
-
-### `src/navigation/TabNavigator.tsx`
-**Función**: Navigator de pestañas inferior
-**Tabs disponibles**:
-1. **Home** - Pantalla principal
-2. **Library** - Biblioteca de contenido
-3. **Academy** - Academia CBT
-4. **Community** - Comunidad social
-5. **Profile** - Perfil de usuario
 
 **Características**:
 - CustomTabBar personalizado

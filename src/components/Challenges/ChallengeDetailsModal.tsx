@@ -122,24 +122,26 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     modalTitle: {
-        fontSize: 24,
-        fontWeight: '800',
+        fontSize: 28,
+        fontFamily: 'Outfit_800ExtraBold',
+        letterSpacing: -0.5,
         color: '#FFF',
         textAlign: 'center',
         marginBottom: 4,
     },
     modalDays: {
         fontSize: 10,
-        fontWeight: '900',
+        fontFamily: 'Outfit_800ExtraBold',
         color: 'rgba(255,255,255,0.4)',
         letterSpacing: 2,
         marginBottom: 16,
     },
     modalDesc: {
-        fontSize: 15,
+        fontSize: 16,
+        fontFamily: 'Inter_400Regular',
         color: 'rgba(255,255,255,0.7)',
         textAlign: 'center',
-        lineHeight: 22,
+        lineHeight: 24,
         marginBottom: 24,
     },
     benefitsContainer: {
@@ -151,21 +153,21 @@ const styles = StyleSheet.create({
     },
     benefitsSubtitle: {
         fontSize: 10,
-        fontWeight: '900',
+        fontFamily: 'Outfit_800ExtraBold',
         color: 'rgba(255,255,255,0.4)',
         letterSpacing: 1.5,
-        marginBottom: 12,
+        marginBottom: 16,
     },
     benefitRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
-        gap: 10,
+        marginBottom: 12,
+        gap: 12,
     },
     benefitText: {
-        fontSize: 14,
+        fontSize: 15,
+        fontFamily: 'Inter_500Medium',
         color: 'rgba(255,255,255,0.8)',
-        fontWeight: '500',
     },
     activateButton: {
         width: '100%',
@@ -182,6 +184,7 @@ const styles = StyleSheet.create({
     activateButtonText: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '700',
+        fontFamily: 'Outfit_700Bold',
+        letterSpacing: 0.5,
     },
 });

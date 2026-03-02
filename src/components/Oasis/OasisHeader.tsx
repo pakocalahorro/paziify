@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StyleProp, ViewStyle, Image } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useApp } from '../../context/AppContext';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, withSequence } from 'react-native-reanimated';
 
 interface OasisHeaderProps {
     path?: string[];
@@ -22,6 +24,64 @@ interface OasisHeaderProps {
     activeChallengeType?: 'reto' | 'mision' | 'desafio' | null;
     style?: StyleProp<ViewStyle>;
 }
+
+// ---------------------------------------------------------------------------
+// Premium Action Button with Snake Border & Pulse Glow
+// ---------------------------------------------------------------------------
+const AnimatedEvolucionButton = ({ onPress, isActive, challengeColor }: { onPress?: () => void, isActive: boolean, challengeColor: string }) => {
+    const rotation = useSharedValue(0);
+    useEffect(() => {
+        if (isActive) {
+            rotation.value = withRepeat(
+                withTiming(360, { duration: 2500, easing: Easing.linear }),
+                -1
+            );
+        } else {
+            rotation.value = 0;
+        }
+    }, [isActive]);
+
+    const animatedSnakeStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ rotate: `${rotation.value}deg` }],
+        };
+    });
+
+
+    if (!isActive) {
+        return (
+            <TouchableOpacity onPress={onPress} style={styles.evolucionButton}>
+                <BlurView intensity={30} tint="light" style={styles.sparkleBlur}>
+                    <Ionicons name="sparkles" size={16} color="#FBBF24" />
+                    <Text style={styles.evolucionText}>EVOLUCIÓN</Text>
+                </BlurView>
+            </TouchableOpacity>
+        );
+    }
+
+    return (
+        <View style={styles.animatedButtonContainer}>
+            {/* Snake Border Shell */}
+            <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.snakeBorderContainer}>
+                {/* Rotating Thematic Light Ray */}
+                <Animated.View style={[styles.snakeLightWrapper, animatedSnakeStyle]}>
+                    <LinearGradient
+                        colors={[challengeColor, `${challengeColor}20`, 'transparent']}
+                        style={styles.snakeGradient}
+                    />
+                </Animated.View>
+
+                {/* Inner Button Mask with Frosted Glass. The spinning light bleeds underneath it */}
+                <View style={styles.innerActiveButton}>
+                    <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFillObject} />
+                    <Ionicons name="checkmark-circle" size={16} color="#FFF" />
+                    <Text style={[styles.evolucionText, { color: '#FFF' }]}>ACTIVO</Text>
+                </View>
+            </TouchableOpacity>
+        </View>
+    );
+};
+// ---------------------------------------------------------------------------
 
 /**
  * OasisHeader: Master Corporative Header
@@ -42,10 +102,15 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
     onSearchPress,
     onFilterPress,
     onAdminPress,
-    activeChallengeType,
+    activeChallengeType: propActiveChallengeType,
     style,
 }) => {
     const insets = useSafeAreaInsets();
+    const { userState } = useApp();
+
+    const activeChallengeType = propActiveChallengeType !== undefined
+        ? propActiveChallengeType
+        : (userState?.activeChallenge?.type as 'reto' | 'mision' | 'desafio' | undefined);
 
     // Challenge Colors
     const challengeColor =
@@ -53,6 +118,22 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
             activeChallengeType === 'reto' ? '#8B5CF6' :   // Violet/Purple
                 activeChallengeType === 'desafio' ? '#2DD4BF' : // Teal
                     'transparent';
+
+    // We convert the hex to rgba for the gradient
+    const getGradientColors = () => {
+        if (!activeChallengeType || challengeColor === 'transparent') {
+            return ['rgba(10, 14, 26, 1.0)', 'rgba(10, 14, 26, 0.85)', 'rgba(10, 14, 26, 0.45)', 'rgba(10, 14, 26, 0.15)', 'transparent'] as const;
+        }
+
+        // Add a tint of the challenge color to the top of the header
+        return [
+            challengeColor, // Top solid color
+            `${challengeColor}99`, // 60% opacity
+            `${challengeColor}40`, // 25% opacity
+            'rgba(10, 14, 26, 0.5)', // Fade into the dark background
+            'transparent'
+        ] as const;
+    };
 
     const renderThread = () => (
         <View style={styles.threadContainer}>
@@ -91,7 +172,7 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
         <View style={[styles.masterWrapper, { paddingTop: insets.top }, style]}>
             {/* Smoke Gradient Background - Bleeding out to transparent */}
             <LinearGradient
-                colors={['rgba(10, 14, 26, 1.0)', 'rgba(10, 14, 26, 0.85)', 'rgba(10, 14, 26, 0.45)', 'rgba(10, 14, 26, 0.15)', 'transparent']}
+                colors={getGradientColors()}
                 style={[StyleSheet.absoluteFill, { height: '170%' }]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
@@ -100,7 +181,7 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
 
             {/* Optional Glow for Active Challenge */}
             {activeChallengeType && (
-                <View style={[styles.activeGlow, { backgroundColor: challengeColor }]} />
+                <View style={[styles.activeGlow, { backgroundColor: challengeColor, opacity: 0.3 }]} />
             )}
 
             <View style={styles.headerContent}>
@@ -128,41 +209,19 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
                         ) : userName ? (
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                                 {showEvolucion && (
-                                    <TouchableOpacity
+                                    <AnimatedEvolucionButton
                                         onPress={onEvolucionPress}
-                                        style={[
-                                            styles.evolucionButton,
-                                            activeChallengeType && { borderColor: challengeColor, borderWidth: 1.5 }
-                                        ]}
-                                    >
-                                        <BlurView intensity={30} tint="light" style={styles.sparkleBlur}>
-                                            <Ionicons
-                                                name="sparkles"
-                                                size={16}
-                                                color={activeChallengeType ? challengeColor : '#FBBF24'}
-                                            />
-                                            <Text style={styles.evolucionText}>EVOLUCIÓN</Text>
-                                        </BlurView>
-                                    </TouchableOpacity>
+                                        isActive={!!activeChallengeType}
+                                        challengeColor={challengeColor}
+                                    />
                                 )}
                             </View>
                         ) : showEvolucion ? (
-                            <TouchableOpacity
+                            <AnimatedEvolucionButton
                                 onPress={onEvolucionPress}
-                                style={[
-                                    styles.evolucionButton,
-                                    activeChallengeType && { borderColor: challengeColor, borderWidth: 1.5 }
-                                ]}
-                            >
-                                <BlurView intensity={30} tint="light" style={styles.sparkleBlur}>
-                                    <Ionicons
-                                        name="sparkles"
-                                        size={16}
-                                        color={activeChallengeType ? challengeColor : '#FBBF24'}
-                                    />
-                                    <Text style={styles.evolucionText}>EVOLUCIÓN</Text>
-                                </BlurView>
-                            </TouchableOpacity>
+                                isActive={!!activeChallengeType}
+                                challengeColor={challengeColor}
+                            />
                         ) : (
                             <Ionicons name="leaf-outline" size={24} color="rgba(255,255,255,0.2)" />
                         )}
@@ -284,18 +343,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     evolucionButton: {
-        borderRadius: 12,
+        borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     sparkleBlur: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
         paddingVertical: 6,
-        gap: 6,
     },
     titleText: {
         fontFamily: 'Outfit_900Black',
@@ -309,6 +367,49 @@ const styles = StyleSheet.create({
         fontSize: 10,
         color: '#FFF',
         letterSpacing: 1,
+    },
+    animatedButtonContainer: {
+        position: 'relative',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    snakeBorderContainer: {
+        width: 100,
+        height: 32,
+        borderRadius: 20,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(255,255,255,0.05)', // Very subtle glass back
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    snakeLightWrapper: {
+        position: 'absolute',
+        width: 150,
+        height: 150,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    snakeGradient: {
+        width: '50%',
+        height: '50%',
+        position: 'absolute',
+        top: 0,
+        left: '25%',
+    },
+    innerActiveButton: {
+        position: 'absolute',
+        top: 1.5,
+        bottom: 1.5,
+        left: 1.5,
+        right: 1.5,
+        backgroundColor: 'transparent', // Let BlurView do the work
+        borderRadius: 18.5,
+        overflow: 'hidden',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 12,
+        gap: 6,
     },
     threadContainer: {
         flexDirection: 'row',

@@ -88,9 +88,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
         setIsSantuarioOpen(false);
     };
 
-    // Filtramos las rutas para manejar la distribución (Comunidad se oculta)
+    // Filtramos las rutas para manejar la distribución (Comunidad y Evolución se ocultan del dock)
     // Orden deseado: Inicio, Biblioteca, SANTUARIO, Academia, Perfil
-    const routes = state.routes.filter(r => r.name !== Screen.COMMUNITY);
+    const routes = state.routes.filter(r => r.name !== Screen.COMMUNITY && r.name !== Screen.EVOLUTION_CATALOG);
 
     // Mapeo manual de iconos
     const getIconName = (routeName: string, focused: boolean) => {

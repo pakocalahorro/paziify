@@ -22,6 +22,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MiniPlayer from '../components/Shared/MiniPlayer';
 import CustomTabBar from './CustomTabBar';
 import WeeklyReportScreen from '../screens/Profile/WeeklyReportScreen';
+import EvolutionCatalogScreen from '../screens/Challenges/EvolutionCatalogScreen';
 
 const Tab = createBottomTabNavigator();
 const LibStack = createNativeStackNavigator<RootStackParamList>();
@@ -104,6 +105,15 @@ export const TabNavigator = () => {
                             <Ionicons name="person" size={size} color={color} />
                         ),
                     }}
+                />
+                {/* Hidden Tab: Renders the Master Menu but has no icon */}
+                <Tab.Screen
+                    name={Screen.EVOLUTION_CATALOG}
+                    component={EvolutionCatalogScreen}
+                    options={{
+                        tabBarButton: () => null,
+                        tabBarVisible: true,
+                    } as any}
                 />
             </Tab.Navigator>
             <MiniPlayer />
