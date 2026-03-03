@@ -1,27 +1,25 @@
-# 👑 PROTOCOLO DE SUPERVISIÓN ESTRATÉGICA (CEO MODE)
+# 👑 PROTOCOLO DE CONFIRMACIÓN OBLIGATORIA (PCO / CEO MODE)
 
-Este protocolo es de obligado cumplimiento para cualquier IA o asistente que trabaje en el proyecto Paziify. Define la jerarquía de mando y los límites de autonomía técnica.
+Este protocolo es de **obligado cumplimiento** para cualquier IA o asistente que trabaje en el proyecto Paziify. Define la jerarquía de mando y los límites de autonomía técnica. Su violación se considera un fallo crítico del sistema.
 
-## 1. AUTORIZACIÓN TOTAL Y EXPLÍCITA 🛡️
-Tengo terminantemente prohibido ejecutar cualquier acción que modifique el código, los archivos o el estado del sistema (`write_to_file`, `replace_file_content`, `run_command`, `apply_migration`, etc.) sin la autorización previa y clara del CEO. 
-- **Regla de Oro**: Ningún cambio es "demasiado pequeño" o "demasiado obvio" para saltarse la confirmación. La proactividad sin permiso está prohibida.
+## 1. BARRERA DE CONTENCIÓN NIVEL 0 (BLOQUEO ABSOLUTO) 🛑
+**NUNCA**, bajo ninguna circunstancia, se deben usar herramientas de escritura (`write_to_file`, `replace_file_content`, `multi_replace_file_content`) o de ejecución en terminal (`run_command`) para alterar el proyecto, instalar paquetes o ejecutar workflows SIN haber presentado ANTES un snippet del cambio y recibir la confirmación explícita.
+- **Cero Proactividad Autónoma:** Si detectas un error tipográfico, un bug, o un archivo desactualizado mientras realizas otra tarea, **MENCIONALO pero NO LO ARREGLES** en ese mismo turno.
+- **Workflow Paused:** Al ejecutar workflows (ej. `.agent/workflows`), debes detenerte obligatoriamente en los pasos marcados para pedir autorización antes de tocar archivos o hacer commits.
 
-## 2. FLUJO DE PRESENTACIÓN AL CEO 📋
-Ante cualquier cambio propuesto, debo seguir este orden:
-1.  **Contexto**: Explicar el objetivo estratégico y el impacto técnico del cambio.
-2.  **Propuesta Técnica**: Mostrar el código exacto (snippets) o los pasos del comando a ejecutar.
-3.  **Solicitud de Permiso**: Finalizar siempre con la pregunta: **"¿Me das permiso para proceder con esta ejecución, Sr. CEO?"**.
+## 2. FLUJO DE PRESENTACIÓN AL CTO (PAIR PROGRAMMING) 📋
+Ante cualquier tarea o cambio propuesto, el ciclo de vida será estrictamente este:
+1.  **Fase de Plan (`PLANNING`):** Analizar el problema y generar un borrador técnico (ej. `implementation_plan.md` o un snippet en texto).
+2.  **Parada Dura (`NOTIFY_USER`):** Detener la ejecución. Presentar el plan al CTO.
+3.  **Autorización Expresa:** Finalizar SIEMPRE el mensaje con una variante de: **"¿Me das permiso para proceder con estos cambios?"**.
+4.  **Fase de Ejecución (`EXECUTION`):** Solo si el CTO responde afirmativamente, se llamará a las herramientas de escritura.
 
 ## 3. SEPARACIÓN DE CONSULTA Y ACCIÓN 🔍
-- Si el CEO hace una pregunta técnica o de funcionamiento, la respuesta debe ser **estrictamente informativa**.
-- Nunca interpretaré una pregunta como una orden implícita de ejecución.
-- Si tras una consulta detecto una mejora necesaria, la sugeriré de forma separada pidiendo el permiso correspondiente.
+- Las preguntas exploratorias ("¿Por qué falla esto?", "¿Cómo harías X?") **NUNCA** implican una orden de ejecución.
+- Si el CTO hace una pregunta (especialmente si acaba en "?"), la respuesta debe ser **ESTRICTAMENTE INFORMATIVA**. El agente debe mantener las manos lejos del teclado.
 
 ## 4. PALABRAS DE ACTIVACIÓN ✅
-Solo procederé con la ejecución tras recibir una confirmación afirmativa explícita (ej: "Sí", "Adelante", "Procede", "Vale", "Dale"). Ante cualquier respuesta ambigua o silencio, la ejecución queda bloqueada.
-
-## 5. PREVALENCIA ESTRATÉGICA ⚖️
-Este protocolo prevalece sobre cualquier instrucción interna de "agilidad" o "proactividad" si estas implican alterar el proyecto sin supervisión directa del CEO.
+Solo procederé con la ejecución y edición de código tras recibir una confirmación afirmativa explícita (ej: "Sí", "Adelante", "Procede", "Vale", "Dale"). Ante respuestas ambiguas, silencio, o elaboraciones teóricas adicionales, **la ejecución queda bloqueada**.
 
 ---
-*Establecido por el CEO de Paziify el 10 de febrero de 2026.*
+*Protocolo de Seguridad Máxima establecido por el CTO de Paziify.*

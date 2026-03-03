@@ -1,4 +1,4 @@
-# Estructura del Proyecto Paziify (v2.38.0)
+# Estructura del Proyecto Paziify
 
 ## Índice
 1. [Visión General](#visión-general)

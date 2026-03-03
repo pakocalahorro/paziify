@@ -1,6 +1,6 @@
-# 🎙️ Guía Maestra de Audio - Paziify (v2.38.0) 💎
+# 🎙️ Guía Maestra de Audio - Paziify 💎
 
-Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.38.0** (Oasis 3.0) mantiene el **Enfoque en Evolución**, con sintonización de guías premium y optimización de cuotas.
+Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. Esta versión (Oasis 3.0) mantiene el **Enfoque en Evolución**, con sintonización de guías premium y optimización de cuotas.
 
 ---
 
@@ -16,7 +16,7 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 4.  **Ondas Binaurales**: Frecuencias (Theta, Alpha, Gamma) inyectadas como capa secundaria para potenciar el enfoque o la relajación.
 
 ### Implementaciones Técnicas
-*   **Supabase Storage**: Centralización absoluta en el bucket unificado **`meditation`** (v2.30.0).
+*   **Supabase Storage**: Centralización absoluta en el bucket unificado **`meditation`**.
     - **Bucket Maestro**: `meditation` (Contiene audios y miniaturas).
     - **Buckets Especializados**: `soundscapes`, `binaurals`, `audiobooks`, `academy-voices`.
     - **Legado**: `meditation-voices` y `meditation-thumbnails` se consideran obsoletos.
@@ -59,7 +59,7 @@ Disponemos de herramientas en la carpeta `scripts/` para mantener el catálogo o
 *   **`sync_sessions.js`**: Cruza los guiones de `docs/scripts/` con `sessionsData.ts`. Asigna guías y genera URLs ASCII.
 *   **`prepare_upload.js`**: Renombra físicamente los MP3 locales para que coincidan con la base de datos.
 *   **`bulk_generate_scripts.py`**: Migración masiva de guiones profesionales (`docs/scripts/`) a formato `.txt`.
-*   **`SSML-Audio-Generator`**: El motor principal de síntesis. En su versión **v2.30.0** incluye:
+*   **`SSML-Audio-Generator`**: El motor principal de síntesis. En su última versión incluye:
     - **Soporte SSML Completo**: Procesa etiquetas de prosodia, énfasis y silencios.
     - **Chunking por Bytes**: Fragmentación automática para no superar los 5000 bytes.
     - **Quota Tracker**: Seguimiento local en `quota_tracker.json`.

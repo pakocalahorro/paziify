@@ -1,6 +1,6 @@
-# 📖 Guía de Funcionalidad - Manual de Usuario (v2.38.0) 💎
+# 📖 Guía de Funcionalidad - Manual de Usuario 💎
 
-Bienvenido a la guía oficial de **Paziify v2.38.0**. Esta versión refina el catálogo de asimilación uniendo flujos visuales, rediseñando el acceso (Onboarding Inmersivo) y sincronizando los estados globales.
+Bienvenido a la guía oficial de **Paziify**. Esta versión refina el catálogo de asimilación uniendo flujos visuales, rediseñando el acceso (Onboarding Inmersivo) y sincronizando los estados globales.
 
 ---
 
@@ -27,7 +27,7 @@ El catálogo ha sido rediseñado para una inmersión sensorial absoluta:
 - **Navegación "Edge-to-Edge"**: El diseño ahora ocupa todo el ancho de la pantalla, eliminando bordes innecesarios para que la identidad de Oasis fluya sin límites.
 - **Filtrado Premium Centralizado**: Pulsa el icono de filtro en el header para desplegar el menú de categorías. Hemos eliminado las tarjetas estáticas para que tengas más espacio para ver lo importante.
 - **Carrusel de Resultados 3D**: Cuando buscas o filtras, los resultados aparecen en un carrusel dinámico. La sesión central se eleva y escala automáticamente, guiándote visualmente hacia tu próxima práctica.
-- **Navegación Asistida Premium (v2.37.0)**: Hemos añadido botones de flechas izquierda y derecha para facilitar el desplazamiento, situados siempre en el centro visual de la tarjeta para una ergonomía perfecta.
+- **Navegación Asistida Premium**: Hemos añadido botones de flechas izquierda y derecha para facilitar el desplazamiento, situados siempre en el centro visual de la tarjeta para una ergonomía perfecta.
 - **Coherencia Visual Total**: Todas tus secciones (Meditación, Audiolibros y Academia) comparten ahora el mismo diseño de tarjeta y dimensiones de 200px.
 - **Títulos Inteligentes**: La app te indica exactamente qué estás viendo (ej: `RESULTADOS: GAIA + SUEÑO`), asegurando que nunca pierdas el hilo de tu exploración.
 
@@ -79,7 +79,7 @@ La Academia ahora cuenta con 10 cursos completos dedicados a tu salud mental:
 
 ---
 
-## 7. Escáner Cardio de Grado Médico (v2.12.0) 🫀✨
+## 7. Escáner Cardio de Grado Médico 🫀✨
 Transforma tu cámara en un sensor de bienestar emocional con tecnología rPPG (remote PhotoPlethysmoGraphy) y algoritmos médicos validados.
 
 ### Sistema de Medición Progresiva (Reliability First)
@@ -127,7 +127,7 @@ Paziify ha simplificado el viaje del usuario para maximizar la introspección:
 **Componente:** `CustomTabBar`
 - **Isla de Cristal**: Un menú ergonómico que flota sobre el contenido.
 - **Efecto Orbital**: El botón central late orgánicamente reflejando tu energía actual.
-- **Restricción de Evolución (v2.31.0)**: Si tienes un programa activo (reto), los modos "Sanar" y "Crecer" se desactivan en el Santuario para proteger tu disciplina. La app te guía a terminar tu sesión diaria antes de cambiar de sintonía.
+- **Restricción de Evolución**: Si tienes un programa activo (reto), los modos "Sanar" y "Crecer" se desactivan en el Santuario para proteger tu disciplina. La app te guía a terminar tu sesión diaria antes de cambiar de sintonía.
 
 ---
 
@@ -142,7 +142,7 @@ En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo e
 
 ---
 
-## 12. Panel de Administración (CMS Profesional) ⚙️ (v2.30.5 Upgraded)
+## 12. Panel de Administración (CMS Profesional) ⚙️
 **Acceso:** Panel Web dedicado.
 
 - **Listado Dinámico**: La tabla de meditaciones ahora es una herramienta de productividad:
@@ -196,7 +196,7 @@ Según tu estado, recibirás un mensaje personalizado:
 - **Marea Calma** (🟡 Agotamiento): "Tu energía está baja para volver con fuerza"
 
 ---
-## 15. Tu Propósito y Ajustes (v2.36.0) 🎯
+## 15. Tu Propósito y Ajustes 🎯
 
 ### Mi Propósito
 - Configura tus metas de meditación diarias y semanales desde **Ajustes**.
@@ -213,7 +213,7 @@ Según tu estado, recibirás un mensaje personalizado:
 
 ---
 
-## 16. Inmersión Sonora Ininterrumpida (v2.36.0) 🎧
+## 16. Inmersión Sonora Ininterrumpida 🎧
 Paziify introduce una de sus mayores actualizaciones en la experiencia de usuario: **El Mini-Reproductor Global**.
 
 ### Navegación Ininterrumpida

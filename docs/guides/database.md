@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.38.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.38.0** se sincroniza con el rediseño Oasis 3.0 y la estandarización de contenidos.
+Esta guía detalla la infraestructura de datos de Paziify. Esta versión se sincroniza con el rediseño Oasis 3.0 y la estandarización de contenidos.
 
 ---
 
@@ -32,7 +32,7 @@ Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.38.0
 | `is_premium` | BOOL | Contenido premium. |
 | `thumbnail_url` | TEXT | URL de la portada. |
 
-### 3. Esquema Educativo (Academia v2.8.10) 🎓
+### 3. Esquema Educativo (Academia) 🎓
 | Tabla | Propósito |
 | :--- | :--- |
 | `courses` | 10 cursos temáticos verificados. |
@@ -65,12 +65,12 @@ CREATE POLICY "Lectura pública de assets" ON storage.objects
 > **Estrategia Oasis Folder**: El bucket `meditation` utiliza subcarpetas dinámicas (`/kids`, `/calmasos`, `/sueno`, etc.) para una organización granular gestionada por el componente `MediaUploader.tsx`.
 
 > [!NOTE]
-> **Estrategia Zero-Egress Dinámica (v2.30.5)**: La App ya no precarga listas estáticas de ambientes. El sistema resuelve mediante servicios (`contentService.ts`) los metadatos de audios y miniaturas, permitiendo que el 100% del contenido sea gestionable desde el Panel Admin y almacenable localmente por el `CacheService`.
+> **Estrategia Zero-Egress Dinámica**: La App ya no precarga listas estáticas de ambientes. El sistema resuelve mediante servicios (`contentService.ts`) los metadatos de audios y miniaturas, permitiendo que el 100% del contenido sea gestionable desde el Panel Admin y almacenable localmente por el `CacheService`.
 
 
 ---
 
-## 6. Unificación de Categorías (v2.9.0 Standard) 🔗
+## 6. Unificación de Categorías 🔗
 
 A partir de la versión 2.9.0, todas las tablas de contenido (`meditation_sessions_content`, `real_stories`) comparten estrictamente el mismo juego de claves para el campo `category`.
 
@@ -90,9 +90,9 @@ Esto garantiza que el Panel de Administración (CMS) pueda filtrar y asignar con
 
 ---
 
-## 7. Privacidad Bio-métrica (v2.11.0) 🧬🛡️
+## 7. Privacidad Bio-métrica 🧬🛡️
 
-Con la introducción del **Escáner Cardio Premium** en v2.11.0, se establece un protocolo estricto de no-persistencia para datos sensibles:
+Con la introducción del **Escáner Cardio Premium**, se establece un protocolo estricto de no-persistencia para datos sensibles:
 
 - **Zero Cloud Storage**: Los datos crudos del sensor rPPG (frames de video) y las métricas calculadas (BPM, HRV, Stress Level) **NUNCA** se envían a Supabase ni a ningún servidor externo.
 - **Procesamiento Local (Edge)**: Todo el análisis de señal mediante el algoritmo POS ocurre estrictamente en el dispositivo del usuario (`BioSignalProcessor.ts`).
@@ -102,7 +102,7 @@ Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confia
 
 ---
 
-## 8. Persistencia Local del Sistema de Evolución (v2.31.0) 🎯
+## 8. Persistencia Local del Sistema de Evolución 🎯
 
 El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **exclusivamente en AsyncStorage**, sin enviar ningún dato al cloud:
 

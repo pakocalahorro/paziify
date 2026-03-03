@@ -1,6 +1,6 @@
-# Guía Maestra de Diseño Visual - Concepto "Oasis" (v2.38.0) 🎨
+# Guía Maestra de Diseño Visual - Concepto "Oasis" 🎨
 
-Esta guía define el ADN visual de Paziify. La versión **v2.38.0** consolida el rediseño inmersivo "Edge-to-Edge" en los flujos de Onboarding, la vista de Evolución estructurada y las animaciones activas dinámicas del **Master Header**.
+Esta guía define el ADN visual de Paziify. Esta versión consolida el rediseño inmersivo "Edge-to-Edge" en los flujos de Onboarding, la vista de Evolución estructurada y las animaciones activas dinámicas del **Master Header**.
 
 ---
 
@@ -16,7 +16,7 @@ Esta guía define el ADN visual de Paziify. La versión **v2.38.0** consolida el
 La Home y el Perfil se rigen por la organización celular y la transparencia.
 - **Bento Grid**: Organización en tarjetas de cristal con fondos de **fotografía real (WebP)**.
 - **Optimización Expo-Image**: Renderizado nativo con caché en disco para navegación Zero-Egress.
-- **Jerarquía Técnica (v2.8.10)**: Hemos simplificado la carga de audio eliminando archivos descriptivos. El diseño ahora busca la eficiencia: 1 archivo técnico por lección, eliminando errores de visualización 400.
+- **Jerarquía Técnica**: Hemos simplificado la carga de audio eliminando archivos descriptivos. El diseño ahora busca la eficiencia: 1 archivo técnico por lección, eliminando errores de visualización 400.
 
 ---
 
@@ -55,13 +55,13 @@ La cabecera maestra universal reacciona al estado global del usuario con transic
   - **Motor Perfect Movement**: Uso de `ITEM_WIDTH = 0.75` para snapping central perfecto.
   - **Asistencia Premium**: Botones de flecha izquierda/derecha glassmorphic filtrados por `BlurView` y situados en **top: 216px** (centro matemático de la imagen de 200px).
 - **Modelo Único OasisCard**:
-  - **Altura Estándar (v2.37.0)**: Coherencia absoluta con altura de imagen de **200px** en todos los carruseles (Home, Meditación, Audiolibros y Academia).
+  - **Altura Estándar**: Coherencia absoluta con altura de imagen de **200px** en todos los carruseles (Home, Meditación, Audiolibros y Academia).
   - **Insignia de Guía**: Avatares circulares de 18px situados en la base de la imagen con nombre de autor.
 - **Bottom Elevation**: Mantenemos elevación de carruseles a **+100px** para evitar colisiones con el menú flotante.
 
 ---
 
-### 11. Panel Admin Premium (v2.30.5) 🛠️
+### 11. Panel Admin Premium 🛠️
 El CMS ha sido diseñado para una gestión técnica sin fricciones:
 
 *   **Portadas HDR (Listado)**: Miniaturas de **80px** con componente `Image` de Ant Design que permite previsualización clicable en pantalla completa.
@@ -73,7 +73,7 @@ El CMS ha sido diseñado para una gestión técnica sin fricciones:
 
 ---
 
-## 13. Santuario de Alta Fidelidad (v2.31.0) 🏛️
+## 13. Santuario de Alta Fidelidad 🏛️
 El Santuario (modal de sintonización) ha sido rediseñado para priorizar claridad y disciplina:
 
 | Propiedad | Valor |
@@ -87,7 +87,7 @@ El Santuario (modal de sintonización) ha sido rediseñado para priorizar clarid
 
 ---
 
-## 14. Paleta de Evolución (v2.31.0) 🎨
+## 14. Paleta de Evolución 🎨
 Cada programa del Sistema de Evolución tiene gradientes propios para identidad visual instantánea:
 
 | Programa | Tipo | Gradiente | Icono |
@@ -115,7 +115,7 @@ Componentes de mini-juegos accesibles desde el Santuario:
 
 ---
 
-## 12. Estilo Premium Editorial (v2.13.0) 📖
+## 12. Estilo Premium Editorial 📖
 Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas", la Home Screen adopta un diseño tipo catálogo de arte o portada de revista:
 
 **Formato "Out-of-box"**:
@@ -134,7 +134,7 @@ Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas"
 
 ---
 
-## 16. Cardio Scan v2 — Diseño Premium (v2.32.0) 🩺
+## 16. Cardio Scan v2 — Diseño Premium 🩺
 
 ### Pipeline Visual
 Flujo: Botón INICIAR → Calibración (anillo de progreso 3s) → Countdown → Medición (~30s con barra de calidad) → Resultado
@@ -169,7 +169,7 @@ Todas las pantallas del flujo de meditación usan la `thumbnailUrl` de la sesió
 
 ---
 
-## 17. Oasis Settings & Profile Redesign (v2.34.0) 🌿
+## 17. Oasis Settings & Profile Redesign 🌿
 Rediseño integral para maximizar la claridad y reducir la fricción.
 
 ### Perfil (ProfileScreen)
@@ -188,7 +188,7 @@ Rediseño integral para maximizar la claridad y reducir la fricción.
 
 ---
 
-## 18. Paziify Design System (PDS) v3.0 - "Oasis Edition" (v2.34.0) 🪐
+## 18. Paziify Design System (PDS) v3.0 - "Oasis Edition" 🪐
 La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado por tres pilares fundamentales que dictan la estética de todas las pantallas:
 
 ### 1. Profundidad a través de Glassmorphism (BlurViews)
