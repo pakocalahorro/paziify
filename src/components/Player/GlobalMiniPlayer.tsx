@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import { Screen, RootStackParamList } from '../../types';
@@ -13,8 +14,11 @@ import { Screen, RootStackParamList } from '../../types';
 const { width } = Dimensions.get('window');
 
 const GlobalMiniPlayer: React.FC = () => {
-    const { currentTrack: track, isPlaying, play, pause } = useAudioPlayer();
+    const { currentTrack: track, isPlaying, play, pause, closePlayer } = useAudioPlayer();
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+    // 1. React Rules of Hooks: This must always execute unconditionally at the top.
+    const insets = useSafeAreaInsets();
 
     // Check if we are in a native player screen
     const rawState = navigation.getState();
@@ -22,21 +26,13 @@ const GlobalMiniPlayer: React.FC = () => {
     const isFullScreenPlayer = currentRouteName === Screen.AUDIOBOOK_PLAYER || currentRouteName === Screen.BACKGROUND_PLAYER;
 
     // Si no hay pista activa o estamos en un reproductor de pantalla completa, no mostrar.
-    // Asumimos que la lógica de "estoy en pantalla completa" se puede derivar si queremos,
     if (!track || isFullScreenPlayer) return null;
 
     const handlePress = () => {
         if (!track.isInfinite) {
-            // @ts-ignore
-            navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
-                audiobook: { id: track.id, title: track.title, author: track.author, image_url: track.cover } as any
-            });
+            navigation.getParent()?.navigate(Screen.AUDIOBOOK_PLAYER, { audiobookId: track.id });
         } else {
-            // @ts-ignore
-            navigation.navigate(Screen.BACKGROUND_PLAYER, {
-                soundscapeId: track.id,
-                soundscape: { id: track.id, title: track.title, image_url: track.cover }
-            });
+            navigation.getParent()?.navigate(Screen.BACKGROUND_PLAYER, { soundscapeId: track.id });
         }
     };
 
@@ -49,11 +45,19 @@ const GlobalMiniPlayer: React.FC = () => {
         }
     };
 
+    // Fallback and type-safety validator for expo-image (Kotlin TypeCastException fix)
+    const validCoverUrl = typeof track.cover === 'string' && track.cover.startsWith('http')
+        ? track.cover
+        : 'https://images.unsplash.com/photo-1542474415-46ffeed89eb0?w=100';
+
+    const tabBarBottomSpace = insets.bottom > 0 ? insets.bottom : 0;
+    const dynamicBottomPosition = 60 + tabBarBottomSpace + 10; // 60 (tabbar base) + Notch + gap
+
     return (
         <Animated.View
             entering={FadeInDown.springify().damping(15)}
             exiting={FadeOutDown.springify()}
-            style={styles.container}
+            style={[styles.container, { bottom: dynamicBottomPosition }]}
         >
             <TouchableOpacity activeOpacity={0.9} style={styles.touchable} onPress={handlePress}>
                 <BlurView intensity={75} tint="dark" style={styles.blurContainer}>
@@ -61,7 +65,7 @@ const GlobalMiniPlayer: React.FC = () => {
                         {/* Thumbnail */}
                         <View style={styles.imageContainer}>
                             <Image
-                                source={{ uri: track.cover || 'https://images.unsplash.com/photo-1542474415-46ffeed89eb0?w=100' }}
+                                source={{ uri: validCoverUrl }}
                                 style={styles.image}
                             />
                         </View>
@@ -85,6 +89,15 @@ const GlobalMiniPlayer: React.FC = () => {
                                 style={{ marginLeft: isPlaying ? 0 : 2 }} // Ajuste visual
                             />
                         </TouchableOpacity>
+
+                        {/* Close Control (X) - The one that was missing */}
+                        <TouchableOpacity onPress={closePlayer} style={styles.closeButton}>
+                            <Ionicons
+                                name="close"
+                                size={20}
+                                color="rgba(255,255,255,0.5)"
+                            />
+                        </TouchableOpacity>
                     </View>
                 </BlurView>
             </TouchableOpacity>
@@ -95,7 +108,6 @@ const GlobalMiniPlayer: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        bottom: 90, // Altura de las Tabs + insets aproximados. Se ajustará en CustomTabBar
         alignSelf: 'center',
         width: width * 0.92,
         zIndex: 1000,
@@ -155,6 +167,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 8,
+    },
+    closeButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 4,
     },
 });
 

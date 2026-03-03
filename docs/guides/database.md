@@ -14,6 +14,7 @@ Esta guía detalla la infraestructura de datos de Paziify. Esta versión se sinc
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `legacy_id` | TEXT | ID único para la App (ej: "anx_401"). Autosync con `slug`. |
+| `description` | TEXT | [NEW v2.39.0] Sinopsis real síncrona con el App. |
 | `audio_config`| JSONB | Configuración de Binaurales y Soundscapes. |
 | `breathing_config`| JSONB | Tiempos de inhalación/exhalación. |
 | `time_of_day` | TEXT | Categorización temporal (mañana/noche). |
@@ -123,4 +124,4 @@ El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **e
 | `is_active`| BOOL | Control de publicación instantánea |
 
 ---
-*Última revisión: 2 de Marzo de 2026 - Versión 2.37.0 (Oasis 3.0 Standardization)*
+*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Stabilization)*

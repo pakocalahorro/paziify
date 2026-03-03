@@ -7,6 +7,7 @@ import { OasisScreen } from '../components/Oasis/OasisScreen';
 import { OasisHeader } from '../components/Oasis/OasisHeader';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
+import { useApp } from '../context/AppContext';
 
 // PDS Components
 import { OasisButton } from '../components/Oasis/OasisButton';
@@ -15,12 +16,14 @@ import { OasisInput } from '../components/Oasis/OasisInput';
 import { OasisToggle } from '../components/Oasis/OasisToggle';
 import { OasisSkeleton } from '../components/Oasis/OasisSkeleton';
 import SoundwaveSeparator from '../components/Shared/SoundwaveSeparator';
+import CategoryRow from '../components/CategoryRow';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 
 export default function OasisShowcaseScreen() {
     const navigation = useNavigation<NavigationProp>();
+    const { userState, toggleFavorite } = useApp();
 
     // Form & State Demo
     const [email, setEmail] = useState('');
@@ -138,7 +141,7 @@ export default function OasisShowcaseScreen() {
                     </View>
                 </View>
 
-                <View style={[styles.section, { marginBottom: 100 }]}>
+                <View style={[styles.section, { marginBottom: 40 }]}>
                     <SoundwaveSeparator title="6. Skeletons (Loading)" />
                     <View style={{ paddingHorizontal: 20, flexDirection: 'row', gap: 16, alignItems: 'center' }}>
                         <OasisSkeleton variant="circular" width={48} />
@@ -147,6 +150,40 @@ export default function OasisShowcaseScreen() {
                             <OasisSkeleton variant="text" width="50%" height={14} />
                         </View>
                     </View>
+                </View>
+
+                <View style={[styles.section, { marginBottom: 100 }]}>
+                    <CategoryRow
+                        title="7. Oasis carrusel"
+                        icon="book-outline"
+                        accentColor="#FB7185"
+                        isPlusMember={true}
+                        onSessionPress={() => { }}
+                        onFavoritePress={(session: any) => toggleFavorite(session.id)}
+                        favoriteSessionIds={userState.favoriteSessionIds}
+                        sessions={[
+                            {
+                                id: 'mock1',
+                                title: 'El Arte de la Guerra',
+                                description: 'Un viaje profundo al interior de tu mente con el Dr. Ziro. Descubre historias del pasado y técnicas modernas de relajación guiada que te harán desconectar totalmente de la realidad rutinaria.',
+                                category: 'growth',
+                                isPlus: true,
+                                duration: 45,
+                                thumbnailUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400',
+                                creatorName: 'Sun Tzu'
+                            },
+                            {
+                                id: 'mock2',
+                                title: 'Meditación para la Confianza',
+                                description: '15 mins · Dra. Aria', // Formato antiguo para probar cómo se ve si se le pasa concatenado
+                                category: 'anxiety',
+                                isPlus: false,
+                                duration: 15,
+                                thumbnailUrl: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d1b5?w=400',
+                                creatorName: 'Dra. Aria'
+                            }
+                        ] as any}
+                    />
                 </View>
             </View>
         </OasisScreen>

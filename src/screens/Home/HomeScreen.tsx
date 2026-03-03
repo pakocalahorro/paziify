@@ -42,6 +42,7 @@ import { CHALLENGES } from '../../constants/challenges';
 import { ChallengeDetailsModal } from '../../components/Challenges/ChallengeDetailsModal';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import CategoryRow from '../../components/CategoryRow';
 
 const { width } = Dimensions.get('window');
 
@@ -60,7 +61,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const navigation = _nav as HomeScreenNavigationProp;
     const insets = useSafeAreaInsets();
     const route = useRoute<RouteProp<RootStackParamList, Screen.HOME>>();
-    const { user, userState, isNightMode, updateUserState } = useApp();
+    const { user, userState, isNightMode, updateUserState, toggleFavorite } = useApp();
 
     const [todayStats, setTodayStats] = useState({ minutes: 0, sessionCount: 0 });
     const [weeklyStats, setWeeklyStats] = useState<{ minutes: number; sessionCount: number; activity: { day: string; minutes: number }[] }>({
@@ -264,6 +265,75 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
         return visualMode === 'healing' ? fallbacks.healing[randomFallbackIndex] : fallbacks.growth[randomFallbackIndex];
     }, [visualMode, allSessions, userState.lastSelectedBackgroundUri]);
 
+    // Unified Favorites List Builder
+    const favoriteItems = useMemo(() => {
+        const ids = userState.favoriteSessionIds || [];
+        if (ids.length === 0) return [];
+
+        let mixed: any[] = [];
+
+        // Meditations
+        if (allSessions) {
+            mixed = [...mixed, ...allSessions.filter((s: any) => ids.includes(s.id)).map((s: any) => ({
+                id: s.id,
+                title: s.title,
+                duration: s.duration_minutes,
+                category: s.category,
+                isPlus: s.is_premium,
+                image: s.thumbnail_url,
+                creatorName: s.creator_name,
+                description: s.description,
+                type: 'meditation',
+                original: s
+            }))];
+        }
+
+        // Audiobooks
+        if (allBooks) {
+            mixed = [...mixed, ...allBooks.filter((b: any) => ids.includes(b.id)).map((b: any) => ({
+                id: b.id,
+                title: b.title,
+                duration: b.duration_minutes,
+                category: b.category,
+                isPlus: b.is_premium,
+                image: b.image_url,
+                creatorName: b.narrator || b.author,
+                description: b.description,
+                type: 'audiobook',
+                original: b
+            }))];
+        }
+
+        // Academy
+        if (academyModules) {
+            mixed = [...mixed, ...academyModules.filter((m: any) => ids.includes(m.id)).map((m: any) => ({
+                id: m.id,
+                title: m.title,
+                duration: m.duration,
+                category: m.category,
+                isPlus: false,
+                image: m.image,
+                creatorName: m.author,
+                description: m.description,
+                type: 'academy',
+                original: m
+            }))];
+        }
+
+        return mixed;
+    }, [userState.favoriteSessionIds, allSessions, allBooks, academyModules]);
+
+    const handleFavoriteCardPress = useCallback((item: any) => {
+        if (!item || !item.original) return;
+        if (item.type === 'meditation') {
+            navigation.navigate(Screen.SESSION_DETAIL, { sessionId: item.id, sessionData: item.original });
+        } else if (item.type === 'audiobook') {
+            navigation.navigate(Screen.AUDIOBOOK_PLAYER, { audiobookId: item.id, audiobook: item.original });
+        } else if (item.type === 'academy') {
+            navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, { courseId: item.id, courseData: item.original });
+        }
+    }, [navigation]);
+
     const dailyGoal = userState.dailyGoalMinutes || 20;
     const weeklyGoal = userState.weeklyGoalMinutes || 150;
     const dailyProgress = Math.min(todayStats.minutes / dailyGoal, 1);
@@ -420,8 +490,24 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                 </View>
             </View>
 
+            {/* CARRUSEL DE FAVORITOS (SOLO VISIBLE SI HAY FAVORITOS) */}
+            {favoriteItems.length > 0 && (
+                <View style={{ marginBottom: 20 }}>
+                    <CategoryRow
+                        title="Tus Favoritos"
+                        sessions={favoriteItems}
+                        icon="heart"
+                        accentColor="#FF6B6B"
+                        onSessionPress={handleFavoriteCardPress}
+                        onFavoritePress={(session: any) => toggleFavorite(session.id)}
+                        favoriteSessionIds={userState.favoriteSessionIds}
+                        isPlusMember={userState.isPlusMember || false}
+                    />
+                </View>
+            )}
+
             {/* ÁREA 3: ARSENAL TERAPÉUTICO (BENTO GRID UNIFICADO) */}
-            <View style={{ paddingBottom: 40, width: '100%', marginTop: -20 }}>
+            <View style={{ paddingBottom: 40, width: '100%', marginTop: favoriteItems.length > 0 ? 0 : -20 }}>
                 <SoundwaveSeparator
                     title="Consejos del día"
                     accentColor={visualMode === 'healing' ? '#8B5CF6' : '#2DD4BF'}

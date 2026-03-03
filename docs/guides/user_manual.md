@@ -149,6 +149,7 @@ En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo e
     - **Portadas HDR**: Miniaturas el doble de grandes (**80px**) con previsualización clicable (haz clic en la foto para verla en pantalla completa).
     - **Columnas Ajustables**: Puedes arrastrar los bordes de las columnas para cambiar su ancho. El sistema recordará tus preferencias automáticamente.
     - **Control de Filas**: Selecciona cuántas sesiones ver por página (10, 20, 50 o 100) y el sistema mantendrá esta configuración en tu próxima visita.
+- **Campos de Descripción Expandida**: Audiolibros y Academia ahora disfrutan de soporte nativo para `description` (sinopsis) que se renderiza orgánicamente debajo de la portada en los Catálogos móviles (OasisCard layout "Out-of-box").
 - **Gestor de Medios Inteligente**: El nuevo `MediaUploader` centraliza la subida de audios y carátulas:
     - **Organización Automática**: El sistema guarda los archivos en carpetas según su categoría (`/kids`, `/sueno`, etc.).
     - **Limpieza de Almacenamiento**: Al sustituir un archivo, el panel te preguntará si deseas borrar la versión antigua de Supabase para ahorrar espacio.
@@ -157,7 +158,17 @@ En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo e
 
 ---
 
-## 13. Modo Offline "Zero-Egress" Total 🛡️
+## 13. Colección Personal: Tus Favoritos ❤️
+La app incorpora un Motor de Sincronización Híbrida (**AsyncStorage + Supabase**) para unificar todo tu contenido especial.
+
+- **Tus Favoritos ("Corazón")**: Marca audiolibros, meditaciones o cursos de academia tocando el icono del corazón en su respectivo catálogo. El icono latirá en color rojo Rubí (`#FF6B6B`).
+- **El Carrusel Unificado (v2.39.0)**: Si tienes al menos un elemento favorito, la pantalla principal (Home) abrirá un espacio dedicado "Tus Favoritos" justo después de tu práctica del día.
+- **Experiencia Instantánea**: El carrusel muestra la descripción real (sinopsis) del contenido directamente desde el Panel de Administración.
+- **Persistencia Master**: Si cambias de dispositivo, tus favoritos se descargarán automáticamente desde tu perfil de Supabase al iniciar sesión.
+
+---
+
+## 14. Modo Offline "Zero-Egress" Total 🛡️
 - **Independencia de la Red**: La aplicación detecta si no tienes internet o si falla el servidor.
 - **Contenido Siempre Disponible**: Carga automáticamente versiones locales de alta calidad para Meditaciones, Historias y Paisajes Sonoros.
 - **Sin Pantallas en Blanco**: El sistema "Resiliencia" garantiza que siempre haya contenido que mostrar.
@@ -228,5 +239,5 @@ Paziify introduce una de sus mayores actualizaciones en la experiencia de usuari
 
 ---
 
-*Última revisión: 2 de Marzo de 2026 - Versión 2.37.0 (Oasis 3.0 Revolution)*
+*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Revolution)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

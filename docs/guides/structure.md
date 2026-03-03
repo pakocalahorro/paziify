@@ -18,8 +18,12 @@
 
 **Paziify** es una aplicación móvil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versión**: 2.37.0 (Sensorial Revolution - PDS 3.0 Standard)
-**Última actualización**: 2 de Marzo de 2026
+**Versión**: 2.39.0 (Sensorial Revolution - PDS 3.0 Standard)
+**Última actualización**: 3 de Marzo de 2026
+
+**Historial Reciente**:
+- **v2.39.0**: Favoritos Unificados, Sincronización OasisCard (Admin Sync) y Hotfixes de Audio.
+- **v2.38.0**: Favoritos Unificados y Hotfixes de Audio (MiniPlayer stability).
 
 ---
 
@@ -268,10 +272,11 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 **Contenido**:
 - Saludo personalizado (Tipografía manuscrita `Satisfy`)
 - "Tu Estado": Dashboard compacto y unificado de analíticas diarias y semanales con orbes `ZenMeter`
+- "Tus Favoritos": [NEW v2.39.0] Motor de agregación inteligente que unifica Meditaciones, Audiolibros y Academia en un solo lugar (Persistencia Supabase).
 - "Tu Práctica": Dosis Diaria en layout "Out-of-box" (Extracto de título y subtítulo externo a la imagen)
 - "Consejos del día": BentoGrid modular temático (Formación, Relatos, Binaurales, Audiolibros)
 - Progreso de rachas (streaks) e indicador de Actividad Semanal
-- Mini reproductor si hay audio activo
+- Mini reproductor global flotante (`GlobalMiniPlayer.tsx`) con protocolo de auto-stop.
 
 ---
 
@@ -761,6 +766,7 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 **Características**:
 - Snapping centrado (`ITEM_WIDTH = 0.75`).
 - Navegación asistida (Flechas glassmorphic en `top: 216px`).
+- Inyección de persistencia global para manejar `onFavoritePress` y estado en tiempo real de Supabase.
 - Optimización con `FlashList` y `React.memo`.
 
 

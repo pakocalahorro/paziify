@@ -29,6 +29,7 @@ Paziify permite la mezcla simultánea de cuatro tipos de fuentes:
 Para audiolibros e historias:
 *   **Global Context**: Mantiene el estado del audio vivo entre cambios de pantalla.
 *   **MiniPlayer**: Componente flotante que permite el control de reproducción en toda la app.
+*   **Protocolo de Inmersión (Auto-Stop)**: Toda pantalla de meditación o academia con audio propio DEBE invocar `closePlayer()` del contexto global antes de la navegación para evitar solapamientos.
 
 ---
 
@@ -107,4 +108,4 @@ Para evitar sorpresas con la facturación de Google Cloud, el motor integra un s
 > Los scripts que apuntan a buckets legacy (`meditation-voice`) han sido movidos a `scripts/LEGACY_OLD_STRUCTURE/`. **No usarlos** para nuevas cargas masivas. Usa el Panel Admin.
 
 ---
-*Última revisión: 2 de Marzo de 2026 - Versión 2.37.0 (Oasis 3.0 Standardization)*
+*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Stabilization)*

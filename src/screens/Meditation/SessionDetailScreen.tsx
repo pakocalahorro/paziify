@@ -28,6 +28,7 @@ import { theme } from '../../constants/theme';
 import { SESSION_ASSETS } from '../../constants/images';
 import { useSessionDetail } from '../../hooks/useContent';
 import { adaptSession } from '../../services/contentService';
+import { useAudioPlayer } from '../../context/AudioPlayerContext';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.45;
@@ -61,6 +62,8 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         if (!rawSession) return null;
         return adaptSession(rawSession);
     }, [rawSession, route.params.sessionData]);
+
+    const { closePlayer } = useAudioPlayer();
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -291,10 +294,13 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                     <TouchableOpacity
                         activeOpacity={0.8}
                         style={[styles.startBtn, { flex: 1, backgroundColor: session.color || theme.colors.primary }]}
-                        onPress={() => navigation.navigate(Screen.BREATHING_TIMER, {
-                            sessionId: session.id,
-                            sessionData: route.params.sessionData || rawSession || session
-                        })}
+                        onPress={async () => {
+                            await closePlayer();
+                            navigation.navigate(Screen.BREATHING_TIMER, {
+                                sessionId: session.id,
+                                sessionData: route.params.sessionData || rawSession || session
+                            });
+                        }}
                     >
                         <Text style={styles.startBtnText}>Comenzar Práctica</Text>
                         <Ionicons name="play" size={20} color="#FFF" />

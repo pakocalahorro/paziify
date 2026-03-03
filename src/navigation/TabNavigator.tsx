@@ -19,7 +19,6 @@ import NotificationSettings from '../screens/Onboarding/NotificationSettings';
 import BackgroundSoundScreen from '../screens/BackgroundSound/BackgroundSoundScreen';
 import BackgroundPlayerScreen from '../screens/BackgroundSound/BackgroundPlayerScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MiniPlayer from '../components/Shared/MiniPlayer';
 import CustomTabBar from './CustomTabBar';
 import WeeklyReportScreen from '../screens/Profile/WeeklyReportScreen';
 import EvolutionCatalogScreen from '../screens/Challenges/EvolutionCatalogScreen';
@@ -116,7 +115,6 @@ export const TabNavigator = () => {
                     } as any}
                 />
             </Tab.Navigator>
-            <MiniPlayer />
         </>
     );
 };

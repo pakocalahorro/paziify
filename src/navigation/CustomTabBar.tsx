@@ -106,10 +106,8 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
 
     return (
         <View style={[styles.container, { paddingBottom: insets.bottom > 0 ? insets.bottom : 30 }]}>
-            {/* Global Mini-Player anclado encima de las tabs */}
-            <View style={{ position: 'absolute', bottom: 90, width: '100%', alignItems: 'center' }}>
-                <GlobalMiniPlayer />
-            </View>
+            {/* Global Mini-Player anclado encima de las tabs flotando a nivel de raíz para no pisar el diseño */}
+            <GlobalMiniPlayer />
 
             <View style={styles.buttonsContainer}>
                 {/* Primeros dos botones: Inicio y Biblioteca */}

@@ -7,7 +7,7 @@ Este manual define el proceso obligatorio para realizar cambios visuales en los 
 
 ## 2. Los Archivos Clave
 - **Arena de Pruebas:** `src/screens/OasisShowcaseScreen.tsx`
-- **Componente Maestro:** `src/components/Oasis/OasisCard.tsx` (u otros en la carpeta Oasis)
+- **Componente Maestro:** `src/components/Oasis/OasisCard.tsx` y el Motor de Carrusel `src/components/CategoryRow.tsx` (Sección 7 Sandbox).
 - **Consumo Global:** `HomeScreen.tsx`, `MeditationCatalogScreen.tsx`, etc.
 
 ## 3. Flujo de Trabajo Paso a Paso
@@ -35,4 +35,4 @@ Para indicarle al agente qué hacer:
 - "Aprobado. Despliega el diseño del Showcase a toda la App."
 
 ---
-*Este protocolo blinda la integridad visual de Paziify v2.36.0+*
+*Este protocolo blinda la integridad visual de Paziify v2.39.0+*

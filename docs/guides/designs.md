@@ -1,6 +1,6 @@
 # Guía Maestra de Diseño Visual - Concepto "Oasis" 🎨
 
-Esta guía define el ADN visual de Paziify. Esta versión consolida el rediseño inmersivo "Edge-to-Edge" en los flujos de Onboarding, la vista de Evolución estructurada y las animaciones activas dinámicas del **Master Header**.
+Esta guía define el ADN visual de Paziify. Esta versión consolida el rediseño inmersivo "Edge-to-Edge" en los flujos de Onboarding, la vista de Evolución estructurada, las animaciones activas dinámicas del **Master Header**, y la integración del Carrusel Inteligente de Favoritos de la Home.
 
 ---
 
@@ -54,9 +54,11 @@ La cabecera maestra universal reacciona al estado global del usuario con transic
 - **Carrusel de Resultados (v2.37.0)**:
   - **Motor Perfect Movement**: Uso de `ITEM_WIDTH = 0.75` para snapping central perfecto.
   - **Asistencia Premium**: Botones de flecha izquierda/derecha glassmorphic filtrados por `BlurView` y situados en **top: 216px** (centro matemático de la imagen de 200px).
+- **Mapeo de Datos Puro**: Ahora `CategoryRow` mapea limpiamente la propiedad `subtitle={item.description}`, permitiendo que Audiolibros y Academia muestren sinopsis descriptivas debajo de la imagen sin concatenaciones forzadas.
 - **Modelo Único OasisCard**:
   - **Altura Estándar**: Coherencia absoluta con altura de imagen de **200px** en todos los carruseles (Home, Meditación, Audiolibros y Academia).
   - **Insignia de Guía**: Avatares circulares de 18px situados en la base de la imagen con nombre de autor.
+  - **Asimilación Visual de Colecciones**: Los elementos marcados como favoritos hacen latir el icono del corazón en color rojo Rubí (`#FF6B6B`), con su carrusel unificado heredando este mismo *accentColor*.
 - **Bottom Elevation**: Mantenemos elevación de carruseles a **+100px** para evitar colisiones con el menú flotante.
 
 ---
@@ -167,6 +169,10 @@ Todas las pantallas del flujo de meditación usan la `thumbnailUrl` de la sesió
 - `CardioResultScreen`: `ImageBackground` opacity 0.3 + gradiente `rgba(10,10,10,0.5→0.9→#0A0A0A)`
 - `SessionEndScreen`: `ImageBackground` opacity 0.3 + gradiente oscuro
 
+### 16.5 Visualización de Favoritos (v2.39.0)
+- **Icono Heart**: Latido con `withRepeat` y escala suave. Color: Rojo Rubí (`#FF6B6B`).
+- **Carrusel Home**: Hereda el `accentColor` del elemento predominante. Layout "Out-of-box" para mostrar la sinopsis (description) sincronizada desde el Panel Admin.
+
 ---
 
 ## 17. Oasis Settings & Profile Redesign 🌿
@@ -211,4 +217,4 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 
 ---
 
-*Última revisión: 2 de Marzo de 2026 - Versión 2.37.0 (PDS 3.0 Standardization Edition)*
+*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Stabilization)*

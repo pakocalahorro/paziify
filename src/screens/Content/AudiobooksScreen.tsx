@@ -39,7 +39,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: stri
 };
 
 const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
-    const { userState } = useApp();
+    const { userState, toggleFavorite } = useApp();
     const isPlusMember = userState.isPlusMember || false;
 
     const { data, isLoading: loading, refetch, isRefetching } = useAudiobooks();
@@ -171,9 +171,12 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
                                 creatorName: b.narrator || b.author,
                                 thumbnailUrl: b.image_url,
                                 isPlus: b.is_premium,
-                                description: `${b.duration_minutes || 0} mins · ${b.author || 'Autor'}`
+                                duration: b.duration_minutes,
+                                description: b.description
                             } as any))}
                             onSessionPress={(item: any) => handleBookPress(item)}
+                            onFavoritePress={(session: any) => toggleFavorite(session.id)}
+                            favoriteSessionIds={userState.favoriteSessionIds}
                             isPlusMember={isPlusMember}
                             isLoading={loading && !isRefetching}
                             icon="book-outline"

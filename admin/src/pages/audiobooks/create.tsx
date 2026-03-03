@@ -47,6 +47,9 @@ export const AudiobookCreate = () => {
                 <Form.Item label="Author" name="author" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
+                <Form.Item label="Description" name="description">
+                    <Input.TextArea rows={4} placeholder="Escribe la sinopsis del audiolibro..." />
+                </Form.Item>
                 <Form.Item label="Guide (Narrator)" name="narrator" rules={[{ required: true }]}>
                     <Select
                         options={[

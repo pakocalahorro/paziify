@@ -44,7 +44,9 @@ const CategoryCardItem = memo(({
     accentColor,
     sharedTransitionTagPrefix,
     scrollX,
-    cardVariant
+    cardVariant,
+    isFavorite,
+    onFavoritePress
 }: any) => {
 
     const inputRange = [
@@ -87,12 +89,14 @@ const CategoryCardItem = memo(({
                     guideAvatar={getGuideAvatar(item?.creatorName)}
                     actionText="Comenzar"
                     actionIcon="play"
-                    duration={item?.duration ? `${item.duration} min` : (item?.duration_m ? `${item.duration_m} min` : undefined)}
+                    duration={typeof item?.duration === 'number' ? `${item.duration} min` : (item?.duration || (item?.duration_m ? `${item.duration_m} min` : undefined))}
                     level={item?.difficulty}
                     variant={cardVariant || "default"}
                     accentColor={accentColor}
                     sharedTransitionTag={sharedTransitionTagPrefix ? `${sharedTransitionTagPrefix}.${item?.id}` : undefined}
                     isPremium={!!item?.isPlus}
+                    isFavorite={isFavorite}
+                    onFavoritePress={() => onFavoritePress && onFavoritePress(item)}
                     style={{ marginBottom: 0 }}
                 />
             </Animated.View>
@@ -111,7 +115,9 @@ const CategoryRow: React.FC<Props> = ({
     variant = 'overlay',
     sharedTransitionTagPrefix,
     isLoading = false,
-    cardVariant
+    cardVariant,
+    favoriteSessionIds,
+    onFavoritePress
 }) => {
 
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -233,6 +239,8 @@ const CategoryRow: React.FC<Props> = ({
                                         sharedTransitionTagPrefix={sharedTransitionTagPrefix}
                                         scrollX={scrollX}
                                         cardVariant={item?.cardVariant || cardVariant || "default"}
+                                        isFavorite={favoriteSessionIds?.includes(item.id)}
+                                        onFavoritePress={onFavoritePress}
                                     />
                                 );
                             }}

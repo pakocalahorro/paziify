@@ -50,6 +50,7 @@ import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { FilterActionSheet } from '../../components/Oasis/FilterActionSheet';
+import { useAudioPlayer } from '../../context/AudioPlayerContext';
 
 type MeditationCatalogScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -163,6 +164,7 @@ const convertToSession = (medSession: MeditationSession): Session => {
 const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const { userState, isNightMode, toggleFavorite } = useApp();
+    const { closePlayer } = useAudioPlayer();
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [showFilter, setShowFilter] = useState(false);
     const scrollRef = useRef<ScrollView>(null);
@@ -531,11 +533,12 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     session={selectedSession}
                     guideAvatar={selectedSession ? GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar : undefined}
                     onClose={() => setSelectedSession(null)}
-                    onStart={() => {
+                    onStart={async () => {
                         if (!selectedSession) return;
                         const medData = sessions.find(s => s.id === selectedSession.id);
                         setSelectedSession(null);
                         if (medData) {
+                            await closePlayer();
                             navigation.navigate(Screen.BREATHING_TIMER, {
                                 sessionId: medData.id,
                                 sessionData: medData

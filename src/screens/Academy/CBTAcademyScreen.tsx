@@ -36,7 +36,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: stri
 };
 
 const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
-    const { userState } = useApp();
+    const { userState, toggleFavorite } = useApp();
 
     const [modules, setModules] = useState<AcademyModule[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -183,12 +183,14 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                             creatorName: c.author,
                             thumbnailUrl: c.image, // Corrected from thumbnailUrl
                             isPlus: false, // Defaulting as modules don't have isPlus
-                            description: `${c.duration || 0} mins · ${c.author || 'Guía'}`
+                            description: c.description
                         } as any))}
                         onSessionPress={(item: any) => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
                             courseId: item.id,
                             courseData: item as any
                         })}
+                        onFavoritePress={(session: any) => toggleFavorite(session.id)}
+                        favoriteSessionIds={userState.favoriteSessionIds}
                         isPlusMember={userState.isPlusMember || false}
                         isLoading={isLoading}
                         icon="school-outline"

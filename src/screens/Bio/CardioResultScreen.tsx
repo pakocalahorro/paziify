@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
+import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import { contentService } from '../../services/contentService';
 import * as Haptics from 'expo-haptics';
 import { CardioService } from '../../services/CardioService';
@@ -37,6 +38,7 @@ const CardioResultScreen = () => {
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
     const { userState, updateUserState } = useApp();
+    const { closePlayer } = useAudioPlayer();
 
     const params = route.params as CardioResultParams | undefined;
     const diagnosis = params?.diagnosis || 'equilibrio';
@@ -256,8 +258,9 @@ const CardioResultScreen = () => {
                         {/* CTA: Start session directly */}
                         <TouchableOpacity
                             style={[styles.ctaButton, { backgroundColor: '#10B981' }]}
-                            onPress={() => {
+                            onPress={async () => {
                                 if (sessionData) {
+                                    await closePlayer();
                                     navigation.navigate(Screen.BREATHING_TIMER, {
                                         sessionId: sessionData.id,
                                         sessionData: sessionData,
