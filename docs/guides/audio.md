@@ -1,6 +1,6 @@
-# 🎙️ Guía Maestra de Audio - Paziify (v2.37.0) 💎
+# 🎙️ Guía Maestra de Audio - Paziify (v2.38.0) 💎
 
-Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.37.0** (Oasis 3.0) mantiene el **Enfoque en Evolución**, con sintonización de guías premium y optimización de cuotas.
+Esta guía documenta la arquitectura técnica del motor de audio, los protocolos de nomenclatura y el catálogo auditado. La versión **v2.38.0** (Oasis 3.0) mantiene el **Enfoque en Evolución**, con sintonización de guías premium y optimización de cuotas.
 
 ---
 

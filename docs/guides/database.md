@@ -1,6 +1,6 @@
-# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.37.0) 🔐
+# 🗄️ Guía de Arquitectura de Base de Datos - Paziify (v2.38.0) 🔐
 
-Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.37.0** se sincroniza con el rediseño Oasis 3.0 y la estandarización de contenidos.
+Esta guía detalla la infraestructura de datos de Paziify. La versión **v2.38.0** se sincroniza con el rediseño Oasis 3.0 y la estandarización de contenidos.
 
 ---
 
