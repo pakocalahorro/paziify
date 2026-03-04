@@ -12,6 +12,7 @@ import {
 import { BlurView } from 'expo-blur';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
@@ -22,6 +23,7 @@ import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import { OasisInput } from '../../components/Oasis/OasisInput';
 import { OasisToggle } from '../../components/Oasis/OasisToggle';
+import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 
 const OasisSettingGroup = ({ children, style }: { children: React.ReactNode, style?: any }) => (
     <View style={[styles.oasisGroupOuter, style]}>
@@ -51,6 +53,8 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
     const [heightCm, setHeightCm] = useState(userState.heightCm?.toString() || '');
     const [weightKg, setWeightKg] = useState(userState.weightKg?.toString() || '');
     const [notifSettings, setNotifSettings] = useState<SettingsType | null>(null);
+    const [isSavingHealth, setIsSavingHealth] = useState(false);
+    const [healthSavedTemp, setHealthSavedTemp] = useState(false);
 
     useEffect(() => {
         const loadNotifSettings = async () => {
@@ -62,6 +66,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
 
     const updateNotifSetting = async (key: keyof SettingsType, value: any) => {
         if (!notifSettings) return;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         const newSettings = { ...notifSettings, [key]: value };
         setNotifSettings(newSettings);
         await NotificationService.saveSettings(newSettings);
@@ -70,7 +75,10 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
         if (key === 'nightRoutine') updateUserState({ settings: { ...userState.settings, notificationNight: value } });
     };
 
-    const syncHealthData = () => {
+    const handleSaveHealth = async () => {
+        setIsSavingHealth(true);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
         let isoDate = birthDate;
         if (birthDate.includes('/')) {
             const parts = birthDate.split('/');
@@ -81,19 +89,21 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
         const h = parseInt(heightCm);
         const w = parseInt(weightKg);
 
-        updateUserState({
+        await updateUserState({
             birthDate: isoDate || undefined,
             gender,
             heightCm: isNaN(h) ? undefined : h,
             weightKg: isNaN(w) ? undefined : w,
         });
-    };
 
-    // Auto-sync when health inputs change (debounced feeling)
-    useEffect(() => {
-        const timer = setTimeout(syncHealthData, 1000);
-        return () => clearTimeout(timer);
-    }, [birthDate, gender, heightCm, weightKg]);
+        setIsSavingHealth(false);
+        setHealthSavedTemp(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+        setTimeout(() => {
+            setHealthSavedTemp(false);
+        }, 2000);
+    };
 
     const calculateAge = (): number | null => {
         if (!birthDate) return null;
@@ -110,6 +120,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
     const age = calculateAge();
 
     const handleToggle = (key: keyof typeof settings) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         updateUserState({
             settings: { ...settings, [key]: !settings[key] }
         });
@@ -128,7 +139,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                     onBack={() => navigation.goBack()}
                     onPathPress={(index) => {
                         if (index === 0) navigation.navigate(Screen.HOME as any);
-                        if (index === 1) (navigation as any).navigate('MainTabs', { screen: Screen.PROFILE });
+                        if (index === 1) navigation.goBack();
                     }}
                     userName={userState.name || 'Pazificador'}
                     avatarUrl={userState.avatarUrl}
@@ -145,9 +156,8 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                 {/* 1. SECCIÓN DE PROPÓSITO (Metas) */}
-                <View style={styles.sectionHeaderRow}>
-                    <Text style={styles.sectionLabel}>MI PROPÓSITO</Text>
-                    <Ionicons name="compass" size={16} color={theme.colors.primary} />
+                <View style={{ marginBottom: 16, marginHorizontal: -theme.spacing.lg }}>
+                    <SoundwaveSeparator title="MI PROPÓSITO" />
                 </View>
 
                 <OasisSettingGroup style={{ marginTop: 10 }}>
@@ -158,14 +168,20 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                         </View>
                         <View style={styles.goalValueContainer}>
                             <TouchableOpacity
-                                onPress={() => updateUserState({ dailyGoalMinutes: Math.max((userState.dailyGoalMinutes || 20) - 5, 5) })}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    updateUserState({ dailyGoalMinutes: Math.max((userState.dailyGoalMinutes || 20) - 5, 5) });
+                                }}
                                 style={styles.goalButton}
                             >
                                 <Ionicons name="remove" size={18} color="#FFF" />
                             </TouchableOpacity>
                             <Text style={styles.goalValue}>{userState.dailyGoalMinutes || 20}m</Text>
                             <TouchableOpacity
-                                onPress={() => updateUserState({ dailyGoalMinutes: (userState.dailyGoalMinutes || 20) + 5 })}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    updateUserState({ dailyGoalMinutes: (userState.dailyGoalMinutes || 20) + 5 });
+                                }}
                                 style={styles.goalButton}
                             >
                                 <Ionicons name="add" size={18} color="#FFF" />
@@ -182,14 +198,20 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                         </View>
                         <View style={styles.goalValueContainer}>
                             <TouchableOpacity
-                                onPress={() => updateUserState({ weeklyGoalMinutes: Math.max((userState.weeklyGoalMinutes || 150) - 10, 30) })}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    updateUserState({ weeklyGoalMinutes: Math.max((userState.weeklyGoalMinutes || 150) - 10, 30) });
+                                }}
                                 style={styles.goalButton}
                             >
                                 <Ionicons name="remove" size={18} color="#FFF" />
                             </TouchableOpacity>
                             <Text style={styles.goalValue}>{userState.weeklyGoalMinutes || 150}m</Text>
                             <TouchableOpacity
-                                onPress={() => updateUserState({ weeklyGoalMinutes: (userState.weeklyGoalMinutes || 150) + 10 })}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    updateUserState({ weeklyGoalMinutes: (userState.weeklyGoalMinutes || 150) + 10 });
+                                }}
                                 style={styles.goalButton}
                             >
                                 <Ionicons name="add" size={18} color="#FFF" />
@@ -199,9 +221,8 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 </OasisSettingGroup>
 
                 {/* 2. SECCIÓN DE SALUD */}
-                <View style={styles.sectionHeaderRow}>
-                    <Text style={styles.sectionLabel}>MI PERFIL DE SALUD</Text>
-                    <Ionicons name="heart" size={16} color="#FF4B4B" />
+                <View style={{ marginBottom: 16, marginTop: 16, marginHorizontal: -theme.spacing.lg }}>
+                    <SoundwaveSeparator title="MI PERFIL DE SALUD" />
                 </View>
 
                 <OasisSettingGroup style={{ marginTop: 10 }}>
@@ -267,6 +288,31 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                             />
                         </View>
                     </View>
+
+                    <View style={styles.divider} />
+
+                    {/* Explicit Save Button for Health Data */}
+                    <TouchableOpacity
+                        style={[
+                            styles.saveProfileButton,
+                            healthSavedTemp && styles.saveProfileButtonSaved,
+                            { marginTop: 16, marginBottom: 0 }
+                        ]}
+                        onPress={handleSaveHealth}
+                        disabled={isSavingHealth}
+                    >
+                        <Ionicons
+                            name={healthSavedTemp ? "checkmark-circle" : "save-outline"}
+                            size={20}
+                            color={healthSavedTemp ? theme.colors.success : theme.colors.primary}
+                        />
+                        <Text style={[
+                            styles.saveProfileText,
+                            { color: healthSavedTemp ? theme.colors.success : theme.colors.primary }
+                        ]}>
+                            {isSavingHealth ? "Guardando..." : healthSavedTemp ? "¡Guardado!" : "Guardar Cambios"}
+                        </Text>
+                    </TouchableOpacity>
                 </OasisSettingGroup>
 
                 {/* ====================== */}
@@ -287,7 +333,9 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 </View>
 
                 {/* Section: Rutinas Diarias */}
-                <Text style={styles.sectionLabel}>RUTINAS DIARIAS</Text>
+                <View style={{ marginBottom: 16, marginTop: 16, marginHorizontal: -theme.spacing.lg }}>
+                    <SoundwaveSeparator title="RUTINAS DIARIAS" />
+                </View>
                 <OasisSettingGroup>
                     <View style={styles.settingRow}>
                         <View style={styles.settingInfo}>
@@ -356,7 +404,9 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 </OasisSettingGroup>
 
                 {/* Section: Motivación */}
-                <Text style={styles.sectionLabel}>MOTIVACIÓN</Text>
+                <View style={{ marginBottom: 16, marginTop: 16, marginHorizontal: -theme.spacing.lg }}>
+                    <SoundwaveSeparator title="MOTIVACIÓN" />
+                </View>
                 <OasisSettingGroup>
                     <View style={styles.settingRow}>
                         <View style={styles.settingInfo}>
@@ -386,11 +436,8 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 </OasisSettingGroup>
 
                 {/* Section: Zona de Calma */}
-                <View style={styles.sectionHeaderRow}>
-                    <Text style={styles.sectionLabel}>ZONA DE CALMA</Text>
-                    <View style={styles.recommendedBadge}>
-                        <Text style={styles.recommendedText}>Recomendado</Text>
-                    </View>
+                <View style={{ marginBottom: 16, marginTop: 16, marginHorizontal: -theme.spacing.lg }}>
+                    <SoundwaveSeparator title="ZONA DE CALMA" />
                 </View>
 
                 <OasisSettingGroup>
@@ -423,7 +470,9 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 </OasisSettingGroup>
 
                 {/* 5. SECCIÓN DE CUENTA */}
-                <Text style={styles.sectionLabel}>SISTEMA Y CUENTA</Text>
+                <View style={{ marginBottom: 16, marginTop: 16, marginHorizontal: -theme.spacing.lg }}>
+                    <SoundwaveSeparator title="SISTEMA Y CUENTA" />
+                </View>
                 <OasisSettingGroup>
                     <TouchableOpacity
                         style={styles.settingRow}

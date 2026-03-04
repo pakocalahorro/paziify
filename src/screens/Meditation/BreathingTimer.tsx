@@ -363,14 +363,23 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
                     });
 
                     // Load audio layers
+                    // Load audio layers
                     console.log('[BREATHING_TIMER] Starting Audio Engine Load...');
-                    await AudioEngineService.loadSession({
+                    const voiceStatus = await AudioEngineService.loadSession({
                         voiceTrack: session.audioLayers?.voiceTrack,
                         soundscape: ss?.id,
                         binaural: bw?.id,
                         elements: session.audioLayers?.defaultElements,
                     });
                     console.log('[BREATHING_TIMER] Audio Engine Load COMPLETED');
+
+                    // Sincronización con duración REAL del audio (Si existe pista de voz)
+                    if (voiceStatus && voiceStatus.durationMillis) {
+                        const realDurationSeconds = voiceStatus.durationMillis / 1000;
+                        totalDuration.current = realDurationSeconds;
+                        setTimeLeft(realDurationSeconds);
+                        console.log(`[BREATHING_TIMER] Timer SYNCED to real audio duration: ${realDurationSeconds}s`);
+                    }
 
                     // Preload voice cues if needed
                     if (!isGuided && !session.audioLayers.voiceTrack) {
@@ -407,59 +416,70 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     // --- MASTER CLOCK SYNCHRONIZATION ---
     useEffect(() => {
         AudioEngineService.setStatusCallback((status) => {
-            if (status.isLoaded && status.isPlaying && sessionState === 'ACTIVE') {
-                let elapsed = status.positionMillis / 1000;
+            if (status.isLoaded && sessionState === 'ACTIVE') {
+                // 1. Audio and Timer Updates (Only while playing)
+                if (status.isPlaying) {
+                    let elapsed = status.positionMillis / 1000;
 
-                // 1. Apply micro-adjustment if present (Calibration for the 18 core sessions)
-                if (currentSession?.visualSync && currentSession?.audioAdjustmentFactor) {
-                    elapsed = elapsed / currentSession.audioAdjustmentFactor;
+                    // Apply micro-adjustment for calibration
+                    if (currentSession?.visualSync && currentSession?.audioAdjustmentFactor) {
+                        elapsed = elapsed / currentSession.audioAdjustmentFactor;
+                    }
+
+                    // Update Master Clock
+                    const rawElapsed = status.positionMillis / 1000;
+                    const newTimeLeft = Math.max(0, totalDuration.current - rawElapsed);
+                    setTimeLeft(newTimeLeft);
+
+                    // Optional fallback: End if time is strictly zero while playing
+                    if (newTimeLeft <= 0) {
+                        console.log('[BREATHING_TIMER] Timer reached zero while playing.');
+                        setSessionState('ENDING');
+                        return;
+                    }
+
+                    // 2. Update Breathing Phase & Progress
+                    if (sessionRef.current) {
+                        const isSynced = sessionRef.current.visualSync;
+                        const pattern = isSynced ? sessionRef.current.breathingPattern : ATMOSPHERIC_PATTERN;
+                        const speechDelay = isSynced ? SPEECH_PER_WORD : 0;
+
+                        const inhaleLimit = pattern.inhale + (pattern.inhale > 0 ? speechDelay : 0);
+                        const holdLimit = inhaleLimit + pattern.hold + (pattern.hold > 0 ? speechDelay : 0);
+                        const exhaleLimit = holdLimit + pattern.exhale + (pattern.exhale > 0 ? speechDelay : 0);
+                        const holdPostLimit = exhaleLimit + pattern.holdPost;
+
+                        const totalTrackCycle = holdPostLimit;
+                        const adjustedElapsed = (elapsed + SYNC_OFFSET) % totalTrackCycle;
+
+                        if (adjustedElapsed < inhaleLimit) {
+                            setPhase('inhale');
+                            const phaseTime = pattern.inhale > 0 ? pattern.inhale : 1;
+                            setPhaseProgress(Math.min(1, adjustedElapsed / phaseTime));
+                        } else if (adjustedElapsed < holdLimit) {
+                            setPhase('hold');
+                            setPhaseProgress(1);
+                        } else if (adjustedElapsed < exhaleLimit) {
+                            setPhase('exhale');
+                            const timeInPhase = adjustedElapsed - holdLimit;
+                            const phaseTime = pattern.exhale > 0 ? pattern.exhale : 1;
+                            setPhaseProgress(Math.max(0, 1 - (timeInPhase / phaseTime)));
+                        } else {
+                            setPhase('holdPost');
+                            setPhaseProgress(0);
+                        }
+                    }
                 }
 
-                // 2. Update Time Left (Master Clock - from raw position for accuracy)
-                const rawElapsed = status.positionMillis / 1000;
-                const newTimeLeft = Math.max(0, totalDuration.current - rawElapsed);
-                setTimeLeft(newTimeLeft);
+                // 3. Absolute Termination Detection (Independent of isPlaying)
+                // didJustFinish is the standard, but we also check position for robustness
+                const isAtEnd = status.didJustFinish ||
+                    (status.positionMillis >= status.durationMillis && status.durationMillis > 0);
 
-                if (status.didJustFinish || newTimeLeft <= 0) {
+                if (isAtEnd) {
+                    console.log('[BREATHING_TIMER] Audio finished (isAtEnd), triggering ENDING.');
                     setSessionState('ENDING');
                     return;
-                }
-
-                // 3. Update Breathing Phase & Progress (Adjusted for visual sync mode)
-                if (sessionRef.current) {
-                    const isSynced = sessionRef.current.visualSync;
-                    const pattern = isSynced ? sessionRef.current.breathingPattern : ATMOSPHERIC_PATTERN;
-
-                    // The audio files are ADDITIVE: Speech length adds to the total cycle.
-                    // Each vocalized phase lasts [pattern_duration + speech_duration]
-                    const speechDelay = isSynced ? SPEECH_PER_WORD : 0;
-
-                    const inhaleLimit = pattern.inhale + (pattern.inhale > 0 ? speechDelay : 0);
-                    const holdLimit = inhaleLimit + pattern.hold + (pattern.hold > 0 ? speechDelay : 0);
-                    const exhaleLimit = holdLimit + pattern.exhale + (pattern.exhale > 0 ? speechDelay : 0);
-                    // holdPost doesn't have a vocal cue in our current scripts
-                    const holdPostLimit = exhaleLimit + pattern.holdPost;
-
-                    const totalTrackCycle = holdPostLimit;
-                    const adjustedElapsed = (elapsed + SYNC_OFFSET) % totalTrackCycle;
-
-                    if (adjustedElapsed < inhaleLimit) {
-                        setPhase('inhale');
-                        const phaseTime = pattern.inhale > 0 ? pattern.inhale : 1;
-                        setPhaseProgress(Math.min(1, adjustedElapsed / phaseTime));
-                    } else if (adjustedElapsed < holdLimit) {
-                        setPhase('hold');
-                        setPhaseProgress(1);
-                    } else if (adjustedElapsed < exhaleLimit) {
-                        setPhase('exhale');
-                        const timeInPhase = adjustedElapsed - holdLimit;
-                        const phaseTime = pattern.exhale > 0 ? pattern.exhale : 1;
-                        setPhaseProgress(Math.max(0, 1 - (timeInPhase / phaseTime)));
-                    } else {
-                        // Merging HoldPost with Exhale visual state as requested
-                        setPhase('holdPost');
-                        setPhaseProgress(0);
-                    }
                 }
             }
         });
@@ -634,19 +654,26 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
     };
 
 
+    // Monitor for ending to navigate to completion
     useEffect(() => {
+        let timeout: NodeJS.Timeout;
         if (sessionState === 'ENDING') {
+            console.log('[BREATHING_TIMER] Finalizing session, navigating to EndScreen...');
             AudioEngineService.pauseAll();
             setCountdownValue(3);
-            setTimeout(() => {
+
+            timeout = setTimeout(() => {
                 setSessionState('COMPLETED');
                 navigation.navigate(Screen.SESSION_END, {
                     sessionId: sessionRef.current?.id || 'unknown',
-                    durationMinutes: sessionRef.current?.durationMinutes || 1,
+                    durationMinutes: Math.ceil(totalDuration.current / 60), // Use real duration for analytics
                     thumbnailUrl: sessionRef.current?.thumbnailUrl,
                 });
-            }, 2000);
+            }, 1500);
         }
+        return () => {
+            if (timeout) clearTimeout(timeout);
+        };
     }, [sessionState]);
 
     const handleVolumeChange = async (layer: 'soundscape' | 'binaural' | 'elements' | 'voice', value: number) => {

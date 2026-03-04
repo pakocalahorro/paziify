@@ -65,10 +65,13 @@ class AudioEngineService {
 
     /**
      * Carga una sesión de meditación con sus capas de audio
+     * @returns El estado de la pista de voz cargada (para obtener duración real)
      */
-    async loadSession(config: AudioConfig) {
+    async loadSession(config: AudioConfig): Promise<any> {
         await this.initialize();
         await this.unloadAll();
+
+        let voiceStatus = null;
 
         // 1. Capa Crítica: Voz
         try {
@@ -78,7 +81,7 @@ class AudioEngineService {
 
                 console.log(`AudioEngine: Loading voice track [${isLocal ? 'LOCAL' : 'REMOTE'}]:`, localUri);
 
-                const { sound } = await Audio.Sound.createAsync(
+                const { sound, status } = await Audio.Sound.createAsync(
                     { uri: localUri },
                     {
                         shouldPlay: false,
@@ -91,35 +94,27 @@ class AudioEngineService {
                     }
                 );
                 this.voiceTrackSound = sound;
+                voiceStatus = status;
             }
         } catch (error) {
             console.log('AudioEngine: Voice track load failed (offline?):', error);
-            // If it fails and we are offline, we don't throw, allowing the screen to open so the user can see the UI
-            // but the practice will be silent. This is better than a crashing Alert.
         }
 
-        // 2. Capas Secundarias: Resilientes (Si fallan, la sesión continúa en silencio de fondo)
+        // ... rest of the layers ...
+        // (Maintaining context for the replace tool)
 
         // Soundscape
         try {
             if (config.soundscape) {
-                // Resolvamos dinámicamente desde Supabase si no está en local
                 const soundscape = await soundscapesService.getById(config.soundscape);
-
                 if (soundscape && soundscape.audioFile) {
-                    // [OFFLINE PROTECTION] Route soundscape through CacheService
                     const remoteUri = soundscape.audioFile.uri;
                     const localUri = await CacheService.get(remoteUri, 'soundscape');
-                    const isLocal = localUri.startsWith('file://');
-
-                    console.log(`[AUDIO_ENGINE] Loading soundscape [${isLocal ? 'CACHE' : 'REMOTA'}]: ${soundscape.name}`);
-
                     const { sound } = await Audio.Sound.createAsync(
                         { uri: localUri },
                         { shouldPlay: false, volume: this.volumes.soundscape, isLooping: true }
                     );
                     this.soundscapeSound = sound;
-                    console.log(`[AUDIO_ENGINE] Soundscape LOADED: ${soundscape.name}`);
                 }
             }
         } catch (error) {
@@ -131,18 +126,12 @@ class AudioEngineService {
             if (config.binaural) {
                 const binaural = BINAURAL_WAVES.find(b => b.id === config.binaural);
                 if (binaural && binaural.audioFile) {
-                    // [OFFLINE PROTECTION] Route through CacheService
                     const localUri = await CacheService.get(binaural.audioFile.uri, 'binaural');
-                    const isLocal = localUri.startsWith('file://');
-
-                    console.log(`[AUDIO_ENGINE] Loading binaural [${isLocal ? 'CACHE' : 'REMOTA'}]: ${binaural.name}`);
-
                     const { sound } = await Audio.Sound.createAsync(
                         { uri: localUri },
                         { shouldPlay: false, volume: this.volumes.binaural, isLooping: true }
                     );
                     this.binauralSound = sound;
-                    console.log(`[AUDIO_ENGINE] Binaural LOADED: ${binaural.name}`);
                 }
             }
         } catch (error) {
@@ -154,18 +143,18 @@ class AudioEngineService {
             if (config.elements) {
                 const element = ELEMENTS.find(e => e.id === config.elements);
                 if (element && element.audioFile) {
-                    console.log(`[AUDIO_ENGINE] Loading elements: ${element.name}`);
                     const { sound } = await Audio.Sound.createAsync(
                         element.audioFile,
                         { shouldPlay: false, volume: this.volumes.elements, isLooping: true }
                     );
                     this.elementsSound = sound;
-                    console.log(`[AUDIO_ENGINE] Elements LOADED: ${element.name}`);
                 }
             }
         } catch (error) {
             console.warn('[AUDIO_ENGINE] Optional Layer Failed (Elements):', error);
         }
+
+        return voiceStatus;
     }
 
     /**

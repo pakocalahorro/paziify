@@ -219,12 +219,11 @@ export type RootStackParamList = {
     [Screen.COMMUNITY]: undefined;
     [Screen.PAYWALL]: undefined;
     [Screen.COMPASS]: undefined;
-    [Screen.COMPASS]: undefined;
     [Screen.SPIRITUAL_PRELOADER]: undefined;
     MainTabs: undefined;
 
     // Bio / Cardio
-    [Screen.CARDIO_SCAN]: { context?: 'baseline' | 'post_session' } | undefined;
+    [Screen.CARDIO_SCAN]: { context?: 'baseline' | 'post_session'; sessionData?: any } | undefined;
     [Screen.CARDIO_RESULT]: { diagnosis: 'stress' | 'fatigue' | 'balanced' };
     [Screen.EVOLUTION_CATALOG]: undefined;
     [Screen.OASIS_SHOWCASE]: undefined;

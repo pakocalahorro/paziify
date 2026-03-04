@@ -79,7 +79,7 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
         }
     }, []);
 
-    const handleFinish = async () => {
+    const saveData = async () => {
         // 1. Record in Supabase (Permanent)
         if (user?.id) {
             try {
@@ -120,7 +120,10 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
         }
 
         updateUserState(updateObj);
+    };
 
+    const handleFinish = async () => {
+        await saveData();
         // @ts-ignore
         navigation.navigate('MainTabs');
     };
@@ -286,7 +289,10 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                     {/* Verificar Impacto */}
                     <TouchableOpacity
                         style={styles.cardioFooterBtn}
-                        onPress={() => navigation.navigate(Screen.CARDIO_SCAN, { context: 'post_session' })}
+                        onPress={async () => {
+                            await saveData();
+                            navigation.navigate(Screen.CARDIO_SCAN, { context: 'post_session' });
+                        }}
                     >
                         <ReanimatedAnimated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 6 }, heartbeatStyle]}>
                             <Ionicons name="heart-circle" size={22} color="#FF4B4B" />

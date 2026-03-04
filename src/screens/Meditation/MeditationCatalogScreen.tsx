@@ -41,7 +41,6 @@ import { FlashList } from '@shopify/flash-list';
 import { theme } from '../../constants/theme';
 import { IMAGES, SESSION_ASSETS } from '../../constants/images';
 import { OasisCard } from '../../components/Oasis/OasisCard';
-import SessionPreviewModal from '../../components/SessionPreviewModal';
 import { MeditationSession } from '../../data/sessionsData'; // Keep type
 import { sessionsService, adaptSession } from '../../services/contentService'; // Import service
 import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
@@ -49,6 +48,7 @@ import CategoryRow from '../../components/CategoryRow';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
+import BacklitSilhouette from '../../components/Shared/BacklitSilhouette';
 import { FilterActionSheet } from '../../components/Oasis/FilterActionSheet';
 import { useAudioPlayer } from '../../context/AudioPlayerContext';
 
@@ -63,40 +63,6 @@ interface Props {
 
 const { width } = Dimensions.get('window');
 
-const BacklitSilhouette: React.FC = () => {
-    const pulse = useSharedValue(0.4);
-
-    useEffect(() => {
-        pulse.value = withRepeat(
-            withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-            -1,
-            true
-        );
-    }, []);
-
-    const glowOpacity = useDerivedValue(() => pulse.value * 0.6);
-    const glowRadiusVal = useDerivedValue(() => 60 + pulse.value * 40);
-
-    return (
-        <View style={styles.silhouetteContainer}>
-            <Canvas style={styles.silhouetteCanvas}>
-                <Group>
-                    <Circle cx={80} cy={80} r={glowRadiusVal}>
-                        <RadialGradient
-                            c={vec(80, 80)}
-                            r={glowRadiusVal}
-                            colors={['rgba(45, 212, 191, 0.5)', 'transparent']}
-                        />
-                        <Blur blur={25} />
-                    </Circle>
-                </Group>
-            </Canvas>
-            <View style={styles.silhouetteIconWrapper}>
-                <Ionicons name="leaf-outline" size={60} color="rgba(45, 212, 191, 0.4)" style={styles.silhouetteIcon} />
-            </View>
-        </View>
-    );
-};
 
 const CATEGORIES = [
     { label: 'Todo', icon: 'apps-outline', color: '#646CFF', key: 'all' },
@@ -170,7 +136,6 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const scrollRef = useRef<ScrollView>(null);
     const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
     const { data: rawSessions, isLoading: loading } = useSessions();
@@ -361,9 +326,12 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
     const handleSessionClick = React.useCallback((session: Session) => {
         const fullSession = sessions.find(s => s.id === session.id);
         if (fullSession) {
-            setSelectedSession(fullSession);
+            navigation.navigate(Screen.SESSION_DETAIL, {
+                sessionId: fullSession.id,
+                sessionData: fullSession
+            });
         }
-    }, [sessions]);
+    }, [sessions, navigation]);
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
@@ -527,26 +495,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                 )}
             />
 
-            {selectedSession && (
-                <SessionPreviewModal
-                    isVisible={!!selectedSession}
-                    session={selectedSession}
-                    guideAvatar={selectedSession ? GUIDES.find(g => g.name === selectedSession.creatorName)?.avatar : undefined}
-                    onClose={() => setSelectedSession(null)}
-                    onStart={async () => {
-                        if (!selectedSession) return;
-                        const medData = sessions.find(s => s.id === selectedSession.id);
-                        setSelectedSession(null);
-                        if (medData) {
-                            await closePlayer();
-                            navigation.navigate(Screen.BREATHING_TIMER, {
-                                sessionId: medData.id,
-                                sessionData: medData
-                            });
-                        }
-                    }}
-                />
-            )}
+            {/* SessionPreviewModal removed - Now using direct navigation to SessionDetailScreen */}
 
             <FilterActionSheet
                 visible={showFilter}

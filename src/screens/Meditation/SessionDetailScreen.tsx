@@ -21,7 +21,11 @@ import Animated, {
     useAnimatedScrollHandler,
     useAnimatedStyle,
     interpolate,
-    Extrapolate
+    Extrapolate,
+    withRepeat,
+    withSequence,
+    withTiming,
+    Easing,
 } from 'react-native-reanimated';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
@@ -70,6 +74,24 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
             scrollY.value = event.contentOffset.y;
         },
     });
+
+    // Vanguard Heartbeat Animation
+    const heartScale = useSharedValue(1);
+    React.useEffect(() => {
+        heartScale.value = withRepeat(
+            withSequence(
+                withTiming(1.15, { duration: 600, easing: Easing.out(Easing.ease) }),
+                withTiming(1, { duration: 800, easing: Easing.in(Easing.ease) }),
+                withTiming(1, { duration: 1200 }),
+            ),
+            -1,
+            false
+        );
+    }, []);
+
+    const heartStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: heartScale.value }],
+    }));
 
     const headerImageStyle = useAnimatedStyle(() => {
         return {
@@ -279,21 +301,27 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
             </Animated.ScrollView>
 
             {/* Footer Action */}
-            <View style={[styles.footerAction, { paddingBottom: Math.max(30, insets.bottom + 25) }]}>
+            <View style={[styles.footerAction, { paddingBottom: Math.max(20, insets.bottom + 10) }]}>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     {/* Pre-Session Scan */}
                     <TouchableOpacity
                         style={styles.preScanBtn}
-                        onPress={() => navigation.navigate(Screen.CARDIO_SCAN, { context: 'baseline' })}
+                        onPress={() => navigation.navigate(Screen.CARDIO_SCAN, {
+                            context: 'baseline',
+                            sessionData: session
+                        })}
                         activeOpacity={0.7}
                     >
-                        <Ionicons name="heart-circle" size={26} color="#FF4B4B" />
+                        <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 6 }, heartStyle]}>
+                            <Ionicons name="heart-circle" size={22} color="#FF4B4B" />
+                            <Text style={styles.preScanBtnText}>Escanear</Text>
+                        </Animated.View>
                     </TouchableOpacity>
 
                     {/* Start Button */}
                     <TouchableOpacity
                         activeOpacity={0.8}
-                        style={[styles.startBtn, { flex: 1, backgroundColor: session.color || theme.colors.primary }]}
+                        style={styles.startBtn}
                         onPress={async () => {
                             await closePlayer();
                             navigation.navigate(Screen.BREATHING_TIMER, {
@@ -302,8 +330,8 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                             });
                         }}
                     >
-                        <Text style={styles.startBtnText}>Comenzar Práctica</Text>
-                        <Ionicons name="play" size={20} color="#FFF" />
+                        <Text style={styles.startBtnText}>Comenzar</Text>
+                        <Ionicons name="play" size={18} color="#FFF" />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -522,38 +550,48 @@ const styles = StyleSheet.create({
     },
     footerAction: {
         paddingHorizontal: 16,
+        paddingBottom: 20,
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
         zIndex: 10,
-        backgroundColor: 'rgba(2, 6, 23, 0.95)',
-        paddingTop: 12,
+        backgroundColor: '#020617',
+        paddingTop: 15,
         borderTopWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
     startBtn: {
+        flex: 1,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: 'rgba(45, 212, 191, 0.25)',
+        borderWidth: 1,
+        borderColor: 'rgba(45, 212, 191, 0.5)',
         flexDirection: 'row',
-        height: 64,
-        borderRadius: 22,
-        justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
+        justifyContent: 'center',
+        gap: 8,
     },
     startBtnText: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
         color: '#FFF',
     },
     preScanBtn: {
-        width: 64,
-        height: 64,
-        borderRadius: 22,
+        flex: 1,
+        height: 56,
+        borderRadius: 16,
         backgroundColor: 'rgba(255, 75, 75, 0.12)',
         borderWidth: 1,
         borderColor: 'rgba(255, 75, 75, 0.3)',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    preScanBtnText: {
+        color: '#FF4B4B',
+        fontSize: 14,
+        fontWeight: '700',
     },
 });
 
