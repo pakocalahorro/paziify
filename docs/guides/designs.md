@@ -63,6 +63,16 @@ La cabecera maestra universal reacciona al estado global del usuario con transic
 
 ---
 
+## 8. Ergonomía de Reproductores (Safe Area)
+Para evitar colisiones con las barras de navegación del sistema (Android Home Bar o iOS Indicator), los botones de acción inferior en reproductores deben usar siempre un margen dinámico:
+```tsx
+marginBottom: Math.max(30, insets.bottom + 20)
+```
+Este patrón es obligatorio para pantallas de reproducción como `AudiobookPlayerScreen` y `BackgroundPlayerScreen`.
+
+## 9. Filtros Inmersivos (Patrón Oasis)
+El filtrado de catálogos no debe usar etiquetas fijas superiores. Se debe delegar al icono `onFilterPress` del `OasisHeader` para desplegar un `Modal` tipo `BottomSheet` con `BlurView` oscuro, bordes redondeados (30px) y tipografía `Outfit_900Black`.
+
 ### 11. Panel Admin Premium 🛠️
 El CMS ha sido diseñado para una gestión técnica sin fricciones:
 

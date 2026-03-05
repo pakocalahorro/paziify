@@ -21,12 +21,12 @@ import { Screen, RootStackParamList } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
-import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
-import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
+import { Session } from '../../types';
 import { Soundscape } from '../../data/soundscapesData';
-import SoundscapeCard from './components/SoundscapeCard';
 import { soundscapesService } from '../../services/contentService';
-import BacklitSilhouette from '../../components/Shared/BacklitSilhouette';
+import { OasisCard } from '../../components/Oasis/OasisCard';
+import { Modal } from 'react-native';
+import CategoryRow from '../../components/CategoryRow';
 
 const { width } = Dimensions.get('window');
 
@@ -48,11 +48,14 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 
     const toggleSearch = () => {
         setIsSearchExpanded(!isSearchExpanded);
         if (isSearchExpanded) setSearchQuery('');
     };
+
+    const toggleFilterModal = () => setIsFilterModalVisible(!isFilterModalVisible);
 
     useEffect(() => {
         const loadContent = async () => {
@@ -133,49 +136,53 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
                 </View>
             )}
+        </View>
+    );
 
-            {/* Fila 2: Filtro "Recomendaciones" */}
-            <View style={styles.headerRow2}>
-                <View style={styles.filterSectionTitle}>
-                    <Ionicons name="sparkles-outline" size={14} color="#2DD4BF" style={{ marginRight: 8 }} />
-                    <Text style={styles.filterLabel}>RECOMENDACIONES</Text>
-                </View>
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.filterList}
-                >
-                    {recommendationTags.map(tag => (
-                        <TouchableOpacity
-                            key={tag}
-                            onPress={() => setSelectedTag(tag)}
-                            activeOpacity={0.7}
-                        >
-                            <BlurView
-                                intensity={selectedTag === tag ? 100 : 20}
-                                tint="dark"
+    const renderFilterModal = () => (
+        <Modal
+            visible={isFilterModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={toggleFilterModal}
+        >
+            <View style={styles.modalOverlay}>
+                <TouchableOpacity style={{ flex: 1 }} onPress={toggleFilterModal} />
+                <BlurView intensity={80} tint="dark" style={styles.modalContent}>
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>FILTRAR POR RECOMENDACIÓN</Text>
+                        <TouchableOpacity onPress={toggleFilterModal} style={styles.closeBtn}>
+                            <Ionicons name="close" size={24} color="#FFF" />
+                        </TouchableOpacity>
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        {recommendationTags.map(tag => (
+                            <TouchableOpacity
+                                key={tag}
                                 style={[
-                                    styles.tagChip,
-                                    selectedTag === tag && styles.tagChipActive
+                                    styles.filterOption,
+                                    selectedTag === tag && styles.filterOptionActive
                                 ]}
+                                onPress={() => {
+                                    setSelectedTag(tag);
+                                    toggleFilterModal();
+                                }}
                             >
                                 <Text style={[
-                                    styles.tagText,
-                                    selectedTag === tag && styles.tagTextActive
+                                    styles.filterOptionText,
+                                    selectedTag === tag && styles.filterOptionTextActive
                                 ]}>
                                     {tag}
                                 </Text>
-                            </BlurView>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
+                                {selectedTag === tag && (
+                                    <Ionicons name="checkmark-circle" size={20} color="#2DD4BF" />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                </BlurView>
             </View>
-
-            {/* Fila 3: Ondas de frecuencia (Full Width) */}
-            <View style={styles.headerRow3}>
-                <SoundwaveSeparator title="Elige tu ambiente..." />
-            </View>
-        </View>
+        </Modal>
     );
 
     return (
@@ -190,6 +197,7 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
                         if (index === 1) navigation.navigate(Screen.LIBRARY as any);
                     }}
                     onSearchPress={toggleSearch}
+                    onFilterPress={toggleFilterModal}
                     userName={userState.name || 'Pazificador'}
                     avatarUrl={userState.avatarUrl}
                     showEvolucion={true}
@@ -211,25 +219,30 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
                         </View>
                     </>
                 ) : (
-                    <FlatList
-                        data={filteredSoundscapes}
-                        ListHeaderComponent={renderHeader}
-                        renderItem={({ item }) => (
-                            <View style={styles.cardWrapper}>
-                                <SoundscapeCard item={item} onPress={handlePress} />
-                            </View>
-                        )}
-                        keyExtractor={item => item.id}
-                        numColumns={2}
-                        columnWrapperStyle={styles.columnWrapper}
-                        contentContainerStyle={[
-                            styles.listContent,
-                            { paddingBottom: insets.bottom + 100 }
-                        ]}
-                        showsVerticalScrollIndicator={false}
-                    />
+                    <View style={{ flex: 1 }}>
+                        {renderHeader()}
+                        <CategoryRow
+                            title={selectedTag === 'Todos' ? "Ambientes Inmersivos" : `Filtro: ${selectedTag}`}
+                            accentColor="#2DD4BF"
+                            sessions={filteredSoundscapes.map(s => ({
+                                id: s.id,
+                                title: s.name,
+                                description: s.description,
+                                thumbnailUrl: s.image,
+                                isPlus: s.isPremium,
+                                creatorName: 'Paziify',
+                                duration: undefined,
+                                category: s.isPremium ? 'PREMIUM' : 'LIBRE',
+                                originalSoundscape: s
+                            } as any))}
+                            onSessionPress={(item: any) => handlePress(item.originalSoundscape)}
+                            isPlusMember={userState.isPlusMember}
+                            icon="planet-outline"
+                        />
+                    </View>
                 )}
             </View>
+            {renderFilterModal()}
         </OasisScreen>
     );
 };
@@ -347,6 +360,60 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        padding: 24,
+        paddingBottom: 40,
+        maxHeight: Dimensions.get('window').height * 0.7,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderBottomWidth: 0,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    modalTitle: {
+        fontFamily: 'Outfit_900Black',
+        fontSize: 16,
+        color: '#FFF',
+        letterSpacing: 1,
+    },
+    closeBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    filterOption: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.05)',
+    },
+    filterOptionActive: {
+        borderBottomColor: 'rgba(45, 212, 191, 0.3)',
+    },
+    filterOptionText: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.6)',
+    },
+    filterOptionTextActive: {
+        color: '#FFF',
     }
 });
 

@@ -57,7 +57,7 @@ export const SoundscapeCreate = () => {
                     <Input readOnly placeholder="Carga una imagen abajo" />
                 </Form.Item>
                 <MediaUploader
-                    bucket="soundscape-thumbnails"
+                    bucket="soundscapes"
                     label="Imagen de Fondo"
                     accept="image/*"
                     onUploadSuccess={handleImageSuccess}

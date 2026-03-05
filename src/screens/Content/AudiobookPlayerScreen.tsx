@@ -19,7 +19,7 @@ import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { Screen, RootStackParamList, Audiobook } from '../../types';
 import { theme } from '../../constants/theme';
-import { audiobooksService, favoritesService } from '../../services/contentService';
+import { audiobooksService } from '../../services/contentService';
 import { useAudioPlayer } from '../../context/AudioPlayerContext';
 import { useApp } from '../../context/AppContext';
 import { savePlaybackPosition, getPlaybackPosition, savePlaybackSpeed, getPlaybackSpeed } from '../../services/playbackStorage';
@@ -62,7 +62,6 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
     const [audiobook, setAudiobook] = useState<Audiobook | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isFavorite, setIsFavorite] = useState(false);
     const [showSpeedMenu, setShowSpeedMenu] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const [showSleepTimer, setShowSleepTimer] = useState(false);
@@ -128,14 +127,6 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         }
     }, [loading]);
 
-    // Load favorite status
-    useEffect(() => {
-        if (audiobook && userState.id) {
-            favoritesService.isFavorited(userState.id, 'audiobook', audiobook.id)
-                .then(setIsFavorite)
-                .catch(console.error);
-        }
-    }, [audiobook, userState.id]);
 
     // Load saved playback speed
     useEffect(() => {
@@ -216,20 +207,6 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
         }
     };
 
-    const toggleFavorite = async () => {
-        if (!userState.id || !audiobook) return;
-        try {
-            if (isFavorite) {
-                await favoritesService.remove(userState.id, 'audiobook', audiobook.id);
-                setIsFavorite(false);
-            } else {
-                await favoritesService.add(userState.id, 'audiobook', audiobook.id);
-                setIsFavorite(true);
-            }
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
-        }
-    };
 
     if (loading) {
         return (
@@ -288,16 +265,10 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                 {/* Header */}
                 <View style={[styles.header, { paddingTop: insets.top }]}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-                        <Ionicons name="chevron-down" size={32} color="#FFF" />
+                        <Ionicons name="chevron-back" size={32} color="#FFF" />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>Audio de Inmersión</Text>
-                    <TouchableOpacity onPress={toggleFavorite} style={styles.iconButton}>
-                        <Ionicons
-                            name={isFavorite ? "heart" : "heart-outline"}
-                            size={28}
-                            color={isFavorite ? theme.colors.primary : "#FFF"}
-                        />
-                    </TouchableOpacity>
+                    <View style={styles.iconButton} />
                 </View>
 
                 {/* Cover Art */}
@@ -367,7 +338,7 @@ const AudiobookPlayerScreen: React.FC<Props> = ({ navigation, route }) => {
                 </View>
 
                 {/* Footer Options */}
-                <View style={styles.footerOptions}>
+                <View style={[styles.footerOptions, { marginBottom: Math.max(30, insets.bottom + 20) }]}>
                     <TouchableOpacity
                         style={styles.optionItem}
                         onPress={() => setShowSpeedMenu(true)}
@@ -639,7 +610,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         paddingHorizontal: 20,
-        marginBottom: 30,
     },
     optionItem: {
         alignItems: 'center',

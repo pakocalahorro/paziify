@@ -31,6 +31,7 @@ interface AudioPlayerContextType {
     skipForward: () => Promise<void>;
     skipBackward: () => Promise<void>;
     closePlayer: () => Promise<void>;
+    setBinauralVolume: (volume: number) => Promise<void>; // New
     setExternalAudioActive: (active: boolean) => void;
 }
 
@@ -74,6 +75,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     useEffect(() => { ambienceRef.current = ambienceSound; }, [ambienceSound]);
 
     const activeUrlRef = useRef<string | null>(null);
+    const secondaryLoadingUrlRef = useRef<string | null>(null);
 
     const onPlaybackStatusUpdate = useCallback((status: any) => {
         if (!isMounted.current) return;
@@ -185,20 +187,22 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
 
         try {
-            if (sound) {
+            if (soundRef.current) {
                 // [Fix 3] Force save position of current track before switching
                 try {
-                    const status = await sound.getStatusAsync();
+                    const status = await soundRef.current.getStatusAsync();
                     if (status.isLoaded && currentTrack && !currentTrack.isInfinite) {
                         await savePlaybackPosition(currentTrack.id, status.positionMillis, status.durationMillis || 0);
                     }
                 } catch (e) { console.log('Error saving position before switch:', e); }
 
-                sound.setOnPlaybackStatusUpdate(null);
-                await sound.unloadAsync();
+                soundRef.current.setOnPlaybackStatusUpdate(null);
+                await soundRef.current.unloadAsync();
+                soundRef.current = null;
             }
-            if (secondarySound) {
-                await secondarySound.unloadAsync();
+            if (secondaryRef.current) {
+                await secondaryRef.current.unloadAsync();
+                secondaryRef.current = null;
                 setSecondarySound(null);
             }
 
@@ -234,37 +238,65 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }, [currentTrack, sound, secondarySound, onPlaybackStatusUpdate]);
 
     const loadBinauralLayer = useCallback(async (url: string | null) => {
-        if (secondarySound) {
-            await secondarySound.unloadAsync();
+        // [Fix] Evitar recargas redundantes o condiciones de carrera
+        if (secondaryLoadingUrlRef.current === url && url !== null) return;
+        secondaryLoadingUrlRef.current = url;
+
+        if (secondaryRef.current) {
+            const soundToUnload = secondaryRef.current;
+            secondaryRef.current = null;
             setSecondarySound(null);
+            try {
+                await soundToUnload.unloadAsync();
+            } catch (e) { console.log('Error unloading secondary sound:', e); }
         }
 
         if (!url) return;
 
         try {
             const localUrl = await CacheService.get(url, 'audio');
+            // Verificar si el objetivo ha cambiado durante la descarga/cache
+            if (secondaryLoadingUrlRef.current !== url) return;
+
             const { sound: newLayer } = await Audio.Sound.createAsync(
                 { uri: localUrl },
                 { shouldPlay: isPlaying, isLooping: true, volume: 0.5 }
             );
+
+            // Doble verificación tras la creación asíncrona
+            if (secondaryLoadingUrlRef.current !== url) {
+                await newLayer.unloadAsync();
+                return;
+            }
+
+            secondaryRef.current = newLayer;
             setSecondarySound(newLayer);
-        } catch (error) { console.log('Error loading binaural layer:', error); }
-    }, [secondarySound, isPlaying]);
+        } catch (error) {
+            secondaryLoadingUrlRef.current = null;
+            console.log('Error loading binaural layer:', error);
+        }
+    }, [isPlaying]);
 
     const play = useCallback(async () => {
-        if (sound) {
+        if (soundRef.current) {
             await audioEngineService.pauseAll();
-            await sound.playAsync();
-            if (secondarySound) await secondarySound.playAsync();
+            await soundRef.current.playAsync();
         }
-    }, [sound, secondarySound]);
+        if (secondaryRef.current) {
+            await secondaryRef.current.playAsync();
+        }
+        setIsPlaying(true);
+    }, []);
 
     const pause = useCallback(async () => {
-        if (sound) {
-            await sound.pauseAsync();
-            if (secondarySound) await secondarySound.pauseAsync();
+        if (soundRef.current) {
+            await soundRef.current.pauseAsync();
         }
-    }, [sound, secondarySound]);
+        if (secondaryRef.current) {
+            await secondaryRef.current.pauseAsync();
+        }
+        setIsPlaying(false);
+    }, []);
 
     const seekTo = useCallback(async (value: number) => {
         if (sound) {
@@ -287,29 +319,31 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }, [sound, position]);
 
     const closePlayer = useCallback(async () => {
-        // [Fix 3] Save position on close
-        if (sound && currentTrack && !currentTrack.isInfinite) {
-            try {
-                const status = await sound.getStatusAsync();
-                if (status.isLoaded) {
-                    await savePlaybackPosition(currentTrack.id, status.positionMillis, status.durationMillis || 0);
-                }
-            } catch (e) { console.log('Error saving position on close:', e); }
+        try {
+            if (soundRef.current && currentTrack && !currentTrack.isInfinite) {
+                try {
+                    const status = await soundRef.current.getStatusAsync();
+                    if (status.isLoaded) {
+                        await savePlaybackPosition(currentTrack.id, status.positionMillis, status.durationMillis || 0);
+                    }
+                } catch (e) { console.log('Error saving position on close:', e); }
+            }
+
+            if (soundRef.current) await soundRef.current.unloadAsync();
+            if (secondaryRef.current) await secondaryRef.current.unloadAsync();
+        } catch (error) {
+            console.log('Error silenciado al cerrar el reproductor:', error);
+        } finally {
+            soundRef.current = null;
+            secondaryRef.current = null;
+            secondaryLoadingUrlRef.current = null;
+            setSound(null);
+            setSecondarySound(null);
+            setCurrentTrack(null);
+            setIsPlaying(false);
+            setPosition(0);
         }
-
-        if (sound) await sound.unloadAsync();
-        if (secondarySound) await secondarySound.unloadAsync();
-
-        // Restore Ambience? Or Silence?
-        // User requested: "Vuelve a sonar el Ambiente/Silencio de fondo?" -> YES.
-        // Ambience logic in useEffect will kick in automatically once isPlaying becomes false.
-
-        setSound(null);
-        setSecondarySound(null);
-        setCurrentTrack(null);
-        setIsPlaying(false);
-        setPosition(0);
-    }, [sound, secondarySound, currentTrack]);
+    }, [currentTrack]);
 
     return (
         <AudioPlayerContext.Provider
@@ -328,6 +362,11 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 skipForward,
                 skipBackward,
                 closePlayer,
+                setBinauralVolume: async (vol: number) => {
+                    if (secondaryRef.current) {
+                        await secondaryRef.current.setVolumeAsync(vol);
+                    }
+                },
                 setExternalAudioActive,
             }}
         >

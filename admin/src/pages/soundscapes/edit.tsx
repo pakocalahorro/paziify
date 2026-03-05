@@ -60,7 +60,7 @@ export const SoundscapeEdit = () => {
                     <Input readOnly />
                 </Form.Item>
                 <MediaUploader
-                    bucket="soundscape-thumbnails"
+                    bucket="soundscapes"
                     label="Cargar Imagen de Fondo (WebP)"
                     accept="image/*"
                     initialUrl={initialImageUrl}

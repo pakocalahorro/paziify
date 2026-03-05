@@ -20,12 +20,23 @@ const GlobalMiniPlayer: React.FC = () => {
     // 1. React Rules of Hooks: This must always execute unconditionally at the top.
     const insets = useSafeAreaInsets();
 
-    // Check if we are in a native player screen
+    // React Navigation state getter (recursive for nested navigators like TabNavigator)
     const rawState = navigation.getState();
-    const currentRouteName = rawState?.routes[rawState.index]?.name;
-    const isFullScreenPlayer = currentRouteName === Screen.AUDIOBOOK_PLAYER || currentRouteName === Screen.BACKGROUND_PLAYER;
+    const getCurrentRouteName = (state: any): string => {
+        if (!state || !state.routes) return '';
+        const route = state.routes[state.index];
+        if (route.state) {
+            return getCurrentRouteName(route.state);
+        }
+        return route.name;
+    };
 
-    // Si no hay pista activa o estamos en un reproductor de pantalla completa, no mostrar.
+    const currentRouteName = getCurrentRouteName(rawState);
+    const isFullScreenPlayer =
+        currentRouteName === Screen.AUDIOBOOK_PLAYER ||
+        currentRouteName === Screen.BACKGROUND_PLAYER;
+
+    // Si no hay pista activa o estamos en una de las pantallas exentas, no mostrar.
     if (!track || isFullScreenPlayer) return null;
 
     const handlePress = () => {
@@ -81,7 +92,13 @@ const GlobalMiniPlayer: React.FC = () => {
                         </View>
 
                         {/* Play/Pause Control */}
-                        <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                handlePlayPause();
+                            }}
+                            style={styles.controlButton}
+                        >
                             <Ionicons
                                 name={isPlaying ? 'pause' : 'play'}
                                 size={24}
@@ -91,7 +108,14 @@ const GlobalMiniPlayer: React.FC = () => {
                         </TouchableOpacity>
 
                         {/* Close Control (X) - The one that was missing */}
-                        <TouchableOpacity onPress={closePlayer} style={styles.closeButton}>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                closePlayer();
+                            }}
+                            style={styles.closeButton}
+                            hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                        >
                             <Ionicons
                                 name="close"
                                 size={20}

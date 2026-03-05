@@ -34,7 +34,6 @@ const LibraryStack = () => (
         <LibStack.Screen name={Screen.AUDIOBOOKS} component={AudiobooksScreen} />
         <LibStack.Screen name={Screen.STORIES} component={StoriesScreen} />
         <LibStack.Screen name={Screen.BACKGROUND_SOUND} component={BackgroundSoundScreen} />
-        <LibStack.Screen name={Screen.BACKGROUND_PLAYER} component={BackgroundPlayerScreen} />
     </LibStack.Navigator>
 );
 
