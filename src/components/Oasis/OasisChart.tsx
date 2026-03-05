@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { theme } from '../../constants/theme';
 
 interface ChartDataPoint {
     day: string; // ISO date string or just YYYY-MM-DD
@@ -10,9 +11,11 @@ interface ChartDataPoint {
 }
 
 interface OasisChartProps {
-    data: ChartDataPoint[];
-    title?: string;
-    accentColor?: string;
+    data: { day: string; minutes: number }[];
+    color?: string;
+    height?: number;
+    showLabels?: boolean;
+    isMonthly?: boolean; // New prop to handle higher density
 }
 
 /**
@@ -21,71 +24,95 @@ interface OasisChartProps {
  */
 export const OasisChart: React.FC<OasisChartProps> = ({
     data,
-    title = "TU RITMO SEMANAL",
-    accentColor = "#2DD4BF" // Default Healing Green
+    color = theme.colors.primary,
+    height = 200,
+    showLabels = true,
+    isMonthly = false
 }) => {
-    // Determine the maximum value to scale the bars correctly. Minimum scale of 30.
-    const maxValue = Math.max(...data.map(d => d.value), 30);
+    const [containerWidth, setContainerWidth] = React.useState(0);
 
-    const dayLabels: Record<string, string> = {
-        '0': 'D', '1': 'L', '2': 'M', '3': 'X', '4': 'J', '5': 'V', '6': 'S'
+    const maxVal = Math.max(...data.map(d => d.minutes), 5);
+    const LABEL_HEIGHT = showLabels ? 25 : 0;
+    const CHART_HEIGHT = height - LABEL_HEIGHT;
+
+    // Calculate bar width based on container width
+    const availableWidth = containerWidth > 0 ? containerWidth : (Dimensions.get('window').width - 80);
+    const barWidth = isMonthly ? (availableWidth / data.length) : (availableWidth / 7) - 8;
+    const borderRadius = isMonthly ? 2 : 8;
+
+    const onLayout = (event: any) => {
+        setContainerWidth(event.nativeEvent.layout.width);
     };
 
     return (
-        <BlurView intensity={25} tint="dark" style={styles.glassContainer}>
-            {!!title && <Text style={styles.title}>{title}</Text>}
-
-            <View style={styles.chartArea}>
+        <View style={[styles.container, { height }]} onLayout={onLayout}>
+            {/* Chart Area */}
+            <View style={[styles.chartArea, { height: CHART_HEIGHT }]}>
                 {data.map((item, index) => {
-                    // Safe date parsing ensuring local time alignment
-                    const dateObj = new Date(item.day.includes('T') ? item.day : `${item.day}T12:00:00`);
-                    const dayNum = dateObj.getDay();
-                    const label = dayLabels[dayNum.toString()] || '?';
-
-                    // Cap at 100%, minimum 10% for visual presence if value > 0
-                    const heightPercent = item.value > 0
-                        ? Math.max((item.value / maxValue) * 100, 10)
-                        : 0;
-
-                    const today = new Date();
-                    const isToday = dateObj.getDate() === today.getDate() &&
-                        dateObj.getMonth() === today.getMonth() &&
-                        dateObj.getFullYear() === today.getFullYear();
-
+                    const barHeight = (item.minutes / maxVal) * CHART_HEIGHT;
                     return (
-                        <View key={index} style={styles.columnContainer}>
-                            <View style={styles.barContainer}>
-                                {item.value > 0 && (
-                                    <Animated.View
-                                        entering={FadeInDown.delay(index * 100).springify()}
-                                        style={[
-                                            styles.bar,
-                                            { height: `${heightPercent}%`, shadowColor: accentColor }
-                                        ]}
-                                    >
-                                        <LinearGradient
-                                            colors={[accentColor, `${accentColor}80`]}
-                                            style={StyleSheet.absoluteFill}
-                                        />
-                                    </Animated.View>
-                                )}
-                            </View>
-                            <Text style={[
-                                styles.dayText,
-                                item.value > 0 && { color: 'rgba(255,255,255,0.8)' },
-                                isToday && { color: accentColor, fontFamily: 'Outfit_800ExtraBold', fontSize: 13 }
-                            ]}>
-                                {label}
-                            </Text>
+                        <View key={`bar-${index}`} style={[styles.barContainerBase, { width: barWidth }]}>
+                            <Animated.View
+                                entering={FadeInDown.delay(isMonthly ? 0 : index * 20).springify()}
+                                style={[
+                                    styles.bar,
+                                    {
+                                        height: Math.max(barHeight, 4), // Min height for visibility
+                                        backgroundColor: color,
+                                        borderRadius,
+                                        opacity: item.minutes === 0 ? 0.05 : 1,
+                                    }
+                                ]}
+                            />
                         </View>
                     );
                 })}
             </View>
-        </BlurView>
+
+            {/* Labels Area */}
+            {showLabels && (
+                <View style={[styles.labelsArea, { height: LABEL_HEIGHT }]}>
+                    {data.map((item, index) => {
+                        // Better label logic for variety of lengths
+                        let shouldShow = false;
+                        if (!isMonthly) {
+                            shouldShow = true; // Always show in weekly
+                        } else {
+                            // En mensual, mostrar cada 7 días para dar referencia semanal
+                            shouldShow = (index % 7 === 0) || (index === data.length - 1);
+                        }
+
+                        if (!shouldShow) return <View key={`gap-${index}`} style={{ width: barWidth }} />;
+
+                        return (
+                            <View key={`label-${index}`} style={{ width: barWidth, alignItems: 'center' }}>
+                                <Text style={styles.label} numberOfLines={1}>
+                                    {item.day}
+                                </Text>
+                            </View>
+                        );
+                    })}
+                </View>
+            )}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        justifyContent: 'center',
+    },
+    barWrapper: {
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: 8,
+    },
+    label: {
+        fontSize: 10,
+        fontFamily: 'Outfit_600SemiBold',
+        color: '#FFF',
+    },
     glassContainer: {
         width: '100%',
         paddingVertical: 16,
@@ -108,29 +135,23 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
-        height: 80, // Slightly taller for better visual
+        paddingHorizontal: 10,
     },
-    columnContainer: {
+    labelsArea: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        flex: 1,
+        paddingHorizontal: 10,
+        marginTop: 4,
     },
-    barContainer: {
-        height: 60,
-        width: 14,
-        backgroundColor: 'rgba(255,255,255,0.03)',
-        borderRadius: 7,
+    barContainerBase: {
+        alignItems: 'center',
         justifyContent: 'flex-end',
-        overflow: 'hidden',
-        marginBottom: 10,
+        height: '100%',
     },
     bar: {
         width: '100%',
-        borderRadius: 7,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.8,
-        shadowRadius: 8,
-        elevation: 5,
-        overflow: 'hidden',
+        borderRadius: 8,
     },
     dayText: {
         fontFamily: 'Outfit_400Regular',

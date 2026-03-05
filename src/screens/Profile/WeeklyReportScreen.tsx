@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     View,
     Text,
@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { BarChart } from 'react-native-chart-kit';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,14 +17,14 @@ import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { CardioService, CardioResult } from '../../services/CardioService';
-import { analyticsService, DailyActivity } from '../../services/analyticsService';
+import { analyticsService } from '../../services/analyticsService';
 import { generateWeeklyInsight } from '../../utils/weeklyInsight';
-import BackgroundWrapper from '../../components/Layout/BackgroundWrapper';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
+import { OasisChart } from '../../components/Oasis/OasisChart';
+import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
 
 const { width: screenWidth } = Dimensions.get('window');
-const CHART_WIDTH = screenWidth - 48;
 
 type Props = {
     navigation: NativeStackNavigationProp<RootStackParamList, Screen.WEEKLY_REPORT>;
@@ -33,70 +32,49 @@ type Props = {
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-// Map a CardioResult[] (one per day, oldest→newest) to a 7-slot HRV array
-function buildHrvWeekData(scans: CardioResult[]): { values: number[]; diagnoses: string[] } {
-    const today = new Date();
-    const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)); // Monday
-    weekStart.setHours(0, 0, 0, 0);
-
-    const values: number[] = new Array(7).fill(0);
-    const diagnoses: string[] = new Array(7).fill('none');
-
-    scans.forEach(scan => {
-        const d = new Date(scan.timestamp);
-        const dayIndex = Math.floor((d.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24));
-        if (dayIndex >= 0 && dayIndex < 7) {
-            // Use latest scan of the day (scans are newest-first in getHistory)
-            if (values[dayIndex] === 0) {
-                values[dayIndex] = scan.hrv;
-                diagnoses[dayIndex] = scan.diagnosis;
-            }
-        }
-    });
-
-    return { values, diagnoses };
-}
-
-function buildActivityWeekData(activity: DailyActivity[]): number[] {
-    return activity.map(d => Math.round(d.minutes));
-}
-
-const diagnosisGradient: Record<string, [string, string]> = {
-    equilibrio: ['#10B981', 'rgba(16, 185, 129, 0.4)'],
-    agotamiento: ['#F59E0B', 'rgba(245, 158, 11, 0.4)'],
-    sobrecarga: ['#EF4444', 'rgba(239, 68, 68, 0.4)'],
-    none: ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)'],
-};
-
+/**
+ * Weekly Report v3.0
+ * Includes Weekly/Monthly toggle and expanded insights.
+ */
 const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const { userState, user } = useApp();
 
     const [loading, setLoading] = useState(true);
+    const [timeRange, setTimeRange] = useState<'weekly' | 'monthly'>('weekly');
     const [scans, setScans] = useState<CardioResult[]>([]);
-    const [weeklyActivity, setWeeklyActivity] = useState<DailyActivity[]>([]);
-    const [weeklyMinutes, setWeeklyMinutes] = useState(0);
-    const [activeDays, setActiveDays] = useState(0);
-    const [bestHrv, setBestHrv] = useState(0);
+    const [activity, setActivity] = useState<{ day: string; minutes: number }[]>([]);
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [stats, setStats] = useState({
+        minutes: 0,
+        activeDays: 0,
+        bestHrv: 0
+    });
 
     useEffect(() => {
         const loadData = async () => {
+            if (!user?.id) return;
             setLoading(true);
             try {
-                const [cardioScans, activity] = await Promise.all([
-                    CardioService.getHistory(30),
-                    user?.id ? analyticsService.getWeeklyActivity(user.id) : Promise.resolve([]),
+                const [cardioScans, fetchedActivity] = await Promise.all([
+                    CardioService.getHistory(timeRange === 'weekly' ? 7 : 31),
+                    timeRange === 'weekly'
+                        ? analyticsService.getWeeklyActivity(user.id)
+                        : analyticsService.getMonthlyActivity(user.id, currentMonth, currentYear),
                 ]);
+
                 setScans(cardioScans);
-                setWeeklyActivity(activity);
+                setActivity(fetchedActivity);
 
-                const mins = activity.reduce((acc, d) => acc + d.minutes, 0);
-                setWeeklyMinutes(Math.round(mins));
-                setActiveDays(activity.filter(d => d.minutes > 0).length);
+                const mins = fetchedActivity.reduce((acc: number, d) => acc + d.minutes, 0);
+                const best = cardioScans.length > 0 ? Math.max(...cardioScans.map((s: CardioResult) => s.hrv)) : 0;
 
-                const best = cardioScans.length > 0 ? Math.max(...cardioScans.map(s => s.hrv)) : 0;
-                setBestHrv(Math.round(best));
+                setStats({
+                    minutes: Math.round(mins),
+                    activeDays: fetchedActivity.filter((d) => d.minutes > 0).length,
+                    bestHrv: Math.round(best)
+                });
             } catch (e) {
                 console.log('[WeeklyReport] Error loading data:', e);
             } finally {
@@ -104,33 +82,47 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
             }
         };
         loadData();
-    }, [user?.id]);
+    }, [user?.id, timeRange, currentMonth, currentYear]);
 
-    const { values: hrvValues, diagnoses } = buildHrvWeekData(scans);
-    const activityValues = buildActivityWeekData(weeklyActivity);
-    const dailyGoal = userState.dailyGoalMinutes || 20;
-
-    const insight = generateWeeklyInsight(scans, weeklyMinutes, userState.streak, userState.name);
-
-    const chartConfig = {
-        backgroundColor: 'transparent',
-        backgroundGradientFrom: '#0F172A',
-        backgroundGradientTo: '#0F172A',
-        decimalPlaces: 0,
-        color: (opacity = 1) => `rgba(255,255,255,${opacity})`,
-        labelColor: (opacity = 1) => `rgba(148, 163, 184, ${opacity})`,
-        barPercentage: 0.6,
+    const handlePrevMonth = () => {
+        setLoading(true);
+        setCurrentMonth(prev => {
+            if (prev === 0) {
+                setCurrentYear(curr => curr - 1);
+                return 11;
+            }
+            return prev - 1;
+        });
     };
 
-    const hasHrvData = hrvValues.some(v => v > 0);
-    const hasActivityData = activityValues.some(v => v > 0);
+    const handleNextMonth = () => {
+        setLoading(true);
+        setCurrentMonth(prev => {
+            if (prev === 11) {
+                setCurrentYear(curr => curr + 1);
+                return 0;
+            }
+            return prev + 1;
+        });
+    };
+
+    const getMonthName = (m: number) => {
+        const months = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+        return months[m];
+    };
+
+    const dailyGoal = userState.dailyGoalMinutes || 20;
+    const insight = generateWeeklyInsight(scans, stats.minutes, userState.streak, userState.name);
 
     return (
         <OasisScreen
             header={
                 <OasisHeader
                     path={['Oasis', 'Mi Perfil']}
-                    title="Reporte Semanal"
+                    title="Reporte de Calma"
                     userName={userState.name || 'Pazificador'}
                     avatarUrl={userState.avatarUrl}
                     showEvolucion={true}
@@ -143,7 +135,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                     }}
                 />
             }
-            themeMode="healing" // Matching the nebulaMode="healing"
+            themeMode="healing"
             showSafeOverlay={false}
             disableContentPadding={true}
         >
@@ -154,129 +146,161 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                     { paddingBottom: insets.bottom + 40 }
                 ]}
             >
+                {/* Selector de Rango */}
+                <View style={styles.rangeSelector}>
+                    <TouchableOpacity
+                        style={[styles.rangeBtn, timeRange === 'weekly' && styles.rangeBtnActive]}
+                        onPress={() => setTimeRange('weekly')}
+                    >
+                        <Text style={[styles.rangeText, timeRange === 'weekly' && styles.rangeTextActive]}>SEMANAL</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.rangeBtn, timeRange === 'monthly' && styles.rangeBtnActive]}
+                        onPress={() => setTimeRange('monthly')}
+                    >
+                        <Text style={[styles.rangeText, timeRange === 'monthly' && styles.rangeTextActive]}>MENSUAL</Text>
+                    </TouchableOpacity>
+                </View>
 
                 {loading ? (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={theme.colors.primary} />
-                        <Text style={styles.loadingText}>Cargando tu semana...</Text>
+                        <Text style={styles.loadingText}>Sincronizando con tu Oasis...</Text>
                     </View>
                 ) : (
                     <>
-                        {/* ① KPI Resumen */}
+                        {/* KPI Resumen */}
                         <View style={styles.kpiRow}>
-                            <KpiCard icon="🔥" value={`${userState.streak}`} label="días racha" />
-                            <KpiCard icon="⏱" value={`${weeklyMinutes}`} label="min esta sem." />
-                            <KpiCard icon="🧘" value={`${activeDays}`} label="días activos" />
-                            <KpiCard
-                                icon="💓"
-                                value={bestHrv > 0 ? `${bestHrv}` : '—'}
-                                label="mejor HRV"
-                            />
+                            <KpiCard icon="flame" color="#FBBF24" value={`${userState.streak}`} label="días racha" />
+                            <KpiCard icon="time" color={theme.colors.primary} value={`${stats.minutes}`} label={timeRange === 'weekly' ? "min semana" : "min mes"} />
+                            <KpiCard icon="leaf" color="#2DD4BF" value={`${stats.activeDays}`} label="días activos" />
+                            <KpiCard icon="pulse" color="#10B981" value={stats.bestHrv > 0 ? `${stats.bestHrv}` : '—'} label="mejor hrv" />
                         </View>
 
-                        {/* ② Actividad Semanal */}
-                        <SectionHeader title="Actividad Semanal" icon="time-outline" />
-                        <BlurView intensity={35} tint="dark" style={styles.chartCard}>
-                            {hasActivityData ? (
-                                <>
-                                    <View style={styles.hrvBarsContainer}>
-                                        {activityValues.map((val, i) => {
-                                            const maxActivity = Math.max(...activityValues, dailyGoal, 1);
-                                            const heightPct = val > 0 ? Math.max(val / maxActivity, 0.08) : 0.05;
-                                            const isGoalMet = val >= dailyGoal;
+                        {/* Actividad */}
+                        <SectionHeader title={timeRange === 'weekly' ? "Actividad Semanal" : "Actividad Mensual"} icon="time-outline" />
+                        <View style={styles.chartCard}>
+                            <BlurView intensity={70} tint="dark" style={styles.chartBlur}>
+                                {timeRange === 'weekly' ? (
+                                    <OasisChart
+                                        data={(() => {
+                                            const result = [];
+                                            const today = new Date();
+                                            // Calculate offset to last Monday
+                                            // Sunday is 0, Monday is 1... Saturday is 6
+                                            const dayOfWeek = today.getDay();
+                                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                                            const monday = new Date(today);
+                                            monday.setDate(today.getDate() - diffToMonday);
 
-                                            // Actividad usa Verde (meta) o Dorado (en progreso)
-                                            const gradient: [string, string] = isGoalMet
-                                                ? ['#10B981', 'rgba(16, 185, 129, 0.4)']
-                                                : ['#D4AF37', 'rgba(212, 175, 55, 0.4)'];
+                                            for (let i = 0; i < 7; i++) {
+                                                const d = new Date(monday);
+                                                d.setDate(monday.getDate() + i);
+                                                const dateStr = d.toISOString().split('T')[0];
+                                                const match = activity.find(a => a.day.startsWith(dateStr));
 
-                                            const finalGradient: [string, string] = val > 0
-                                                ? gradient
-                                                : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)'];
+                                                const days = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+                                                result.push({
+                                                    day: days[d.getDay()],
+                                                    minutes: match ? match.minutes : 0
+                                                });
+                                            }
+                                            return result;
+                                        })()}
+                                        height={180}
+                                        isMonthly={false}
+                                    />
+                                ) : (
+                                    <OasisCalendar
+                                        data={activity}
+                                        variant="healing"
+                                        monthTitle={`${getMonthName(currentMonth)} ${currentYear}`}
+                                        onPrevMonth={handlePrevMonth}
+                                        onNextMonth={handleNextMonth}
+                                    />
+                                )}
+                                <Text style={styles.chartLegend}>
+                                    {timeRange === 'weekly'
+                                        ? "Tu presencia diaria esta semana (de Lunes a Domingo)."
+                                        : `Tu evolución de calma durante ${getMonthName(currentMonth)}.`}
+                                </Text>
+                            </BlurView>
+                            <View style={styles.innerGlassBorder} pointerEvents="none" />
+                        </View>
 
-                                            return (
-                                                <View key={i} style={styles.hrvBarItem}>
-                                                    <Text style={styles.hrvBarValue}>{val > 0 ? `${val}m` : ''}</Text>
-                                                    <View style={styles.hrvBarTrack}>
-                                                        <LinearGradient
-                                                            colors={finalGradient}
-                                                            start={{ x: 0, y: 0 }}
-                                                            end={{ x: 0, y: 1 }}
-                                                            style={[styles.hrvBarFill, { flex: heightPct }]}
-                                                        />
-                                                        <View style={{ flex: 1 - heightPct }} />
-                                                    </View>
-                                                    <Text style={styles.hrvBarLabel}>{DAY_LABELS[i]}</Text>
-                                                </View>
-                                            );
-                                        })}
-                                    </View>
-                                    <View style={{ marginTop: 8 }}>
-                                        <Text style={styles.chartLegend}>
-                                            <Text style={{ color: '#10B981' }}>■</Text> Meta superada{'  '}
-                                            <Text style={{ color: '#D4AF37' }}>■</Text> En progreso
-                                        </Text>
-                                    </View>
-                                </>
-                            ) : (
-                                <EmptyState message="Completa sesiones para ver tu actividad diaria" />
-                            )}
-                        </BlurView>
+                        {/* Bio-Ritmo HRV (Simplificado para reporte unificado) */}
+                        <SectionHeader title="Bio-Ritmo HRV" icon="pulse-outline" accent="#10B981" />
+                        <View style={styles.chartCard} >
+                            <BlurView intensity={70} tint="dark" style={styles.chartBlur}>
+                                {timeRange === 'weekly' ? (
+                                    <OasisChart
+                                        data={(() => {
+                                            const grouped: Record<string, number> = {};
+                                            scans.forEach(s => {
+                                                const d = s.timestamp.split('T')[0];
+                                                grouped[d] = Math.max(grouped[d] || 0, s.hrv);
+                                            });
 
-                        {/* ③ Bio-Ritmo HRV */}
-                        <SectionHeader title="Bio-Ritmo Semanal" icon="pulse-outline" accent="#10B981" />
-                        <BlurView intensity={35} tint="dark" style={styles.chartCard}>
-                            {hasHrvData ? (
-                                <>
-                                    {/* HRV custom bars coloreadas por diagnosis */}
-                                    <View style={styles.hrvBarsContainer}>
-                                        {hrvValues.map((val, i) => {
-                                            const maxHrv = Math.max(...hrvValues.filter(v => v > 0), 1);
-                                            const heightPct = val > 0 ? Math.max(val / maxHrv, 0.08) : 0.05;
-                                            const gradient = diagnosisGradient[val > 0 ? diagnoses[i] : 'none'];
-                                            return (
-                                                <View key={i} style={styles.hrvBarItem}>
-                                                    <Text style={styles.hrvBarValue}>{val > 0 ? val : ''}</Text>
-                                                    <View style={styles.hrvBarTrack}>
-                                                        <LinearGradient
-                                                            colors={gradient}
-                                                            start={{ x: 0, y: 0 }}
-                                                            end={{ x: 0, y: 1 }}
-                                                            style={[styles.hrvBarFill, { flex: heightPct }]}
-                                                        />
-                                                        <View style={{ flex: 1 - heightPct }} />
-                                                    </View>
-                                                    <Text style={styles.hrvBarLabel}>{DAY_LABELS[i]}</Text>
-                                                </View>
-                                            );
-                                        })}
-                                    </View>
-                                    <Text style={styles.chartLegend}>
-                                        <Text style={{ color: '#10B981' }}>■</Text> Equilibrio{'  '}
-                                        <Text style={{ color: '#F59E0B' }}>■</Text> Agotamiento{'  '}
-                                        <Text style={{ color: '#EF4444' }}>■</Text> Sobrecarga
-                                    </Text>
-                                </>
-                            ) : (
-                                <EmptyState
-                                    message="Sin escaneos esta semana"
-                                />
-                            )}
-                        </BlurView>
+                                            const result = [];
+                                            const today = new Date();
+                                            const dayOfWeek = today.getDay();
+                                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                                            const monday = new Date(today);
+                                            monday.setDate(today.getDate() - diffToMonday);
 
-                        {/* ④ Stats rápidos */}
-                        <BlurView intensity={30} tint="dark" style={styles.statsRow}>
-                            <StatLine label="Tiempo total histórico" value={`${Math.round((userState.totalMinutes || 0) / 60)}h ${(userState.totalMinutes || 0) % 60}m`} />
-                            <View style={styles.statDivider} />
-                            <StatLine label="Racha actual" value={`${userState.streak} días`} />
-                            <View style={styles.statDivider} />
-                            <StatLine label="Escaneos esta semana" value={`${scans.filter(s => {
-                                const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-                                return new Date(s.timestamp) > weekAgo;
-                            }).length} escaneos`} />
-                        </BlurView>
+                                            for (let i = 0; i < 7; i++) {
+                                                const d = new Date(monday);
+                                                d.setDate(monday.getDate() + i);
+                                                const dateStr = d.toISOString().split('T')[0];
+                                                const days = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+                                                result.push({
+                                                    day: days[d.getDay()],
+                                                    minutes: grouped[dateStr] || 0
+                                                });
+                                            }
+                                            return result;
+                                        })()}
+                                        height={150}
+                                        color="#10B981"
+                                        isMonthly={false}
+                                    />
+                                ) : (
+                                    <OasisCalendar
+                                        data={(() => {
+                                            const grouped: Record<string, number> = {};
+                                            scans.forEach(s => {
+                                                const d = s.timestamp.split('T')[0];
+                                                grouped[d] = Math.max(grouped[d] || 0, s.hrv);
+                                            });
+                                            // Convert to OasisCalendar format
+                                            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+                                            const result = [];
+                                            for (let i = 1; i <= daysInMonth; i++) {
+                                                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                                                result.push({
+                                                    day: dateStr,
+                                                    minutes: grouped[dateStr] || 0
+                                                });
+                                            }
+                                            return result;
+                                        })()}
+                                        variant="healing"
+                                        type="hrv"
+                                        monthTitle={`${getMonthName(currentMonth)} ${currentYear}`}
+                                        onPrevMonth={handlePrevMonth}
+                                        onNextMonth={handleNextMonth}
+                                    />
+                                )}
+                                <Text style={styles.chartLegend}>
+                                    {timeRange === 'weekly'
+                                        ? "Tu recuperación (HRV) esta semana. Más alto = Más calma."
+                                        : "Tendencia mensual de recuperación biométrica (HRV)."}
+                                </Text>
+                            </BlurView>
+                            <View style={styles.innerGlassBorder} pointerEvents="none" />
+                        </View>
 
-                        {/* ⑤ Insight Dinámico */}
+                        {/* Insight Dinámico */}
                         <View style={[styles.insightCard, { borderColor: `${insight.color}30` }]}>
                             <LinearGradient
                                 colors={[`${insight.color}12`, 'transparent']}
@@ -288,6 +312,15 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                             </View>
                             <Text style={styles.insightBody}>{insight.body}</Text>
                         </View>
+
+                        {/* Stats rápidos */}
+                        <BlurView intensity={30} tint="dark" style={styles.statsRow}>
+                            <StatLine label="Tiempo total histórico" value={`${Math.round((userState.totalMinutes || 0) / 60)}h ${(userState.totalMinutes || 0) % 60}m`} />
+                            <View style={styles.statDivider} />
+                            <StatLine label="Racha actual" value={`${userState.streak} días`} />
+                            <View style={styles.statDivider} />
+                            <StatLine label="Sesiones completadas" value={`${userState.completedSessionIds?.length || 0}`} />
+                        </BlurView>
                     </>
                 )}
             </ScrollView>
@@ -297,12 +330,15 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
 
 // --- Sub-components ---
 
-const KpiCard: React.FC<{ icon: string; value: string; label: string }> = ({ icon, value, label }) => (
-    <BlurView intensity={35} tint="dark" style={styles.kpiCard}>
-        <Text style={styles.kpiIcon}>{icon}</Text>
-        <Text style={styles.kpiValue}>{value}</Text>
-        <Text style={styles.kpiLabel}>{label}</Text>
-    </BlurView>
+const KpiCard: React.FC<{ icon: string; value: string; label: string; color?: string }> = ({ icon, value, label, color = theme.colors.primary }) => (
+    <View style={styles.kpiCardContainer}>
+        <BlurView intensity={70} tint="dark" style={styles.kpiCard}>
+            <Ionicons name={icon as any} size={18} color={color} style={{ marginBottom: 4 }} />
+            <Text style={styles.kpiValue}>{value}</Text>
+            <Text style={styles.kpiLabel}>{label.toUpperCase()}</Text>
+        </BlurView>
+        <View style={styles.innerGlassBorder} pointerEvents="none" />
+    </View>
 );
 
 const SectionHeader: React.FC<{ title: string; icon: string; accent?: string }> = ({ title, icon, accent = theme.colors.primary }) => (
@@ -319,104 +355,105 @@ const StatLine: React.FC<{ label: string; value: string }> = ({ label, value }) 
     </View>
 );
 
-const EmptyState: React.FC<{ message: string; cta?: string; onCta?: () => void }> = ({ message, cta, onCta }) => (
-    <View style={styles.emptyState}>
-        <Ionicons name="analytics-outline" size={32} color="rgba(255,255,255,0.15)" />
-        <Text style={styles.emptyText}>{message}</Text>
-        {cta && onCta && (
-            <TouchableOpacity style={styles.ctaButton} onPress={onCta}>
-                <Ionicons name="heart-outline" size={14} color="#10B981" />
-                <Text style={styles.ctaText}>{cta}</Text>
-            </TouchableOpacity>
-        )}
-    </View>
-);
-
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: '#020617' },
-    safeBlur: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 },
-    scrollContent: { paddingHorizontal: 20 },
-    header: {
-        flexDirection: 'row', alignItems: 'center',
-        justifyContent: 'space-between', marginBottom: 24,
-    },
-    backButton: { width: 36, height: 36, justifyContent: 'center' },
-    headerTitle: { fontSize: 32, fontFamily: 'Caveat_400Regular', color: '#FFF', letterSpacing: 0.5 },
+    scrollContent: { paddingHorizontal: 20, paddingTop: 10 },
     loadingContainer: { alignItems: 'center', paddingTop: 80, gap: 16 },
-    loadingText: { color: 'rgba(255,255,255,0.4)', fontSize: 14 },
+    loadingText: { color: 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: '600' },
 
-    // KPI
+    rangeSelector: {
+        flexDirection: 'row',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 12,
+        padding: 4,
+        marginBottom: 24,
+        gap: 4,
+    },
+    rangeBtn: {
+        flex: 1,
+        paddingVertical: 6,
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    rangeBtnActive: {
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    rangeText: {
+        fontSize: 9,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.3)',
+        letterSpacing: 1,
+    },
+    rangeTextActive: {
+        color: '#FFF',
+    },
+
     kpiRow: { flexDirection: 'row', gap: 8, marginBottom: 28 },
+    kpiCardContainer: {
+        flex: 1,
+        borderRadius: 16,
+        overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.15)',
+    },
     kpiCard: {
-        flex: 1, alignItems: 'center', paddingVertical: 14,
-        borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+        alignItems: 'center', paddingVertical: 14,
+        borderRadius: 16,
         overflow: 'hidden', gap: 2,
     },
     kpiIcon: { fontSize: 18 },
     kpiValue: { fontSize: 20, fontWeight: '900', color: '#FFF' },
     kpiLabel: { fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: '700', textAlign: 'center' },
 
-    // Section header
-    sectionHeader: {
-        flexDirection: 'row', alignItems: 'center',
-        gap: 6, marginBottom: 10,
-    },
-    sectionTitle: {
-        fontSize: 10, fontWeight: '900', color: 'rgba(255,255,255,0.4)',
-        letterSpacing: 1.5,
-    },
+    sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+    sectionTitle: { fontSize: 10, fontWeight: '900', color: 'rgba(255,255,255,0.4)', letterSpacing: 1.5 },
 
-    // Charts
     chartCard: {
-        borderRadius: 20, padding: 16, marginBottom: 24,
-        borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 24,
+        marginBottom: 24,
         overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.15)',
     },
-    chart: { borderRadius: 12 },
+    chartBlur: {
+        padding: 16,
+    },
+    innerGlassBorder: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 24,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.12)',
+        borderTopColor: 'rgba(255,255,255,0.25)',
+        borderLeftColor: 'rgba(255,255,255,0.18)',
+    },
     chartLegend: {
         fontSize: 10, color: 'rgba(255,255,255,0.35)',
-        textAlign: 'center', marginTop: 8, fontWeight: '600',
+        textAlign: 'center', marginTop: 12, fontWeight: '600',
+        paddingHorizontal: 10,
     },
 
-    // HRV custom bars
-    hrvBarsContainer: { flexDirection: 'row', height: 140, alignItems: 'flex-end', gap: 4 },
-    hrvBarItem: { flex: 1, alignItems: 'center', gap: 4 },
-    hrvBarValue: { fontSize: 8, color: 'rgba(255,255,255,0.5)', fontWeight: '700' },
-    hrvBarTrack: { flex: 1, width: '80%', flexDirection: 'column-reverse' },
-    hrvBarFill: { borderRadius: 4, minHeight: 4 },
-    hrvBarLabel: { fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: '700' },
-
-    // Stats row
     statsRow: {
-        borderRadius: 20, padding: 16, marginBottom: 24,
-        borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
-        overflow: 'hidden', gap: 10,
+        borderRadius: 20, padding: 20, marginBottom: 24,
+        borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)',
+        overflow: 'hidden', gap: 12,
     },
     statLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     statLabel: { fontSize: 13, color: 'rgba(255,255,255,0.5)' },
     statValue: { fontSize: 14, fontWeight: '800', color: '#FFF' },
     statDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
 
-    // Insight
     insightCard: {
-        borderRadius: 20, padding: 20, marginBottom: 16,
-        borderWidth: 1, overflow: 'hidden',
+        borderRadius: 24, padding: 24, marginBottom: 24,
+        borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)',
+        overflow: 'hidden'
     },
-    insightHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
-    insightIcon: { fontSize: 22 },
-    insightTitle: { fontSize: 15, fontWeight: '900', letterSpacing: 0.3 },
+    insightHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+    insightIcon: { fontSize: 24 },
+    insightTitle: { fontSize: 16, fontWeight: '900', letterSpacing: 0.3 },
     insightBody: { fontSize: 15, color: 'rgba(255,255,255,0.8)', lineHeight: 22 },
-
-    // Empty state
-    emptyState: { alignItems: 'center', gap: 10, paddingVertical: 20 },
-    emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.3)', textAlign: 'center' },
-    ctaButton: {
-        flexDirection: 'row', alignItems: 'center', gap: 6,
-        backgroundColor: 'rgba(16,185,129,0.1)', paddingHorizontal: 16,
-        paddingVertical: 8, borderRadius: 20, borderWidth: 1,
-        borderColor: 'rgba(16,185,129,0.25)', marginTop: 4,
-    },
-    ctaText: { fontSize: 12, fontWeight: '700', color: '#10B981' },
 });
 
 export default WeeklyReportScreen;

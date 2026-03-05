@@ -57,6 +57,11 @@ Paziify v2.31 introduce un ecosistema completo de **programas de crecimiento per
 4. **Tu Home se transforma**: Mientras tengas un programa activo, la pantalla principal se enfoca 100% en tu sesión del día (Misión Prioritaria).
 5. **Progresa día a día**: Completa la sesión diaria para avanzar en tu reto.
 
+### Bio-Ritmo HRV (Recuperación)
+El nuevo Mapa de Bio-Ritmo te permite ver tu nivel de recuperación biológica en formato calendario:
+- **Días Verde Intenso**: Indica una recuperación excelente (HRV alto). Tu cuerpo está listo para el máximo rendimiento.
+- **Días Grises/Pálidos**: Indica niveles de stress o baja recuperación. Es un buen momento para priorizar meditaciones de la categoría "Calma SOS".
+- **Frecuencia**: Se recomienda realizar un escaneo diario para mantener la tendencia actualizada.
 ### Widget Nativo
 ¿Quieres seguir tu progreso sin abrir la app? Pulsa el tutorial de "Zen Widget" en el catálogo para aprender a añadir un widget de seguimiento a tu escritorio (compatible con iOS y Android).
 

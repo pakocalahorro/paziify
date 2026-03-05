@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import LocalAnalyticsService from './LocalAnalyticsService';
+import { CATEGORY_MODE_MAP } from '../constants/categories';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MEDITATION_SESSIONS } from '../data/sessionsData';
 
@@ -25,7 +26,7 @@ export const analyticsService = {
      * Get core user statistics
      */
     async getUserStats(userId: string): Promise<UserStats> {
-        const CACHE_KEY = `@user_stats_${userId}`;
+        const CACHE_KEY = `@user_stats_${userId} `;
         try {
             // 1. Fetch profile for streak and score
             const { data: profile, error: profileError } = await supabase
@@ -96,7 +97,7 @@ export const analyticsService = {
     },
 
     async getWeeklyActivity(userId: string): Promise<DailyActivity[]> {
-        const CACHE_KEY = `@weekly_activity_${userId}`;
+        const CACHE_KEY = `@weekly_activity_${userId} `;
         try {
             const now = new Date();
             const dayOfWeek = now.getDay(); // 0 (Sun) to 6 (Sat)
@@ -162,7 +163,7 @@ export const analyticsService = {
     /**
      * Get distribution of content categories consumed
      */
-    async getCategoryDistribution(userId: string): Promise<CategoryDistribution[]> {
+    async getCategoryDistribution(userId: string): Promise<Record<string, number>> {
         try {
             const sessionMap: Record<string, string> = {};
 
@@ -198,16 +199,99 @@ export const analyticsService = {
             const distribution: Record<string, number> = {};
 
             const processLog = (log: any) => {
-                const category = sessionMap[log.session_id] || 'otros';
-                distribution[category] = (distribution[category] || 0) + 1;
+                const rawCategory = sessionMap[log.session_id] || 'otros';
+                const mappedCategory = CATEGORY_MODE_MAP[rawCategory] || rawCategory; // Map to broader mode if available
+                distribution[mappedCategory] = (distribution[mappedCategory] || 0) + 1;
             };
 
             logs?.forEach(processLog);
             localLogs.forEach(processLog);
 
-            return Object.entries(distribution).map(([category, count]) => ({ category, count }));
+            return distribution;
         } catch (error) {
-            console.log('AnalyticsService: Silent error in getCategoryDistribution (offline?):', error);
+            console.error('Error fetching category distribution:', error);
+            return {};
+        }
+    },
+
+    /**
+     * Obtiene la actividad detallada del mes natural (1 al 31)
+     */
+    async getMonthlyActivity(userId: string, month?: number, year?: number): Promise<{ day: string; minutes: number }[]> {
+        const now = new Date();
+        const m = month !== undefined ? month : now.getMonth();
+        const y = year !== undefined ? year : now.getFullYear();
+
+        const CACHE_KEY = `@monthly_activity_${userId}_${y}_${m}`;
+        try {
+            const startDate = new Date(y, m, 1);
+            const endDate = new Date(y, m + 1, 0); // Último día del mes
+            endDate.setHours(23, 59, 59, 999);
+
+            // 1. Fetch Remote Logs
+            const { data: logs, error } = await supabase
+                .from('meditation_logs')
+                .select('duration_minutes, completed_at')
+                .eq('user_id', userId)
+                .gte('completed_at', startDate.toISOString())
+                .lte('completed_at', endDate.toISOString())
+                .order('completed_at', { ascending: true });
+
+            if (error) throw error;
+
+            // 2. Fetch Local Logs
+            const localLogs = await LocalAnalyticsService.getLogs();
+            const monthLocal = localLogs.filter(l => l.completed_at >= startDate.toISOString() && l.completed_at <= endDate.toISOString());
+
+            // Agrupar por día
+            const activityMap: Record<string, number> = {};
+            const daysInMonth = endDate.getDate();
+
+            // Inicializar todos los días del mes natural a 0
+            for (let i = 1; i <= daysInMonth; i++) {
+                const d = new Date(y, m, i, 12, 0, 0);
+                const yearStr = d.getFullYear();
+                const monthStr = String(d.getMonth() + 1).padStart(2, '0');
+                const dayStr = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${yearStr}-${monthStr}-${dayStr}`;
+                activityMap[dateStr] = 0;
+            }
+
+            // Sync Remote
+            logs?.forEach(session => {
+                const dateStr = session.completed_at.split('T')[0];
+                if (activityMap[dateStr] !== undefined) {
+                    activityMap[dateStr] += session.duration_minutes || 0;
+                }
+            });
+
+            // Sync Local
+            monthLocal.forEach(log => {
+                const dateStr = log.completed_at.split('T')[0];
+                if (activityMap[dateStr] !== undefined) {
+                    activityMap[dateStr] += log.duration_minutes;
+                }
+            });
+
+            const result = Object.entries(activityMap).map(([day, minutes]) => ({
+                day,
+                minutes: Math.round(minutes)
+            })).sort((a, b) => a.day.localeCompare(b.day));
+
+            // Guardar en caché
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({
+                data: result,
+                timestamp: Date.now()
+            }));
+
+            return result;
+        } catch (error) {
+            console.error('Error fetching monthly activity:', error);
+            const cached = await AsyncStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { data } = JSON.parse(cached);
+                return data;
+            }
             return [];
         }
     },

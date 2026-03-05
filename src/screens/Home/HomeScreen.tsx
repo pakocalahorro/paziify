@@ -7,6 +7,7 @@ import {
     StatusBar,
     TouchableOpacity,
     Dimensions,
+    ActivityIndicator,
 } from 'react-native';
 import Animated, {
     useSharedValue,
@@ -36,6 +37,8 @@ import { useNavigation } from '@react-navigation/native';
 import { getGuideAvatar } from '../../constants/guides';
 import { OasisMeter } from '../../components/Oasis/OasisMeter';
 import { analyticsService } from '../../services/analyticsService';
+import { OasisChart } from '../../components/Oasis/OasisChart';
+import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
 import PurposeModal from '../../components/Home/PurposeModal';
 import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { CHALLENGES } from '../../constants/challenges';
@@ -64,11 +67,15 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const { user, userState, isNightMode, updateUserState, toggleFavorite } = useApp();
 
     const [todayStats, setTodayStats] = useState({ minutes: 0, sessionCount: 0 });
-    const [weeklyStats, setWeeklyStats] = useState<{ minutes: number; sessionCount: number; activity: { day: string; minutes: number }[] }>({
+    const [timeRange, setTimeRange] = useState<'weekly' | 'monthly'>('weekly'); // New State
+    const [stats, setStats] = useState<{ minutes: number; sessionCount: number; activity: { day: string; minutes: number }[] }>({
         minutes: 0,
         sessionCount: 0,
         activity: []
     });
+    const [isLoadingStats, setIsLoadingStats] = useState(false);
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
     const visualMode = userState.lifeMode || route.params?.mode || (isNightMode ? 'healing' : 'growth');
     const [greeting, setGreeting] = useState('');
@@ -119,25 +126,39 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     useFocusEffect(
         useCallback(() => {
             const loadStats = async () => {
-                if (user?.id) {
-                    const [today, weekly] = await Promise.all([
-                        analyticsService.getTodayStats(user.id),
-                        analyticsService.getWeeklyActivity(user.id)
-                    ]);
-                    setTodayStats(today);
+                if (!user?.id) {
+                    setIsLoadingStats(false);
+                    return;
+                }
 
-                    const totalWeeklyMinutes = weekly.reduce((acc, curr) => acc + curr.minutes, 0);
-                    // As we don't have sessionCount by day easily without more queries,
-                    // let's estimate or just show minutes for now.
-                    setWeeklyStats({
-                        minutes: Math.round(totalWeeklyMinutes),
-                        sessionCount: weekly.filter(d => d.minutes > 0).length, // Days active
-                        activity: weekly
-                    });
+                setIsLoadingStats(true);
+                const today = await analyticsService.getTodayStats(user.id);
+                setTodayStats(today);
+
+                try {
+                    if (timeRange === 'weekly') {
+                        const weekly = await analyticsService.getWeeklyActivity(user.id);
+                        const totalWeeklyMinutes = weekly.reduce((acc, curr) => acc + curr.minutes, 0);
+                        setStats({
+                            minutes: Math.round(totalWeeklyMinutes),
+                            sessionCount: weekly.filter(d => d.minutes > 0).length,
+                            activity: weekly
+                        });
+                    } else {
+                        const monthly = await analyticsService.getMonthlyActivity(user.id, currentMonth, currentYear);
+                        const totalMonthlyMinutes = monthly.reduce((acc, curr) => acc + curr.minutes, 0);
+                        setStats({
+                            minutes: Math.round(totalMonthlyMinutes),
+                            sessionCount: monthly.filter(d => d.minutes > 0).length,
+                            activity: monthly
+                        });
+                    }
+                } finally {
+                    setIsLoadingStats(false);
                 }
             };
             loadStats();
-        }, [user])
+        }, [user, timeRange, currentMonth, currentYear])
     );
 
     useEffect(() => {
@@ -156,6 +177,48 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
             return () => clearTimeout(timer);
         }
     }, [userState.hasAcceptedMonthlyChallenge, user]);
+
+    const handleRangeChange = (range: 'weekly' | 'monthly') => {
+        if (range === timeRange) return;
+        setIsLoadingStats(true);
+        // Reset to current month when switching to monthly
+        if (range === 'monthly') {
+            setCurrentMonth(new Date().getMonth());
+            setCurrentYear(new Date().getFullYear());
+        }
+        setStats(prev => ({ ...prev, activity: [] })); // Clear instantly
+        setTimeRange(range);
+    };
+
+    const handlePrevMonth = () => {
+        setIsLoadingStats(true);
+        setCurrentMonth(prev => {
+            if (prev === 0) {
+                setCurrentYear(curr => curr - 1);
+                return 11;
+            }
+            return prev - 1;
+        });
+    };
+
+    const handleNextMonth = () => {
+        setIsLoadingStats(true);
+        setCurrentMonth(prev => {
+            if (prev === 11) {
+                setCurrentYear(curr => curr + 1);
+                return 0;
+            }
+            return prev + 1;
+        });
+    };
+
+    const getMonthName = (m: number) => {
+        const months = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+        return months[m];
+    };
 
     const handleAcceptChallenge = () => {
         updateUserState({ hasAcceptedMonthlyChallenge: true });
@@ -335,9 +398,12 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     }, [navigation]);
 
     const dailyGoal = userState.dailyGoalMinutes || 20;
-    const weeklyGoal = userState.weeklyGoalMinutes || 150;
+    const statsGoal = timeRange === 'weekly'
+        ? (userState.weeklyGoalMinutes || 150)
+        : (userState.weeklyGoalMinutes || 150) * 4; // Approx monthly goal
+
     const dailyProgress = Math.min(todayStats.minutes / dailyGoal, 1);
-    const weeklyProgress = Math.min(weeklyStats.minutes / weeklyGoal, 1);
+    const statsProgress = Math.min(stats.minutes / statsGoal, 1);
 
     console.log('[HomeScreen Debug] visualMode:', visualMode);
     console.log('[HomeScreen Debug] allSessions length:', allSessions?.length);
@@ -392,9 +458,9 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                                         accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
                                     />
                                     <OasisMeter
-                                        progress={weeklyProgress}
+                                        progress={statsProgress}
                                         size={70}
-                                        label="SEM"
+                                        label={timeRange === 'weekly' ? "SEM" : "MES"}
                                         accentColor={theme.colors.primary}
                                     />
                                 </View>
@@ -403,59 +469,93 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                                     <View style={styles.dashboardStatItem}>
                                         <Ionicons name="time" size={18} color={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'} />
                                         <Text style={styles.dashboardStatValue}>
-                                            {todayStats.minutes} <Text style={styles.dashboardStatUnit}>m Hoy</Text>
+                                            {isLoadingStats ? "..." : todayStats.minutes} <Text style={styles.dashboardStatUnit}>m Hoy</Text>
                                         </Text>
                                     </View>
                                     <View style={styles.dashboardStatItem}>
                                         <Ionicons name="stats-chart" size={18} color={theme.colors.primary} />
                                         <Text style={styles.dashboardStatValue}>
-                                            {weeklyStats.minutes} <Text style={styles.dashboardStatUnit}>m Sem</Text>
+                                            {isLoadingStats ? "..." : stats.minutes} <Text style={styles.dashboardStatUnit}>m {timeRange === 'weekly' ? 'Sem' : 'Mes'}</Text>
                                         </Text>
                                     </View>
                                 </View>
                             </View>
 
-                            {/* ACTIVIDAD SEMANAL COMPACTA (DOTS) */}
-                            {weeklyStats.activity && weeklyStats.activity.length > 0 && (
-                                <View style={styles.weeklyDotsContainer}>
-                                    {weeklyStats.activity.map((item, index) => {
-                                        const dateObj = new Date(item.day.includes('T') ? item.day : `${item.day}T12:00:00`);
-                                        const dayNum = dateObj.getDay().toString();
-                                        const dayLabels: Record<string, string> = {
-                                            '1': 'L', '2': 'M', '3': 'X', '4': 'J', '5': 'V', '6': 'S', '0': 'D'
-                                        };
-                                        const label = dayLabels[dayNum] || '';
-                                        const isActive = item.minutes > 0;
+                            {/* SELECTOR SEMANAL/MENSUAL */}
+                            <View style={styles.rangeSelectorContainer}>
+                                <TouchableOpacity
+                                    onPress={() => handleRangeChange('weekly')}
+                                    style={[styles.rangePill, timeRange === 'weekly' && styles.rangePillActive]}
+                                >
+                                    <Text style={[styles.rangeText, timeRange === 'weekly' && styles.rangeTextActive]}>SEMANAL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => handleRangeChange('monthly')}
+                                    style={[styles.rangePill, timeRange === 'monthly' && styles.rangePillActive]}
+                                >
+                                    <Text style={[styles.rangeText, timeRange === 'monthly' && styles.rangeTextActive]}>MENSUAL</Text>
+                                </TouchableOpacity>
+                            </View>
 
-                                        const today = new Date();
-                                        const isToday = dateObj.getDate() === today.getDate() &&
-                                            dateObj.getMonth() === today.getMonth() &&
-                                            dateObj.getFullYear() === today.getFullYear();
-
-                                        return (
-                                            <View key={index} style={styles.dotItem}>
-                                                <View style={[
-                                                    styles.activityDot,
-                                                    isActive ? {
-                                                        backgroundColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24',
-                                                        shadowColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24',
-                                                        shadowOpacity: 0.6,
-                                                        shadowRadius: 4,
-                                                        elevation: 3
-                                                    } : {
-                                                        backgroundColor: 'rgba(255,255,255,0.06)'
-                                                    },
-                                                    isToday && { borderWidth: 1, borderColor: '#FFF' }
-                                                ]} />
-                                                <Text style={[
-                                                    styles.dotLabel,
-                                                    isActive && { color: 'rgba(255,255,255,0.8)' },
-                                                    isToday && { color: '#FFF', fontWeight: '900' }
-                                                ]}>{label}</Text>
-                                            </View>
-                                        );
-                                    })}
+                            {/* ACTIVIDAD DINÁMICA */}
+                            {isLoadingStats ? (
+                                <View style={{ height: timeRange === 'monthly' ? 240 : 60, justifyContent: 'center', alignItems: 'center' }}>
+                                    <ActivityIndicator color={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'} size="small" />
                                 </View>
+                            ) : (
+                                <>
+                                    {timeRange === 'weekly' ? (
+                                        <View style={styles.weeklyDotsContainer}>
+                                            {stats.activity.map((item, index) => {
+                                                const dateObj = new Date(item.day.includes('T') ? item.day : `${item.day}T12:00:00`);
+                                                const dayNum = dateObj.getDay().toString();
+                                                const dayLabels: Record<string, string> = {
+                                                    '1': 'L', '2': 'M', '3': 'X', '4': 'J', '5': 'V', '6': 'S', '0': 'D'
+                                                };
+                                                const label = dayLabels[dayNum] || '';
+                                                const isActive = item.minutes > 0;
+
+                                                const today = new Date();
+                                                const isToday = dateObj.getDate() === today.getDate() &&
+                                                    dateObj.getMonth() === today.getMonth() &&
+                                                    dateObj.getFullYear() === today.getFullYear();
+
+                                                return (
+                                                    <View key={index} style={styles.dotItem}>
+                                                        <View style={[
+                                                            styles.activityDot,
+                                                            isActive ? {
+                                                                backgroundColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24',
+                                                                shadowColor: visualMode === 'healing' ? '#2DD4BF' : '#FBBF24',
+                                                                shadowOpacity: 0.6,
+                                                                shadowRadius: 4,
+                                                                elevation: 3
+                                                            } : {
+                                                                backgroundColor: 'rgba(255,255,255,0.06)'
+                                                            },
+                                                            isToday && { borderWidth: 1.2, borderColor: '#FFF' }
+                                                        ]} />
+                                                        <Text style={[
+                                                            styles.dotLabel,
+                                                            isActive && { color: 'rgba(255,255,255,0.8)' },
+                                                            isToday && { color: '#FFF', fontWeight: '900' }
+                                                        ]}>{label}</Text>
+                                                    </View>
+                                                );
+                                            })}
+                                        </View>
+                                    ) : (
+                                        <View style={{ marginTop: 12 }}>
+                                            <OasisCalendar
+                                                data={stats.activity}
+                                                variant={visualMode === 'healing' ? 'healing' : 'growth'}
+                                                monthTitle={`${getMonthName(currentMonth)} ${currentYear}`}
+                                                onPrevMonth={handlePrevMonth}
+                                                onNextMonth={handleNextMonth}
+                                            />
+                                        </View>
+                                    )}
+                                </>
                             )}
                         </BlurView>
                         <View style={styles.innerGlassBorder} pointerEvents="none" />
@@ -488,111 +588,104 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         actionIcon="play"
                     />
                 </View>
-            </View>
 
-            {/* CARRUSEL DE FAVORITOS (SOLO VISIBLE SI HAY FAVORITOS) */}
-            {favoriteItems.length > 0 && (
-                <View style={{ marginBottom: 20 }}>
-                    <CategoryRow
-                        title="Tus Favoritos"
-                        sessions={favoriteItems}
-                        icon="heart"
-                        accentColor="#FF6B6B"
-                        onSessionPress={handleFavoriteCardPress}
-                        onFavoritePress={(session: any) => toggleFavorite(session.id)}
-                        favoriteSessionIds={userState.favoriteSessionIds}
-                        isPlusMember={userState.isPlusMember || false}
+                {/* CARRUSEL DE FAVORITOS (SOLO VISIBLE SI HAY FAVORITOS) */}
+                {favoriteItems.length > 0 && (
+                    <View style={{ marginBottom: 20 }}>
+                        <CategoryRow
+                            title="Tus Favoritos"
+                            sessions={favoriteItems}
+                            icon="heart"
+                            accentColor="#FF6B6B"
+                            onSessionPress={handleFavoriteCardPress}
+                            onFavoritePress={(session: any) => toggleFavorite(session.id)}
+                            favoriteSessionIds={userState.favoriteSessionIds}
+                            isPlusMember={userState.isPlusMember || false}
+                        />
+                    </View>
+                )}
+
+                {/* ÁREA 3: ARSENAL TERAPÉUTICO (BENTO GRID UNIFICADO) */}
+                <View style={{ paddingBottom: 40, width: '100%', marginTop: favoriteItems.length > 0 ? 0 : -20 }}>
+                    <SoundwaveSeparator
+                        title="Consejos del día"
+                        accentColor={visualMode === 'healing' ? '#8B5CF6' : '#2DD4BF'}
                     />
-                </View>
-            )}
 
-            {/* ÁREA 3: ARSENAL TERAPÉUTICO (BENTO GRID UNIFICADO) */}
-            <View style={{ paddingBottom: 40, width: '100%', marginTop: favoriteItems.length > 0 ? 0 : -20 }}>
-                <SoundwaveSeparator
-                    title="Consejos del día"
-                    accentColor={visualMode === 'healing' ? '#8B5CF6' : '#2DD4BF'}
-                />
+                    <View style={styles.gridSection}>
+                        <View style={{ marginBottom: 24 }}>
+                            <OasisCard
+                                superTitle="Academia"
+                                title={recommendations?.academy?.title || "Manejo del Estrés"}
+                                subtitle={recommendations?.academy?.description || "Aprende herramientas cognitivas."}
+                                imageUri={(recommendations?.academy as any)?.image || "https://images.unsplash.com/photo-1434031211b08-39916fcad442?w=800"}
+                                onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
+                                    courseId: recommendations?.academy?.id || '',
+                                    courseData: recommendations?.academy
+                                })}
+                                badgeText="CURSO"
+                                variant="default"
+                                accentColor="#A855F7"
+                                actionText="Ver"
+                                actionIcon="school"
+                            />
+                        </View>
 
-                <View style={styles.gridSection}>
-                    {/* 1. ACADEMIA PAZIIFY (Bento Wide Top) */}
-                    {/* Title Above */}
-                    <View style={{ marginBottom: 24 }}>
-                        <OasisCard
-                            superTitle="Academia"
-                            title={recommendations?.academy?.title || "Manejo del Estrés"}
-                            subtitle={recommendations?.academy?.description || "Aprende herramientas cognitivas."}
-                            imageUri={(recommendations?.academy as any)?.image || "https://images.unsplash.com/photo-1434031211b08-39916fcad442?w=800"}
-                            onPress={() => recommendations?.academy && navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {
-                                courseId: recommendations?.academy?.id || '',
-                                courseData: recommendations?.academy
-                            })}
-                            badgeText="CURSO"
-                            variant="default"
-                            accentColor="#A855F7"
-                            actionText="Ver"
-                            actionIcon="school"
-                        />
-                    </View>
+                        <View style={{ marginBottom: 24 }}>
+                            <OasisCard
+                                superTitle="Audiolibro"
+                                title={recommendations?.audiobook?.title || "El poder del Ahora"}
+                                subtitle={recommendations?.audiobook?.author || "Eckhart Tolle"}
+                                imageUri={(recommendations?.audiobook as any)?.image_url || 'https://paziify.app/placeholder-audiobook.jpg'}
+                                onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
+                                    audiobookId: recommendations?.audiobook?.id || '',
+                                    audiobook: recommendations?.audiobook
+                                })}
+                                badgeText="AUDIOLIBRO"
+                                duration={(recommendations?.audiobook as any)?.duration_minutes ? `${(recommendations?.audiobook as any).duration_minutes} min` : undefined}
+                                variant="default"
+                                accentColor={theme.colors.primary}
+                                actionText="Oír"
+                                actionIcon="headset"
+                            />
+                        </View>
 
-                    {/* 2. Audiolibros - Hero Card */}
-                    {/* Title Above */}
-                    <View style={{ marginBottom: 24 }}>
-                        <OasisCard
-                            superTitle="Audiolibro"
-                            title={recommendations?.audiobook?.title || "El poder del Ahora"}
-                            subtitle={recommendations?.audiobook?.author || "Eckhart Tolle"}
-                            imageUri={(recommendations?.audiobook as any)?.image_url || 'https://paziify.app/placeholder-audiobook.jpg'}
-                            onPress={() => recommendations?.audiobook && navigation.navigate(Screen.AUDIOBOOK_PLAYER, {
-                                audiobookId: recommendations?.audiobook?.id || '',
-                                audiobook: recommendations?.audiobook
-                            })}
-                            badgeText="AUDIOLIBRO"
-                            duration={(recommendations?.audiobook as any)?.duration_minutes ? `${(recommendations?.audiobook as any).duration_minutes} min` : undefined}
-                            variant="default"
-                            accentColor={theme.colors.primary}
-                            actionText="Oír"
-                            actionIcon="headset"
-                        />
-                    </View>
+                        <View style={{ marginBottom: 24 }}>
+                            <OasisCard
+                                superTitle="Relato"
+                                title={recommendations?.stories?.title || "Elías y el Mar"}
+                                subtitle={"Una historia real de superación personal."}
+                                imageUri="https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/true_stories_background.webp"
+                                onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, {
+                                    storyId: recommendations?.stories?.id || '',
+                                    story: recommendations?.stories
+                                })}
+                                badgeText="RELATO"
+                                duration={(recommendations?.stories as any)?.reading_time_minutes ? `${(recommendations?.stories as any).reading_time_minutes} min` : undefined}
+                                variant="default"
+                                accentColor="#38BDF8"
+                                actionText="Leer"
+                                actionIcon="book"
+                            />
+                        </View>
 
-                    {/* 3. Historias (Silhouette Card) */}
-                    {/* Title Above */}
-                    <View style={{ marginBottom: 24 }}>
-                        <OasisCard
-                            superTitle="Relato"
-                            title={recommendations?.stories?.title || "Elías y el Mar"}
-                            subtitle={"Una historia real de superación personal."}
-                            imageUri="https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/true_stories_background.webp"
-                            onPress={() => recommendations?.stories && navigation.navigate(Screen.STORY_DETAIL, {
-                                storyId: recommendations?.stories?.id || '',
-                                story: recommendations?.stories
-                            })}
-                            badgeText="RELATO"
-                            duration={(recommendations?.stories as any)?.reading_time_minutes ? `${(recommendations?.stories as any).reading_time_minutes} min` : undefined}
-                            variant="default"
-                            accentColor="#38BDF8"
-                            actionText="Leer"
-                            actionIcon="book"
-                        />
-                    </View>
-
-                    {/* 4. Sonidos (Literal Vinyl Player) */}
-                    <View style={{ marginBottom: 16 }}>
-                        <OasisCard
-                            superTitle="Música ambiente"
-                            title={recommendations?.sounds?.title || "Frecuencia de Sanación"}
-                            subtitle="Sonidos inmersivos para tu práctica."
-                            imageUri={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
-                            onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
-                                soundscapeId: recommendations.sounds.id,
-                                soundscape: recommendations.sounds
-                            })}
-                            badgeText="SONIDO"
-                            variant="default"
-                            accentColor="#10B981"
-                            actionText="Oír"
-                            actionIcon="musical-notes"
-                        />
+                        <View style={{ marginBottom: 16 }}>
+                            <OasisCard
+                                superTitle="Música ambiente"
+                                title={recommendations?.sounds?.title || "Frecuencia de Sanación"}
+                                subtitle="Sonidos inmersivos para tu práctica."
+                                imageUri={recommendations?.sounds?.image_url || recommendations?.sounds?.image || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500"}
+                                onPress={() => recommendations?.sounds && navigation.navigate(Screen.BACKGROUND_PLAYER, {
+                                    soundscapeId: recommendations.sounds.id,
+                                    soundscape: recommendations.sounds
+                                })}
+                                badgeText="SONIDO"
+                                variant="default"
+                                accentColor="#10B981"
+                                actionText="Oír"
+                                actionIcon="musical-notes"
+                            />
+                        </View>
                     </View>
                 </View>
             </View>
@@ -773,6 +866,32 @@ const styles = StyleSheet.create({
         fontSize: 9,
         fontWeight: '700',
         color: 'rgba(255,255,255,0.3)',
+    },
+    rangeSelectorContainer: {
+        flexDirection: 'row',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 12,
+        padding: 4,
+        marginTop: 12,
+        gap: 4,
+    },
+    rangePill: {
+        flex: 1,
+        paddingVertical: 6,
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    rangePillActive: {
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    rangeText: {
+        fontSize: 9,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.3)',
+        letterSpacing: 1,
+    },
+    rangeTextActive: {
+        color: '#FFF',
     },
     innerGlassBorder: {
         ...StyleSheet.absoluteFillObject,

@@ -4,7 +4,6 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
-    ScrollView,
     Alert,
     Dimensions,
     StatusBar,
@@ -16,13 +15,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
-import { analyticsService, UserStats, DailyActivity } from '../../services/analyticsService';
+import { analyticsService, UserStats } from '../../services/analyticsService';
 import { CardioService, CardioResult } from '../../services/CardioService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
 import { adminHooks } from '../../utils/oasisExperiments';
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import WidgetTutorialModal from '../../components/Challenges/WidgetTutorialModal';
+import { OasisChart } from '../../components/Oasis/OasisChart';
+import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
+import { getDominantMode } from '../../constants/categories';
 
 const { width } = Dimensions.get('window');
 
@@ -39,17 +41,13 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const { userState, signOut, user, isGuest, updateUserState, isNightMode } = useApp();
     const [stats, setStats] = useState<UserStats | null>(null);
-    const [dailyActivity, setDailyActivity] = useState<DailyActivity[]>([]);
+    const [activity, setActivity] = useState<{ day: string; minutes: number }[]>([]);
     const [loading, setLoading] = useState(true);
-    const [dominantMode, setDominantMode] = useState<'healing' | 'growth' | 'neutral'>('neutral');
+    const [dominantMode, setDominantMode] = useState<'healing' | 'growth'>('healing');
     const [todayBaseline, setTodayBaseline] = useState<CardioResult | null>(null);
 
     const visualMode = userState.lifeMode || (isNightMode ? 'healing' : 'growth');
     const [showWidgetTutorial, setShowWidgetTutorial] = useState(false);
-
-    const dayLabels: Record<string, string> = {
-        '0': 'D', '1': 'L', '2': 'M', '3': 'X', '4': 'J', '5': 'V', '6': 'S'
-    };
 
     useEffect(() => {
         const loadStats = async () => {
@@ -57,25 +55,15 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 setLoading(true);
                 const fetchedStats = await analyticsService.getUserStats(user.id);
                 const distribution = await analyticsService.getCategoryDistribution(user.id);
-                const activity = await analyticsService.getWeeklyActivity(user.id);
+                const fetchedActivity = await analyticsService.getWeeklyActivity(user.id);
                 const baseline = await CardioService.getTodayBaseline();
 
                 setStats(fetchedStats);
-                setDailyActivity(activity);
+                setActivity(fetchedActivity);
                 setTodayBaseline(baseline);
 
-                // Determine dominant mode for Aura
-                const healingCount = distribution
-                    .filter(d => ['anxiety', 'sleep', 'health', 'wellness', 'stress', 'ansiedad', 'sueño', 'salud'].includes(d.category))
-                    .reduce((acc, curr) => acc + curr.count, 0);
-
-                const growthCount = distribution
-                    .filter(d => ['professional', 'growth', 'career', 'relationships', 'leadership', 'success', 'carrera', 'exito'].includes(d.category))
-                    .reduce((acc, curr) => acc + curr.count, 0);
-
-                if (healingCount > growthCount) setDominantMode('healing');
-                else if (growthCount > healingCount) setDominantMode('growth');
-                else setDominantMode('neutral');
+                // Determine dominant mode for Aura using centralized logic
+                setDominantMode(getDominantMode(distribution));
 
                 setLoading(false);
             } else if (isGuest) {
@@ -92,14 +80,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         currentStreak: userState.streak || 0,
         resilienceScore: userState.resilienceScore || 50
     }, [stats, userState]);
-
-    const formatDifficultyLevel = (level: number | undefined) => {
-        if (!level) return 'Básico';
-        if (level === 1) return 'Principiante';
-        if (level === 2) return 'Intermedio';
-        if (level === 3) return 'Avanzado';
-        return 'Zen';
-    };
 
     return (
         <OasisScreen
@@ -118,7 +98,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     activeChallengeType={userState.activeChallenge?.type as any}
                 />
             }
-            themeMode={dominantMode === 'neutral' ? (visualMode === 'healing' ? 'healing' : 'growth') : (dominantMode as any)}
+            themeMode={dominantMode as any}
             showSafeOverlay={false}
             disableContentPadding={true}
         >
@@ -178,25 +158,12 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                 <Ionicons name="close-circle" size={14} color="#EF4444" />
                             </TouchableOpacity>
                         )}
-
-                        {isGuest && !userState.activeChallenge && (
-                            <TouchableOpacity
-                                style={styles.guestCTA}
-                                onPress={() => navigation.navigate(Screen.WELCOME)}
-                            >
-                                <Text style={styles.guestCTAText}>Regístrate para el Reto Mensual</Text>
-                                <Ionicons name="arrow-forward" size={14} color={theme.colors.accent} />
-                            </TouchableOpacity>
-                        )}
                     </BlurView>
 
                     {/* Estadísticas de Camino de Paz */}
                     <View style={styles.sectionHeader}>
                         <View style={styles.titleWithInfo}>
                             <Text style={styles.sectionTitle}>Tu Camino de Paz</Text>
-                            <TouchableOpacity onPress={() => Alert.alert("Tu Camino", "Aquí puedes ver el tiempo total que has dedicado a tu bienestar y tu constancia acumulada.")}>
-                                <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
-                            </TouchableOpacity>
                         </View>
                         <TouchableOpacity
                             onPress={() => navigation.navigate(Screen.NOTIFICATION_SETTINGS)}
@@ -251,78 +218,15 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                         <Text style={styles.bentoLabel}>Tu Ritmo de Calma</Text>
                                         <Text style={styles.bentoSubtitle}>Tu evolución semanal</Text>
                                     </View>
-                                    <TouchableOpacity onPress={() => Alert.alert("Ritmo de Calma", "Este gráfico muestra cómo distribuyes tu práctica a lo largo de la semana. Te ayuda a identificar tus mejores días para meditar.")}>
-                                        <Ionicons name="information-circle-outline" size={14} color="rgba(255,255,255,0.4)" style={{ marginLeft: 6, marginTop: -15 }} />
-                                    </TouchableOpacity>
                                 </View>
                                 <Ionicons name="pulse" size={18} color={theme.colors.primary} />
                             </View>
-                            <View style={styles.miniChart}>
-                                {dailyActivity.map((day, i) => {
-                                    const goal = userState.dailyGoalMinutes || 20;
-                                    const percent = Math.min((day.minutes / goal) * 100, 100);
-
-                                    const dateObj = new Date(day.day.includes('T') ? day.day : `${day.day}T12:00:00`);
-                                    const dayNum = dateObj.getDay();
-                                    const label = dayLabels[dayNum.toString()];
-
-                                    return (
-                                        <View key={i} style={styles.barContainer}>
-                                            <View style={[
-                                                styles.miniBar,
-                                                {
-                                                    height: `${Math.max(10, percent)}%`,
-                                                    backgroundColor: percent >= 100 ? theme.colors.primary : theme.colors.accent
-                                                }
-                                            ]} />
-                                            <Text style={styles.barLabel}>{label}</Text>
-                                        </View>
-                                    );
-                                })}
-                                {dailyActivity.length === 0 && (
-                                    <Text style={{ color: 'rgba(255,255,255,0.2)', fontSize: 10, textAlign: 'center', width: '100%' }}>Comienza a meditar para ver tu ritmo</Text>
-                                )}
-                            </View>
+                            <OasisCalendar
+                                data={activity}
+                                variant={dominantMode === 'healing' ? 'healing' : 'growth'}
+                            />
                         </BlurView>
                     </View>
-
-                    {/* Badges Section */}
-                    <View style={styles.sectionHeader}>
-                        <View style={styles.titleWithInfo}>
-                            <Text style={styles.sectionTitle}>Esencias de Calma</Text>
-                            <TouchableOpacity onPress={() => Alert.alert("Esencias", "Son cualidades que vas integrando en tu vida a través de tu compromiso con la meditación.")}>
-                                <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.4)" />
-                            </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity onPress={() => setShowWidgetTutorial(true)}>
-                            <Text style={styles.seeAll}>Ver todas</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.badgesList}
-                    >
-                        <View style={styles.badgeCard}>
-                            <View style={[styles.badgeIcon, { backgroundColor: `${theme.colors.primary}30` }]}>
-                                <Ionicons name="leaf" size={24} color={theme.colors.primary} />
-                            </View>
-                            <Text style={styles.badgeLabel}>Pionero</Text>
-                        </View>
-                        <View style={styles.badgeCard}>
-                            <View style={[styles.badgeIcon, { backgroundColor: `${theme.colors.accent}30` }]}>
-                                <Ionicons name="flame" size={24} color={theme.colors.accent} />
-                            </View>
-                            <Text style={styles.badgeLabel}>Fuego Interior</Text>
-                        </View>
-                        <View style={[styles.badgeCard, { opacity: 0.4 }]}>
-                            <View style={[styles.badgeIcon, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                                <Ionicons name="medal-outline" size={24} color="#FFF" />
-                            </View>
-                            <Text style={styles.badgeLabel}>???</Text>
-                        </View>
-                    </ScrollView>
 
                     {/* BOTONES DE ACCIÓN */}
                     <View style={styles.actionsContainer}>
@@ -345,18 +249,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                             </TouchableOpacity>
                         )}
                         <Text style={styles.versionText}>Paziify v3.0.0 • Oasis Edition</Text>
-
-                        {/* THE ADMIN GATE */}
-                        {adminHooks.useIsAdmin() && (
-                            <TouchableOpacity
-                                style={{ marginTop: 24, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }}
-                                onPress={() => navigation.navigate(Screen.OASIS_SHOWCASE)}
-                            >
-                                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800', letterSpacing: 1 }}>
-                                    ✨ OASIS SHOWCASE (ADMIN)
-                                </Text>
-                            </TouchableOpacity>
-                        )}
                     </View>
                 </View>
             </View>
@@ -526,57 +418,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         marginBottom: 20,
-    },
-    miniChart: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        height: 60,
-        paddingTop: 10,
-    },
-    barContainer: {
-        alignItems: 'center',
-        gap: 6,
-        width: `${100 / 7}%`,
-    },
-    miniBar: {
-        width: 8,
-        borderRadius: 4,
-    },
-    barLabel: {
-        fontSize: 9,
-        fontWeight: '800',
-        color: 'rgba(255,255,255,0.2)',
-    },
-    seeAll: {
-        fontSize: 12,
-        color: theme.colors.primary,
-        fontWeight: '800',
-        letterSpacing: 0.5,
-    },
-    badgesList: {
-        gap: theme.spacing.md,
-        paddingRight: 40,
-    },
-    badgeCard: {
-        alignItems: 'center',
-        gap: 8,
-        width: 100,
-    },
-    badgeIcon: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    badgeLabel: {
-        fontSize: 11,
-        fontWeight: '800',
-        color: 'rgba(255,255,255,0.5)',
-        textAlign: 'center',
     },
     actionsContainer: {
         marginTop: 40,

@@ -195,8 +195,12 @@ Rediseño integral para maximizar la claridad y reducir la fricción.
 
 ### Ajustes (SettingsScreen)
 - **Glassmorphism Groups**: Secciones agrupadas en contenedores con `backgroundColor: 'rgba(255, 255, 255, 0.03)'` y `borderWidth: 1`.
-- **Health Auto-Sync**: Eliminación de botones de guardado; sincronización inmediata con feedback visual en inputs.
-### Gráficas y Datos (Oasis Analytics)
+### Oasis Analytics v4.0 (Premium Standard)
+- **Bordes**: Siempre 1.5px con color `rgba(255,255,255,0.15)`.
+- **Fondo**: `BlurView` intensidad 70 (Tint: dark).
+- **Layout**: Uso obligatorio de `onLayout` para componentes de 7 columnas (Calendarios) para garantizar precisión milimétrica.
+- **Tipografía**: Etiquetas de métricas en formato "Header" (Uppercase, Outfit Bold/Semibold).
+- **Inicio de Semana**: Lunes (L) absoluto.
 - **Barra de Actividad/Bio-Ritmo**: Se ha unificado el diseño de barras crecientes con `LinearGradient`.
 - **Temática**: No se usan gráficos externos; se prefiere la visualización nativa con estados de "Meta" (Verde) y "Progreso" (Dorado).
 
