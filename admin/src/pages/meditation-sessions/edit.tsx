@@ -1,9 +1,9 @@
 import { Edit, useForm } from "@refinedev/antd";
 import { Form, Input, Select, Checkbox, Divider, Typography, InputNumber, Button, Space, message } from "antd";
 import { PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
-import { useList, useNavigation } from "@refinedev/core";
+import { useList } from "@refinedev/core";
 import { MediaUploader } from "../../components/media/MediaUploader";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useLocation } from "react-router";
 import {
     MEDITATION_CATEGORIES,
@@ -18,7 +18,6 @@ const { Text } = Typography;
 export const MeditationSessionEdit = () => {
     const { id } = useParams();
     const location = useLocation();
-    const { list } = useNavigation();
 
     // Get return URL from query params
     const searchParams = new URLSearchParams(location.search);
@@ -28,11 +27,11 @@ export const MeditationSessionEdit = () => {
         resource: "meditation_sessions_content",
         id,
         action: "edit",
-        redirect: false, // Handle manually to preserve search params
+        redirect: false,
         onMutationSuccess: () => {
-            // Return to list with preserved filters
+            message.success("¡Sesión guardada con éxito en la Base de Datos!");
             const listUrl = `/meditations${returnTo}`;
-            window.location.href = listUrl; // Simple way to ensure full reload/state sync if needed, or use navigation
+            window.location.href = listUrl;
         }
     });
 
@@ -41,6 +40,17 @@ export const MeditationSessionEdit = () => {
     // Watch fields for dynamic logic
     const selectedCategory = Form.useWatch("category", form);
     const selectedSlug = Form.useWatch("slug", form);
+
+    // Populate flat form fields from nested JSON when data loads
+    useEffect(() => {
+        const data = formProps.initialValues as any;
+        if (data) {
+            form?.setFieldsValue({
+                scientific_benefits: data.metadata?.scientific_benefits,
+                visual_sync: data.metadata?.visual_sync_enabled ?? false,
+            });
+        }
+    }, [formProps.initialValues, form]);
 
     // Fetch Soundscapes for the selector
     const soundscapesData = useList({
@@ -57,22 +67,34 @@ export const MeditationSessionEdit = () => {
         })) || [];
     }, [soundscapesData]);
 
+    const slugify = (text: string) => {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]+/g, '')
+            .replace(/--+/g, '-')
+            .replace(/^-+/, '')
+            .replace(/-+$/, '');
+    };
+
     const handleAudioSuccess = (url: string, fileName?: string) => {
         form?.setFieldValue("voice_url", url);
 
-        // Auto-slug: if slug is empty, use filename (without extension)
+        // Auto-slug Logic (from filename)
         const currentSlug = form?.getFieldValue("slug");
-        if (!currentSlug && fileName) {
-            // OASIS: Strip folder prefix if present
+        if ((!currentSlug || currentSlug === "") && fileName) {
             const baseFileName = fileName.includes('/') ? fileName.split('/').pop() : fileName;
             const cleanSlug = baseFileName?.split('.')[0] || "";
             form?.setFieldValue("slug", cleanSlug);
-            message.info(`Slug autocompletado como: ${cleanSlug}`);
+            message.info(`Slug autocompletado: ${cleanSlug}`);
         }
     };
 
     const handleThumbnailSuccess = (url: string) => {
         form?.setFieldValue("thumbnail_url", url);
+        message.info("Miniatura lista para guardar.");
     };
 
     const playPreview = (url?: string) => {
@@ -80,12 +102,9 @@ export const MeditationSessionEdit = () => {
             message.warning("No hay audio seleccionado para previsualizar.");
             return;
         }
-
-        // Stop current if playing
         if (currentAudio) {
             currentAudio.pause();
         }
-
         const audio = new Audio(url);
         audio.play().catch(e => console.error("Error playing preview:", e));
         setCurrentAudio(audio);
@@ -93,6 +112,7 @@ export const MeditationSessionEdit = () => {
 
     const stopPreview = () => {
         if (currentAudio) {
+            currentAudio.lastChild;
             currentAudio.pause();
             currentAudio.currentTime = 0;
             setCurrentAudio(null);
@@ -100,15 +120,44 @@ export const MeditationSessionEdit = () => {
     };
 
     const handleOnFinish = async (values: any) => {
-        // Ensure audio_config is structured correctly if it comes as a string from DB (rare but possible)
+        // IMPORTANT: Use initial values to preserve existing fields not in the form
+        const currentData = (formProps.initialValues as any) || {};
+
         const finalValues = {
             ...values,
-            legacy_id: values.slug,
+            legacy_id: currentData.legacy_id || values.slug,
+            // Sync both flat columns AND JSONB objects for the App
+            audio_config: {
+                ...(currentData.audio_config || {}),
+                voiceTrack: values.voice_url,
+                defaultBinaural: values.audio_config?.defaultBinaural || currentData.audio_config?.defaultBinaural,
+                defaultSoundscape: values.audio_config?.defaultSoundscape || currentData.audio_config?.defaultSoundscape
+            },
+            metadata: {
+                ...(currentData.metadata || {}),
+                scientific_benefits: values.scientific_benefits,
+                visual_sync_enabled: values.visual_sync,
+                color: values.metadata?.color || currentData.metadata?.color || "#FF9F43"
+            }
         };
 
-        console.log("Saving Meditation Session:", finalValues);
-        await onFinish(finalValues);
+        // Remove ephemeral UI fields before PATCH
+        delete (finalValues as any).scientific_benefits;
+        delete (finalValues as any).visual_sync;
+
+        console.log("FINAL PAYLOAD TO SUPABASE:", finalValues);
+
+        try {
+            await onFinish(finalValues);
+        } catch (error) {
+            console.error("CRITICAL ERROR SAVING:", error);
+            message.error("Error crítico al guardar. Revisa la consola.");
+        }
     };
+
+    // Correctly get initial values for Uploader
+    const initialVoiceUrl = formProps.initialValues?.voice_url;
+    const initialThumbUrl = formProps.initialValues?.thumbnail_url;
 
     return (
         <Edit saveButtonProps={saveButtonProps}>
@@ -118,7 +167,15 @@ export const MeditationSessionEdit = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item label="Título" name="title" rules={[{ required: true }]}>
-                        <Input placeholder="Respiración de Calma" />
+                        <Input
+                            placeholder="Respiración de Calma"
+                            onChange={(e) => {
+                                const currentSlug = form?.getFieldValue("slug");
+                                if (!currentSlug || currentSlug === "") {
+                                    form?.setFieldValue("slug", slugify(e.target.value));
+                                }
+                            }}
+                        />
                     </Form.Item>
                 </div>
 
@@ -158,23 +215,16 @@ export const MeditationSessionEdit = () => {
                                     showSearch
                                     placeholder="Selecciona ondas..."
                                     style={{ flex: 1 }}
-                                    onChange={(val) => {
-                                        const audio = BINAURAL_BEATS.find(b => b.value === val);
-                                        if (audio) (window as any)._previewBinauralUrl = audio.url;
-                                        else (window as any)._previewBinauralUrl = null;
-                                    }}
                                 />
                             </Form.Item>
                             <Space>
                                 <Button
                                     icon={<PlayCircleOutlined />}
                                     onClick={() => playPreview((window as any)._previewBinauralUrl)}
-                                    title="Reproducir binaural"
                                 />
                                 <Button
                                     icon={<StopOutlined />}
                                     onClick={stopPreview}
-                                    title="Detener"
                                 />
                             </Space>
                         </div>
@@ -187,23 +237,16 @@ export const MeditationSessionEdit = () => {
                                     showSearch
                                     placeholder="Selecciona ambiente..."
                                     style={{ flex: 1 }}
-                                    onChange={(val) => {
-                                        const sound = soundscapeOptions.find((o: any) => o.value === val);
-                                        if (sound) (window as any)._previewSoundscapeUrl = sound.audioUrl;
-                                        else (window as any)._previewSoundscapeUrl = null;
-                                    }}
                                 />
                             </Form.Item>
                             <Space>
                                 <Button
                                     icon={<PlayCircleOutlined />}
                                     onClick={() => playPreview((window as any)._previewSoundscapeUrl)}
-                                    title="Reproducir ambiente"
                                 />
                                 <Button
                                     icon={<StopOutlined />}
                                     onClick={stopPreview}
-                                    title="Detener"
                                 />
                             </Space>
                         </div>
@@ -220,7 +263,7 @@ export const MeditationSessionEdit = () => {
                                 accept="audio/*"
                                 folder={selectedCategory}
                                 customFileName={selectedSlug?.includes('/') ? selectedSlug.split('/').pop() : selectedSlug}
-                                initialUrl={form?.getFieldValue("voice_url")}
+                                initialUrl={initialVoiceUrl}
                                 onUploadSuccess={handleAudioSuccess}
                             />
                             <Form.Item name="voice_url" noStyle rules={[{ required: true }]}>
@@ -237,7 +280,7 @@ export const MeditationSessionEdit = () => {
                                 label="Miniatura"
                                 folder={selectedCategory}
                                 customFileName={selectedSlug?.includes('/') ? selectedSlug.split('/').pop() : selectedSlug}
-                                initialUrl={form?.getFieldValue("thumbnail_url")}
+                                initialUrl={initialThumbUrl}
                                 onUploadSuccess={handleThumbnailSuccess}
                             />
                             <Form.Item name="thumbnail_url" noStyle rules={[{ required: true }]}>

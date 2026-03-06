@@ -11,6 +11,9 @@ Esta guía detalla la infraestructura de datos de Paziify. Esta versión se sinc
 ## 2. Diccionario de Datos (Esquema Public)
 
 ### `meditation_sessions_content` 🧘
+> [!IMPORTANT]
+> **Permisos de Escritura**: Esta tabla requiere el rol `admin` en la tabla `profiles`. Si un usuario intenta guardar cambios sin el rol adecuado, Supabase devolverá un éxito falso (Silent Fail) pero no persistirá los datos.
+
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `legacy_id` | TEXT | ID único para la App (ej: "anx_401"). Autosync con `slug`. |
@@ -124,4 +127,4 @@ El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **e
 | `is_active`| BOOL | Control de publicación instantánea |
 
 ---
-*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Stabilization)*
+*Última revisión: 6 de Marzo de 2026 - Versión 2.44.0 (Admin Roles Stabilization)*

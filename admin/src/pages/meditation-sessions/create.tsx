@@ -1,7 +1,7 @@
 import { Create, useForm } from "@refinedev/antd";
 import { Form, Input, Select, Checkbox, Divider, Typography, InputNumber, Button, Space, message } from "antd";
 import { PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
-import { useList, useNavigation } from "@refinedev/core";
+import { useList } from "@refinedev/core";
 import { MediaUploader } from "../../components/media/MediaUploader";
 import { useState, useMemo } from "react";
 import { useLocation } from "react-router";
@@ -17,7 +17,6 @@ const { Text } = Typography;
 
 export const MeditationSessionCreate = () => {
     const location = useLocation();
-    const { list } = useNavigation();
 
     // Get return URL from query params
     const searchParams = new URLSearchParams(location.search);
@@ -25,9 +24,9 @@ export const MeditationSessionCreate = () => {
 
     const { formProps, saveButtonProps, form, onFinish } = useForm({
         resource: "meditation_sessions_content",
-        redirect: false, // Handle manually to preserve search params
+        redirect: false,
         onMutationSuccess: () => {
-            // Return to list with preserved filters
+            message.success("¡Sesión creada con éxito!");
             const listUrl = `/meditations${returnTo}`;
             window.location.href = listUrl;
         }
@@ -54,17 +53,28 @@ export const MeditationSessionCreate = () => {
         })) || [];
     }, [soundscapesData]);
 
+    const slugify = (text: string) => {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]+/g, '')
+            .replace(/--+/g, '-')
+            .replace(/^-+/, '')
+            .replace(/-+$/, '');
+    };
+
     const handleAudioSuccess = (url: string, fileName?: string) => {
         form?.setFieldValue("voice_url", url);
 
-        // Auto-slug: if slug is empty, use filename (without extension)
+        // Auto-slug Logic (from filename)
         const currentSlug = form?.getFieldValue("slug");
-        if (!currentSlug && fileName) {
-            // OASIS: Strip folder prefix if present (e.g., "kids/my-file" -> "my-file")
+        if ((!currentSlug || currentSlug === "") && fileName) {
             const baseFileName = fileName.includes('/') ? fileName.split('/').pop() : fileName;
             const cleanSlug = baseFileName?.split('.')[0] || "";
             form?.setFieldValue("slug", cleanSlug);
-            message.info(`Slug autocompletado como: ${cleanSlug}`);
+            message.info(`Slug autocompletado: ${cleanSlug}`);
         }
     };
 
@@ -74,17 +84,14 @@ export const MeditationSessionCreate = () => {
 
     const playPreview = (url?: string) => {
         if (!url) {
-            message.warning("No hay audio seleccionado para previsualizar.");
+            message.warning("No hay audio seleccionado.");
             return;
         }
-
-        // Stop current if playing
         if (currentAudio) {
             currentAudio.pause();
         }
-
         const audio = new Audio(url);
-        audio.play().catch(e => console.error("Error playing preview:", e));
+        audio.play().catch(e => console.error("Error previewing:", e));
         setCurrentAudio(audio);
     };
 
@@ -100,9 +107,30 @@ export const MeditationSessionCreate = () => {
         const finalValues = {
             ...values,
             legacy_id: values.slug,
+            // Sync both flat columns AND JSONB objects for the App
+            audio_config: {
+                voiceTrack: values.voice_url,
+                defaultBinaural: values.audio_config?.defaultBinaural || "",
+                defaultSoundscape: values.audio_config?.defaultSoundscape || ""
+            },
+            metadata: {
+                scientific_benefits: values.scientific_benefits,
+                visual_sync_enabled: values.visual_sync,
+                color: "#FF9F43", // Default Oasis color
+                voice_style: "calm"
+            }
         };
-        console.log("Creating Meditation Session:", finalValues);
-        await onFinish(finalValues);
+
+        // Cleanup before sending to Supabase
+        delete (finalValues as any).scientific_benefits;
+        delete (finalValues as any).visual_sync;
+
+        try {
+            await onFinish(finalValues);
+        } catch (error) {
+            console.error("ERROR CREATING:", error);
+            message.error("Error al crear la sesión. Revisa la consola.");
+        }
     };
 
     return (
@@ -113,7 +141,15 @@ export const MeditationSessionCreate = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item label="Título" name="title" rules={[{ required: true }]}>
-                        <Input placeholder="Respiración de Calma" />
+                        <Input
+                            placeholder="Respiración de Calma"
+                            onChange={(e) => {
+                                const currentSlug = form?.getFieldValue("slug");
+                                if (!currentSlug || currentSlug === "") {
+                                    form?.setFieldValue("slug", slugify(e.target.value));
+                                }
+                            }}
+                        />
                     </Form.Item>
                 </div>
 
@@ -153,24 +189,11 @@ export const MeditationSessionCreate = () => {
                                     showSearch
                                     placeholder="Selecciona ondas..."
                                     style={{ flex: 1 }}
-                                    onChange={(val) => {
-                                        const audio = BINAURAL_BEATS.find(b => b.value === val);
-                                        if (audio) (window as any)._previewBinauralUrl = audio.url;
-                                        else (window as any)._previewBinauralUrl = null;
-                                    }}
                                 />
                             </Form.Item>
                             <Space>
-                                <Button
-                                    icon={<PlayCircleOutlined />}
-                                    onClick={() => playPreview((window as any)._previewBinauralUrl)}
-                                    title="Reproducir binaural"
-                                />
-                                <Button
-                                    icon={<StopOutlined />}
-                                    onClick={stopPreview}
-                                    title="Detener"
-                                />
+                                <Button icon={<PlayCircleOutlined />} onClick={() => playPreview((window as any)._previewBinauralUrl)} />
+                                <Button icon={<StopOutlined />} onClick={stopPreview} />
                             </Space>
                         </div>
                     </Form.Item>
@@ -182,24 +205,11 @@ export const MeditationSessionCreate = () => {
                                     showSearch
                                     placeholder="Selecciona ambiente..."
                                     style={{ flex: 1 }}
-                                    onChange={(val) => {
-                                        const sound = soundscapeOptions.find((o: any) => o.value === val);
-                                        if (sound) (window as any)._previewSoundscapeUrl = sound.audioUrl;
-                                        else (window as any)._previewSoundscapeUrl = null;
-                                    }}
                                 />
                             </Form.Item>
                             <Space>
-                                <Button
-                                    icon={<PlayCircleOutlined />}
-                                    onClick={() => playPreview((window as any)._previewSoundscapeUrl)}
-                                    title="Reproducir ambiente"
-                                />
-                                <Button
-                                    icon={<StopOutlined />}
-                                    onClick={stopPreview}
-                                    title="Detener"
-                                />
+                                <Button icon={<PlayCircleOutlined />} onClick={() => playPreview((window as any)._previewSoundscapeUrl)} />
+                                <Button icon={<StopOutlined />} onClick={stopPreview} />
                             </Space>
                         </div>
                     </Form.Item>

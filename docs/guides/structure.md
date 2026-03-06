@@ -18,12 +18,12 @@
 
 **Paziify** es una aplicaci贸n m贸vil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**Versi贸n**: 2.39.0 (Sensorial Revolution - PDS 3.0 Standard)
-**脷ltima actualizaci贸n**: 3 de Marzo de 2026
+**Versi贸n**: 2.44.0 (Admin Roles Stabilization)
+**脷ltima actualizaci贸n**: 6 de Marzo de 2026
 
 **Historial Reciente**:
+- **v2.44.0**: Reparaci贸n Cr铆tica de Guardado (RLS Admin Fix) y Shadow Sync Architectura para Panel Admin.
 - **v2.39.0**: Favoritos Unificados, Sincronizaci贸n OasisCard (Admin Sync) y Hotfixes de Audio.
-- **v2.38.0**: Favoritos Unificados y Hotfixes de Audio (MiniPlayer stability).
 
 ---
 
@@ -1346,3 +1346,19 @@ admin/
 *Total de pantallas: 32*  
 *Total de componentes: 50+*  
 *Total de servicios: 12*
+
+### 9. Panel de Administraci胣 (CMS)
+
+El CMS de Paziify est谩 construido sobre **Refine + Ant Design**. Su misi胣 es permitir al equipo de contenido gestionar el cat谩logo sin conocimientos t胏nicos.
+
+#### Arquitectura " Shadow Sync\ (v2.44.0)
+Debido a la migraci胣 de contenidos a campos JSONB (para mayor flexibilidad), el Panel utiliza un sistema de **Sincronizaci胣 en la Sombra**:
+1. **Carga**: Al editar, un useEffect extrae los valores anidados de metadata y udio_config y los coloca en campos planos del formulario.
+2. **Edici胣**: El usuario interactua con campos de texto y selectores normales.
+3. **Transformaci胣**: El m胻odo handleOnFinish (en el useForm de Refine) reconstruye los objetos JSON antes de la petici胣 PATCH a Supabase.
+
+#### Restricciones de Seguridad (RLS)
+El Panel exige que el usuario tenga el rol dmin definido en la tabla public.profiles. Los cambios realizados por usuarios sin este rol ser谩n rechazados silenciosamente por las pol胻icas de Supabase, devolviendo un 200 OK sin persistencia real.
+
+---
+*脷ltima revisi胣: 6 de Marzo de 2026 - Versi胣 2.44.0*
