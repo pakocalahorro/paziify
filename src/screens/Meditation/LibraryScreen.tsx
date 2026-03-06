@@ -305,23 +305,23 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.2)',
     },
     badgeText: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 10,
-        fontWeight: '900',
         letterSpacing: 1.5,
     },
     cardInfo: {
         gap: 12,
     },
     cardTitle: {
-        fontSize: 32,
-        fontWeight: '900',
+        fontFamily: 'Caveat_700Bold',
+        fontSize: 34,
         color: '#FFFFFF',
         letterSpacing: -1,
     },
     cardDesc: {
+        fontFamily: 'Outfit_400Regular',
         fontSize: 14,
         color: 'rgba(255,255,255,0.6)',
-        fontWeight: '500',
         lineHeight: 20,
     },
     actionButton: {
@@ -335,9 +335,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     actionText: {
+        fontFamily: 'Outfit_900Black',
         color: '#000',
         fontSize: 12,
-        fontWeight: '900',
         letterSpacing: 1,
     }
 });

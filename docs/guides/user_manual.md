@@ -89,11 +89,12 @@ Transforma tu cámara en un sensor de bienestar emocional con tecnología rPPG (
 
 ### Sistema de Medición Progresiva (Reliability First)
 
-#### **FASE 1: Calibración Inteligente**
-1. **Preparación**: Coloca suavemente tu dedo índice sobre la lente trasera y el flash.
-2. **Feedback Visual en Tiempo Real**:
-   - **Anillo de Calibración**: Te guía con colores dinámicos (Rojo/Amarillo/Verde).
-   - **Validación Automática**: El sistema solo comienza cuando detecta una señal de pulso estable y limpia.
+#### **FASE 1: Calibración y Preparación (v2.43.0)**
+1. **Acceso Inmersivo**: El escáner ha sido simplificado visualmente para tu paz mental. Hemos eliminado los esquemas técnicos del teléfono para que tu foco esté solo en la luz de la huella.
+2. **Instrucciones Dinámicas**: Sigue las indicaciones que aparecen bajo el título "**Cómo Escanear**":
+   - **"Cubre lente y flash suavemente"**: Aparecerá mientras el sistema calibra la señal.
+   - **"Mantén el dedo quieto y respira"**: Se activará automáticamente durante el escaneo para asegurar la máxima calidad rPPG.
+3. **Feedback Visual Premium**: El título ahora usa la elegante fuente `Caveat`, integrándose perfectamente con el lenguaje visual de tu Oasis.
 
 #### **FASE 2: Escaneo por Acumulación de Calidad**
 Olvídate de los temporizadores que fallan si te mueves.
@@ -252,5 +253,5 @@ Paziify introduce una de sus mayores actualizaciones en la experiencia de usuari
 
 ---
 
-*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Revolution)*
+*Última revisión: 6 de Marzo de 2026 - Versión 2.43.0 (Auditoría & Refinamiento)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

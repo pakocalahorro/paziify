@@ -36,3 +36,17 @@ export const getDominantMode = (distribution: Record<string, number>): LifeMode 
 
     return growthScore > healingScore ? 'growth' : 'healing';
 };
+
+/**
+ * Categorías de contenido para Stories y otros listados filtrados.
+ */
+export const CONTENT_CATEGORIES = [
+    { key: 'all', label: 'Todas', icon: 'apps-outline', color: '#646CFF' },
+    { key: 'resilience', label: 'Resiliencia', icon: 'fitness-outline', color: '#FF6B9D' },
+    { key: 'mindset', label: 'Mentalidad', icon: 'bulb-outline', color: '#FBBF24' },
+    { key: 'leadership', label: 'Liderazgo', icon: 'ribbon-outline', color: '#4FC3F7' },
+    { key: 'health', label: 'Salud', icon: 'heart-outline', color: '#66BB6A' },
+    { key: 'family', label: 'Familia', icon: 'people-outline', color: '#FFB74D' },
+    { key: 'anxiety', label: 'Ansiedad', icon: 'rainy-outline', color: '#FFA726' },
+];
+

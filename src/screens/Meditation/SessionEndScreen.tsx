@@ -248,40 +248,7 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                 )}
 
 
-                {/* Social Section: Compartimos la experiencia?? */}
-                {selectedMood >= 3 && (
-                    <View style={styles.shareSection}>
-                        <View style={styles.shareRow}>
-                            <Text style={styles.shareText}>¿Compartimos la experiencia?</Text>
-                            <Switch
-                                value={isSharing}
-                                onValueChange={setIsSharing}
-                                trackColor={{ false: '#333', true: '#4CD964' }}
-                                thumbColor={isSharing ? '#FFF' : '#666'}
-                            />
-                        </View>
 
-
-                        <View style={styles.separator} />
-
-                        {/* Opciones de Continuidad */}
-                        <Text style={styles.shareSubtext}>
-                            Tu opinión ayudará a otros usuarios de la comunidad.
-                        </Text>
-
-                        {isSharing && (
-                            <TextInput
-                                style={styles.commentInput}
-                                placeholder="Escribe tu reflexión aquí..."
-                                placeholderTextColor="rgba(255,255,255,0.3)"
-                                multiline
-                                value={comment}
-                                onChangeText={setComment}
-                                maxLength={200}
-                            />
-                        )}
-                    </View>
-                )}
             </ScrollView>
 
             <View style={styles.footer}>
@@ -342,14 +309,14 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     badgeText: {
+        fontFamily: 'Outfit_800ExtraBold',
         color: theme.colors.primary,
         fontSize: 12,
-        fontWeight: '800',
         letterSpacing: 1,
     },
     title: {
+        fontFamily: 'Outfit_800ExtraBold',
         fontSize: 22,
-        fontWeight: '800',
         color: '#FFF',
         textAlign: 'center',
         marginBottom: 24,
@@ -384,8 +351,8 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
     moodLabel: {
+        fontFamily: 'Outfit_700Bold',
         fontSize: 12,
-        fontWeight: '700',
         color: 'rgba(255,255,255,0.4)',
         letterSpacing: 1,
     },
@@ -407,8 +374,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     assistantTitle: {
+        fontFamily: 'Outfit_800ExtraBold',
         fontSize: 12,
-        fontWeight: '800',
         color: 'rgba(255,255,255,0.4)',
         letterSpacing: 1,
         marginBottom: 4,
@@ -510,9 +477,9 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
     },
     buttonText: {
+        fontFamily: 'Outfit_800ExtraBold',
         color: '#FFF',
         fontSize: 18,
-        fontWeight: '800',
     },
     cardioFooterBtn: {
         flex: 1,
@@ -527,9 +494,9 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255, 75, 75, 0.3)',
     },
     cardioFooterText: {
+        fontFamily: 'Outfit_700Bold',
         color: '#FF4B4B',
         fontSize: 14,
-        fontWeight: '700',
     },
 });
 

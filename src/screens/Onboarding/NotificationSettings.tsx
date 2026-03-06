@@ -17,6 +17,7 @@ import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { NotificationService, NotificationSettings as SettingsType } from '../../services/NotificationService';
+import Constants from 'expo-constants';
 
 // Oasis PDS
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
@@ -492,7 +493,7 @@ const NotificationSettings: React.FC<Props> = ({ navigation }) => {
                 {/* Footer Brand */}
                 <View style={styles.brandFooter}>
                     <Ionicons name="leaf" size={24} color={theme.colors.primary} />
-                    <Text style={styles.brandText}>PAZIIFY WELLNESS OS V2.33.5</Text>
+                    <Text style={styles.brandText}>PAZIIFY WELLNESS OS V{Constants.expoConfig?.version ?? '—'}</Text>
                 </View>
             </ScrollView>
         </OasisScreen>

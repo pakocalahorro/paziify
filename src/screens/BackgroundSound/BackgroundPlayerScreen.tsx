@@ -665,9 +665,9 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     headerTitleBase: {
+        fontFamily: 'Outfit_700Bold',
         color: '#FFF',
         fontSize: 16,
-        fontWeight: 'bold',
         opacity: 0.8,
     },
     iconButton: {
@@ -677,9 +677,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     timerCountdown: {
+        fontFamily: 'Outfit_700Bold',
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '700',
         fontVariant: ['tabular-nums'],
     },
     // Layout Audiobook
@@ -707,15 +707,15 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     title: {
+        fontFamily: 'Caveat_700Bold',
         color: '#FFF',
-        fontSize: 28,
-        fontWeight: '800',
+        fontSize: 38,
         textAlign: 'center',
         marginBottom: 8,
         letterSpacing: -0.5,
     },
     author: {
-        fontFamily: 'Caveat_400Regular', // Caveat font applied
+        fontFamily: 'Caveat_400Regular',
         color: theme.colors.primary,
         fontSize: 24,
         marginBottom: 10,

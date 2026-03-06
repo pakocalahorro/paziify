@@ -182,7 +182,7 @@ const CBTAcademyScreen: React.FC<Props> = ({ navigation }) => {
                             ...c,
                             creatorName: c.author,
                             thumbnailUrl: c.image, // Corrected from thumbnailUrl
-                            isPlus: false, // Defaulting as modules don't have isPlus
+                            isPlus: (c as any).is_premium || false,
                             description: c.description
                         } as any))}
                         onSessionPress={(item: any) => navigation.navigate(Screen.ACADEMY_COURSE_DETAIL, {

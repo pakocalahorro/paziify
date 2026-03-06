@@ -136,9 +136,11 @@ Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas"
 - Alturas unificadas (ej: 200px) para mantener un *scroll* armónico en todas las secciones independientes.
 
 **Sistema Tipográfico Corporativo Dual (Outfit + Caveat)**:
-- **La Estructura (`@expo-google-fonts/outfit`)**: Tipografía geométrica, moderna y extremadamente legible que reemplaza a las antiguas sans-serif en los títulos principales (ej. `fontFamily: 'Outfit_800ExtraBold'`, `Outfit_900Black`). Su peso aporta robustez técnica y seriedad de grado médico.
 - **La Alma (`@expo-google-fonts/caveat`)**: Tipografía manuscrita que da un carácter humano, íntimo y personal a la app. Otorga el matiz "Boutique/Editorial".
-- **Norma de Uso Dual**: `Caveat_700Bold` actúa EXCLUSIVAMENTE como "Firma" o "Prefijo" (tamaño grande 22-36px) flotando justo por encima de la "Estructura" maciza que proporciona `Outfit`. Esta será la base para todos los futuros refinamientos de UI corporativa de Paziify.
+- **Norma de Uso Dual (v2.43.0)**: 
+  - **`Caveat_700Bold`**: Actúa EXCLUSIVAMENTE como "Firma" o título "Hero" de alto impacto. Se aplica en `SessionDetailScreen` (40px), `BackgroundPlayerScreen` (38px) y `LibraryScreen` (34px).
+  - **`Outfit`**: Tipografía estructural obligatoria para toda la interfaz funcional, botones y métricas. Reemplaza cualquier uso de pesos numéricos (`fontWeight`) antiguos.
+- **Carga de Fuentes**: `App.tsx` debe cargar `Caveat_400Regular` para textos secundarios de autoría y `Caveat_700Bold` para títulos.
 
 **Dashboard Compacto de Analíticas**:
 - Agrupación de métricas de Salud (Diarias/Semanales) en un "Glassmorphism oscurecido" (`rgba(2, 6, 23, 0.4)`, Intensity 70).
@@ -231,4 +233,4 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 
 ---
 
-*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Stabilization)*
+*Última revisión: 6 de Marzo de 2026 - Versión 2.43.0 (Auditoría & Refinamiento)*

@@ -55,7 +55,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 <Video
                     ref={videoRef}
                     source={{
-                        uri: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                        uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/login.mp4',
                     }}
                     style={StyleSheet.absoluteFillObject}
                     resizeMode={ResizeMode.COVER}

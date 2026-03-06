@@ -258,11 +258,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
 
         const rows: { title: string; data: Session[]; icon?: string; accentColor?: string; variant?: 'overlay' | 'standard' | 'poster' | 'wide' | 'hero' | 'section-header' }[] = [];
 
-        const favoriteIds = userState.favoriteSessionIds || [];
-        if (favoriteIds.length > 0) {
-            const favorites = sessions.filter(s => favoriteIds.includes(s.id)).map(convertToSession);
-            rows.push({ title: 'Tus Favoritos', data: favorites, icon: 'heart', accentColor: '#FF6B6B' });
-        }
+
 
         const technicalSessions = sessions.filter(s => s.isTechnical).map(convertToSession);
         if (technicalSessions.length > 0) {
@@ -287,7 +283,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         }
 
         const newArrivals = [...sessions].reverse().slice(0, 5).map(convertToSession);
-        rows.push({ title: 'Mejor valoradas', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA', variant: 'standard' });
+        rows.push({ title: 'Más recientes', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA', variant: 'standard' });
 
         return rows;
     }, [filteredSessions, selectedCategory, searchQuery, selectedGuide, userState.favoriteSessionIds, sessions, shuffledSessions, hasActiveFilter]);

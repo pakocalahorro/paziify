@@ -30,6 +30,7 @@ Para audiolibros e historias:
 *   **Global Context**: Mantiene el estado del audio vivo entre cambios de pantalla.
 *   **MiniPlayer**: Componente flotante que permite el control de reproducción en toda la app.
 *   **Protocolo de Inmersión (Auto-Stop)**: Toda pantalla de meditación o academia con audio propio DEBE invocar `closePlayer()` del contexto global antes de la navegación para evitar solapamientos.
+*   **Sincronización de Duración (v2.43.0)**: El componente `BreathingTimer` debe inicializarse SIEMPRE con la duración real del archivo de audio (detectada por `expo-av` en `initSession`). Se prohíbe sobrescribir `totalDuration` con minutos redondeados del CMS en la función `startSession`, garantizando precisión milimétrica (ej: 4:37 vs 4:00).
 
 ---
 
@@ -108,4 +109,4 @@ Para evitar sorpresas con la facturación de Google Cloud, el motor integra un s
 > Los scripts que apuntan a buckets legacy (`meditation-voice`) han sido movidos a `scripts/LEGACY_OLD_STRUCTURE/`. **No usarlos** para nuevas cargas masivas. Usa el Panel Admin.
 
 ---
-*Última revisión: 3 de Marzo de 2026 - Versión 2.39.0 (Oasis 3.0 Stabilization)*
+*Última revisión: 6 de Marzo de 2026 - Versión 2.43.0 (Auditoría & Refinamiento)*

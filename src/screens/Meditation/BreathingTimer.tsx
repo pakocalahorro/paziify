@@ -521,8 +521,9 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
         try {
             setSessionState('ACTIVE');
-            totalDuration.current = sessionRef.current?.durationMinutes * 60 || 600;
-            setTimeLeft(totalDuration.current);
+            // FIX: Don't override duration here, keep the one synced from Audio Engine
+            // totalDuration.current = sessionRef.current?.durationMinutes * 60 || 600;
+            // setTimeLeft(totalDuration.current);
 
             // Play all enabled layers simultaneously
             const layersToPlay: any[] = ['voice', 'soundscape', 'elements'];
@@ -639,7 +640,7 @@ const BreathingTimer: React.FC<Props> = ({ navigation, route }) => {
 
     const handleRestart = async () => {
         setSessionState('IDLE');
-        setTimeLeft(sessionRef.current?.durationMinutes * 60 || 600);
+        setTimeLeft(totalDuration.current);
         setPhase('inhale');
         setPhaseProgress(0);
 

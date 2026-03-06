@@ -56,9 +56,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
                 <Video
                     ref={videoRef}
                     source={{
-                        // Placeholder video to preview the Vanguard layout (Google Cloud Storage)
-                        // TODO [CEO]: Reemplazar por tu enlace de Supabase Storage una vez subas el video inmersivo final.
-                        uri: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                        uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/login.mp4',
                     }}
                     style={StyleSheet.absoluteFillObject}
                     resizeMode={ResizeMode.COVER}

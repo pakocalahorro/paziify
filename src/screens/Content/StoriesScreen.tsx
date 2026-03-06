@@ -192,9 +192,6 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={styles.headerContent}>
-            <View style={styles.header}>
-                {/* Antiguo bloque de encabezado removido - Ahora manejado por OasisHeader en OasisScreen */}
-            </View>
 
             {/* Search Bar (Collapsible) */}
             <Animated.View style={[
@@ -318,12 +315,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
                         ))}
                     </View>
 
-                    <TouchableOpacity
-                        onPress={handlePopulate}
-                        style={{ padding: 20, alignItems: 'center', opacity: 0.3 }}
-                    >
-                        <Text style={{ color: '#FFF', fontSize: 10 }}>Regenerar Contenido (Dev)</Text>
-                    </TouchableOpacity>
+
                 </Animated.ScrollView>
             </Animated.View>
 
@@ -432,8 +424,8 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     categoryLabel: {
+        fontFamily: 'Outfit_700Bold',
         fontSize: 13,
-        fontWeight: '700',
         color: 'rgba(255,255,255,0.5)',
     },
     categoryLabelActive: {

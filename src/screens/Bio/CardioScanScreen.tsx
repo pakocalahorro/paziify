@@ -350,8 +350,8 @@ const CardioScanScreen = () => {
 
 
 
-    if (!hasPermission) return <View style={styles.container}><Text>No Camera Permission</Text></View>;
-    if (!device) return <View style={styles.container}><Text>No Camera Device</Text></View>;
+    if (!hasPermission) return <View style={[styles.container, styles.centerContent]}><Text style={styles.errorText}>Sin permiso de cámara</Text></View>;
+    if (!device) return <View style={[styles.container, styles.centerContent]}><Text style={styles.errorText}>No se detectó cámara</Text></View>;
 
     return (
         <View style={styles.container}>
@@ -375,25 +375,11 @@ const CardioScanScreen = () => {
 
                     {/* Visual Instruction Guide */}
                     <View style={styles.guideContainer}>
-                        {/* Schematic: Phone Camera + Finger */}
-                        <View style={styles.schematicContainer}>
-                            {/* Phone Camera Module Representation */}
-                            <View style={styles.phoneCameraModule}>
-                                <View style={styles.lens} />
-                                <View style={styles.flash} />
-                            </View>
-
-                            {/* Finger Overlay (Semi-transparent red to indicate coverage) */}
-                            <View style={styles.fingerOverlay}>
-                                <Ionicons name="finger-print" size={32} color="rgba(255,255,255,0.8)" />
-                            </View>
-                        </View>
-
                         <Text style={styles.instructionTitle}>Cómo Escanear</Text>
-                        <Text style={styles.instructionText}>
+                        <Text style={styles.instructionSub}>
                             {scanPhase === 'idle'
-                                ? "Coloca tu dedo índice cubriendo LENTE y FLASH suavemente."
-                                : "Mantén el dedo quieto y respira normal."}
+                                ? "Cubre lente y flash suavemente"
+                                : "Mantén el dedo quieto y respira"}
                         </Text>
                     </View>
 
@@ -532,6 +518,17 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000',
     },
+    centerContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        fontFamily: 'Outfit_600SemiBold',
+        color: '#FFF',
+        fontSize: 16,
+        textAlign: 'center',
+        opacity: 0.8,
+    },
     overlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0,0,0,0.85)', // Darken camera feed significantly
@@ -545,11 +542,9 @@ const styles = StyleSheet.create({
     },
     guideContainer: {
         alignItems: 'center',
-        marginBottom: 40,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        padding: 20,
-        borderRadius: 24,
-        width: '85%',
+        marginBottom: 60,
+        paddingHorizontal: 20,
+        width: '100%',
     },
     schematicContainer: {
         width: 80,
@@ -597,16 +592,19 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255, 100, 100, 0.5)',
     },
     instructionTitle: {
+        fontFamily: 'Caveat_700Bold',
         color: '#FFF',
-        fontSize: 16,
-        fontWeight: '700',
-        marginBottom: 5,
+        fontSize: 38,
+        textAlign: 'center',
+        marginBottom: 8,
     },
-    instructionText: {
-        color: 'rgba(255,255,255,0.7)',
+    instructionSub: {
+        fontFamily: 'Outfit_600SemiBold',
+        color: 'rgba(255,255,255,0.6)',
         fontSize: 14,
         textAlign: 'center',
-        lineHeight: 20,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     pulseContainer: {
         width: 120,
@@ -633,10 +631,10 @@ const styles = StyleSheet.create({
         // Removed border and background as requested (no circle)
     },
     progressText: {
+        fontFamily: 'Outfit_600SemiBold',
         color: 'rgba(255,255,255,0.6)',
         marginTop: 30,
         fontSize: 16,
-        fontWeight: '600',
         letterSpacing: 1,
     },
     closeButton: {
@@ -661,9 +659,9 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.3)',
     },
     buttonText: {
+        fontFamily: 'Outfit_700Bold',
         color: '#FFF',
         marginTop: 5,
-        fontWeight: 'bold',
         fontSize: 12,
         letterSpacing: 1,
     },
@@ -688,12 +686,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     metricValue: {
+        fontFamily: 'Outfit_700Bold',
         color: '#FFF',
         fontSize: 32,
-        fontWeight: '700',
         fontVariant: ['tabular-nums'],
     },
     metricLabel: {
+        fontFamily: 'Outfit_600SemiBold',
         color: 'rgba(255,255,255,0.5)',
         fontSize: 12,
         marginTop: 4,
@@ -742,9 +741,9 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
     },
     qualityText: {
+        fontFamily: 'Outfit_600SemiBold',
         color: '#FFF',
         fontSize: 14,
-        fontWeight: '600',
         letterSpacing: 0.5,
     },
     tipsContainer: {

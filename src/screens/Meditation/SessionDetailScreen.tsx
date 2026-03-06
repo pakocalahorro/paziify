@@ -29,9 +29,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
-import { SESSION_ASSETS } from '../../constants/images';
+import { SESSION_ASSETS, IMAGES } from '../../constants/images';
 import { useSessionDetail } from '../../hooks/useContent';
 import { adaptSession } from '../../services/contentService';
+import { useApp } from '../../context/AppContext';
+import { getGuideAvatar } from '../../constants/guides';
 import { useAudioPlayer } from '../../context/AudioPlayerContext';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -283,7 +285,16 @@ const SessionDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                                         colors={[session.color || '#2DD4BF', '#000']}
                                         style={StyleSheet.absoluteFill}
                                     />
-                                    <Ionicons name="person" size={24} color="#FFF" />
+                                    {getGuideAvatar(session.creatorName) ? (
+                                        <Image
+                                            source={{ uri: getGuideAvatar(session.creatorName) }}
+                                            style={StyleSheet.absoluteFill}
+                                            contentFit="cover"
+                                            transition={300}
+                                        />
+                                    ) : (
+                                        <Ionicons name="person" size={24} color="#FFF" />
+                                    )}
                                 </View>
                                 <View style={{ flex: 1, paddingRight: 8 }}>
                                     <Text style={styles.creatorName}>{session.creatorName || 'Guía Paziify'}</Text>
@@ -394,13 +405,13 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     categoryText: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 11,
-        fontWeight: '900',
         letterSpacing: 2,
     },
     title: {
-        fontSize: 32,
-        fontWeight: '900',
+        fontFamily: 'Caveat_700Bold',
+        fontSize: 40,
         color: '#FFFFFF',
         marginBottom: 12,
         letterSpacing: -0.5,
@@ -416,9 +427,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     metaText: {
+        fontFamily: 'Outfit_700Bold',
         fontSize: 14,
         color: '#FFFFFF',
-        fontWeight: '700',
         opacity: 0.8,
     },
     description: {
@@ -432,8 +443,8 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     infoSectionTitle: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 10,
-        fontWeight: '900',
         color: 'rgba(255, 255, 255, 0.4)',
         letterSpacing: 1.5,
         marginBottom: 10,
@@ -452,14 +463,14 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255, 255, 255, 0.05)',
     },
     rhythmValue: {
+        fontFamily: 'Outfit_800ExtraBold',
         fontSize: 18,
-        fontWeight: '800',
         color: '#FFF',
         marginTop: 4,
     },
     rhythmLabel: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 9,
-        fontWeight: '900',
         color: 'rgba(255, 255, 255, 0.4)',
         letterSpacing: 1,
     },
@@ -538,13 +549,13 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     creatorName: {
+        fontFamily: 'Outfit_800ExtraBold',
         fontSize: 18,
-        fontWeight: '800',
         color: '#FFFFFF',
     },
     creatorCredentials: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 10,
-        fontWeight: '900',
         letterSpacing: 1.5,
         marginTop: 4,
     },

@@ -325,9 +325,10 @@ export const analyticsService = {
             if (error) {
                 console.log('AnalyticsService: Offline record detected, kept in local queue.');
             } else {
-                // If success, we could theoretically remove it from local queue OR 
-                // just wait for a formal sync cycle later to avoid duplicates.
-                // For now, simple shadow save is safer.
+                // [FIX C-2] Log subido a Supabase con éxito → limpiar cola local
+                // para evitar que las estadísticas cuenten el mismo log dos veces
+                // (una vez desde el local queue y otra desde meditation_logs remoto).
+                await LocalAnalyticsService.clearLogs();
             }
         } catch (error) {
             console.log('AnalyticsService: Silenced recordSession error (stored local):', error);

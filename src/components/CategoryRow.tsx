@@ -1,5 +1,6 @@
 import React, { memo, useRef, useMemo } from 'react';
 import { Dimensions, View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { OasisCard } from './Oasis/OasisCard';
 import { Ionicons } from '@expo/vector-icons';
 import { Session } from '../types';
@@ -121,7 +122,7 @@ const CategoryRow: React.FC<Props> = ({
 }) => {
 
     const scrollX = useRef(new Animated.Value(0)).current;
-    const flatListRef = useRef<Animated.FlatList>(null);
+    const flashListRef = useRef<FlashListRef<any>>(null);
     const scrollOffset = useRef(0);
 
     const finalData = useMemo(() => {
@@ -133,8 +134,7 @@ const CategoryRow: React.FC<Props> = ({
 
     const handleNext = () => {
         const nextOffset = scrollOffset.current + ITEM_WIDTH;
-        // En versiones modernas de React Native/Animated, no se usa .getNode()
-        flatListRef.current?.scrollToOffset({
+        flashListRef.current?.scrollToOffset({
             offset: nextOffset,
             animated: true
         });
@@ -142,7 +142,7 @@ const CategoryRow: React.FC<Props> = ({
 
     const handlePrev = () => {
         const prevOffset = scrollOffset.current - ITEM_WIDTH;
-        flatListRef.current?.scrollToOffset({
+        flashListRef.current?.scrollToOffset({
             offset: prevOffset,
             animated: true
         });
@@ -204,27 +204,22 @@ const CategoryRow: React.FC<Props> = ({
                             </BlurView>
                         </TouchableOpacity>
 
-                        <Animated.FlatList
-                            ref={flatListRef}
+                        <FlashList
+                            ref={flashListRef}
                             data={finalData}
                             keyExtractor={(item: any) => item.id}
                             horizontal
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.listContent}
                             snapToInterval={ITEM_WIDTH}
-                            snapToAlignment="start"
                             decelerationRate="fast"
                             bounces={false}
                             scrollEventThrottle={16}
-                            onScroll={Animated.event(
-                                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                                {
-                                    useNativeDriver: true,
-                                    listener: (event: any) => {
-                                        scrollOffset.current = event.nativeEvent.contentOffset.x;
-                                    }
-                                }
-                            )}
+                            onScroll={(event) => {
+                                const x = event.nativeEvent.contentOffset.x;
+                                scrollOffset.current = x;
+                                scrollX.setValue(x);
+                            }}
                             renderItem={({ item, index }) => {
                                 if (item.id === 'empty-left' || item.id === 'empty-right') {
                                     return <View style={{ width: EMPTY_ITEM_SIZE }} />;

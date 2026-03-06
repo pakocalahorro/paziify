@@ -443,15 +443,15 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     modalTitle: {
+        fontFamily: 'Outfit_800ExtraBold',
         fontSize: 24,
-        fontWeight: '800',
         color: '#FFF',
         textAlign: 'center',
         marginBottom: 4,
     },
     modalDays: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 12,
-        fontWeight: '900',
         color: 'rgba(255,255,255,0.4)',
         letterSpacing: 2,
         marginBottom: 20,
@@ -471,8 +471,8 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     benefitsSubtitle: {
+        fontFamily: 'Outfit_900Black',
         fontSize: 10,
-        fontWeight: '900',
         color: 'rgba(255,255,255,0.3)',
         letterSpacing: 1.5,
         marginBottom: 12,
@@ -484,9 +484,9 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     benefitText: {
+        fontFamily: 'Outfit_500Medium',
         fontSize: 13,
         color: '#FFF',
-        fontWeight: '500',
     },
     activateButton: {
         width: '100%',
@@ -506,9 +506,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     activateButtonText: {
+        fontFamily: 'Outfit_800ExtraBold',
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '800',
     },
 });
 
