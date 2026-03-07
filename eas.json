@@ -17,6 +17,7 @@
             }
         },
         "production": {
+            "prebuildCommand": "node scripts/fix-gradle.js",
             "android": {
                 "buildType": "app-bundle"
             }
