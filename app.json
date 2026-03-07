@@ -30,7 +30,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "./plugins/withGradleFix.js",
       "expo-web-browser",
       [
         "expo-build-properties",
