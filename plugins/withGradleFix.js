@@ -3,11 +3,14 @@ const { withAppBuildGradle } = require('@expo/config-plugins');
 /**
  * Paziify Gradle Fix Plugin
  * 
- * Fixes two known bugs in the Expo 55 / RN 0.83 build.gradle template,
- * applied directly during `expo prebuild` (both locally and on EAS).
+ * Fixes known issues with the Expo 55 / RN 0.83 build.gradle template.
+ * Applied directly during `expo prebuild` (both locally and on EAS).
  * 
- * Bug 1: `enableBundleCompression` was removed in RN 0.76+ but still appears in some templates.
- * Bug 2: `codegenDir` missing `.getParentFile()` causes MODULE_NOT_FOUND for codegen CLI.
+ * Fix 1: Remove `enableBundleCompression` (removed in RN 0.76+)
+ * Fix 2: Replace the ENTIRE codegenDir line with the correct version.
+ *         EAS servers use a template that generates `.getAbsoluteFile()` 
+ *         without `.getParentFile()`, causing MODULE_NOT_FOUND for codegen CLI.
+ *         We replace the entire line to avoid any regex matching issues.
  */
 const withGradleFix = (config) => {
     return withAppBuildGradle(config, (config) => {
@@ -20,12 +23,13 @@ const withGradleFix = (config) => {
                 '    // enableBundleCompression removed by Paziify plugin (not available in RN 0.76+)'
             );
 
-            // Fix 2: Ensure codegenDir points to the DIRECTORY (not the package.json file)
-            // The template incorrectly generates .getAbsoluteFile() without .getParentFile()
-            // This causes: Cannot find module '.../codegen/package.json/lib/cli/...'
+            // Fix 2: Replace the ENTIRE codegenDir line unconditionally.
+            // This handles all variants of the template (with or without .getParentFile()).
+            // The correct value: resolve the @react-native/codegen package.json path,
+            // then call .getParentFile() to get its DIRECTORY (not the file itself).
             contents = contents.replace(
-                /(codegenDir\s*=\s*new File\(.*?\.trim\(\)\))\.getAbsoluteFile\(\)/s,
-                '$1.getParentFile().getAbsoluteFile()'
+                /^.*codegenDir\s*=.*$/gm,
+                '    codegenDir = new File(["node", "--print", "require.resolve(\'@react-native/codegen/package.json\', { paths: [require.resolve(\'react-native/package.json\')] })"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()'
             );
 
             config.modResults.contents = contents;
