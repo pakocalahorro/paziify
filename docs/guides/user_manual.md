@@ -168,7 +168,7 @@ Paziify te da control total sobre tu experiencia y la confidencialidad de tus da
     - **Organización Automática**: El sistema guarda los archivos en carpetas según su categoría (`/kids`, `/sueno`, etc.).
     - **Limpieza de Almacenamiento**: Al sustituir un archivo, el panel te preguntará si deseas borrar la versión antigua de Supabase para ahorrar espacio.
 - **Selectores de Coherencia**: Selección visual de Paisajes Sonoros (Soundscapes) y Ondas Binaurales vinculados a los datos técnicos reales.
-- **Validación de Audio**: Botones de Play/Stop integrados en los formularios para escuchar guiones antes de publicar.
+- **Validación de Audio**: Botones de Play/Stop integrados en los formularios de Meditaciones, Soundscapes, Audiolibros y Lecciones. Esta herramienta permite escuchar los archivos inmediatamente después de cargarlos, eliminando errores de contenido antes de la publicación final.
 
 ---
 

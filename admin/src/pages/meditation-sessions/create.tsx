@@ -37,6 +37,8 @@ export const MeditationSessionCreate = () => {
     // Watch fields for dynamic logic
     const selectedCategory = Form.useWatch("category", form);
     const selectedSlug = Form.useWatch("slug", form);
+    const selectedBinaural = Form.useWatch(["audio_config", "defaultBinaural"], form);
+    const selectedSoundscape = Form.useWatch(["audio_config", "defaultSoundscape"], form);
 
     // Fetch Soundscapes for the selector
     const soundscapesData = useList({
@@ -192,7 +194,13 @@ export const MeditationSessionCreate = () => {
                                 />
                             </Form.Item>
                             <Space>
-                                <Button icon={<PlayCircleOutlined />} onClick={() => playPreview((window as any)._previewBinauralUrl)} />
+                                <Button
+                                    icon={<PlayCircleOutlined />}
+                                    onClick={() => {
+                                        const found = BINAURAL_BEATS.find(b => b.value === selectedBinaural);
+                                        playPreview(found?.url);
+                                    }}
+                                />
                                 <Button icon={<StopOutlined />} onClick={stopPreview} />
                             </Space>
                         </div>
@@ -208,7 +216,13 @@ export const MeditationSessionCreate = () => {
                                 />
                             </Form.Item>
                             <Space>
-                                <Button icon={<PlayCircleOutlined />} onClick={() => playPreview((window as any)._previewSoundscapeUrl)} />
+                                <Button
+                                    icon={<PlayCircleOutlined />}
+                                    onClick={() => {
+                                        const found = soundscapeOptions.find(s => s.value === selectedSoundscape);
+                                        playPreview(found?.audioUrl);
+                                    }}
+                                />
                                 <Button icon={<StopOutlined />} onClick={stopPreview} />
                             </Space>
                         </div>

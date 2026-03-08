@@ -1,69 +1,128 @@
-# Guía de Build Local (APK) - Paziify
+# 🛡️ Guía Maestra Android: Mantenimiento y Build (Paziify)
 
-Debido al uso de librerías nativas avanzadas como `@shopify/react-native-skia` (que requiere un runtime específico), las pruebas en Android deben realizarse mediante un APK generado localmente. **Expo Go no es compatible con el renderizado Skia en dispositivos Android.**
+Esta es la guía definitiva para gestionar el entorno Android de Paziify. Cubre desde la limpieza profunda hasta la publicación en la Play Store.
 
 ---
 
-## 🚀 Proceso de Generación del APK
+## 📋 Resumen de Operaciones
 
-### 1. Requisitos Previos
-- **Android Studio** instalado y configurado.
-- **Java JDK 17+**.
-- Dispositivo físico Android conectado via USB (con Depuración USB activada).
+| Acción | Propósito | Comando / Método |
+|---|---|---|
+| **Limpieza** | Liberar espacio y corregir errores | Manual (`node_modules`, `build`) |
+| **Desarrollo** | Probar cambios rápidos | `npx expo start --dev-client` |
+| **Debug APK** | Instalar en móvil físico | `.\gradlew assembleDebug` |
+| **Release AAB**| Publicar en Play Store | `.\gradlew bundleRelease` |
 
-### 2. Preparación del Proyecto
-Asegúrate de que las dependencias nativas están vinculadas:
+---
+
+## 1. 🧹 Mantenimiento y Regeneración (Cero Corrupción)
+
+Usa este proceso si la app no compila, si has cambiado dependencias nativas o si el proyecto pesa demasiado (>2GB).
+
+### Paso A: Limpieza Manual
+Borra estas carpetas desde el explorador de archivos:
+*   `node_modules`
+*   `android/app/build`
+
+### Paso B: Reinstalación y Sincronización
 ```bash
+npm install
 npx expo prebuild
 ```
-*Este comando genera la carpeta `/android` nativa si no existe.*
 
-### 3. Solución: Build en "Sandbox" (Para rutas con espacios)
-
-Si el build falla por espacios en la ruta (ej. `Mis Cosas`), usa este protocolo:
-
-1. **Crear el Enlace**: Cierra VS Code y abre PowerShell como **Administrador**:
-   ```powershell
-   New-Item -ItemType Junction -Path "C:\Paziify" -Target "C:\Mis Cosas\Proyectos\Paziify"
-   ```
-
-2. **Ejecutar el Build**: En una terminal nueva:
-   ```powershell
-   cd C:\Paziify\android
-   $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-   .\gradlew assembleDebug
-   ```
-
-3. **Revertir**: Una vez generado el APK, borra el enlace (esto NO borra tus archivos):
-   ```powershell
-   cmd /c rmdir "C:\Paziify"
-   ```
-
-El archivo resultante estará en:
-`C:\Mis Cosas\Proyectos\Paziify\android\app\build\outputs\apk\debug\app-debug.apk`
-
-### 4. Instalación en el Dispositivo
-Puedes arrastrar el APK al móvil o usar ADB:
-```bash
-adb install android/app/build/outputs/apk/debug/app-debug.apk
+### Paso C: Verificación de Firma (Informativo)
+Normalmente, Expo preserva estos cambios, pero es vital **verificar** que `android/gradle.properties` contiene estas líneas antes de compilar:
+```properties
+android.enablePngCrunchInReleaseBuilds=false
+PAZIIFY_RELEASE_STORE_FILE=release.keystore
+PAZIIFY_RELEASE_KEY_ALIAS=997ef1661bb0b93650ab6ab2779401c4
+PAZIIFY_RELEASE_STORE_PASSWORD=650ad395bced8f9f9395b2d1c39025f5
+PAZIIFY_RELEASE_KEY_PASSWORD=f4f6c702824bcccf892f63c4992151f9
 ```
 
 ---
 
-## 🛠️ Desarrollo Continuo (Fast Refresh)
+## 2. 📦 Generación de Compilados (Build)
 
-Una vez instalada la app nativa en el móvil:
-1. Inicia el servidor de Metro en el PC:
-   ```bash
-   npx expo start --dev-client
-2. Abre la app **Paziify** en tu móvil.
-3. Se conectará automáticamente al servidor de desarrollo y podrás ver los cambios en tiempo real (incluyendo el Orbe Skia).
+### FASE 1: Preparar el Entorno (Común)
+Ejecuta esto en **PowerShell** (como Administrador). 
+> [!IMPORTANT]
+> Si la carpeta `C:\Paziify` ya existe y da error, consulta la sección de **Solución de Problemas** abajo.
+
+```powershell
+# 1. Crear Sandbox y entrar
+New-Item -ItemType Junction -Path "C:\Paziify" -Target "C:\Mis Cosas\Proyectos\Paziify"
+cd C:\Paziify\android
+
+# 2. Configurar Java (Obligatorio en cada nueva sesión)
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+```
 
 ---
 
-## ⚠️ Consideraciones Importantes
-- **Caché**: Si realizas cambios en el código de Skia y no se reflejan, pulsa `r` en la terminal de Expo para recargar el bundle.
-- **Versión Skia**: Mantener siempre la versión compatible con el SDK de Expo actual para evitar fallos de compilación en Gradle.
+### FASE 2: Elegir Tipo de Compilación
+
+#### Opción A: Generar APK (Pruebas Locales)
+Usa esto para instalar Paziify en tu móvil directamente:
+```powershell
+.\gradlew clean
+.\gradlew assembleDebug
+```
+*   **Resultado**: `android\app\build\outputs\apk\debug\app-debug.apk`
+
+#### Opción B: Generar AAB (Play Store)
+Usa esto para generar el archivo final para Google Play:
+```powershell
+.\gradlew clean
+.\gradlew bundleRelease
+```
+*   **Resultado**: `android\app\build\outputs\bundle\release\app-release.aab`
 
 ---
-*Documentado: 27 de Enero de 2026 - Milestone 3 Documentation*
+
+### FASE 3: Lanzar el Servidor de Desarrollo
+Una vez instalado el APK en el móvil, necesitas el servidor para que la app cargue el código:
+```powershell
+# 1. Volver a la raíz del proyecto (desde android)
+cd ..
+
+# 2. Iniciar servidor
+npx expo start --dev-client
+```
+
+---
+
+### FASE 4: Salida y Limpieza
+Borra el enlace simbólico al terminar (es seguro, no borra tus archivos):
+```powershell
+cmd /c rmdir "C:\Paziify"
+```
+
+---
+
+## 🛠️ Solución de Problemas (Troubleshooting)
+
+### Error: "El directorio no está vacío" o no deja crear el Sandbox
+Si al ejecutar la FASE 1 recibes errores de acceso o de que la carpeta ya existe, haz un reset total:
+1. **Sal de la unidad C:\Paziify** (ve a `C:\` o cierra el terminal).
+2. Ejecuta esto para forzar la limpieza:
+```powershell
+Remove-Item -Path "C:\Paziify" -Force -Recurse
+```
+3. Vuelve a ejecutar la **FASE 1**.
+
+### Error: "JAVA_HOME is not set"
+Este error ocurre si abres una pestaña nueva de PowerShell. Debes volver a ejecutar:
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+```
+
+---
+
+## ⚠️ Notas Técnicas (v2.44.0)
+*   **Ruta de salida AAB**: `android\app\build\outputs\bundle\release\app-release.aab`
+*   **PNG Crunching**: Siempre en `false` para evitar errores AAPT2.
+*   **Versiones**: SDK 54 / React 18.3.1 / RN 0.76.7.
+
+---
+*Actualizado: 8 de Marzo de 2026*

@@ -40,6 +40,8 @@ export const MeditationSessionEdit = () => {
     // Watch fields for dynamic logic
     const selectedCategory = Form.useWatch("category", form);
     const selectedSlug = Form.useWatch("slug", form);
+    const selectedBinaural = Form.useWatch(["audio_config", "defaultBinaural"], form);
+    const selectedSoundscape = Form.useWatch(["audio_config", "defaultSoundscape"], form);
 
     // Populate flat form fields from nested JSON when data loads
     useEffect(() => {
@@ -220,7 +222,10 @@ export const MeditationSessionEdit = () => {
                             <Space>
                                 <Button
                                     icon={<PlayCircleOutlined />}
-                                    onClick={() => playPreview((window as any)._previewBinauralUrl)}
+                                    onClick={() => {
+                                        const found = BINAURAL_BEATS.find(b => b.value === selectedBinaural);
+                                        playPreview(found?.url);
+                                    }}
                                 />
                                 <Button
                                     icon={<StopOutlined />}
@@ -242,7 +247,10 @@ export const MeditationSessionEdit = () => {
                             <Space>
                                 <Button
                                     icon={<PlayCircleOutlined />}
-                                    onClick={() => playPreview((window as any)._previewSoundscapeUrl)}
+                                    onClick={() => {
+                                        const found = soundscapeOptions.find(s => s.value === selectedSoundscape);
+                                        playPreview(found?.audioUrl);
+                                    }}
                                 />
                                 <Button
                                     icon={<StopOutlined />}

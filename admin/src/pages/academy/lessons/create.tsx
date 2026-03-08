@@ -1,5 +1,6 @@
 import { Create, useForm } from "@refinedev/antd";
-import { Form, Input, Select, Checkbox, Divider, Typography } from "antd";
+import { Form, Input, Select, Checkbox, Divider, Typography, Button, Space, message } from "antd";
+import { PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
 import { supabaseClient } from "../../../providers/supabase-client";
 import { useState, useEffect } from "react";
 import { MediaUploader } from "../../../components/media/MediaUploader";
@@ -9,6 +10,28 @@ const { Text } = Typography;
 export const AcademyLessonCreate = () => {
     const { form, formProps, saveButtonProps } = useForm();
     const [modules, setModules] = useState<{ value: string, label: string }[]>([]);
+    const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+
+    const playPreview = (url?: string) => {
+        if (!url) {
+            message.warning("No hay audio para previsualizar.");
+            return;
+        }
+        if (currentAudio) {
+            currentAudio.pause();
+        }
+        const audio = new Audio(url);
+        audio.play().catch(e => console.error("Error previewing:", e));
+        setCurrentAudio(audio);
+    };
+
+    const stopPreview = () => {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            setCurrentAudio(null);
+        }
+    };
 
     useEffect(() => {
         const fetchModules = async () => {
@@ -67,8 +90,22 @@ export const AcademyLessonCreate = () => {
                 <Divider />
                 <Text strong>Archivo de Audio (academy-voices)</Text>
 
-                <Form.Item label="Audio URL" name="audio_url" rules={[{ required: true }]}>
-                    <Input readOnly placeholder="Sube un archivo MP3 abajo" />
+                <Form.Item label="Audio URL" required>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <Form.Item name="audio_url" noStyle rules={[{ required: true }]}>
+                            <Input readOnly style={{ flex: 1 }} />
+                        </Form.Item>
+                        <Space>
+                            <Button
+                                icon={<PlayCircleOutlined />}
+                                onClick={() => playPreview(form?.getFieldValue("audio_url"))}
+                            />
+                            <Button
+                                icon={<StopOutlined />}
+                                onClick={stopPreview}
+                            />
+                        </Space>
+                    </div>
                 </Form.Item>
                 <MediaUploader
                     bucket="academy-voices"

@@ -1,11 +1,35 @@
 import { Edit, useForm } from "@refinedev/antd";
-import { Form, Input, Checkbox, Select, Divider, Typography } from "antd";
+import { Form, Input, Checkbox, Select, Divider, Typography, Button, Space, message } from "antd";
+import { PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
 import { MediaUploader } from "../../components/media/MediaUploader";
+import { useState } from "react";
 
 const { Text } = Typography;
 
 export const SoundscapeEdit = () => {
     const { form, formProps, saveButtonProps } = useForm();
+    const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+
+    const playPreview = (url?: string) => {
+        if (!url) {
+            message.warning("No hay audio para previsualizar.");
+            return;
+        }
+        if (currentAudio) {
+            currentAudio.pause();
+        }
+        const audio = new Audio(url);
+        audio.play().catch(e => console.error("Error previewing:", e));
+        setCurrentAudio(audio);
+    };
+
+    const stopPreview = () => {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            setCurrentAudio(null);
+        }
+    };
 
     const handleAudioSuccess = (url: string) => {
         form?.setFieldValue("audio_url", url);
@@ -45,8 +69,22 @@ export const SoundscapeEdit = () => {
                 <Divider />
                 <Text strong>Archivos de Medios</Text>
 
-                <Form.Item label="Audio URL (Supabase)" name="audio_url" rules={[{ required: true }]}>
-                    <Input readOnly />
+                <Form.Item label="Audio URL (Supabase)" required>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <Form.Item name="audio_url" noStyle rules={[{ required: true }]}>
+                            <Input readOnly style={{ flex: 1 }} />
+                        </Form.Item>
+                        <Space>
+                            <Button
+                                icon={<PlayCircleOutlined />}
+                                onClick={() => playPreview(form?.getFieldValue("audio_url"))}
+                            />
+                            <Button
+                                icon={<StopOutlined />}
+                                onClick={stopPreview}
+                            />
+                        </Space>
+                    </div>
                 </Form.Item>
                 <MediaUploader
                     bucket="soundscapes"
