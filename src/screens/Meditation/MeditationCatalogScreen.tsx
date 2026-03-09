@@ -286,7 +286,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         rows.push({ title: 'Más recientes', data: newArrivals, icon: 'sparkles', accentColor: '#A78BFA', variant: 'standard' });
 
         return rows;
-    }, [filteredSessions, selectedCategory, searchQuery, selectedGuide, userState.favoriteSessionIds, sessions, shuffledSessions, hasActiveFilter]);
+    }, [filteredSessions, selectedCategory, searchQuery, selectedGuide, userState.favoriteSessionIds, sessions, shuffledSessions, hasActiveFilter, infiniteSessions, isInfiniteLoading]);
 
     const handleSeeAll = React.useCallback((sectionTitle: string) => {
         const cat = CATEGORIES.find(c => c.label.toLowerCase() === sectionTitle.toLowerCase());

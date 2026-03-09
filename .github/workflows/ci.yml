@@ -1,0 +1,26 @@
+name: Paziify Zero Defects - Aduana de Control
+
+on:
+  push:
+    branches: [ main, development, 'setup/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-logic:
+    name: 🧠 Validación del Cerebro (Lógica)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Instalación de Dependencias
+        run: npm install --legacy-peer-deps
+
+      - name: Ejecutar Tests de Lógica 🛡️
+        run: npx jest src/__tests__/contentService.test.ts --config jest.config.logic.js --no-cache

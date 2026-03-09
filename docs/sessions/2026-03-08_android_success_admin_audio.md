@@ -50,4 +50,6 @@ Se ha implementado un nuevo estándar de verificación de activos en el Panel de
 - [ ] `package.json` (v2.44.0).
 
 ---
-**Próximos Pasos**: Finalizar validación del APK en dispositivo físico y monitorizar la revisión de Google Play Console.
+**Próximos Pasos**: 
+- [x] Finalizar validación del APK en dispositivo físico (**EXITOSO** - Validado por el usuario).
+- [/] Monitorizar la revisión de Google Play Console (**PENDIENTE** de validación por Google).
