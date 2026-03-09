@@ -1,6 +1,6 @@
 {
   "name": "paziify",
-  "version": "2.44.0",
+  "version": "2.45.0",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
@@ -10,6 +10,7 @@
     "reset:paziify": "git reset --hard HEAD && git clean -fd",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:ojo": "jest src/__tests__/ScreensIntegrity.test.tsx",
     "test:update": "jest -u",
     "prepare": "husky"
   },

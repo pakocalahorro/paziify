@@ -20,16 +20,17 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
    - Comparar ultima version de Git con las ultimas notas de sesion e informar si coincide todo o hay diferencias
 
 3. **Visión de Producto & Guías (LECTURA OBLIGATORIA)**
-    - **Imprescindible**: Leer los 5 pilares de documentación para entender el estado actual:
-      - `docs/guides/structure.md`: **[NUEVO]** Mapa completo del proyecto (pantallas, componentes, servicios, navegación).
+    - **Imprescindible**: Leer los pilares de documentación para entender el estado actual y el protocolo de blindaje:
+      - `docs/guides/CONTRIBUTING.md`: **[CRÍTICO]** Protocolo Zero Defects, JIT y reglas de Husky Guard.
+      - `docs/guides/structure.md`: Mapa completo del proyecto (pantallas, componentes, servicios).
       - `docs/guides/user_manual.md`: Funcionalidad y UX (v2.x).
-      - `docs/guides/audio.md`: Arquitectura del motor, guías premium y auditoría.
+      - `docs/guides/audio.md`: Arquitectura del motor y guías premium.
       - `docs/guides/database.md`: Datos, esquema y seguridad RLS.
-      - `docs/guides/designs.md`: Sistema de diseño Skia e identidad visual.
-    - Esto garantiza que no reinventemos la rueda ni rompamos la consistencia.
+    - Esto garantiza que no reinventemos la rueda ni rompamos el blindaje técnico.
 
 4. **Health Check (Sanidad del Proyecto)**
    - Revisar archivos modificados recientemente (`git status`).
+   - Ejecutar `npm run test:ojo`: Confirmar que el estado estructural base es 100% saludable.
    - Verificar `package.json` en busca de nuevas dependencias sorpresa.
    - Confirmar que no hay errores de compilación obvios.
 

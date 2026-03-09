@@ -133,7 +133,7 @@ function App() {
                         key="authenticated-inner"
                         fallback={<CatchAllNavigate to="/login" />}
                       >
-                        <ThemedLayout Title={({ collapsed }) => <ThemedTitle collapsed={collapsed} text="Paziify Admin" />}>
+                        <ThemedLayout Title={({ collapsed }: { collapsed: boolean }) => <ThemedTitle collapsed={collapsed} text="Paziify Admin" />}>
                           <Outlet />
                         </ThemedLayout>
                       </Authenticated>

@@ -38,7 +38,7 @@ jobs:
       - name: Instalación de Dependencias
         run: npm install --legacy-peer-deps
       - name: Type Check App ʦ
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit --project tsconfig.json
       - name: Build Check App 🏗️
         run: npx expo export --platform web --non-interactive
 

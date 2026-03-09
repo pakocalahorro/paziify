@@ -114,3 +114,36 @@ jest.mock('react-native-worklets-core', () => ({
         createRunOnRuntime: (fn: any) => fn,
     },
 }), { virtual: true });
+
+// MOCKS ADICIONALES PARA EXPO
+jest.mock('expo-video', () => ({
+    VideoView: (props: any) => {
+        const React = require('react');
+        const { View } = require('react-native');
+        return React.createElement(View, props);
+    },
+    useVideoPlayer: () => ({
+        play: jest.fn(),
+        pause: jest.fn(),
+    }),
+}));
+
+jest.mock('expo-constants', () => ({
+    expoConfig: {
+        extra: {
+            supabaseUrl: 'mock-url',
+            supabaseAnonKey: 'mock-key',
+        },
+    },
+}));
+
+jest.mock('expo-device', () => ({
+    modelName: 'Mock Device',
+}));
+
+jest.mock('expo-notifications', () => ({
+    getPermissionsAsync: jest.fn(),
+    requestPermissionsAsync: jest.fn(),
+    setNotificationHandler: jest.fn(),
+    addNotificationResponseReceivedListener: jest.fn(),
+}));

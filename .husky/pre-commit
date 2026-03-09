@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+node scripts/husky_guard.js
 npx jest src/__tests__/contentService.test.ts --config jest.config.logic.js --no-cache

@@ -39,8 +39,9 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
 
 ### 4. Consolidación Final y Git 💾
    1. Actualiza `package.json` a la nueva versión (SemVer) definida.
-   2. Ejecuta `git add` y el commit profesional con los hitos resumidos.
-   3. Ejecuta `git tag vX.X.X` coincidente. Sin tag de versión, el ecosistema de documentación se considera desfasado.
+   2. **Garantía Zero Defects**: Ejecutar `npm run test:ojo` (y `update` si aplica) para asegurar que el blindaje permitirá el commit.
+   3. Ejecuta `git add` y el commit profesional con los hitos resumidos.
+   4. Ejecuta `git tag vX.X.X` coincidente. Sin tag de versión, el ecosistema de documentación se considera desfasado.
 
 ---
 *Este protocolo bloquea la iniciativa destructiva y exige revisión humana.*
