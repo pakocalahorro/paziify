@@ -18,7 +18,7 @@ import { bioProcessor } from '../../services/BioSignalProcessor';
 import { useApp } from '../../context/AppContext';
 import { SignalQuality } from '../../types/cardio';
 import { extractRGBFromFrame, extractRGBFallback } from '../../utils/rgbExtraction';
-import { Worklets } from 'react-native-worklets-core';
+import { Worklets } from 'react-native-worklets';
 import { CalibrationRing } from '../../components/Bio/CalibrationRing';
 import { CountdownOverlay } from '../../components/Bio/CountdownOverlay';
 import { QualityAlert } from '../../components/Bio/QualityAlert';

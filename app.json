@@ -3,7 +3,7 @@
     "name": "Paziify",
     "slug": "paziify",
     "scheme": "paziify",
-    "version": "2.45.0",
+    "version": "2.46.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,7 +18,7 @@
     },
     "android": {
       "package": "com.pakocalahorro.paziify",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -38,13 +38,6 @@
             "kotlinVersion": "2.1.0",
             "minSdkVersion": 26
           }
-        }
-      ],
-      [
-        "react-native-vision-camera",
-        {
-          "cameraPermissionText": "Paziify necesita acceso a la cámara para el escaneo de cardio y bio-feedback.",
-          "enableFrameProcessors": true
         }
       ],
       [

@@ -22,6 +22,7 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
 3. **Visión de Producto & Guías (LECTURA OBLIGATORIA)**
     - **Imprescindible**: Leer los pilares de documentación para entender el estado actual y el protocolo de blindaje:
       - `docs/guides/CONTRIBUTING.md`: **[CRÍTICO]** Protocolo Zero Defects, JIT y reglas de Husky Guard.
+      - `docs/guides/stack.md`: Plano de Arquitectura Master, stack de herramientas y Blueprint Zero-to-Prod.
       - `docs/guides/structure.md`: Mapa completo del proyecto (pantallas, componentes, servicios).
       - `docs/guides/user_manual.md`: Funcionalidad y UX (v2.x).
       - `docs/guides/audio.md`: Arquitectura del motor y guías premium.

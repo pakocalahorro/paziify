@@ -1,5 +1,9 @@
 import '@testing-library/jest-native/extend-expect';
 
+// Set up mock environment variables for Supabase to prevent test crashes
+process.env.EXPO_PUBLIC_SUPABASE_URL = 'https://mock.supabase.co';
+process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY = 'mock-anon-key';
+
 jest.mock('@react-native-async-storage/async-storage', () =>
     require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
@@ -112,7 +116,7 @@ jest.mock('@expo/vector-icons', () => ({
 }));
 
 // Mock de Worklets (Reanimatd dep)
-jest.mock('react-native-worklets-core', () => ({
+jest.mock('react-native-worklets', () => ({
     Worklets: {
         createRunInJS: (fn: any) => fn,
         createRunOnRuntime: (fn: any) => fn,
