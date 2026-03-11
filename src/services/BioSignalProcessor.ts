@@ -62,8 +62,8 @@ export class BioSignalProcessor {
             progressDelta = 0.08 * multiplier; // Slower progress for more data (~30s)
         } else if (quality.score < 40) {
             // Very poor signal = slight regression/penalty to force stability
-            // But don't punish too hard
-            progressDelta = 0;
+            // ZERO DEFECTS: Punish heavily if signal is lost (e.g., finger removed)
+            progressDelta = -0.15;
         }
 
         return { progressDelta, quality };
@@ -283,6 +283,12 @@ export class BioSignalProcessor {
 
         // Weighted Score: SNR is king, Stability is queen
         let score = (snr * 3) + (stability * 0.5);
+
+        // ZERO DEFECTS: Cap maximum score if there's no actual pulse power (SNR essentially zero, like a table)
+        if (snr < 5) {
+            score = Math.min(score, 45); // Limit so it never crosses the >60 progress accumulation threshold
+        }
+
         score = Math.min(100, Math.max(0, score)); // Clamp 0-100
 
         let level: 'excellent' | 'good' | 'poor' = 'poor';
@@ -313,27 +319,21 @@ export class BioSignalProcessor {
         // 1. Red must be dominant and sufficiently bright
         // 2. Green/Blue should be significantly lower (absorption)
 
-        // SUPER ADAPTIVE THRESHOLDS based on User Feedback/Screenshot
-        // User saw: R:102, G:195, B:97 -> Pulse was valid (75 BPM), but Quality was 0.
-        // This means Auto-White-Balance pushed Green high. We must trust Brightness + Pulse signal.
-
-        // SUPER ADAPTIVE THRESHOLDS based on User Feedback
-        // User saw: R:13, G:102, B:5 -> Valid Finger!
-        // The previous R > 40 check was failing here.
+        // STRICT ZERO DEFECTS THRESHOLDS (Blood Absorption Profile)
+        // A finger over the flash illuminates the flesh. Blood absorbs blue heavily, and often green too, but sometimes AWB boosts green.
 
         // 1. Brightness Check:
-        // Accept if Red OR Green is reasonably high.
-        // Some cameras filter Red heavily under flash, but Green shines through skin.
+        // We must have a minimum amount of red or green light shining through tissue.
         const isBright = avgR > 10 || avgG > 40;
 
-        // 2. Color Profile Check:
-        // Skin absorbs Blue heavily. If Blue is the lowest channel, it's likely skin.
-        // If Blue is high (close to Green/Red), it's likely ambient light or a screen.
-        const isSkinTone = avgB < avgG * 0.5 && avgB < avgR * 1.5;
+        // 2. Color Profile Check (The Table/Cushion Test):
+        // If it's a table reflecting flash, blue will bounce back significantly.
+        // In real human tissue, blood absorbs blue light heavily compared to green/red.
+        const isSkinTone = avgB < avgG * 0.4 && avgB < avgR * 1.5;
 
         // Debug logging (Verification for User)
         if (Math.random() < 0.1) {
-            console.log(`[FingerCheck] R:${avgR.toFixed(0)} G:${avgG.toFixed(0)} B:${avgB.toFixed(0)} -> ${isBright && isSkinTone ? 'YES' : 'NO'}`);
+            console.log(`[FingerCheck] R:${avgR.toFixed(0)} G:${avgG.toFixed(0)} B:${avgB.toFixed(0)} -> STRICT: ${isBright && isSkinTone ? 'YES' : 'NO'}`);
         }
 
         return isBright && isSkinTone;

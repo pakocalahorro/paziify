@@ -12,11 +12,11 @@ Paziify es una aplicación de clase mundial. Para asegurar que ninguna actualiza
 ## 🐕 Pilar 1: Husky Guard (El Policía Local)
 Husky es un centinela que vive en tu ordenador. Se activa cada vez que haces `git commit`.
 
-### ⚡ Caso Práctico: ¿Qué ocurre si tocas una pantalla?
-Imagina que quieres cambiar el color de un botón en `HomeScreen.tsx`.
+### ⚡ Caso Práctico: ¿Qué ocurre si tocas la UI?
+Imagina que quieres cambiar el color de un botón en `HomeScreen.tsx` o modificar un componente en `src/components/`.
 1.  Haces el cambio.
 2.  Intentas guardar con `git commit -m "Ajuste de color"`.
-3.  **BLOQUEO 🛑**: Husky detectará que has tocado una pantalla y abortará el commit.
+3.  **BLOQUEO 🛑**: Husky detectará que has tocado la capa visual (`screens`, `components` o `navigation`) y abortará el commit.
 4.  **Por qué**: Has olvidado cumplir el protocolo de seguridad "El Ojo".
 
 ---

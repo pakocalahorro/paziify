@@ -11,17 +11,23 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 // MOCKS DE INFRAESTRUCTURA UI
 jest.mock('react-native-reanimated', () => {
     const React = require('react');
+    const mockAnimation = { duration: () => mockAnimation, delay: () => mockAnimation, springify: () => mockAnimation };
     return {
-        default: {
-            call: jest.fn(),
-        },
+        __esModule: true,
+        default: { call: jest.fn(), createAnimatedComponent: (c: any) => c, View: require('react-native').View, Text: require('react-native').Text },
+        createAnimatedComponent: (c: any) => c,
         useSharedValue: (v: any) => ({ value: v }),
-        useAnimatedStyle: (fn: any) => ({}),
+        useAnimatedStyle: () => ({}),
+        useAnimatedProps: () => ({}),
         withTiming: (v: any) => v,
         withRepeat: (v: any) => v,
         withSequence: (...args: any[]) => args[0],
         withSpring: (v: any) => v,
         withDelay: (t: any, v: any) => v,
+        runOnJS: (fn: any) => fn,
+        FadeInUp: mockAnimation,
+        FadeInRight: mockAnimation,
+        FadeIn: mockAnimation,
         interpolate: (v: any, input: any, output: any) => output[0],
         interpolateColor: (v: any, input: any, output: any) => output[0],
         Extrapolate: { CLAMP: 'clamp' },
@@ -33,6 +39,30 @@ jest.mock('react-native-reanimated', () => {
         View: ({ children, style }: any) => React.createElement('View', { style }, children),
         Text: ({ children, style }: any) => React.createElement('Text', { style }, children),
         ScrollView: ({ children, style }: any) => React.createElement('ScrollView', { style }, children),
+    };
+});
+
+// Mock de React Native Skia
+jest.mock('@shopify/react-native-skia', () => {
+    const React = require('react');
+    return {
+        Canvas: ({ children, style }: any) => React.createElement('View', { style }, children),
+        Path: () => null,
+        Circle: () => null,
+        Group: ({ children }: any) => React.createElement('View', null, children),
+        LinearGradient: () => null,
+        vec: () => ({ x: 0, y: 0 }),
+        Skia: {
+            Path: {
+                Make: () => ({
+                    moveTo: jest.fn().mockReturnThis(),
+                    quadTo: jest.fn().mockReturnThis(),
+                    cubicTo: jest.fn().mockReturnThis(),
+                    lineTo: jest.fn().mockReturnThis(),
+                    close: jest.fn().mockReturnThis(),
+                })
+            }
+        }
     };
 });
 
@@ -78,6 +108,7 @@ jest.mock('@react-navigation/native', () => {
         useRoute: () => ({
             params: {},
         }),
+        useFocusEffect: jest.fn(),
     };
 });
 // Mock de Safe Area Context

@@ -18,7 +18,7 @@ import { bioProcessor } from '../../services/BioSignalProcessor';
 import { useApp } from '../../context/AppContext';
 import { SignalQuality } from '../../types/cardio';
 import { extractRGBFromFrame, extractRGBFallback } from '../../utils/rgbExtraction';
-import { Worklets } from 'react-native-worklets';
+import { runOnJS } from 'react-native-reanimated';
 import { CalibrationRing } from '../../components/Bio/CalibrationRing';
 import { CountdownOverlay } from '../../components/Bio/CountdownOverlay';
 import { QualityAlert } from '../../components/Bio/QualityAlert';
@@ -91,10 +91,9 @@ const CardioScanScreen = () => {
     }, []);
 
     // UPDATED: Frame processor callback with 3-phase logic
-    // @ts-ignore - Worklets API is not fully typed
-    const addRGBSampleJS = Worklets.createRunOnJS(function (r, g, b, t) {
-        // Add sample to processor (cast to number for TypeScript)
-        bioProcessor.addRGBSample(r as number, g as number, b as number, t as number);
+    const addRGBSampleJS = (r: number, g: number, b: number, t: number) => {
+        // Add sample to processor
+        bioProcessor.addRGBSample(r, g, b, t);
 
         // DEBUG: Update UI state (Throttled 100ms)
         const now = Date.now();
@@ -141,7 +140,7 @@ const CardioScanScreen = () => {
                 setShowQualityAlert(false);
             }
         }
-    });
+    };
 
     // Frame Processor - UPDATED for calibration + measuring phases
     const frameProcessor = useFrameProcessor((frame) => {
@@ -155,8 +154,8 @@ const CardioScanScreen = () => {
             const rgb = extractRGBFromFrame(pixels, frame.pixelFormat);
             const timestamp = Date.now();
 
-            // DIRECT CALL to JavaScript function
-            addRGBSampleJS(rgb.r, rgb.g, rgb.b, timestamp);
+            // DIRECT CALL to JavaScript using Reanimated's runOnJS
+            runOnJS(addRGBSampleJS)(rgb.r, rgb.g, rgb.b, timestamp);
 
             // DEBUG: Log RGB during Countdown to check flash status
             if (scanPhase === 'countdown') {
@@ -230,15 +229,12 @@ const CardioScanScreen = () => {
         safetyTimeoutRef.current = setTimeout(() => {
             clearInterval(interval);
             if (!finishScanCalled.current) {
-                // Check if we have gathered enough data despite timeout
-                if (progress > 80) {
-                    finishScan();
-                } else {
-                    alert("El escaneo ha tomado demasiado tiempo. Inténtalo de nuevo.");
-                    setScanPhase('idle');
-                }
+                // ZERO DEFECTS: Strict Timeout. Never accept partial/stalled progress.
+                alert("El escaneo ha excedido el tiempo límite por falta de señal limpia. Por favor, asegúrate de cubrir bien la cámara y el flash con el dedo y no moverlo.");
+                setScanPhase('idle');
+                bioProcessor.reset();
             }
-        }, 90000); // 90s safety (extended for ~30s target scan)
+        }, 90000); // 90s safety limit
     };
 
     // NEW: Countdown phase logic

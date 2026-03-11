@@ -8,6 +8,12 @@ jest.mock('../context/AppContext', () => ({
     useApp: jest.fn(),
 }));
 
+jest.mock('@react-navigation/native', () => ({
+    useNavigation: () => ({ navigate: jest.fn() }),
+    useRoute: () => ({ params: {} }),
+    useFocusEffect: jest.fn(),
+}));
+
 // MOCKS DE COMPONENTES INTERNOS (Aggeressive Shallowing)
 jest.mock('../components/Layout/BackgroundWrapper', () => 'BackgroundWrapper');
 jest.mock('../components/Home/BentoGrid', () => 'BentoGrid');
@@ -56,7 +62,10 @@ describe('🛡️ Paziify: El Ojo (Screens Structural Integrity)', () => {
 
     test('HomeScreen ADN (Firma Estructural)', () => {
         // Rendereamos HomeScreen. Gracias a los mocks, esto es puro texto estructural.
-        const tree = renderer.create(<HomeScreen />).toJSON();
+        let tree: any;
+        renderer.act(() => {
+            tree = renderer.create(<HomeScreen />).toJSON();
+        });
         expect(tree).toMatchSnapshot();
     });
 });

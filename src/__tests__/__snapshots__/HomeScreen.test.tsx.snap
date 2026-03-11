@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<HomeScreen /> Snapshot Aislado se renderiza la estructura base correctamente 1`] = `null`;

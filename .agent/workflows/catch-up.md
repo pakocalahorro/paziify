@@ -31,7 +31,8 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
 
 4. **Health Check (Sanidad del Proyecto)**
    - Revisar archivos modificados recientemente (`git status`).
-   - Ejecutar `npm run test:ojo`: Confirmar que el estado estructural base es 100% saludable.
+   - Ejecutar `npm install --legacy-peer-deps`: (Saneamiento Obligatorio) Garantizar sincronismo exacto con el package-lock del servidor.
+   - Ejecutar `npm run test:ojo`: Confirmar que el estado estructural base es 100% saludable tras la limpieza.
    - Verificar `package.json` en busca de nuevas dependencias sorpresa.
    - Confirmar que no hay errores de compilación obvios.
 
