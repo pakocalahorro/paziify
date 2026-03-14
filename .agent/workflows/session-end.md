@@ -19,6 +19,8 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
 ### 2. Generación de Borrador y HARD STOP 🛑
 1. **Redacta en memoria** (o en un bloque de código markdown de respuesta) el contenido para la Nota de Sesión (`docs/sessions/YYYY-MM-DD_descripcion.md`). Divide por "Hitos Críticos" y explica el POR QUÉ del cambio.
 2. **Propuesta de Cambios en Documentación:** Enumera textualmente qué otras guías requieren cambios debido a la sesión (`structure.md`, `user_manual.md`, `designs.md`, `database.md`, `audio.md`) detallando exactamente *qué nueva sección o regla vas a añadir a cada una*.
+   > [!IMPORTANT]
+   > **REQUISITO DE ALTA FIDELIDAD**: La nota de sesión no debe ser solo un changelog. DEBE capturar el "Alma" de la sesión: justificaciones estratégicas (ej. por qué una versión beta es preferible a una estable), investigaciones de errores complejos (análisis forense) y decisiones de precisión científica (latencias, jitter, etc.).
    *(Nota: No debes buscar ni actualizar números de versión tipo v2.x.x dentro de estos archivos. La versión la dicta el Tag de Git).*
 3. **HARD STOP (`notify_user`)**: Usa la herramienta `notify_user` presentando al CTO:
    - El resumen del paso 1 (Archivos modificados detectados).
