@@ -1,7 +1,7 @@
 const React = require('react');
 
-const mockComponent = (name) => {
-    const Component = (props) => React.createElement(name, props, props.children);
+const mockComponent = (name: string) => {
+    const Component = (props: any) => React.createElement(name, props, props.children);
     Component.displayName = name;
     return Component;
 };
@@ -21,11 +21,11 @@ const mockModules = {
     NativeModules: {},
     Platform: {
         OS: 'ios',
-        select: (obj) => obj.ios || obj.default,
+        select: (obj: any) => obj.ios || obj.default,
     },
     StyleSheet: {
-        create: (s) => s,
-        flatten: (s) => s,
+        create: (s: any) => s,
+        flatten: (s: any) => s,
         hairlineWidth: 1,
     },
     Dimensions: {
@@ -37,8 +37,8 @@ const mockModules = {
     // Safe Area
     useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
     useSafeAreaFrame: () => ({ x: 0, y: 0, width: 390, height: 844 }),
-    SafeAreaProvider: ({ children }) => children,
-    SafeAreaView: ({ children }) => children,
+    SafeAreaProvider: ({ children }: any) => children,
+    SafeAreaView: ({ children }: any) => children,
 
     // SVG
     Svg: mockComponent('Svg'),
@@ -65,7 +65,7 @@ const mockModules = {
     }),
     useRoute: () => ({ params: {} }),
     useFocusEffect: jest.fn(),
-    NavigationContainer: ({ children }) => children,
+    NavigationContainer: ({ children }: any) => children,
 };
 
 module.exports = {
