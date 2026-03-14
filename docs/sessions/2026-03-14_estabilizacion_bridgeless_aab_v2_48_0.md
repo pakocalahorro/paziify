@@ -31,6 +31,11 @@ Resolver los crashes críticos de la versión 2.47.0 en entornos de producción 
 - **El Factor Jitter (±15ms)**: La arquitectura Bridge introduce una latencia aleatoria superior a los 15ms. Para el cálculo del **RMSSD (Variabilidad Cardíaca)**, un error de 5ms es suficiente para invalidar los resultados de estrés de un usuario.
 - **Conclusión**: Se mantiene **Nitro Modules** y Bridgeless Mode, garantizando latencias **<1ms** y acceso directo a memoria, lo cual es la única forma de asegurar la precisión bio-rítmica de Paziify. El blindaje de polyfills y Husky es el precio necesario para esta superioridad técnica.
 
+### 5. Reparación de la Aduana (CI Isolated Validation)
+- **Problema**: GitHub Actions fallaba al intentar validar el Panel Admin sin sus dependencias.
+- **Acción**: Restricción de `tsconfig.json` mediante `include` para aislar la validación de la App móvil.
+- **Resultado**: Recuperación del check verde y arquitectura de validación profesional por proyectos.
+
 ---
 
 ## 🛠️ Archivos Modificados
