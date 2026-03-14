@@ -41,14 +41,14 @@ interface Props {
 const { width, height } = Dimensions.get('window');
 
 const CATEGORY_ASSETS: Record<string, any> = {
-    anxiety: require('../../assets/covers/anxiety.png'),
-    health: require('../../assets/covers/health.png'),
-    growth: require('../../assets/covers/growth.png'),
-    relationships: require('../../assets/covers/relationships.png'),
-    professional: require('../../assets/covers/professional.png'),
-    sleep: require('../../assets/covers/sleep.png'),
-    family: require('../../assets/covers/family.png'),
-    children: require('../../assets/covers/children.png'),
+    anxiety: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_meditation_sessions.webp' },
+    health: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_meditation_sessions.webp' },
+    growth: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_meditation_sessions.webp' },
+    relationships: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_true_stories.webp' },
+    professional: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_meditation_sessions.webp' },
+    sleep: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_meditation_sessions.webp' },
+    family: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_true_stories.webp' },
+    children: { uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/library_true_stories.webp' },
 };
 
 const StoryDetailScreen: React.FC<Props> = ({ navigation, route }) => {

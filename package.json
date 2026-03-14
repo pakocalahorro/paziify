@@ -1,6 +1,6 @@
 {
   "name": "paziify",
-  "version": "2.47.0",
+  "version": "2.48.0",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
@@ -71,6 +71,8 @@
     "sharp": "^0.34.5"
   },
   "devDependencies": {
+    "@react-native-community/cli": "latest",
+    "@react-native/metro-config": "latest",
     "@testing-library/jest-native": "^5.4.3",
     "@types/jest": "~29.5.12",
     "@types/react": "~19.1.0",

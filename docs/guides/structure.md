@@ -1,4 +1,4 @@
-﻿# Estructura del Proyecto Paziify
+# Estructura del Proyecto Paziify
 
 ## Ãndice
 1. [VisiÃ³n General](#visiÃ³n-general)
@@ -18,11 +18,12 @@
 
 **Paziify** es una aplicaciÃ³n mÃ³vil de bienestar, mindfulness y salud mental desarrollada con React Native y Expo. La app ofrece meditaciones guiadas, audiolibros, terapia cognitivo-conductual (CBT), bio-feedback y una experiencia de santuario espiritual inmersivo.
 
-**VersiÃ³n**: 2.44.0 (Admin Roles Stabilization)
-**Ãšltima actualizaciÃ³n**: 6 de Marzo de 2026
+**VersiÃ³n**: 2.48.0 (Bridgeless Stability & Runtime Guard)
+**Ãšltima actualizaciÃ³n**: 14 de Marzo de 2026
 
 **Historial Reciente**:
-- **v2.44.0**: ReparaciÃ³n CrÃ­tica de Guardado (RLS Admin Fix) y Shadow Sync Architectura para Panel Admin.
+- **v2.48.0**: EstabilizaciÃ³n de Runtime Bridgeless, Fix de FormData y Centinela de Husky (Runtime Guard).
+- **v2.47.0**: ReparaciÃ³n CrÃ­tica de Guardado (RLS Admin Fix) y Shadow Sync Architectura para Panel Admin.
 - **v2.39.0**: Favoritos Unificados, SincronizaciÃ³n OasisCard (Admin Sync) y Hotfixes de Audio.
 
 ---
@@ -76,7 +77,8 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 â”‚   â”œâ”€â”€ scripts/                # Scripts de meditaciÃ³n
 â”‚   â”œâ”€â”€ tutorials/              # [NEW] Tutoriales de diseÃ±o y uso
 â”‚   â””â”€â”€ sessions/               # Registro de sesiones
-â”œâ”€â”€ scripts/                    # Scripts SQL y utilidades
+â”œâ”€â”€ scripts/                    # Scripts SQL y [NEW] Guardianes de Husky
+â”‚   â””â”€â”€ husky_guard.js          # Centinela de Integridad de Runtime
 â”œâ”€â”€ src/                        # CÃ³digo fuente principal
 â”‚   â”œâ”€â”€ assets/                 # Assets optimizados
 â”‚   â”œâ”€â”€ components/             # Componentes reutilizables
@@ -92,7 +94,8 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 â”‚   â”œâ”€â”€ screens/                # Pantallas de la app
 â”‚   â”œâ”€â”€ services/               # Servicios (API, auth, etc.)
 â”‚   â”œâ”€â”€ types/                  # Definiciones TypeScript
-â”‚   â””â”€â”€ utils/                  # Utilidades
+â”‚   â”œâ”€â”€ utils/                  # Utilidades
+â”‚   â””â”€â”€ polyfills.ts            # [NEW] Blindaje de Web APIs (Bridgeless Fix)
 â”œâ”€â”€ supabase/                   # ConfiguraciÃ³n Supabase
 â”‚   â”œâ”€â”€ migrations/             # Migraciones SQL
 â”‚   â””â”€â”€ seeds/                  # Datos iniciales

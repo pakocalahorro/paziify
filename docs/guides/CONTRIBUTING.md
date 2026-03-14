@@ -20,8 +20,11 @@ La rama `main` está blindada. Ningún Pull Request será aceptado sin el **Chec
 - 🏗️ **App Build**: Integridad del compilado Expo.
 - 🖥️ **Admin Build**: Integridad del panel de gestión.
 
-## 4. 👑 Aprobación Estratégica
-El OK final de la versión y de los cambios visuales es responsabilidad única del **CEO (Paco)**.
+## 5. ⚡ Integridad del Runtime (Bridgeless)
+Para evitar el crash fatal observados en la v2.48.0, la app utiliza un sistema de polyfills forzoso.
+- **Regla de Oro**: `import './src/polyfills';` debe ser la **primera línea absoluta** de `index.ts`.
+- **Bloqueo**: Husky impedirá cualquier commit que altere este orden.
+- **Lectura Obligatoria**: [POLYFILLS_BRIDGE_FIX.md](file:///c:/Mis%20Cosas/Proyectos/Paziify/docs/guides/POLYFILLS_BRIDGE_FIX.md).
 
 ---
 ### 🛠️ Comandos de Emergencia y Utilidades

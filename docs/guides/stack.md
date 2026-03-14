@@ -1,5 +1,5 @@
 # 🏗️ The Paziify Architecture Blueprint
-*Actualizado: 10 de Marzo de 2026*
+*Actualizado: 13 de Marzo de 2026 (Post-Nitro Migration)*
 
 Este documento es la **"Biblia" Técnica** de Paziify. Describe exactamente qué herramientas usamos, en qué versiones, por qué se eligieron, cómo interactúan entre sí, y cuáles son los protocolos robóticos y manuales (Workflows) bajo los que se ha esculpido la aplicación desde cero hasta el día de hoy.
 
@@ -71,9 +71,9 @@ Esta es la zona de máximo dolor de compilación que requirió la cura más quir
 
 | Tecnología | Versión | Propósito & Razón de elección |
 | :--- | :--- | :--- |
-| **Vision Camera** | `5.0.0-beta` | La biblioteca de cámara más potente y compleja. Lee los frames a 30fps/60fps. La v5 era obligatoria por los requerimientos de la nueva arquitectura de React 0.81. |
-| **Nitro Modules** | `^0.35.0` | El motor subyacente de la V.Camera v5. Un sistema turbo C++ ultrarrápido diseñado por Margelo para pasar imágenes masivas saltándose el puente JS. |
-| **Worklets** | `^0.7.4` | Una dependencia crítica obligada por Reanimated. Ejecuta mini-hilos de JS en paralelo. Se eliminó la antigua `worklets-core` en favor de esta porque causaba conflictos mortales en compilación (*Crashes SIGABRT*). |
+| **Vision Camera** | `5.0.0-beta` | La biblioteca de cámara más potente. Gestionada vía **Motor Nitro** (C++) para saltarse el bridge. |
+| **Nitro Modules** | `^0.35.0` | El motor subyacente de la V.Camera v5. Un sistema turbo C++ ultrarrápido diseñado por Margelo para procesamiento de frames sin latencia. |
+| **Worklets** | `^0.7.4` | Dependencia integrada en Reanimated v4. Ejecuta mini-hilos de JS en paralelo. **Nota**: No añadir el plugin de worklets en Babel si ya está Reanimated v4 activo. |
 
 ---
 
@@ -111,9 +111,20 @@ Si la misión directiva es "Recrear Paziify o una app clon" desde cero absoluto,
 
 ### ⏱️ Fase B: Configuración Obligatoria (El punto de fallo común)
 La IA **debe** configurar estos tres archivos antes de escribir un solo componente JS:
-1. **`app.json` (Plugins):** Inyectar permisos de cámara/micrófono y el plugin de `expo-build-properties` forzando `kotlinVersion: "2.1.0"` y `minSdkVersion: 26`.
-2. **`babel.config.js`:** Añadir **exclusivamente** `plugins: ['react-native-reanimated/plugin']`. Si se añade `worklets/plugin` también, el empaquetador JS (`metro`) se romperá por duplicidad.
-3. **`src/__tests__/setup.ts`:** Si se usa Jest, se deben mockear expresamente `react-native-reanimated` y `react-native-worklets` (jamás `worklets-core`).
+1. **`app.json` (Plugins):** Inyectar permisos de cámara/micrófono vía `expo-camera`. **IMPORTANTE**: No añadir el plugin `react-native-vision-camera` en la versión V5 Nitro, ya que bloquea el build nativo. Forzar `kotlinVersion: "2.1.0"` y `minSdkVersion: 26`.
+2. **`babel.config.js`:** Añadir **exclusivamente** `plugins: ['react-native-reanimated/plugin']`. Reanimated v4 ya incluye el motor de Worklets; añadir el plugin de worklets manual provoca error de duplicidad.
+3. **`src/__tests__/setup.ts`:** Si se usa Jest, se deben mockear expresamente `react-native-reanimated` y `react-native-worklets`.
+
+### ⏱️ Fase B.1: Estándar CardioScan (Nitro API)
+Para el procesamiento de imágenes en tiempo real:
+- Usar **`useFrameOutput`** en lugar del antiguo frame processor.
+- Es **OBLIGATORIO** llamar a `frame.dispose()` al final de cada frame para liberar memoria C++.
+- Usar `Date.now()` para los timestamps si el algoritmo espera milisegundos (Android Nitro entrega nanosegundos).
+
+### ⏱️ Fase B.2: Estándar de Inicialización (Bridgeless Fix)
+Para evitar el crash fatal por falta de Web APIs (FormData, fetch) en producciÃ³n:
+1. **Punto de Entrada**: `index.ts` DEBE tener `import './src/polyfills';` como la **primera lÃ­nea absoluta**.
+2. **Blindaje**: No mover ni aÃ±adir imports por encima de esta lÃ­nea. Referencia: [POLYFILLS_BRIDGE_FIX.md](file:///c:/Mis%20Cosas/Proyectos/Paziify/docs/guides/POLYFILLS_BRIDGE_FIX.md).
 
 ### ⏱️ Fase C: Arquitectura de Carpetas (`src/`)
 La IA destruirá la estructura plana que trae Expo por defecto y creará estrictamente la siguiente jerarquía bajo la carpeta `src/`. Todo el código vivirá aquí:

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, StatusBar, TouchableOpacity, AppState, AppStateStatus } from 'react-native';
-import { Camera, useCameraDevice, useCameraPermission, useFrameProcessor } from 'react-native-vision-camera';
+import { Camera, useCameraDevice, useCameraPermission, useFrameOutput } from 'react-native-vision-camera';
 import { useNavigation, useIsFocused, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
@@ -142,30 +142,38 @@ const CardioScanScreen = () => {
         }
     };
 
-    // Frame Processor - UPDATED for calibration + measuring phases
-    const frameProcessor = useFrameProcessor((frame) => {
-        'worklet';
+    // Frame Processor (Nitro API) - UPDATED for V5
+    const frameOutput = useFrameOutput({
+        pixelFormat: 'yuv',
+        onFrame: (frame) => {
+            'worklet';
 
-        if (scanPhase !== 'calibration' && scanPhase !== 'measuring' && scanPhase !== 'countdown') return;
-
-        try {
-            const buffer = frame.toArrayBuffer();
-            const pixels = new Uint8Array(buffer);
-            const rgb = extractRGBFromFrame(pixels, frame.pixelFormat);
-            const timestamp = Date.now();
-
-            // DIRECT CALL to JavaScript using Reanimated's runOnJS
-            runOnJS(addRGBSampleJS)(rgb.r, rgb.g, rgb.b, timestamp);
-
-            // DEBUG: Log RGB during Countdown to check flash status
-            if (scanPhase === 'countdown') {
-                console.log(`[Countdown] RGB: ${rgb.r.toFixed(0)}, ${rgb.g.toFixed(0)}, ${rgb.b.toFixed(0)}`);
+            if (scanPhase !== 'calibration' && scanPhase !== 'measuring' && scanPhase !== 'countdown') {
+                frame.dispose(); // CRITICAL: Always dispose frames
+                return;
             }
 
-        } catch (e) {
-            console.log(`[FrameProcessor] Error: ${e}`);
+            try {
+                const buffer = frame.getPixelBuffer();
+                const pixels = new Uint8Array(buffer);
+                const rgb = extractRGBFromFrame(pixels, frame.pixelFormat as any);
+                const timestamp = Date.now(); // Date.now() is in ms, compatible with processor.
+
+                // DIRECT CALL to JavaScript using Reanimated's runOnJS
+                runOnJS(addRGBSampleJS)(rgb.r, rgb.g, rgb.b, timestamp);
+
+                // DEBUG: Log RGB during Countdown to check flash status
+                if (scanPhase === 'countdown' && Math.random() < 0.1) {
+                    console.log(`[Countdown] RGB: ${rgb.r.toFixed(0)}, ${rgb.g.toFixed(0)}, ${rgb.b.toFixed(0)}`);
+                }
+
+            } catch (e) {
+                console.log(`[FrameOutput] Error: ${e}`);
+            } finally {
+                frame.dispose(); // CRITICAL: Always dispose frames
+            }
         }
-    }, [scanPhase]);
+    });
 
     // UPDATED: Start calibration phase
     // UPDATED: Start measuring phase (Skipping calibration per user request)
@@ -358,8 +366,8 @@ const CardioScanScreen = () => {
                 style={StyleSheet.absoluteFill}
                 device={device}
                 isActive={isActive}
-                torch={isTorchOn ? 'on' : 'off'}
-                frameProcessor={frameProcessor}
+                torchMode={isTorchOn ? 'on' : 'off'}
+                outputs={[frameOutput]}
                 pixelFormat="yuv" // Efficient format for processing
             />
 

@@ -45,7 +45,7 @@ const SunriseBackground: React.FC = () => {
         <View style={styles.container}>
             {/* Realistic Nature Background */}
             <Image
-                source={require('../../../assets/nature_background.png')}
+                source={{ uri: 'https://ueuxjtyottluwkvdreqe.supabase.co/storage/v1/object/public/background/meditation_forest.webp' }}
                 style={styles.backgroundImage}
                 resizeMode="cover"
             />

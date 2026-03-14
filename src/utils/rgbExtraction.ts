@@ -23,7 +23,11 @@ export function extractRGBFromFrame(
     // Sample every 100th pixel for performance
     const step = 100;
 
-    if (pixelFormat === 'yuv') {
+    // V5 formats can be 'yuv-420-8-bit-video', 'rgb-bgra-32-bit', etc.
+    const isYUV = pixelFormat.includes('yuv');
+    const isRGB = pixelFormat.includes('rgb');
+
+    if (isYUV) {
         // YUV420 format: Y plane followed by U and V planes
         // For PPG, we need to convert YUV to RGB to get color variations
         const yPlaneSize = Math.floor(pixels.length * 2 / 3);
