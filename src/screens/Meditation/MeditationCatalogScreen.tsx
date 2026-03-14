@@ -450,8 +450,8 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
         >
             <FlashList
                 data={sessionsByRow}
-                keyExtractor={(item, index) => item.title + index}
-                renderItem={({ item, index }) => (
+                keyExtractor={(item: any, index: number) => item.title + index}
+                renderItem={({ item, index }: { item: any, index: number }) => (
                     <CategoryRow
                         title={item.title}
                         sessions={item.data}
@@ -471,7 +471,7 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                         isLoading={hasActiveFilter ? isInfiniteLoading : false}
                     />
                 )}
-                estimatedItemSize={250}
+                {...({ estimatedItemSize: 250 } as any)}
                 ListHeaderComponent={renderHeader()}
                 contentContainerStyle={[
                     styles.listContent,

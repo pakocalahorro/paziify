@@ -368,7 +368,7 @@ const CardioScanScreen = () => {
                 isActive={isActive}
                 torchMode={isTorchOn ? 'on' : 'off'}
                 outputs={[frameOutput]}
-                pixelFormat="yuv" // Efficient format for processing
+                {...({ pixelFormat: 'yuv' } as any)} // Resolver mismatch de tipos en v5-beta
             />
 
             {/* Dark Overlay */}

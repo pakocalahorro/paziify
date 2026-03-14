@@ -1,16 +1,20 @@
 // MOCKS DE INFRAESTRUCTURA (Node-Friendly)
-const mockSupabase = {
-    from: jest.fn(() => ({
-        select: jest.fn(() => ({
-            order: jest.fn(() => ({
-                range: jest.fn(() => Promise.resolve({ data: [], error: null }))
-            })),
-            eq: jest.fn(() => ({
-                select: jest.fn(() => Promise.resolve({ data: [], error: null }))
-            }))
-        }))
-    }))
+// MOCKS DE INFRAESTRUCTURA (Fluidos y Resilientes)
+const createMockQuery = () => {
+    const mock: any = {
+        select: jest.fn(() => mock),
+        from: jest.fn(() => mock),
+        eq: jest.fn(() => mock),
+        order: jest.fn(() => mock),
+        range: jest.fn(() => mock),
+        single: jest.fn(() => mock),
+        then: (onSuccess: any) => Promise.resolve({ data: [], error: null }).then(onSuccess),
+        catch: (onFail: any) => Promise.resolve({ data: [], error: null }).catch(onFail),
+    };
+    return mock;
 };
+
+const mockSupabase = createMockQuery();
 
 jest.mock('../services/supabaseClient', () => ({ supabase: mockSupabase }));
 jest.mock('@react-native-async-storage/async-storage', () => ({
