@@ -362,6 +362,8 @@ const CardioScanScreen = () => {
             <StatusBar barStyle="light-content" />
 
             {/* Camera View */}
+            {/* TODO: Casting defensivo por inconsistencia de tipos en VisionCamera v5-beta con React 19. 
+               Revisar cuando salga versión estable para recuperar pureza de tipos. */}
             {(() => {
                 const CameraCast = Camera as any;
                 return (

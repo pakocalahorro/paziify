@@ -448,6 +448,8 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             disableContentPadding={true}
             preset="fixed"
         >
+            {/* TODO: Casting defensivo por inconsistencia de tipos en FlashList v2-beta (estimatedItemSize) con React 19.
+               Revisar en versión estable para eliminar el wrapper. */}
             {(() => {
                 const FlashListCast = FlashList as any;
                 return (
