@@ -25,7 +25,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 // Mock de React Native para evitar carga de binarios
 jest.mock('react-native', () => ({
-    Platform: { OS: 'ios', select: (o: any) => o.ios },
+    Platform: { OS: 'ios', select: (o: { ios?: any; android?: any }) => o.ios },
     NativeModules: {},
 }), { virtual: true });
 
@@ -61,7 +61,9 @@ describe('Cerebro: ContentService (LÃ³gica de Negocio)', () => {
         it('debe activar el Modo Resiliencia si Supabase devuelve un error', async () => {
             // Configuramos el mock para que falle en el flujo de sessionsService.getAll()
             (mockSupabase.from as jest.Mock).mockImplementationOnce(() => ({
+                ...mockSupabase,
                 select: jest.fn(() => ({
+                    ...mockSupabase,
                     order: jest.fn(() => Promise.resolve({ data: null, error: { message: 'DB Down' } }))
                 }))
             }));

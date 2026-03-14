@@ -448,30 +448,33 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
             disableContentPadding={true}
             preset="fixed"
         >
-            <FlashList
-                data={sessionsByRow}
-                keyExtractor={(item: any, index: number) => item.title + index}
-                renderItem={({ item, index }: { item: any, index: number }) => (
-                    <CategoryRow
-                        title={item.title}
-                        sessions={item.data}
-                        icon={item.icon}
-                        accentColor={item.accentColor}
-                        onSessionPress={handleSessionClick}
-                        onFavoritePress={(session) => toggleFavorite(session.id)}
-                        onSeeAll={item.title?.toUpperCase?.().includes('RESULTADOS') ? handleSeeAll : undefined}
-                        isPlusMember={userState.isPlusMember}
-                        favoriteSessionIds={userState.favoriteSessionIds}
-                        completedSessionIds={userState.completedSessionIds}
-                        scrollY={scrollY}
-                        isResults={hasActiveFilter}
-                        variant={item.variant}
-                        index={index}
-                        sharedTransitionTagPrefix="session.image"
-                        isLoading={hasActiveFilter ? isInfiniteLoading : false}
-                    />
-                )}
-                {...({ estimatedItemSize: 250 } as any)}
+            {(() => {
+                const FlashListCast = FlashList as any;
+                return (
+                    <FlashListCast
+                        data={sessionsByRow}
+                        keyExtractor={(item: any, index: number) => item.title + index}
+                        renderItem={({ item, index }: { item: any; index: number }) => (
+                            <CategoryRow
+                                title={item.title}
+                                sessions={item.data}
+                                icon={item.icon}
+                                accentColor={item.accentColor}
+                                onSessionPress={handleSessionClick}
+                                onFavoritePress={(session: any) => toggleFavorite(session.id)}
+                                onSeeAll={item.title?.toUpperCase?.().includes('RESULTADOS') ? handleSeeAll : undefined}
+                                isPlusMember={userState.isPlusMember}
+                                favoriteSessionIds={userState.favoriteSessionIds}
+                                completedSessionIds={userState.completedSessionIds}
+                                scrollY={scrollY}
+                                isResults={hasActiveFilter}
+                                variant={item.variant}
+                                index={index}
+                                sharedTransitionTagPrefix="session.image"
+                                isLoading={hasActiveFilter ? isInfiniteLoading : false}
+                            />
+                        )}
+                        estimatedItemSize={250}
                 ListHeaderComponent={renderHeader()}
                 contentContainerStyle={[
                     styles.listContent,
@@ -485,11 +488,13 @@ const MeditationCatalogScreen: React.FC<Props> = ({ navigation }) => {
                     }
                 }}
                 onEndReachedThreshold={0.5}
-                onScroll={Animated.event(
-                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                    { useNativeDriver: false } // FlashList with Animated.event often needs false or specific setup
-                )}
-            />
+                        onScroll={Animated.event(
+                            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                            { useNativeDriver: false }
+                        )}
+                    />
+                );
+            })()}
 
             {/* SessionPreviewModal removed - Now using direct navigation to SessionDetailScreen */}
 

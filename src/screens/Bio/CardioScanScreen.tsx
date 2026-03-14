@@ -362,14 +362,19 @@ const CardioScanScreen = () => {
             <StatusBar barStyle="light-content" />
 
             {/* Camera View */}
-            <Camera
-                style={StyleSheet.absoluteFill}
-                device={device}
-                isActive={isActive}
-                torchMode={isTorchOn ? 'on' : 'off'}
-                outputs={[frameOutput]}
-                {...({ pixelFormat: 'yuv' } as any)} // Resolver mismatch de tipos en v5-beta
-            />
+            {(() => {
+                const CameraCast = Camera as any;
+                return (
+                    <CameraCast
+                        style={StyleSheet.absoluteFill}
+                        device={device}
+                        isActive={isActive}
+                        torchMode={isTorchOn ? 'on' : 'off'}
+                        outputs={[frameOutput]}
+                        pixelFormat="yuv"
+                    />
+                );
+            })()}
 
             {/* Dark Overlay */}
             <View style={styles.overlay}>
