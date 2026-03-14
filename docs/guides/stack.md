@@ -22,12 +22,13 @@ Paziify no nació programando "a mano" en la primera fase. El proyecto es hijo d
 La base metodológica siempre es arrancar el esqueleto de la app en la versión más puntera (cutting-edge) estable posible. 
 *La herramienta de inicialización es `npx create-expo-app@latest`.*
 
-| Tecnología | Versión | Propósito & Razón de elección |
+| Tecnologia | Versión | Propósito & Razón de elección |
 | :--- | :--- | :--- |
-| **Expo SDK** | `~54.0.33` | El corazón del proyecto. Abstrae la configuración infernal de Android/iOS. Proporciona enrutamiento web y compila nativo. Se actualizó de SDK 51 a 54 para soportar la Nueva Arquitectura y Nitro Modules. |
-| **React Native** | `0.81.5` | El motor que renderiza la UI. En esta versión `0.81+`, la **Nueva Arquitectura** está activa por defecto aportando *Fabric* (renderizado ultrarrápido) y *TurboModules* (conexión nativa instantánea sin puentes). |
-| **React** | `19.1.0` | Librería central de UI. Adaptación a la ultimísima versión. |
-| **TypeScript** | `~5.9.2` | (Dev) Todo el código del proyecto está estrictamente tipado para prevenir el 90% de crashes de variables inválidas antes incluso de compilar. |
+| **Expo SDK** | `~54.0.33` | El corazón del proyecto. Abstrae la configuración nativa. Requiere SDK 54 para la Nueva Arquitectura. |
+| **React Native** | `0.81.5` | El motor UI. New Architecture activa por defecto. |
+| **Node.js** | `v20.x (LTS)` | **Mínimo obligatorio**. Requerido por Metro (RN 0.81) para funciones modernas de JS (ej: `toReversed`). Sincronizado en la CI (GitHub Actions). |
+| **React** | `19.1.0` | Librería central de UI. |
+| **TypeScript** | `~5.9.2` | Tipado estricto para prevenir crashes. |
 
 **Configuración Clave en `app.json`:**
 ```json

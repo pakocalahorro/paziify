@@ -171,6 +171,7 @@ Este fix es necesario por la combinación específica de:
 - **Hermes** como motor JS
 - **Supabase** inicializado en scope de módulo
 - **Vision Camera v5-beta + Nitro Modules** que requieren Bridgeless
+- **Node.js v20 (LTS)** en la CI para soportar funciones modernas de JavaScript (ej. `toReversed`) requeridas por el empaquetador de Metro en RN 0.81.
 
 Esta arquitectura fue elegida deliberadamente para el módulo **CardioScan** de Paziify, que procesa señales PPG a 30fps con jitter inferior a 1ms para cálculos de HRV/RMSSD de precisión médica. Degradar a la arquitectura Bridge clásica reduciría la precisión de las mediciones de forma inaceptable para el propósito de la app.
 
