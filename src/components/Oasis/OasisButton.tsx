@@ -126,7 +126,10 @@ export const OasisButton: React.FC<OasisButtonProps> = ({
                         { fontSize: getFontSize(), marginLeft: 8 },
                         variant === 'ghost' && { color: accentColor },
                         textStyle
-                    ]}>
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    >
                         Cargando...
                     </Text>
                 </View>
@@ -136,12 +139,16 @@ export const OasisButton: React.FC<OasisButtonProps> = ({
         const content = (
             <View style={styles.contentRow}>
                 {!!icon && <Ionicons name={icon} size={getFontSize() + 4} color={variant === 'ghost' ? accentColor : '#FFFFFF'} style={styles.icon} />}
-                <Text style={[
-                    styles.text,
-                    { fontSize: getFontSize() },
-                    variant === 'ghost' && { color: accentColor },
-                    textStyle
-                ]}>
+                <Text 
+                    style={[
+                        styles.text,
+                        { fontSize: getFontSize() },
+                        variant === 'ghost' && { color: accentColor },
+                        textStyle
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                >
                     {title}
                 </Text>
             </View>

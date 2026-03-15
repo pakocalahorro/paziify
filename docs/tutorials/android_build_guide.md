@@ -1,121 +1,122 @@
 # 🛡️ Guía Maestra Android: Paziify (Mantenimiento y Build)
 
-Esta guía contiene los pasos exactos para mantener el entorno limpio y generar los archivos de la aplicación.
+Esta es la **"Constitución" técnica** de Paziify para Android. Combina la sabiduría de todas las sesiones previas para garantizar que cualquier build (APK o AAB) sea exitoso, incluso con los desafíos de rutas de Windows.
 
 ---
 
-## 1. 🧹 MANTENIMIENTO (Limpieza)
+## 📋 Resumen de Operaciones Rápidas
 
-### A. Limpieza Rápida (Recomendada antes de cada Build)
-Borra la carpeta `android/app/build`. Esto evita conflictos con archivos antiguos sin afectar al resto del proyecto.
+| Acción | Propósito | Comando |
+|---|---|---|
+| **Limpieza Profunda** | Resetear el entorno nativo | `Remove-Item android, .expo` y `npx expo prebuild` |
+| **Limpieza Rápida** | Corregir errores de compilación | **Paso 1** del Protocolo Local (Super Clean) |
+| **Generar APK (Test)** | Instalar en tu móvil | **Paso 3** del Protocolo Local (`assembleDebug`) |
+| **Generar AAB (Nube)** | Subir a Google Play (EAS) | `eas build --platform android --profile production` |
+| **Servidor Dev** | Ver cambios en tiempo real | `npx expo start --dev-client` |
 
-### B. Reset Total (Solo si hay errores graves o cambios en plugins)
-Borra `node_modules`, `android` y `.expo`.
-```bash
+---
+
+## 1. 🧹 MANTENIMIENTO Y RECONSTRUCCIÓN
+
+Usa estos comandos si el entorno está "sucio", has cambiado plugins en `app.json` o si la carpeta `android` da errores inexplicables.
+
+### A. Reset Total (Bomba Atómica)
+Si necesitas borrar todo y empezar de cero (excepto tus archivos de código):
+1. Borra `node_modules`, `android` y `.expo`.
+2. Ejecuta en PowerShell: 
+```powershell
 npm install --legacy-peer-deps
 npx expo prebuild --clean
 ```
 
+### B. Mantenimiento de Git
+Limpia archivos no rastreados que puedan estorbar:
+```bash
+git clean -fdX
+```
+
 ---
 
-## 2. 📦 GENERACIÓN DE COMPILADOS (Local)
+## 2. 📦 PROTOCOLO LOCAL "ANTI-ESPACIOS" (Inmune a "Mis Cosas")
 
-Sigue estos 3 pasos en **PowerShell** (Administrador) para preparar y ejecutar cualquier build.
+El gran problema de Windows es el espacio en la carpeta "Mis Cosas". Para compilar C++ (Reanimated, Nitro) hay que usar este flujo de 3 pasos **OBLIGATORIO**.
 
-### FASE 1: Preparar el Entorno
+### ⏱️ PASO 1: Super Clean (Limpiar Rastros)
+Desde la carpeta **`C:\Paziify\android`**:
 ```powershell
-# 1. Crear el enlace a la ruta sin espacios (Solo la primera vez)
-cmd /c mklink /J C:\Paziify "C:\Mis Cosas\Proyectos\Paziify"
+# 1. Entrar en la ruta corta (Garantiza que CMake no lea espacios)
+cd C:\MISCOS~1\PROYEC~1\PAZIIFY\android
 
-# 2. Entrar en la ruta de trabajo
-cd C:\Paziify\android
-
-# 3. Configurar Java
+# 2. Detener procesos y borrar carpetas rebeldes manualmente
 $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+.\gradlew --stop ; Remove-Item -Recurse -Force build, app/build, app/.cxx -ErrorAction SilentlyContinue
 ```
 
-### FASE 2: Elegir tipo de Build
-
-#### 📱 Opción A: APK de Pruebas (Debug)
-Para instalar y probar funciones rápidamente.
+### ⏱️ PASO 2: Sincronizar Inmaculadamente
 ```powershell
-.\gradlew assembleDebug
+cd ..
+npx expo prebuild --clean
 ```
-*   **Resultado**: `android\app\build\outputs\apk\debug\app-debug.apk`
+*Este comando regenera los archivos nativos basándose en tu `app.json` actual (iconos, colores de barras, etc.).*
 
-#### 🛡️ Opción B: APK de Producción (Release)
-Para probar la app **exactamente** como irá a la tienda (Firma real).
+### ⏱️ PASO 3: Ejecutar Compilación
 ```powershell
-.\gradlew clean
-.\gradlew assembleRelease
+cd android
+.\gradlew assembleDebug      # APK de Pruebas (Debug)
+.\gradlew assembleRelease    # APK Real (Release)
+.\gradlew bundleRelease      # AAB Final (Play Store)
 ```
-*   **Resultado**: `android\app\build\outputs\apk\release\app-release.apk`
-
-#### 🚀 Opción C: AAB para Play Store (Definitivo)
-1.  **Sube la versión**: En `app.json`, aumenta en +1 el `versionCode`.
-2.  **Lanza el build**:
-```powershell
-.\gradlew clean
-.\gradlew bundleRelease
-```
-*   **Resultado**: `android\app\build\outputs\bundle\release\app-release.aab`
 
 ---
 
-## 3. ⚡️ ITERACIÓN RÁPIDA (Side-loading del Bundle)
+## 3. ☁️ COMPILACIÓN EN LA NUBE (EAS Build)
 
-Si el error es de JavaScript (ej. `ReferenceError` en el hilo `mqt_v_js`), no necesitas recompilar el APK. Puedes inyectar el nuevo código en segundos:
+**RECOMENDADO PARA RELEASES FINALES.** Evita cualquier problema de tu PC compilando en servidores Linux limpios.
 
-### Paso 1: Generar el Bundle
-```powershell
-npx react-native bundle --platform android --dev false --entry-file index.ts --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+### Paso 1: Subir Versión (Obligatorio para AAB)
+En `app.json`, aumenta en +1 el `versionCode` dentro del bloque `android`.
+
+### Paso 2: Lanzar Build
+```bash
+# Para subir a la tienda (AAB)
+eas build --platform android --profile production
+
+# Para probar APK de producción (Instalable)
+eas build --platform android --profile preview
 ```
-
-### Paso 2: Inyectar en el dispositivo (ADB)
-```powershell
-# 1. Subir a temporal
-adb push android/app/src/main/assets/index.android.bundle /data/local/tmp/index.android.bundle
-
-# 2. Copiar a la carpeta de la app (Requiere APK debuggable o permisos)
-adb shell "run-as com.pakocalahorro.paziify cp /data/local/tmp/index.android.bundle /data/data/com.pakocalahorro.paziify/files/index.android.bundle"
-```
-
-### Paso 3: Reiniciar App
-```powershell
-adb shell am force-stop com.pakocalahorro.paziify
-adb shell am start -n com.pakocalahorro.paziify/.MainActivity
-```
-*   **Tiempo estimado**: 10-15 segundos.
-*   **Limitación**: Solo para cambios en JS (no archivos nativos).
 
 ---
 
-## 🛠️ SOLUCIÓN DE PROBLEMAS
+## 4. 🌐 DESARROLLO Y SERVIDOR (Metro)
 
-### A. Archivos bloqueados (EBUSY)
-Si Windows no te deja borrar carpetas porque "hay un proceso usándolas":
-1. Cierra **Android Studio**.
-2. Ejecuta: `.\gradlew --stop`
-3. Cierra cualquier terminal con Metro (`npx expo start`) abierto.
-
-### B. Atasco en C++ o Error en 'clean' (Bomba Atómica)
-Si `.\gradlew clean` falla (como hoy por las rutas) o la compilación se queda congelada:
+Para que el APK Debug cargue el código o para iterar rápido:
+1. Abre una terminal en **`C:\Paziify`**.
+2. Ejecuta:
 ```powershell
-# Borrado manual de carpetas de compilación
-Remove-Item -Recurse -Force build, app/build, app/.cxx -ErrorAction SilentlyContinue
-
-# Borrado de cachés de módulos nativos (opcional)
-Remove-Item -Recurse -Force "..\node_modules\react-native-reanimated\android\build", "..\node_modules\@react-native-async-storage\async-storage\android\build" -ErrorAction SilentlyContinue
+npx expo start --dev-client
 ```
-**Nota**: Usa esto solo si el `clean` estándar falla. Una vez estabilizado en `C:\Paziify`, no lo necesitarás habitualmente.
+*Si cambias lógica en JS y no lo ves, pulsa `r` en la terminal o usa `npx expo start --dev-client --clear`.*
 
 ---
 
-## ⚠️ NOTAS TÉCNICAS (v2.47.0)
-*   **Memoria**: Gradle usa **4GB de RAM** y 1GB Metaspace (fijado en `gradle.properties`).
-*   **Assets**: **PROHIBIDO** assets pesados en local. Todo en **Supabase**.
-*   **Firma**: Automatizada con `@cakodesigns__paziify.jks`.
-*   **Babel**: No incluir `react-native-worklets/plugin` (causa duplicidad).
+## 🛠️ SOLUCIÓN DE PROBLEMAS (VADEMÉCUM)
+
+### A. JAVA_HOME no se reconoce
+Recuerda que cada vez que cierras la terminal, Windows "olvida" dónde está Java. Ejecuta siempre:
+`$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"`
+
+### B. Error en CMake (add_subdirectory given source "C:/Mis Cosas")
+Causa: Has ejecutado un comando desde la ruta con espacios.
+Solución: Vuelve al **PROTOCOLO LOCAL (Paso 1)** usando `C:\MISCOS~1`.
+
+### C. Error EBUSY (Archivo bloqueado)
+Indica que Android Studio o Metro tienen el archivo "secuestrado".
+1. Cierra Android Studio.
+2. Ejecuta `.\gradlew --stop`.
+3. Reinicia la acción de borrado.
+
+### D. Firma de la App (Keystore)
+Verifica siempre que en `android/gradle.properties` existan las variables `PAZIIFY_RELEASE_STORE_FILE` y sus passwords antes de un `assembleRelease`.
 
 ---
-*Actualizado: 13 de Marzo de 2026*
+*Actualizado: 14 de Marzo de 2026 (Versión Consolidada)*

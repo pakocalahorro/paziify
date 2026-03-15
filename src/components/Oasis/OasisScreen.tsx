@@ -17,6 +17,7 @@ interface OasisScreenProps {
     showSafeOverlay?: boolean;
     header?: React.ReactNode;
     disableContentPadding?: boolean;
+    enableEdgeToEdge?: boolean;
 }
 
 /**
@@ -34,6 +35,7 @@ export const OasisScreen: React.FC<OasisScreenProps> = ({
     showSafeOverlay = true,
     header,
     disableContentPadding = false,
+    enableEdgeToEdge = true, // Default to true for premium immersion
 }) => {
     const insets = useSafeAreaInsets();
     const { userState, isNightMode } = useApp();
@@ -88,7 +90,14 @@ export const OasisScreen: React.FC<OasisScreenProps> = ({
                     {innerContent}
                 </ScrollView>
             ) : (
-                <View style={[styles.fixedContent, { paddingTop: header ? 0 : insets.top, paddingBottom: insets.bottom }, contentContainerStyle]}>
+                <View style={[
+                    styles.fixedContent,
+                    { 
+                        paddingTop: header ? 0 : (showSafeOverlay ? insets.top : 0), 
+                        paddingBottom: enableEdgeToEdge ? 0 : insets.bottom 
+                    },
+                    contentContainerStyle
+                ]}>
                     {innerContent}
                 </View>
             )}
@@ -97,7 +106,7 @@ export const OasisScreen: React.FC<OasisScreenProps> = ({
             <View
                 style={[
                     styles.footerGradientContainer,
-                    { height: insets.bottom + 40, bottom: 0 }
+                    { height: insets.bottom + 40, bottom: enableEdgeToEdge ? -insets.bottom : 0 }
                 ]}
                 pointerEvents="none"
             >

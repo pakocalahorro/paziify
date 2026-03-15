@@ -6,6 +6,7 @@ import {
     Animated,
     Dimensions,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, Screen } from '../../types';
@@ -62,6 +63,7 @@ const SpiritualPreloader = () => {
 
     return (
         <OasisScreen hideBackground={false} preset="fixed" style={{ backgroundColor: '#0A0E1A' }} showSafeOverlay={false}>
+            <StatusBar style="light" translucent backgroundColor="transparent" />
             <View style={styles.container}>
                 <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
                     <Text style={styles.brandName}>PAZIIFY</Text>

@@ -17,7 +17,7 @@ const PurposeModal: React.FC<PurposeModalProps> = ({ isVisible, onAccept, onClos
     return (
         <Modal visible={isVisible} transparent animationType="slide">
             <View style={styles.overlay}>
-                <BlurView intensity={90} tint="dark" style={styles.modalContent}>
+                <BlurView intensity={100} tint="dark" style={styles.modalContent}>
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                         <Ionicons name="close" size={24} color="rgba(255,255,255,0.5)" />
                     </TouchableOpacity>
@@ -86,7 +86,7 @@ const PurposeModal: React.FC<PurposeModalProps> = ({ isVisible, onAccept, onClos
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        backgroundColor: 'rgba(0,0,0,0.8)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -95,8 +95,16 @@ const styles = StyleSheet.create({
         maxHeight: '85%',
         borderRadius: 32,
         overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 2,
+        borderColor: '#D4AF37', // Oro sólido
+        backgroundColor: 'rgba(24, 21, 14, 0.98)', // Oro profundo casi opaco
+        // Sombra para máxima separación
+        shadowColor: "#D4AF37",
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.6,
+        shadowRadius: 30,
+        // Elevación para destacar sobre la Home en Android
+        elevation: 20,
     },
     scrollContent: {
         padding: 16,

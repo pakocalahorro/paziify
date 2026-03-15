@@ -3,10 +3,10 @@
     "name": "Paziify",
     "slug": "paziify",
     "scheme": "paziify",
-    "version": "2.48.0",
+    "version": "2.49.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -18,10 +18,19 @@
     },
     "android": {
       "package": "com.pakocalahorro.paziify",
-      "versionCode": 7,
+      "versionCode": 8,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "navigationBar": {
+        "barStyle": "light-content",
+        "backgroundColor": "#00000000"
+      },
+      "statusBar": {
+        "barStyle": "light-content",
+        "backgroundColor": "#00000000",
+        "translucent": true
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

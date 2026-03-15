@@ -149,13 +149,14 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
                         onPress={() => onPathPress?.(index)}
                         disabled={!onPathPress}
                         activeOpacity={0.6}
+                        style={{ maxWidth: 80 }}
                     >
-                        <Text style={styles.pathText}>{segment}</Text>
+                        <Text style={styles.pathText} numberOfLines={1} ellipsizeMode="tail">{segment}</Text>
                     </TouchableOpacity>
                     <Text style={styles.separator}> / </Text>
                 </View>
             ))}
-            <Text style={styles.titleText}>{title.toUpperCase()}</Text>
+            <Text style={styles.titleText} numberOfLines={1} ellipsizeMode="tail">{title.toUpperCase()}</Text>
             {onFilterPress && (
                 <TouchableOpacity
                     onPress={onFilterPress}

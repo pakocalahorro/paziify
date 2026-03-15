@@ -5,7 +5,9 @@ import {
     StyleSheet,
     TouchableOpacity,
     Dimensions,
+    Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
@@ -33,6 +35,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
     const { continueAsGuest, signInWithGoogle } = useApp();
     const [loading, setLoading] = useState(false);
     const videoRef = useRef<Video>(null);
+    const insets = useSafeAreaInsets();
 
     const handleGoogleLogin = async () => {
         setLoading(true);
@@ -83,14 +86,17 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
                         <View style={styles.brandBadge}>
                             <Ionicons name="leaf" size={24} color={theme.colors.accent} />
                         </View>
-                        <Text style={styles.title}>Paziify</Text>
-                        <Text style={styles.signature}>Tu Santuario Digital</Text>
+                        <Text style={styles.title} allowFontScaling={false}>Paziify</Text>
+                        <Text style={styles.signature} allowFontScaling={false}>Tu Santuario Digital</Text>
                     </View>
 
                     {/* Footer Controls */}
-                    <View style={styles.footer}>
+                    <View style={[
+                        styles.footerWrapper, 
+                        { paddingBottom: Math.max(insets.bottom, 20) }
+                    ]}>
 
-                        <Text style={styles.manifesto}>
+                        <Text style={styles.manifesto} adjustsFontSizeToFit numberOfLines={2}>
                             Descubre la calma interior.{'\n'}Comienza tu viaje de transformación.
                         </Text>
 
@@ -138,10 +144,14 @@ const styles = StyleSheet.create({
     },
     contentWrapper: {
         flex: 1,
-        justifyContent: 'space-between',
+        justifyContent: 'center', // Centered layout for better balance
         paddingHorizontal: theme.spacing.xl,
-        paddingTop: height * 0.15,
-        paddingBottom: theme.spacing.xxl,
+        paddingTop: 40,
+    },
+    footerWrapper: {
+        marginTop: height * 0.03, // Reduced from 0.08 to tighten layout
+        width: '100%',
+        alignItems: 'center',
     },
     header: {
         alignItems: 'center',
@@ -163,14 +173,15 @@ const styles = StyleSheet.create({
     },
     title: {
         fontFamily: 'Outfit_800ExtraBold',
-        fontSize: 52,
+        fontSize: width * 0.12 > 52 ? 52 : width * 0.12,
         color: '#FFFFFF',
         letterSpacing: 2,
         marginBottom: 8,
+        textAlign: 'center',
     },
     signature: {
         fontFamily: 'Caveat_700Bold', // Immersive typography
-        fontSize: 34,
+        fontSize: width * 0.08 > 34 ? 34 : width * 0.08,
         color: theme.colors.accent,
         transform: [{ rotate: '-2deg' }],
         opacity: 0.9,
@@ -185,13 +196,13 @@ const styles = StyleSheet.create({
         color: 'rgba(255,255,255,0.7)',
         textAlign: 'center',
         lineHeight: 24,
-        marginBottom: theme.spacing.xxl,
+        marginBottom: theme.spacing.lg, // Reduced from xxl to bring buttons up
         letterSpacing: 0.5,
     },
     buttonGroup: {
         width: '100%',
-        gap: theme.spacing.md,
-        marginBottom: theme.spacing.xl,
+        gap: height < 700 ? 8 : theme.spacing.md,
+        marginBottom: height < 700 ? theme.spacing.md : theme.spacing.xl,
     },
     loginOption: {
         flexDirection: 'row',
