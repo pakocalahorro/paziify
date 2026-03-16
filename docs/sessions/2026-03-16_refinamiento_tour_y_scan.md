@@ -1,4 +1,4 @@
-# Nota de Sesión: Refinamiento de Onboarding y Bio-Scan (v11.4)
+# Nota de Sesión: Refinamiento de Onboarding y Bio-Scan (v2.50.0)
 **Fecha:** 2026-03-16
 **Estado:** Finalizado / Salud Premium 🛡️
 
