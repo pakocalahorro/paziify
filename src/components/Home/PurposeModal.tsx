@@ -2,6 +2,8 @@ import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import ResilienceTree from '../Profile/ResilienceTree';
 import { theme } from '../../constants/theme';
 
@@ -13,71 +15,83 @@ interface PurposeModalProps {
     onClose: () => void;
 }
 
+const SunriseBackground = () => (
+    <View style={StyleSheet.absoluteFill}>
+        <LinearGradient
+            colors={['#1A2A6C', '#1C3366', '#16222A']}
+            style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.glowOverlay} />
+    </View>
+);
+
 const PurposeModal: React.FC<PurposeModalProps> = ({ isVisible, onAccept, onClose }) => {
     return (
-        <Modal visible={isVisible} transparent animationType="slide">
+        <Modal visible={isVisible} transparent animationType="fade">
             <View style={styles.overlay}>
-                <BlurView intensity={100} tint="dark" style={styles.modalContent}>
+                <BlurView intensity={20} tint="light" style={StyleSheet.absoluteFill} />
+                
+                <Animated.View 
+                    entering={FadeInDown.springify().damping(15)}
+                    style={styles.card}
+                >
+                    <SunriseBackground />
+                    
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                         <Ionicons name="close" size={24} color="rgba(255,255,255,0.5)" />
                     </TouchableOpacity>
+
                     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
                         <View style={styles.header}>
                             <View style={styles.treeWrapper}>
-                                <ResilienceTree daysPracticed={0} totalSteps={30} size={110} isGuest={false} />
+                                <ResilienceTree daysPracticed={0} totalSteps={30} size={100} isGuest={false} />
                             </View>
                             <Text style={styles.title}>Diseña tu Evolución</Text>
-                            <Text style={styles.subtitle}>Paziify se adapta a tu ritmo. Elige el compromiso que necesites hoy.</Text>
+                            <Text style={styles.subtitle}>Paziify se adapta a tu ritmo y compromiso.</Text>
                         </View>
 
                         <View style={styles.itemsContainer}>
                             <View style={styles.item}>
-                                <View style={[styles.iconCircle, { backgroundColor: 'rgba(74, 103, 65, 0.2)' }]}>
-                                    <Ionicons name="flash" size={24} color="#4ADE80" />
+                                <View style={[styles.iconCircle, { backgroundColor: 'rgba(45, 212, 191, 0.1)' }]}>
+                                    <Ionicons name="flash" size={18} color="#2DD4BF" />
                                 </View>
                                 <View style={styles.itemTexts}>
                                     <Text style={styles.itemTitle}>Misiones y Desafíos</Text>
-                                    <Text style={styles.itemDescription}>
-                                        Elige entre 3, 7 o 30 días según tu energía y compromiso actual.
-                                    </Text>
+                                    <Text style={styles.itemDescription}>Planes de 3, 7 o 30 días según tu energía.</Text>
                                 </View>
                             </View>
 
                             <View style={styles.item}>
-                                <View style={[styles.iconCircle, { backgroundColor: 'rgba(212, 175, 55, 0.2)' }]}>
-                                    <Ionicons name="leaf" size={24} color="#D4AF37" />
+                                <View style={[styles.iconCircle, { backgroundColor: 'rgba(251, 191, 36, 0.1)' }]}>
+                                    <Ionicons name="leaf" size={18} color="#FBBF24" />
                                 </View>
                                 <View style={styles.itemTexts}>
                                     <Text style={styles.itemTitle}>Árbol Adaptativo</Text>
-                                    <Text style={styles.itemDescription}>
-                                        Tu Árbol de Resiliencia florecerá al ritmo de tu camino elegido.
-                                    </Text>
+                                    <Text style={styles.itemDescription}>Florece con cada paso que das.</Text>
                                 </View>
                             </View>
 
                             <View style={styles.item}>
-                                <View style={[styles.iconCircle, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
-                                    <Ionicons name="people" size={24} color="#FFF" />
+                                <View style={[styles.iconCircle, { backgroundColor: 'rgba(255, 255, 255, 0.05)' }]}>
+                                    <Ionicons name="people" size={18} color="#FFF" />
                                 </View>
                                 <View style={styles.itemTexts}>
-                                    <Text style={styles.itemTitle}>Propósito Compartido</Text>
-                                    <Text style={styles.itemDescription}>
-                                        Tu evolución personal inspira y guía a otros en su búsqueda de paz.
-                                    </Text>
+                                    <Text style={styles.itemTitle}>Propósito Colectivo</Text>
+                                    <Text style={styles.itemDescription}>Inspira a otros en su búsqueda de paz.</Text>
                                 </View>
                             </View>
                         </View>
 
-                        <TouchableOpacity style={styles.button} onPress={onAccept}>
+                        <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={onAccept}>
                             <Text style={styles.buttonText}>Explorar mi Evolución</Text>
-                            <Ionicons name="arrow-forward" size={18} color={theme.colors.background} style={{ marginLeft: 8 }} />
+                            <Ionicons name="arrow-forward" size={18} color="#000" />
                         </TouchableOpacity>
 
                         <Text style={styles.footerNote}>
                             Solo tú puedes dar el primer paso hacia tu nueva realidad.
                         </Text>
                     </ScrollView>
-                </BlurView>
+                </Animated.View>
             </View>
         </Modal>
     );
@@ -86,74 +100,92 @@ const PurposeModal: React.FC<PurposeModalProps> = ({ isVisible, onAccept, onClos
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.8)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    modalContent: {
-        width: width * 0.9,
-        maxHeight: '85%',
-        borderRadius: 32,
+    card: {
+        width: width * 0.88,
+        maxWidth: 400,
+        height: 500,
+        backgroundColor: '#16222A',
+        borderRadius: 35,
         overflow: 'hidden',
-        borderWidth: 2,
-        borderColor: '#D4AF37', // Oro sólido
-        backgroundColor: 'rgba(24, 21, 14, 0.98)', // Oro profundo casi opaco
-        // Sombra para máxima separación
-        shadowColor: "#D4AF37",
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.6,
-        shadowRadius: 30,
-        // Elevación para destacar sobre la Home en Android
-        elevation: 20,
+        borderWidth: 2, // Marco un poco más grueso para que se note el blanco
+        borderColor: '#FFFFFF', // Blanco sólido
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 0.5,
+        shadowRadius: 25,
+        elevation: 10,
+    },
+    glowOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        opacity: 0.5,
     },
     scrollContent: {
-        padding: 16,
-        paddingBottom: 24,
+        padding: 20,
         alignItems: 'center',
     },
     header: {
         alignItems: 'center',
-        marginBottom: 12,
-        marginTop: 10,
+        marginBottom: 10,
+        marginTop: 5,
     },
     closeButton: {
         position: 'absolute',
         top: 20,
         right: 20,
         zIndex: 10,
-        padding: 10,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     treeWrapper: {
         height: 110,
+        width: 110,
         marginBottom: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     title: {
         fontSize: 20,
         fontWeight: '900',
         color: '#FFF',
         textAlign: 'center',
-        marginBottom: 4,
+        fontFamily: 'Outfit_700Bold',
+        letterSpacing: 0.5,
     },
     subtitle: {
-        fontSize: 13,
-        color: 'rgba(255,255,255,0.6)',
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.7)',
         textAlign: 'center',
-        paddingHorizontal: 12,
-        lineHeight: 18,
+        marginTop: 4,
+        lineHeight: 16,
+        fontFamily: 'Outfit_500Medium',
+        paddingHorizontal: 10,
     },
     itemsContainer: {
         width: '100%',
         gap: 8,
-        marginBottom: 16,
+        marginVertical: 15,
     },
     item: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        padding: 10,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
     },
     iconCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 38,
+        height: 38,
+        borderRadius: 19,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
@@ -165,39 +197,37 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '700',
         color: '#FFF',
-        marginBottom: 2,
+        fontFamily: 'Outfit_700Bold',
     },
     itemDescription: {
         fontSize: 11,
         color: 'rgba(255,255,255,0.5)',
-        lineHeight: 16,
+        fontFamily: 'Outfit_400Regular',
     },
     button: {
         backgroundColor: '#FFF',
-        paddingVertical: 10,
-        paddingHorizontal: 32,
-        borderRadius: 20,
+        height: 52,
+        borderRadius: 26,
         flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
         justifyContent: 'center',
-        shadowColor: "#FFF",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 5,
+        gap: 10,
+        marginTop: 5,
     },
     buttonText: {
         fontSize: 16,
         fontWeight: '800',
-        color: theme.colors.background,
+        color: '#000',
+        fontFamily: 'Outfit_700Bold',
     },
     footerNote: {
-        marginTop: 12,
+        marginTop: 15,
         fontSize: 10,
         color: 'rgba(255,255,255,0.3)',
         fontStyle: 'italic',
         textAlign: 'center',
+        fontFamily: 'Outfit_400Regular',
     }
 });
 

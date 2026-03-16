@@ -46,6 +46,7 @@ const defaultUserState: UserState = {
         quietHoursEnd: "07:00",
     },
     hasAcceptedMonthlyChallenge: false,
+    hasSeenWelcomeTour: false,
     activeChallenge: null,
 };
 
@@ -150,6 +151,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         isPlusMember: data.is_plus_member || false,
                         isRegistered: true,
                         hasAcceptedMonthlyChallenge: data.has_accepted_monthly_challenge || false,
+                        hasSeenWelcomeTour: data.has_seen_welcome_tour || false,
                         dailyGoalMinutes: data.daily_goal_minutes || prev.dailyGoalMinutes || 20,
                         weeklyGoalMinutes: data.weekly_goal_minutes || prev.weeklyGoalMinutes || 150,
                         lifeMode: data.life_mode || prev.lifeMode,
@@ -192,7 +194,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                                 favorite_session_ids: userState.favoriteSessionIds,
                                 completed_session_ids: userState.completedSessionIds,
                                 active_challenge: userState.activeChallenge,
-                                notification_settings: userState.settings
+                                notification_settings: userState.settings,
+                                has_seen_welcome_tour: userState.hasSeenWelcomeTour
                             })
                             .eq('id', user.id);
                     }
@@ -214,6 +217,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         userState.completedSessionIds,
         userState.activeChallenge,
         userState.settings,
+        userState.hasSeenWelcomeTour,
         isLoading
     ]);
 

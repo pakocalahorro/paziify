@@ -22,10 +22,220 @@ import { runOnJS } from 'react-native-reanimated';
 import { CalibrationRing } from '../../components/Bio/CalibrationRing';
 import { CountdownOverlay } from '../../components/Bio/CountdownOverlay';
 import { QualityAlert } from '../../components/Bio/QualityAlert';
+import { useKeepAwake } from 'expo-keep-awake';
 
 const { width, height } = Dimensions.get('window');
 
 // Helper Hook for AppState
+// --- COMPONENTS ---
+
+const SmartphoneGuide = ({ active }: { active: boolean }) => {
+    const fingerX = useSharedValue(200); 
+    const fingerScale = useSharedValue(1);
+    const fingerOpacity = useSharedValue(0);
+    const flashScale = useSharedValue(1);
+    const flashOpacity = useSharedValue(0.3);
+
+    useEffect(() => {
+        // Sequenced Finger Animation: Origin Right -> Move -> Press -> Return
+        // fingerX starts at 200 (outside)
+        fingerX.value = withRepeat(
+            withSequence(
+                withTiming(-65, { duration: 2500, easing: Easing.bezier(0.4, 0, 0.2, 1) }), // Move to target (more left)
+                withTiming(-65, { duration: 800 }), // Press hold
+                withTiming(200, { duration: 1500 }) // Return to original right position
+            ),
+            -1,
+            false
+        );
+
+        fingerScale.value = withRepeat(
+            withSequence(
+                withTiming(1, { duration: 2500 }), // Moving
+                withTiming(0.9, { duration: 400 }), // Press down
+                withTiming(1, { duration: 400 }), // Release
+                withTiming(1, { duration: 1500 }) // Returning
+            ),
+            -1,
+            false
+        );
+
+        fingerOpacity.value = withRepeat(
+            withSequence(
+                withTiming(1, { duration: 500 }), // Fade in starting move
+                withTiming(1, { duration: 2800 }), // Stay visible
+                withTiming(0, { duration: 1500 }) // Fade out returning
+            ),
+            -1,
+            false
+        );
+
+        // Flash Glow Animation (Yellow Blink)
+        flashScale.value = withRepeat(
+            withSequence(
+                withTiming(1.6, { duration: 600 }),
+                withTiming(1, { duration: 600 })
+            ),
+            -1,
+            true
+        );
+        flashOpacity.value = withRepeat(
+            withSequence(
+                withTiming(1, { duration: 600 }),
+                withTiming(0.2, { duration: 600 })
+            ),
+            -1,
+            true
+        );
+    }, []);
+
+    const animatedFingerStyle = useAnimatedStyle(() => ({
+        transform: [
+            { translateX: fingerX.value },
+            { scale: fingerScale.value }
+        ],
+        opacity: fingerOpacity.value,
+    }));
+
+    const animatedFlashStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: flashScale.value }],
+        opacity: flashOpacity.value,
+    }));
+
+    return (
+        <View style={guideStyles.container}>
+            {/* Smartphone Wireframe */}
+            <View style={guideStyles.phoneFrame}>
+                <View style={guideStyles.cameraModule}>
+                    {/* Lenses aligned vertically */}
+                    <View style={guideStyles.lens} />
+                    
+                    <View style={guideStyles.activeArea}>
+                        {/* Objective 2 - Centered in module */}
+                        <View style={guideStyles.lens} />
+                        {/* Flash - Absolute position to the right */}
+                        <Animated.View style={[guideStyles.flash, animatedFlashStyle]} />
+                    </View>
+                </View>
+            </View>
+
+            {/* HORIZONTAL REALISTIC FINGER (Anatomical shape) */}
+            <Animated.View style={[guideStyles.fingerHorizontal, animatedFingerStyle]}>
+                <View style={guideStyles.fingerNailHorizontal} />
+            </Animated.View>
+
+            {/* Active Indication */}
+            {active && (
+                <View style={guideStyles.activeBadge}>
+                    <Text style={guideStyles.activeText}>Buscando pulso...</Text>
+                </View>
+            )}
+        </View>
+    );
+};
+
+// --- STYLES FOR GUIDE ---
+const guideStyles = StyleSheet.create({
+    container: {
+        width: 180,
+        height: 240,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    phoneFrame: {
+        width: 120,
+        height: 220,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: 5, // Reduced for corner module
+    },
+    cameraModule: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        width: 60,
+        height: 80,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
+        gap: 10,
+    },
+    activeArea: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+    },
+    lens: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.4)',
+    },
+    flash: {
+        position: 'absolute',
+        right: 4, 
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        backgroundColor: '#FFD700',
+        shadowColor: '#FFD700',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 1,
+        shadowRadius: 15,
+    },
+    fingerHorizontal: {
+        position: 'absolute',
+        top: 48, // Centered horizontally with objective 2
+        right: -80,
+        zIndex: 20,
+        width: 140,
+        height: 50, // Thinner finger
+        backgroundColor: '#E5A08D', 
+        borderTopLeftRadius: 30,
+        borderBottomLeftRadius: 30,
+        borderTopRightRadius: 10,
+        borderBottomRightRadius: 10,
+        borderWidth: 1.5,
+        borderColor: 'rgba(0,0,0,0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 4, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 10,
+        justifyContent: 'center',
+        paddingLeft: 10,
+    },
+    fingerNailHorizontal: {
+        width: 36,
+        height: 24,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    activeBadge: {
+        position: 'absolute',
+        bottom: -40,
+        backgroundColor: 'rgba(45, 212, 191, 0.2)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(45, 212, 191, 0.4)',
+    },
+    activeText: {
+        color: '#2DD4BF',
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 12,
+    }
+});
+
 function useAppState() {
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
 
@@ -54,8 +264,8 @@ const CardioScanScreen = () => {
     const params = route.params as { context?: 'baseline' | 'post_session'; sessionData?: any } | undefined;
     const context = params?.context || 'baseline';
 
-    // States - UPDATED for 3-phase calibration
-    type ScanPhase = 'idle' | 'calibration' | 'countdown' | 'measuring' | 'complete';
+    // States - UPDATED for Hands-Free (v6)
+    type ScanPhase = 'idle' | 'alignment' | 'countdown' | 'measuring' | 'complete';
     const [scanPhase, setScanPhase] = useState<ScanPhase>('idle');
     const [progress, setProgress] = useState(0);
     const [realMetrics, setRealMetrics] = useState<{ bpm: number; hrv: number } | null>(null);
@@ -79,8 +289,11 @@ const CardioScanScreen = () => {
 
     // Removed pulseAnim and animatedOrbStyle as requested
 
-    // Derived State for Torch - UPDATED for calibration
-    const isTorchOn = scanPhase === 'calibration' || scanPhase === 'countdown' || scanPhase === 'measuring';
+    // Derive torch status: Always ON in idle/hands-free to help user align
+    const isTorchOn = scanPhase === 'idle' || scanPhase === 'alignment' || scanPhase === 'countdown' || scanPhase === 'measuring';
+
+    // Screen Wake Lock
+    useKeepAwake();
 
     useEffect(() => {
         if (!hasPermission) requestPermission();
@@ -102,17 +315,18 @@ const CardioScanScreen = () => {
             lastDebugUpdate.current = now;
         }
 
-        if (scanPhase === 'calibration') {
-            // PHASE 1: Calibration - Real-time quality feedback
+        if (scanPhase === 'idle' || scanPhase === 'alignment') {
+            // PHASE 1: Alignment (Hands-Free Tracking)
             const quality = bioProcessor.getCalibrationQuality();
             setCalibrationScore(quality.score);
             setCalibrationRecommendation(quality.recommendation);
 
-            if (quality.ready) {
+            // Auto-transition logic: Signal must be stable (>70%) for ~1.5s
+            if (quality.score >= 70) {
                 setReadyFrames(prev => {
                     const newCount = prev + 1;
-                    // If ready for 90 frames (3 seconds at 30fps), transition to countdown
-                    if (newCount >= 90) {
+                    // ~45 frames at 30fps = 1.5 seconds stability
+                    if (newCount >= 45) {
                         setScanPhase('countdown');
                         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                         return 0; // Reset
@@ -121,6 +335,10 @@ const CardioScanScreen = () => {
                 });
             } else {
                 setReadyFrames(0);
+                // Switch to 'alignment' phase once we see some life in the signal
+                if (quality.score > 10 && scanPhase === 'idle') {
+                    setScanPhase('alignment');
+                }
             }
         } else if (scanPhase === 'measuring') {
             // PHASE 3: Measuring - Full analysis with quality monitoring
@@ -148,7 +366,7 @@ const CardioScanScreen = () => {
         onFrame: (frame) => {
             'worklet';
 
-            if (scanPhase !== 'calibration' && scanPhase !== 'measuring' && scanPhase !== 'countdown') {
+            if (scanPhase === 'complete') {
                 frame.dispose(); // CRITICAL: Always dispose frames
                 return;
             }
@@ -175,10 +393,9 @@ const CardioScanScreen = () => {
         }
     });
 
-    // UPDATED: Start calibration phase
-    // UPDATED: Start measuring phase (Skipping calibration per user request)
+    // Manual start fallback (just in case auto fails or user wants to force)
     const handleStartPress = () => {
-        setScanPhase('calibration'); // Require signal validation first
+        setScanPhase('alignment'); 
         bioProcessor.reset();
         setCalibrationScore(0);
         setReadyFrames(0);
@@ -206,27 +423,35 @@ const CardioScanScreen = () => {
         // HOT START: Do NOT reset bioProcessor here. Keep calibration data.
 
 
-        // Quality Accumulation Loop @ 30Hz
+        let staleFrames = 0;
         const interval = setInterval(() => {
-            // Ask processor for progress based on CURRENT signal quality
-            // This is the key: Speed varies by quality.
             const result = bioProcessor.processProgressFrame();
 
-            // Log for debugging
-            if (Math.random() < 0.05) console.log('[Scan] Progress Delta:', result.progressDelta, 'Quality:', result.quality.score);
+            // PROGRESS GUARD: Abort if signal is lost for too long during measurement
+            if (result.progressDelta === 0) {
+                staleFrames++;
+                // 3 seconds @ 30Hz ≈ 90 frames
+                if (staleFrames > 90) {
+                    clearInterval(interval);
+                    if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
+                    setScanPhase('alignment');
+                    bioProcessor.reset();
+                    alert("Se ha perdido la señal. Por favor, mantén el dedo sobre la cámara.");
+                    return;
+                }
+            } else {
+                staleFrames = 0;
+            }
 
             setProgress(prev => {
                 const next = Math.min(100, prev + result.progressDelta);
 
-                // Haptic feedback on significant progress milestones (every 10%)
                 if (Math.floor(next / 10) > Math.floor(prev / 10)) {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 }
 
                 if (next >= 100) {
                     clearInterval(interval);
-                    // DO NOT call finishScan() here directly to avoid Stale Closure.
-                    // Let the useEffect([progress]) handle it.
                 }
                 return next;
             });
@@ -245,10 +470,19 @@ const CardioScanScreen = () => {
         }, 90000); // 90s safety limit
     };
 
-    // NEW: Countdown phase logic
+    // NEW: Countdown phase logic with safety guard
     useEffect(() => {
         if (scanPhase === 'countdown') {
             const interval = setInterval(() => {
+                // SAFETY GUARD: Check if user removed finger during countdown
+                const currentQuality = bioProcessor.getSignalQuality();
+                if (currentQuality.score < 60) {
+                    clearInterval(interval);
+                    setScanPhase('alignment');
+                    setCountdown(3);
+                    return;
+                }
+
                 setCountdown(prev => {
                     if (prev <= 1) {
                         clearInterval(interval);
@@ -389,22 +623,19 @@ const CardioScanScreen = () => {
                         <Text style={styles.instructionTitle}>Cómo Escanear</Text>
                         <Text style={styles.instructionSub}>
                             {scanPhase === 'idle'
-                                ? "Cubre lente y flash suavemente"
+                                ? "Observa qué flash se enciende y cúbrelo junto con el objetivo más cercano"
+                                : scanPhase === 'alignment'
+                                ? "Mueve el dedo hasta detectar la luz"
                                 : "Mantén el dedo quieto y respira"}
                         </Text>
                     </View>
 
                     {/* Finger Zone / Start Button */}
                     <View style={styles.pulseContainer}>
-                        {scanPhase === 'idle' ? (
-                            <TouchableOpacity
-                                style={styles.startButton}
-                                onPress={handleStartPress}
-                                activeOpacity={0.8}
-                            >
-                                <Ionicons name="finger-print" size={60} color="#FFF" />
-                                <Text style={styles.buttonText}>INICIAR</Text>
-                            </TouchableOpacity>
+                        {scanPhase === 'idle' || scanPhase === 'alignment' ? (
+                            <SmartphoneGuide 
+                                active={scanPhase === 'alignment'} 
+                            />
                         ) : (
                             // MEASURING / COUNTDOWN PHASE
                             <View style={styles.fingerGuide}>
@@ -437,8 +668,8 @@ const CardioScanScreen = () => {
                     {scanPhase !== 'idle' && (
                         <View style={{ alignItems: 'center' }}>
                             <Text style={styles.progressText}>
-                                {scanPhase === 'calibration' ? calibrationRecommendation :
-                                    scanPhase === 'countdown' ? `Iniciando en ${countdown}...` :
+                                {scanPhase === 'alignment' ? calibrationRecommendation :
+                                    scanPhase === 'countdown' ? `¡Dedo detectado! Iniciando en ${countdown}...` :
                                         `${Math.round(progress)}% Completado`}
                             </Text>
 

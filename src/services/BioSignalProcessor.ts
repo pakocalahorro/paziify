@@ -61,9 +61,9 @@ export class BioSignalProcessor {
             const multiplier = quality.level === 'excellent' ? 1.5 : 1.0;
             progressDelta = 0.08 * multiplier; // Slower progress for more data (~30s)
         } else if (quality.score < 40) {
-            // Very poor signal = slight regression/penalty to force stability
-            // ZERO DEFECTS: Punish heavily if signal is lost (e.g., finger removed)
-            progressDelta = -0.15;
+            // Very poor signal = pause progress to allow user to stabilize
+            // ZERO DEFECTS: Do not penalize (regression), just freeze until signal returns
+            progressDelta = 0;
         }
 
         return { progressDelta, quality };
@@ -281,12 +281,16 @@ export class BioSignalProcessor {
         const snr = this.calculateSNR();
         const stability = this.calculateStability();
 
-        // Weighted Score: SNR is king, Stability is queen
-        let score = (snr * 3) + (stability * 0.5);
+        // ZERO DEFECTS: Stability should ONLY add value if there's an actual signal.
+        // If snr is near zero (no finger), stability is irrelevant for progress.
+        const stabilityContribution = snr > 2 ? (stability * 0.5) : 0;
+        
+        // Weighted Score: SNR is king
+        let score = (snr * 3) + stabilityContribution;
 
-        // ZERO DEFECTS: Cap maximum score if there's no actual pulse power (SNR essentially zero, like a table)
+        // Cap maximum score if there's no actual pulse power
         if (snr < 5) {
-            score = Math.min(score, 45); // Limit so it never crosses the >60 progress accumulation threshold
+            score = Math.min(score, 45); 
         }
 
         score = Math.min(100, Math.max(0, score)); // Clamp 0-100

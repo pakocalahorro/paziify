@@ -79,6 +79,7 @@ export interface UserState {
     dailyGoalMinutes?: number;
     weeklyGoalMinutes?: number;
     hasAcceptedMonthlyChallenge?: boolean;
+    hasSeenWelcomeTour?: boolean;
     // Health Profile (Cardio Scan context)
     birthDate?: string;           // ISO date "1990-05-15"
     gender?: 'male' | 'female' | 'other';

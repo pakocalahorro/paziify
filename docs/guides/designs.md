@@ -97,12 +97,13 @@ El Santuario (modal de sintonización) ha sido rediseñado para priorizar clarid
 | **Guía Biblioteca** | Bloque con background `rgba(0,0,0,0.4)`, padding 16, gap 12 |
 | **Tipografía misión** | `Caveat_700Bold` en títulos |
 
-### 13.5 El Estándar "Tarjeta Oro" (Premium Modals)
-Para modales de alto impacto (ej. `PurposeModal`), se utiliza un esquema de contraste máximo:
-- **Fondo**: Deep Gold Opaque (`rgba(24, 21, 14, 0.98)`).
-- **Borde**: Oro Sólido 2px (`#D4AF37`).
-- **Aura**: Sombra exterior con `shadowColor: "#D4AF37"`, opacidad 0.6 y radio 30.
-- **Elevación**: `elevation: 20` (Android) para garantizar la separación de capas sobre el fondo desenfocado.
+### 13.5 El Estándar Oasis Unificado (Premium Modals v11.4)
+Para modales de alto impacto (ej. `WelcomeTourModal`, `PurposeModal`), se utiliza un esquema de coherencia absoluta:
+- **Fondo**: Deep Marine Opaque (`#16222A`) con gradientes `Sunrise`.
+- **Borde**: Blanco Sólido de **2px** con efecto de cristal.
+- **Aura**: BlurView nativo (vía `expo-blur`) con `tint="dark"` de alta intensidad.
+- **Elevación**: `elevation: 15` (Android) para garantizar la separación de capas sobre el fondo desenfocado.
+- **Jerarquía**: El rediseño del `PurposeModal` ahora comparte esta misma envolvente táctil del tour principal, eliminando la discrepancia oro/negro previa.
 
 ---
 

@@ -151,7 +151,7 @@ En la Home, junto a tu avatar, encontrarás el icono de información. Púlsalo e
 ## 12. Mi Perfil y Mis Ajustes 👤
 Paziify te da control total sobre tu experiencia y la confidencialidad de tus datos de salud:
 - **Ajustes y Notificaciones:** Accede desde la rueda dentada en "Mi Perfil".
-- **Privacidad y Control (Guardado Explícito):** Hemos eliminado el "guardado automático invisible" para la salud (Edad, Peso, Altura) para evitar que grabes datos sin querer. Modifica tus valores con calma y, cuando estés seguro, pulsa el botón verde **"Guardar Cambios"** al final de la sección. Tu teléfono vibrará (Haptic) confirmando que tus estadísticas médicas (vitales para el Cardio Scan) están a salvo.
+- **Cardio Scan (Manos Libres v6):** Proceso proactivo de salud. La guía visual te indicará cómo **Identificar y Cubrir** el sensor. El escaneo comenzará **automáticamente** al detectar el pulso. Tu teléfono vibrará (Haptic) confirmando que tus estadísticas médicas están a salvo.
 - **Micro-interacciones:** Notarás ligeras vibraciones táctiles al encender/apagar recordatorios o sumar/restar minutos a tu meta de meditación. Estos ajustes sí se guardan al instante.
 
 ---

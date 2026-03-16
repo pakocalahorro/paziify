@@ -45,5 +45,9 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
    3. Ejecuta `git add` y el commit profesional con los hitos resumidos.
    4. Ejecuta `git tag vX.X.X` coincidente. Sin tag de versión, el ecosistema de documentación se considera desfasado.
 
+### 5. Sincronización Global Cloud ☁️
+   1. Ejecuta `git push` para subir el código y la documentación a la rama actual.
+   2. Ejecuta `git push --tags` para publicar el release oficial y el tag en GitHub.
+
 ---
 *Este protocolo bloquea la iniciativa destructiva y exige revisión humana.*

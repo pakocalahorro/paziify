@@ -40,6 +40,7 @@ import { analyticsService } from '../../services/analyticsService';
 import { OasisChart } from '../../components/Oasis/OasisChart';
 import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
 import PurposeModal from '../../components/Home/PurposeModal';
+import { WelcomeTourModal } from '../../components/Modals/WelcomeTourModal';
 import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { CHALLENGES } from '../../constants/challenges';
 import { ChallengeDetailsModal } from '../../components/Challenges/ChallengeDetailsModal';
@@ -80,6 +81,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const visualMode = userState.lifeMode || route.params?.mode || (isNightMode ? 'healing' : 'growth');
     const [greeting, setGreeting] = useState('');
     const [showPurposeModal, setShowPurposeModal] = useState(false);
+    const [showWelcomeTour, setShowWelcomeTour] = useState(false);
     const [showChallengeInfo, setShowChallengeInfo] = useState(false);
 
     // Pulse Animation for CTA
@@ -109,6 +111,33 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
             pulseOpacity.value = 0.4;
         }
     }, [userState.activeChallenge]);
+
+    // --- ONBOARDING & MODALS ORCHESTRATION (Oasis v6.0) ---
+    useEffect(() => {
+        // 1. Mostrar Tour de Bienvenida si es necesario
+        if (userState.isRegistered && !userState.hasSeenWelcomeTour) {
+            setShowWelcomeTour(true);
+            return; // Detener aquí para no lanzar el timer mientras el tour está activo
+        }
+
+        // 2. Orquestar Modal de Desafío/Evolución
+        // Solo si ya vio el tour y NO ha aceptado el desafío mensual
+        if (userState.isRegistered && userState.hasSeenWelcomeTour && !userState.hasAcceptedMonthlyChallenge) {
+            const delay = 150000; // 2.5 minutos de calma absoluta antes del aviso
+            const timer = setTimeout(() => {
+                setShowPurposeModal(true);
+            }, delay);
+            return () => clearTimeout(timer);
+        }
+    }, [userState.hasSeenWelcomeTour, userState.isRegistered, userState.hasAcceptedMonthlyChallenge]);
+
+    const handleTourComplete = async () => {
+        setShowWelcomeTour(false);
+        // Persist the state
+        await updateUserState({ hasSeenWelcomeTour: true });
+        // After tour, we could start the 2m timer again or just let the existing one handle it
+        // if userState.hasSeenWelcomeTour changed, the useEffect trigger will re-run correctly.
+    };
 
     const animatedButtonStyle = useAnimatedStyle(() => ({
         transform: [{ scale: pulseScale.value }],
@@ -168,15 +197,6 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
         else setGreeting('Buenas noches');
     }, []);
 
-    // Show Purpose Modal if not accepted yet
-    useEffect(() => {
-        if (!userState.hasAcceptedMonthlyChallenge && user) {
-            const timer = setTimeout(() => {
-                setShowPurposeModal(true);
-            }, 1500); // Small delay for better UX
-            return () => clearTimeout(timer);
-        }
-    }, [userState.hasAcceptedMonthlyChallenge, user]);
 
     const handleRangeChange = (range: 'weekly' | 'monthly') => {
         if (range === timeRange) return;
@@ -437,6 +457,12 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                     challenge={userState.activeChallenge ? CHALLENGES[userState.activeChallenge.id] : null}
                     onClose={() => setShowChallengeInfo(false)}
                     hideActivateButton
+                />
+
+                {/* MODALS */}
+                <WelcomeTourModal
+                    visible={showWelcomeTour}
+                    onComplete={handleTourComplete}
                 />
 
                 <PurposeModal
