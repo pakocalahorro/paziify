@@ -21,7 +21,7 @@ import { theme } from '../../constants/theme';
 
 const { width } = Dimensions.get('window');
 
-// --- OASIS ARROW (v11.4) ---
+// --- OASIS ARROW (v2.50.0) ---
 const OasisArrow = memo(({ active, direction = 'down' }: { active: boolean, direction?: 'up' | 'down' }) => {
     const translateY = useSharedValue(0);
     const opacity = useSharedValue(0);
@@ -98,7 +98,7 @@ const GuidanceHalo = memo(({ active }: { active: boolean }) => {
     );
 });
 
-// --- MIRROR LAYER (v11.4) ---
+// --- MIRROR LAYER (v2.50.0) ---
 const GuidanceMirrors = ({ currentStep }: { currentStep: number }) => {
     const insets = useSafeAreaInsets();
     

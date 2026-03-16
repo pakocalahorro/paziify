@@ -97,7 +97,7 @@ El Santuario (modal de sintonización) ha sido rediseñado para priorizar clarid
 | **Guía Biblioteca** | Bloque con background `rgba(0,0,0,0.4)`, padding 16, gap 12 |
 | **Tipografía misión** | `Caveat_700Bold` en títulos |
 
-### 13.5 El Estándar Oasis Unificado (Premium Modals v11.4)
+### 13.5 El Estándar Oasis Unificado (Premium Modals v2.50.0)
 Para modales de alto impacto (ej. `WelcomeTourModal`, `PurposeModal`), se utiliza un esquema de coherencia absoluta:
 - **Fondo**: Deep Marine Opaque (`#16222A`) con gradientes `Sunrise`.
 - **Borde**: Blanco Sólido de **2px** con efecto de cristal.
