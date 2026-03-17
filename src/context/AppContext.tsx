@@ -182,7 +182,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
                     // Supabase sync (critical flags, goals, and mode)
                     if (user) {
-                        await supabase
+                        const { error } = await supabase
                             .from('profiles')
                             .update({
                                 has_accepted_monthly_challenge: userState.hasAcceptedMonthlyChallenge,
@@ -198,6 +198,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                                 has_seen_welcome_tour: userState.hasSeenWelcomeTour
                             })
                             .eq('id', user.id);
+                        
+                        if (error) {
+                            console.warn('[AppContext] Supabase sync error:', error.message);
+                        } else {
+                            console.log('[AppContext] Supabase sync success (including challenge)');
+                        }
                     }
                 } catch (error) {
                     console.error('Error saving user state:', error);

@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '../../context/AppContext';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, withSequence } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, withSequence, withDelay } from 'react-native-reanimated';
 
 interface OasisHeaderProps {
     path?: string[];
@@ -28,25 +28,52 @@ interface OasisHeaderProps {
 // ---------------------------------------------------------------------------
 // Premium Action Button with Snake Border & Pulse Glow
 // ---------------------------------------------------------------------------
-const AnimatedEvolucionButton = ({ onPress, isActive, challengeColor }: { onPress?: () => void, isActive: boolean, challengeColor: string }) => {
+const AnimatedEvolucionButton = ({ onPress, isActive, challengeColor, userState }: { onPress?: () => void, isActive: boolean, challengeColor: string, userState: any }) => {
+    const [phase, setPhase] = React.useState(0); // 0: ACTIVO, 1: DÍAS, 2: TÍTULO
     const rotation = useSharedValue(0);
+    const flipY = useSharedValue(0);
+    const containerWidth = 125;
+
+    const challenge = userState?.activeChallenge;
+    const challengeName = (challenge?.title || challenge?.name || 'Misión Sprint Express').toUpperCase();
+    const challengeProgress = `DÍAS ${challenge?.daysCompleted || 0}/${challenge?.totalDays || 0}`;
+    const activeChallengeType = challenge?.type || 'mision';
+
     useEffect(() => {
         if (isActive) {
             rotation.value = withRepeat(
                 withTiming(360, { duration: 2500, easing: Easing.linear }),
                 -1
             );
+
+            const interval = setInterval(() => {
+                setPhase(current => (current + 1) % 3);
+            }, 4000);
+
+            return () => clearInterval(interval);
         } else {
             rotation.value = 0;
+            setPhase(0);
         }
     }, [isActive]);
 
-    const animatedSnakeStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotate: `${rotation.value}deg` }],
-        };
-    });
+    const animatedSnakeStyle = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${rotation.value}deg` }],
+    }));
 
+    const animatedFlipStyle = useAnimatedStyle(() => ({
+        opacity: phase === 1 ? withTiming(1) : withTiming(0),
+        transform: [{ translateY: flipY.value }],
+    }));
+
+    const animatedTextStyle = useAnimatedStyle(() => ({
+        opacity: phase === 2 ? withTiming(1) : withTiming(0),
+        transform: [{ scale: phase === 2 ? withTiming(1) : withTiming(0.8) }],
+    }));
+
+    const animatedFixedStyle = useAnimatedStyle(() => ({
+        opacity: phase === 0 ? withTiming(1) : withTiming(0),
+    }));
 
     if (!isActive) {
         return (
@@ -61,9 +88,7 @@ const AnimatedEvolucionButton = ({ onPress, isActive, challengeColor }: { onPres
 
     return (
         <View style={styles.animatedButtonContainer}>
-            {/* Snake Border Shell */}
             <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.snakeBorderContainer}>
-                {/* Rotating Thematic Light Ray */}
                 <Animated.View style={[styles.snakeLightWrapper, animatedSnakeStyle]}>
                     <LinearGradient
                         colors={[challengeColor, `${challengeColor}20`, 'transparent']}
@@ -71,11 +96,34 @@ const AnimatedEvolucionButton = ({ onPress, isActive, challengeColor }: { onPres
                     />
                 </Animated.View>
 
-                {/* Inner Button Mask with Frosted Glass. The spinning light bleeds underneath it */}
-                <View style={styles.innerActiveButton}>
+                <View style={[styles.innerActiveButton, { overflow: 'hidden' }]}>
                     <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFillObject} />
-                    <Ionicons name="checkmark-circle" size={16} color="#FFF" />
-                    <Text style={[styles.evolucionText, { color: '#FFF' }]}>ACTIVO</Text>
+                    
+                    {/* FASE 0: ACTIVO */}
+                    <Animated.View style={[StyleSheet.absoluteFill, styles.phaseContainer, animatedFixedStyle]}>
+                        <Ionicons name="checkmark-circle" size={14} color="#FFF" />
+                        <Text style={[styles.evolucionText, { color: '#FFF' }]}>ACTIVO</Text>
+                    </Animated.View>
+
+                    {/* FASE 1: DÍAS 1/3 */}
+                    <Animated.View style={[StyleSheet.absoluteFill, styles.phaseContainer, animatedFlipStyle]}>
+                        <Text style={[styles.evolucionText, { color: challengeColor }]}>{challengeProgress}</Text>
+                    </Animated.View>
+
+                    {/* FASE 2: NOMBRE FIJO (2 LÍNEAS) */}
+                    <Animated.View style={[styles.phaseContainer, styles.twoLineContainer, animatedTextStyle]}>
+                        <Text style={styles.evolucionTypeLabel} numberOfLines={1}>
+                            {(activeChallengeType || 'Misión').toUpperCase()}
+                        </Text>
+                        <Text 
+                            style={styles.evolucionNameLabel} 
+                            numberOfLines={1}
+                            adjustsFontSizeToFit={true}
+                            minimumFontScale={0.7}
+                        >
+                            {challengeName.toUpperCase()}
+                        </Text>
+                    </Animated.View>
                 </View>
             </TouchableOpacity>
         </View>
@@ -214,6 +262,7 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
                                         onPress={onEvolucionPress}
                                         isActive={!!activeChallengeType}
                                         challengeColor={challengeColor}
+                                        userState={userState}
                                     />
                                 )}
                             </View>
@@ -222,6 +271,7 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
                                 onPress={onEvolucionPress}
                                 isActive={!!activeChallengeType}
                                 challengeColor={challengeColor}
+                                userState={userState}
                             />
                         ) : (
                             <Ionicons name="leaf-outline" size={24} color="rgba(255,255,255,0.2)" />
@@ -369,13 +419,33 @@ const styles = StyleSheet.create({
         color: '#FFF',
         letterSpacing: 1,
     },
+    twoLineContainer: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 0,
+    },
+    evolucionTypeLabel: {
+        fontFamily: 'Outfit_700Bold',
+        fontSize: 7,
+        color: 'rgba(255,255,255,0.5)',
+        letterSpacing: 0.5,
+        lineHeight: 8,
+    },
+    evolucionNameLabel: {
+        fontFamily: 'Outfit_900Black',
+        fontSize: 9,
+        color: '#FFF',
+        letterSpacing: 0.5,
+        lineHeight: 11,
+    },
     animatedButtonContainer: {
         position: 'relative',
         justifyContent: 'center',
         alignItems: 'center',
     },
     snakeBorderContainer: {
-        width: 100,
+        width: 125,
         height: 32,
         borderRadius: 20,
         overflow: 'hidden',
@@ -385,8 +455,8 @@ const styles = StyleSheet.create({
     },
     snakeLightWrapper: {
         position: 'absolute',
-        width: 150,
-        height: 150,
+        width: 180,
+        height: 180,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -411,6 +481,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 12,
         gap: 6,
+    },
+    phaseContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
     },
     threadContainer: {
         flexDirection: 'row',

@@ -8,7 +8,12 @@ Esta guía define el ADN visual de Paziify. Esta versión consolida el rediseño
 
 ---
 
-## 2. Componentes Inteligentes (Skia & Reanimated) ... [Mantenido] ...
+## 2. Componentes Inteligentes (Skia & Reanimated)
+- **Luces de Navidad (v2.51.0)**: El Árbol de Resiliencia utiliza orbes reactivos con efecto "respiración".
+  - **Color**: Amarillo Oro (`#FFD700`).
+  - **Dinámica**: Radio base 8, Blur 60. Pulsación escala 0.8 -> 1.2 vía `withRepeat` y `withSequence`.
+  - **Reactividad**: Obligatorio pasar `DerivedValue` directamente a las props de Skia (`cx`, `cy`, `r`, `blur`) para evitar congelación de frames.
+- **Header Evolución**: Botón ampliado a **125px** con `adjustsFontSizeToFit` para garantizar legibilidad de misiones largas.
 
 ---
 
@@ -241,4 +246,6 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 
 ---
 
-*Última revisión: 6 de Marzo de 2026 - Versión 2.43.0 (Auditoría & Refinamiento)*
+---
+
+*Última revisión: 17 de Marzo de 2026 - Versión 2.51.0 (Fidelidad Visual)*

@@ -46,7 +46,7 @@ export default function OasisShowcaseScreen() {
                     }}
                     userName="Paco Calahorro"
                     avatarUrl="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"
-                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                    onProfilePress={() => (navigation as any).navigate('ProfileTab', { screen: Screen.PROFILE })}
                     activeChallengeType="mision"
                 />
             }

@@ -131,7 +131,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                     onBack={() => navigation.goBack()}
                     onPathPress={(index) => {
                         if (index === 0) navigation.navigate(Screen.HOME as any);
-                        if (index === 1) navigation.navigate(Screen.PROFILE as any);
+                        if (index === 1) (navigation as any).navigate('ProfileTab', { screen: Screen.PROFILE });
                     }}
                 />
             }

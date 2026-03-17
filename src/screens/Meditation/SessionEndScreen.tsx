@@ -69,9 +69,7 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
         transform: [{ scale: heartScale.value }],
     }));
 
-    const isChallengeSession = userState.activeChallenge &&
-        (userState.activeChallenge.currentSessionSlug === sessionId ||
-            userState.activeChallenge.slug === sessionId); // Flexible ID check
+    const isChallengeSession = !!userState.activeChallenge;
 
     useEffect(() => {
         if (Platform.OS !== 'web') {
@@ -120,6 +118,11 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
         }
 
         updateUserState(updateObj);
+
+        // 3. Sync streak to Supabase (Ensure persistence)
+        if (user?.id) {
+            analyticsService.updateProfileStreak(user.id, newStreak);
+        }
     };
 
     const handleFinish = async () => {

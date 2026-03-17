@@ -98,22 +98,16 @@ Esto garantiza que el Panel de Administración (CMS) pueda filtrar y asignar con
 
 Con la introducción del **Escáner Cardio Premium**, se establece un protocolo estricto de no-persistencia para datos sensibles:
 
-- **Zero Cloud Storage**: Los datos crudos del sensor rPPG (frames de video) y las métricas calculadas (BPM, HRV, Stress Level) **NUNCA** se envían a Supabase ni a ningún servidor externo.
-- **Procesamiento Local (Edge)**: Todo el análisis de señal mediante el algoritmo POS ocurre estrictamente en el dispositivo del usuario (`BioSignalProcessor.ts`).
-- **Persistencia Efímera**: Los resultados solo existen en la memoria volátil de la sesión (`Context`) y se descartan al cerrar la pantalla de resultados, a menos que el usuario decida explícitamente guardarlos en su historial local (AsyncStorage, no Cloud).
+- **Cloud Sync v2.51.0**: Las métricas finales (BPM, HRV, Diagnóstico) se sincronizan con la tabla `cardio_scans` para permitir el acceso multi-dispositivo y evitar la pérdida de historial médico.
+- **Persistencia Híbrida**: Los resultados se guardan primero en `AsyncStorage` (vía `CardioService.ts`) y se replican inmediatamente en Supabase si hay conexión.
 
 Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confianza del usuario.
 
 ---
 
-## 8. Persistencia Local del Sistema de Evolución 🎯
-
-El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **exclusivamente en AsyncStorage**, sin enviar ningún dato al cloud:
-
-- **`activeChallenge`**: Objeto `ActiveChallenge` con id, slug, type, title, startDate, daysCompleted, totalDays, currentSessionSlug.
-- **`hasAcceptedMonthlyChallenge`**: Flag booleano.
-- **`dailyGoalMinutes` / `weeklyGoalMinutes`**: Enteros para gestión de metas.
-- **Persistencia**: Se guarda como parte del `UserState` bajo la clave `@paziify_user_state`.
+- **Cloud Streak Sync (v2.51.0)**: La racha de días (`streak`) se guarda de forma redundante en la tabla `profiles`.
+- **`activeChallenge`**: Objeto `ActiveChallenge` con id, slug, type, title, startDate, daysCompleted, totalDays, currentSessionSlug. Almacenado localmente.
+- **Persistencia**: El estado del reto se guarda localmente, pero los **Días de Calma** (racha) tienen persistencia indestructible en la nube.
 
 ---
 ## 9. Sistema de Notificaciones (Supabase) 🔔
@@ -127,4 +121,5 @@ El **Sistema de Evolución** (Desafíos, Retos, Misiones) almacena su estado **e
 | `is_active`| BOOL | Control de publicación instantánea |
 
 ---
-*Última revisión: 6 de Marzo de 2026 - Versión 2.44.0 (Admin Roles Stabilization)*
+---
+*Última revisión: 17 de Marzo de 2026 - Versión 2.51.0 (Cloud Persistence)*

@@ -439,7 +439,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                     avatarUrl={userState?.avatarUrl}
                     showEvolucion={true}
                     onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG)}
-                    onProfilePress={() => navigation.navigate(Screen.PROFILE)}
+                    onProfilePress={() => (navigation as any).navigate('ProfileTab', { screen: Screen.PROFILE })}
                     onAdminPress={() => navigation.navigate(Screen.OASIS_SHOWCASE)}
                     activeChallengeType={userState.activeChallenge?.type as any}
                 />

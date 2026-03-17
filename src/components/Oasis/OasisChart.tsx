@@ -61,9 +61,14 @@ export const OasisChart: React.FC<OasisChartProps> = ({
                                         backgroundColor: color,
                                         borderRadius,
                                         opacity: item.minutes === 0 ? 0.05 : 1,
-                                    }
+                                    },
+                                    { justifyContent: 'flex-start', paddingTop: 4 } // For value display
                                 ]}
-                            />
+                            >
+                                {item.minutes > 0 && !isMonthly && (
+                                    <Text style={styles.barValueText}>{Math.round(item.minutes)}</Text>
+                                )}
+                            </Animated.View>
                         </View>
                     );
                 })}
@@ -157,5 +162,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Outfit_400Regular',
         fontSize: 11,
         color: 'rgba(255,255,255,0.3)',
+    },
+    barValueText: {
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 9,
+        color: '#FFF',
+        textAlign: 'center',
+        width: '100%',
+        bottom: 18, // Positions it exactly above the bar
+        position: 'absolute',
     },
 });

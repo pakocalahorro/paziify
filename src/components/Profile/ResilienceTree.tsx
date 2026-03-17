@@ -13,6 +13,8 @@ import {
 import Animated, {
     useSharedValue,
     withTiming,
+    withRepeat,
+    withSequence,
     useDerivedValue,
     Easing,
     SharedValue,
@@ -50,22 +52,49 @@ interface BloomProps {
 }
 
 const Bloom: React.FC<BloomProps> = ({ index, points, growAnim, isActive, colors }) => {
+    // 🔥 Cálculos reactivos (Skia reacciona automáticamente a DerivedValues)
     const pos = useDerivedValue(() => getBezierPoint(growAnim.value, points[0], points[1], points[2]));
+    const cx = useDerivedValue(() => pos.value.x);
+    const cy = useDerivedValue(() => pos.value.y);
+    
+    // Efecto de Brillo Pulsante ("Respiración")
+    const pulseAnim = useSharedValue(0.8);
+    useEffect(() => {
+        if (isActive) {
+            pulseAnim.value = withRepeat(
+                withSequence(
+                    withTiming(1.2, { duration: 1500 + (index % 500), easing: Easing.inOut(Easing.sin) }),
+                    withTiming(0.8, { duration: 1500 + (index % 500), easing: Easing.inOut(Easing.sin) })
+                ),
+                -1,
+                true
+            );
+        }
+    }, [isActive]);
+
+    const bloomRadius = useDerivedValue(() => 8 * growAnim.value * (isActive ? pulseAnim.value : 1));
+    const shadowBlur = useDerivedValue(() => 60 * pulseAnim.value); // Brillo equilibrado (v2.52.5)
+    const lightColor = "#FFD700"; // Amarillo Oro vibrante
 
     return (
         <Circle
-            cx={pos.value.x}
-            cy={pos.value.y}
-            r={3 * growAnim.value}
+            cx={cx}
+            cy={cy}
+            r={bloomRadius}
             color={isActive ? "#FFF" : "rgba(255,255,255,0.05)"}
         >
             {isActive && (
-                <Shadow dx={0} dy={0} blur={8} color={index % 2 === 0 ? colors.accent : colors.primary} />
+                <Shadow 
+                    dx={0} 
+                    dy={0} 
+                    blur={shadowBlur} 
+                    color={lightColor} 
+                />
             )}
             <LinearGradient
                 start={vec(0, 0)}
                 end={vec(10, 10)}
-                colors={isActive ? ["#FFF", "rgba(255,255,255,0.8)"] : ["rgba(255,255,255,0.1)", "transparent"]}
+                colors={isActive ? ["#FFF", lightColor] : ["rgba(255,255,255,0.1)", "transparent"]}
             />
         </Circle>
     );
@@ -185,7 +214,25 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
 
                     {/* Lights / Blooms */}
                     {treeData.blooms.map((bloom, i) => {
-                        const isActive = isGuest ? (i % 5 === 0) : (i < daysPracticed * 2);
+                        // 🌟 FÓRMULA DE ILUMINACIÓN PROPORCIONAL (v2.52.0)
+                        // Para que el progreso sea visible al instante en retos cortos
+                        let isActive = false;
+                        if (!isGuest) {
+                            if (totalSteps <= 3) {
+                                // Reto 3 días: Encender ~33% de luces por día
+                                isActive = i < (daysPracticed * 34);
+                            } else if (totalSteps <= 7) {
+                                // Reto 7 días: Encender ~14% de luces por día
+                                isActive = i < (daysPracticed * 15);
+                            } else {
+                                // Reto 30 días: Encender gradualmente
+                                isActive = i < (daysPracticed * 4);
+                            }
+                        } else {
+                            // Guest mode
+                            isActive = i % 8 === 0;
+                        }
+
                         if (i > 100) return null; // Cap for performance
                         return (
                             <Bloom

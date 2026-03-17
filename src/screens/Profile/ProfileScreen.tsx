@@ -74,6 +74,20 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         loadStats();
     }, [user, isGuest]);
 
+    const motivationalMessage = useMemo(() => {
+        if (isGuest) return "Inicia sesión para guardar tu florecer.";
+        if (!userState.activeChallenge) return "Cada día de calma hace florecer tu paz interior.";
+        
+        const { daysCompleted, totalDays } = userState.activeChallenge;
+        const progress = daysCompleted / totalDays;
+        
+        if (daysCompleted === 0) return "¡Hoy es un gran día para encender tu primera luz!";
+        if (progress < 0.4) return "¡Tu paz está empezando a florecer! Sigue así.";
+        if (progress < 0.7) return "¡Brillante! Estás integrando la calma en tu vida.";
+        if (progress < 1) return "¡Casi lo tienes! Tu árbol irradia una energía increíble.";
+        return "¡Felicidades! Has completado tu reto y tu paz es plena.";
+    }, [userState.activeChallenge, isGuest]);
+
     const displayStats = useMemo(() => stats || {
         totalMinutes: 0,
         sessionsCount: 0,
@@ -90,6 +104,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     onBack={() => navigation.goBack()}
                     onPathPress={(index) => {
                         if (index === 0) navigation.navigate(Screen.HOME as any);
+                        if (index === 1) (navigation as any).navigate('ProfileTab', { screen: Screen.PROFILE });
                     }}
                     userName={userState.name || 'Pazificador'}
                     avatarUrl={userState.avatarUrl}
@@ -133,6 +148,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                             </Text>
                             <Text style={styles.treeSubtext}>
                                 {userState.activeChallenge ? "Días completados" : "Días de Calma este mes"}
+                            </Text>
+                            <Text style={styles.motivationalText}>
+                                {motivationalMessage.toUpperCase()}
                             </Text>
                         </View>
 
@@ -178,7 +196,13 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         <View style={styles.bentoRow}>
                             <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
                                 <Text style={styles.bentoLabel}>Presencia Total</Text>
-                                <Text style={styles.bentoValue}>{Math.round(displayStats.totalMinutes / 60)}h</Text>
+                                <Text style={styles.bentoValue}>
+                                    {
+                                        displayStats.totalMinutes < 60
+                                            ? `${displayStats.totalMinutes} min`
+                                            : `${Math.floor(displayStats.totalMinutes / 60)}h ${displayStats.totalMinutes % 60}m`
+                                    }
+                                </Text>
                                 <Text style={styles.bentoSubtitle}>Tiempo dedicado</Text>
                             </BlurView>
                             <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
@@ -295,10 +319,21 @@ const styles = StyleSheet.create({
         letterSpacing: -1,
     },
     treeSubtext: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.6)',
-        fontWeight: '600',
-        marginTop: 2,
+        fontSize: 10,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.4)',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+    },
+    motivationalText: {
+        marginTop: 15,
+        fontSize: 11,
+        fontWeight: '900',
+        color: '#FFD700', // Gold Yellow to match the lights
+        textAlign: 'center',
+        paddingHorizontal: 20,
+        letterSpacing: 0.5,
+        lineHeight: 16,
     },
     guestCTA: {
         flexDirection: 'row',

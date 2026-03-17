@@ -202,7 +202,7 @@ const BackgroundSoundScreen: React.FC<Props> = ({ navigation }) => {
                     avatarUrl={userState.avatarUrl}
                     showEvolucion={true}
                     onEvolucionPress={() => navigation.navigate(Screen.EVOLUTION_CATALOG as any)}
-                    onProfilePress={() => navigation.navigate(Screen.PROFILE as any)}
+                    onProfilePress={() => (navigation as any).navigate('ProfileTab', { screen: Screen.PROFILE })}
                 />
             }
             themeMode="healing"

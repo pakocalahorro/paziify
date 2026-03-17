@@ -333,5 +333,25 @@ export const analyticsService = {
         } catch (error) {
             console.log('AnalyticsService: Silenced recordSession error (stored local):', error);
         }
+    },
+
+    /**
+     * Update user streak in Supabase profile
+     */
+    async updateProfileStreak(userId: string, newStreak: number): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ 
+                    streak: newStreak,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', userId);
+
+            if (error) throw error;
+            console.log('AnalyticsService: Profile streak updated in Supabase:', newStreak);
+        } catch (error) {
+            console.error('AnalyticsService: Error updating profile streak:', error);
+        }
     }
 };

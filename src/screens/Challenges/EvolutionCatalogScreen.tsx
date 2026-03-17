@@ -97,7 +97,7 @@ const EvolutionCatalogScreen = () => {
                     avatarUrl={userState?.avatarUrl}
                     showEvolucion={true}
                     onEvolucionPress={() => { }}
-                    onProfilePress={() => navigation.navigate(Screen.PROFILE)}
+                    onProfilePress={() => (navigation as any).navigate('ProfileTab', { screen: Screen.PROFILE })}
                     activeChallengeType={userState.activeChallenge?.type as any}
                 />
             }
