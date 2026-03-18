@@ -35,7 +35,7 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
 
 ### 3. Ejecución de Tareas de Documentación 📝
    Una vez aprobado, ejecuta con `write_to_file` o `replace_file_content`:
-   1. Crea la nueva nota de sesión en `docs/sessions/`.
+   1. Crea la nueva nota de sesión en la subcarpeta del **mes actual** dentro de `docs/sessions/` (ej: `docs/sessions/03-26/`).
    2. Actualiza CADA archivo guía acordado en el Paso 2 con la nueva información de lógica o diseño.
    3. Añade la entrada correspondiente al `walkthrough.md` con `render_diffs` si aplicara.
 

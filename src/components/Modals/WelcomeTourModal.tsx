@@ -71,22 +71,26 @@ const OasisArrow = memo(({ active, direction = 'down' }: { active: boolean, dire
     );
 });
 
-const GuidanceHalo = memo(({ active }: { active: boolean }) => {
+const GuidanceShape = memo(({ active, type = 'circle', variant = 'pulsing' }: { active: boolean, type?: 'circle' | 'rect', variant?: 'pulsing' | 'fixed' }) => {
     const scale = useSharedValue(1);
     const opacity = useSharedValue(0);
 
     useEffect(() => {
         if (active) {
-            opacity.value = withTiming(0.6, { duration: 500 });
-            scale.value = withRepeat(
-                withSequence(withTiming(1.6, { duration: 1200 }), withTiming(1, { duration: 1200 })),
-                -1,
-                true
-            );
+            opacity.value = withTiming(0.8, { duration: 500 });
+            if (variant === 'pulsing') {
+                scale.value = withRepeat(
+                    withSequence(withTiming(1.6, { duration: 1200 }), withTiming(1, { duration: 1200 })),
+                    -1,
+                    true
+                );
+            } else {
+                scale.value = 1;
+            }
         } else {
             opacity.value = withTiming(0, { duration: 500 });
         }
-    }, [active]);
+    }, [active, variant]);
 
     const rStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
@@ -94,11 +98,15 @@ const GuidanceHalo = memo(({ active }: { active: boolean }) => {
     }));
 
     return (
-        <Animated.View style={[styles.halo, rStyle]} />
+        <Animated.View style={[
+            type === 'circle' ? styles.halo : styles.guidanceRect,
+            variant === 'fixed' && styles.fixedShape,
+            rStyle
+        ]} />
     );
 });
 
-// --- MIRROR LAYER (v2.50.0) ---
+// --- MIRROR LAYER (v2.51.1) ---
 const GuidanceMirrors = ({ currentStep }: { currentStep: number }) => {
     const insets = useSafeAreaInsets();
     
@@ -106,47 +114,47 @@ const GuidanceMirrors = ({ currentStep }: { currentStep: number }) => {
     const headerTop = insets.top;
     const evolButtonX = 20 + 20;
     const homeTitleY = headerTop + 42 + 2;
-    const homeTitleX = 140; // Coordenada ajustada por el usuario
+    const homeTitleX = 140; 
 
     // TabBar (Bottom)
     const tabBarBottom = insets.bottom > 0 ? insets.bottom : 30;
 
     return (
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {/* Paso 1: HOME */}
+            {/* Paso 1: HOME (Rectángulo Fijo) */}
             {currentStep === 1 && (
                 <View style={[styles.mirrorMarker, { top: homeTitleY + 18, left: homeTitleX }]}>
-                    <GuidanceHalo active={true} />
+                    <GuidanceShape active={true} type="rect" variant="fixed" />
                     <View style={styles.arrowPointerTop}>
                         <OasisArrow active={true} direction="up" />
                     </View>
                 </View>
             )}
 
-            {/* Paso 2: EVOLUCIÓN */}
+            {/* Paso 2: EVOLUCIÓN (Rectángulo Fijo) */}
             {currentStep === 2 && (
                 <View style={[styles.mirrorMarker, { top: headerTop + 25, left: evolButtonX + 35 }]}>
-                    <GuidanceHalo active={true} />
+                    <GuidanceShape active={true} type="rect" variant="fixed" />
                     <View style={styles.arrowPointerTop}>
                         <OasisArrow active={true} direction="up" />
                     </View>
                 </View>
             )}
 
-            {/* Paso 3: SANTUARIO (ORBE) */}
+            {/* Paso 3: SANTUARIO (Círculo Fijo) */}
             {currentStep === 3 && (
-                <View style={[styles.mirrorMarker, { bottom: tabBarBottom + 0, left: width / 2 }]}>
-                    <GuidanceHalo active={true} />
+                <View style={[styles.mirrorMarker, { bottom: tabBarBottom + 2, left: width / 2 }]}>
+                    <GuidanceShape active={true} type="circle" variant="fixed" />
                     <View style={styles.arrowPointerBottom}>
                         <OasisArrow active={true} direction="down" />
                     </View>
                 </View>
             )}
 
-            {/* Paso 4: PERFIL */}
+            {/* Paso 4: PERFIL (Círculo Fijo) */}
             {currentStep === 4 && (
                 <View style={[styles.mirrorMarker, { bottom: tabBarBottom + 2, right: 8 }]}>
-                    <GuidanceHalo active={true} />
+                    <GuidanceShape active={true} type="circle" variant="fixed" />
                     <View style={styles.arrowPointerBottom}>
                         <OasisArrow active={true} direction="down" />
                     </View>
@@ -169,9 +177,7 @@ const SantuarioDualIllustration = memo(() => {
                 <Ionicons name="flash-outline" size={24} color="#FBBF24" />
                 <Text style={styles.optionTextLabel}>CRECER</Text>
             </View>
-            <View style={styles.orbCenterPad}>
-                <StarCore size={50} progress={useSharedValue(1)} />
-            </View>
+            {/* Orbe eliminado por petición del usuario */}
         </View>
     );
 });
@@ -295,11 +301,12 @@ const AutoContentCarousel = memo(() => {
 
 interface WelcomeTourModalProps {
     visible: boolean;
-    onComplete: () => void;
+    onComplete: (dontShowAgain?: boolean) => void;
 }
 
 export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ visible, onComplete }) => {
     const [currentStep, setCurrentStep] = useState(0);
+    const [dontShowAgain, setDontShowAgain] = useState(false);
 
     const STEPS = useMemo(() => [
         {
@@ -317,7 +324,7 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ visible, onC
             description: "Define tu camino con Programas y ve florecer tu Árbol. Deja que el Bio-Scan personalice tu viaje.",
             visual: (
                 <View style={styles.evolutionContainer}>
-                    <ResilienceTree size={110} daysPracticed={20} totalSteps={30} />
+                    <ResilienceTree size={110} daysPracticed={10} totalSteps={30} hideBlooms={true} />
                 </View>
             ),
         },
@@ -341,7 +348,7 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ visible, onC
         if (currentStep < STEPS.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
-            onComplete();
+            onComplete(dontShowAgain);
         }
     };
 
@@ -379,7 +386,7 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ visible, onC
                                 />
                             ))}
                         </View>
-                        <TouchableOpacity onPress={onComplete} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}>
+                        <TouchableOpacity onPress={() => onComplete(dontShowAgain)} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}>
                             <Ionicons name="close" size={24} color="rgba(255,255,255,0.6)" />
                         </TouchableOpacity>
                     </View>
@@ -390,6 +397,20 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ visible, onC
                         </View>
                         <Text style={styles.title}>{step.title}</Text>
                         <Text style={styles.description} numberOfLines={2}>{step.description}</Text>
+                        
+                        {/* No mostrar más Check (Solo en la primera pestaña) */}
+                        {currentStep === 0 && (
+                            <TouchableOpacity 
+                                activeOpacity={0.7}
+                                onPress={() => setDontShowAgain(!dontShowAgain)}
+                                style={styles.noShowRow}
+                            >
+                                <View style={[styles.checkbox, dontShowAgain && styles.checkboxActive]}>
+                                    {dontShowAgain && <Ionicons name="checkmark" size={14} color="#000" />}
+                                </View>
+                                <Text style={styles.noShowText}>No mostrar más</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
 
                     <View style={styles.footer}>
@@ -632,8 +653,46 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         borderRadius: 35,
-        backgroundColor: 'rgba(251, 191, 36, 0.4)',
-        zIndex: -1,
+        borderColor: '#FBBF24',
+        borderWidth: 2,
+        backgroundColor: 'transparent',
+    },
+    guidanceRect: {
+        position: 'absolute',
+        width: 120,
+        height: 50,
+        borderRadius: 12,
+        borderColor: '#FBBF24',
+        borderWidth: 2,
+        backgroundColor: 'transparent',
+    },
+    fixedShape: {
+        // No animation related styles needed here as variant='fixed' handles logic
+    },
+    noShowRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginTop: 5,
+        marginBottom: 10,
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderRadius: 6,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    checkboxActive: {
+        backgroundColor: '#FBBF24',
+        borderColor: '#FBBF24',
+    },
+    noShowText: {
+        color: 'rgba(255,255,255,0.6)',
+        fontSize: 12,
+        fontFamily: 'Outfit_500Medium',
     },
     mirrorMarker: {
         position: 'absolute',

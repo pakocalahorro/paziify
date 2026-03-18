@@ -38,7 +38,20 @@ class LocalAnalyticsService {
     }
 
     /**
-     * Limpia los logs locales (después de sincronizar)
+     * Elimina un log específico de la cola local (tras sincronización exitosa)
+     */
+    async removeLog(completedAt: string): Promise<void> {
+        try {
+            const existing = await this.getLogs();
+            const filtered = existing.filter(l => l.completed_at !== completedAt);
+            await AsyncStorage.setItem(PENDING_LOGS_KEY, JSON.stringify(filtered));
+        } catch (error) {
+            console.error('LocalAnalyticsService: Error removing log', error);
+        }
+    }
+
+    /**
+     * Limpia los logs locales (desactivado por defecto para seguridad, preferir removeLog)
      */
     async clearLogs(): Promise<void> {
         await AsyncStorage.removeItem(PENDING_LOGS_KEY);

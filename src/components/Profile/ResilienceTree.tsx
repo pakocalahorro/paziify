@@ -8,7 +8,7 @@ import {
     Circle,
     LinearGradient,
     vec,
-    Shadow,
+    BlurMask,
 } from '@shopify/react-native-skia';
 import Animated, {
     useSharedValue,
@@ -73,30 +73,34 @@ const Bloom: React.FC<BloomProps> = ({ index, points, growAnim, isActive, colors
     }, [isActive]);
 
     const bloomRadius = useDerivedValue(() => 8 * growAnim.value * (isActive ? pulseAnim.value : 1));
-    const shadowBlur = useDerivedValue(() => 60 * pulseAnim.value); // Brillo equilibrado (v2.52.5)
+    const blurSigma = useDerivedValue(() => 15 * pulseAnim.value); // Brillo equilibrado (v2.52.5)
     const lightColor = "#FFD700"; // Amarillo Oro vibrante
 
+    // Optimizacion: Solo dibujar si el crecimiento ha avanzado lo suficiente
+    const opacity = useDerivedValue(() => growAnim.value > 0.5 ? 1 : 0);
+
     return (
-        <Circle
-            cx={cx}
-            cy={cy}
-            r={bloomRadius}
-            color={isActive ? "#FFF" : "rgba(255,255,255,0.05)"}
-        >
+        <Group opacity={opacity}>
             {isActive && (
-                <Shadow 
-                    dx={0} 
-                    dy={0} 
-                    blur={shadowBlur} 
-                    color={lightColor} 
-                />
+                <Circle cx={cx} cy={cy} r={bloomRadius} color={lightColor}>
+                    <BlurMask blur={blurSigma} style="normal" />
+                </Circle>
             )}
-            <LinearGradient
-                start={vec(0, 0)}
-                end={vec(10, 10)}
-                colors={isActive ? ["#FFF", lightColor] : ["rgba(255,255,255,0.1)", "transparent"]}
-            />
-        </Circle>
+            <Circle
+                cx={cx}
+                cy={cy}
+                r={useDerivedValue(() => bloomRadius.value * 0.4)}
+                color={isActive ? "#FFF" : "rgba(255,255,255,0.05)"}
+            >
+                {!isActive && (
+                    <LinearGradient
+                        start={vec(0, 0)}
+                        end={vec(10, 10)}
+                        colors={["rgba(255,255,255,0.1)", "transparent"]}
+                    />
+                )}
+            </Circle>
+        </Group>
     );
 };
 
@@ -105,13 +109,15 @@ interface ResilienceTreeProps {
     totalSteps?: number; // New: To dynamize growth
     size?: number;
     isGuest?: boolean;
+    hideBlooms?: boolean; // New: To skip heavy animations
 }
 
 const ResilienceTree: React.FC<ResilienceTreeProps> = ({
     daysPracticed = 0,
     totalSteps = 30, // Default to legacy 30 days
     size = 250,
-    isGuest = false
+    isGuest = false,
+    hideBlooms = false
 }) => {
     // Dynamize growth: (Practiced / Total) * 0.8 + 0.2 (base)
     const targetGrowth = isGuest ? 0.35 : 0.2 + (Math.min(daysPracticed / totalSteps, 1) * 0.8);
@@ -119,7 +125,7 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
 
     useEffect(() => {
         growth.value = withTiming(targetGrowth, {
-            duration: 2500,
+            duration: 1000,
             easing: Easing.out(Easing.exp),
         });
     }, [targetGrowth]);
@@ -194,9 +200,7 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
             <Canvas style={styles.canvas}>
                 <Group opacity={growth}>
                     {/* Trunk */}
-                    <Path path={treeData.trunkPath} color="white">
-                        <Shadow dx={0} dy={0} blur={10} color="rgba(255,255,255,0.4)" />
-                    </Path>
+                    <Path path={treeData.trunkPath} color="white" />
 
                     {/* Branches */}
                     {treeData.branches.map((b, i) => (
@@ -213,7 +217,7 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
                     ))}
 
                     {/* Lights / Blooms */}
-                    {treeData.blooms.map((bloom, i) => {
+                    {!hideBlooms && treeData.blooms.map((bloom, i) => {
                         // 🌟 FÓRMULA DE ILUMINACIÓN PROPORCIONAL (v2.52.0)
                         // Para que el progreso sea visible al instante en retos cortos
                         let isActive = false;

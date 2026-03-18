@@ -131,12 +131,15 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
         }
     }, [userState.hasSeenWelcomeTour, userState.isRegistered, userState.hasAcceptedMonthlyChallenge]);
 
-    const handleTourComplete = async () => {
+    const handleTourComplete = async (dontShowAgain?: boolean) => {
         setShowWelcomeTour(false);
         // Persist the state
         await updateUserState({ hasSeenWelcomeTour: true });
-        // After tour, we could start the 2m timer again or just let the existing one handle it
-        // if userState.hasSeenWelcomeTour changed, the useEffect trigger will re-run correctly.
+        
+        if (dontShowAgain) {
+            // Additional persistence if needed, though hasSeenWelcomeTour=true already prevents showing again.
+            console.log('[HomeScreen] Tour completed with dontShowAgain=true');
+        }
     };
 
     const animatedButtonStyle = useAnimatedStyle(() => ({

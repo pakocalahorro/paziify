@@ -105,21 +105,24 @@ Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confia
 
 ---
 
-- **Cloud Streak Sync (v2.51.0)**: La racha de días (`streak`) se guarda de forma redundante en la tabla `profiles`.
-- **`activeChallenge`**: Objeto `ActiveChallenge` con id, slug, type, title, startDate, daysCompleted, totalDays, currentSessionSlug. Almacenado localmente.
-- **Persistencia**: El estado del reto se guarda localmente, pero los **Días de Calma** (racha) tienen persistencia indestructible en la nube.
-
----
-## 9. Sistema de Notificaciones (Supabase) 🔔
-
-### `notification_templates`
+### `profiles` 👤
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
-| `type` | TEXT | Identificador técnico (morning, night, streak_3, etc.) |
-| `title` | TEXT | Título con soporte de variables `{name}` |
-| `body` | TEXT | Cuerpo del mensaje con variables `{streak}` |
-| `is_active`| BOOL | Control de publicación instantánea |
+| `id` | UUID | Identificador único (vinculado a `auth.users`). |
+| `streak` | INT | Racha de días consecutivos. |
+| `resilience_score`| INT | Puntuación de resiliencia (Cálculo biométrico). |
+| `has_seen_welcome_tour`| BOOL | [NEW v2.52.0] Estado de visualización del tour. |
+| `favorite_session_ids`| TEXT[] | IDs de sesiones favoritas (Cloud Sync v2.52.4). |
+| `completed_session_ids`| TEXT[] | IDs de sesiones finalizadas (Cloud Sync v2.52.4). |
+
+---
+
+## 8. Persistencia Híbrida y Blindaje (v2.52.6) 🛡️
+
+- **Cloud Streak Sync**: La racha de días (`streak`) se guarda de forma redundante en la tabla `profiles`.
+- **`isProfileLoaded` Guard**: Sistema de protección en `AppContext` que evita que datos locales vacíos sobrescriban la nube durante el inicio de sesión.
+- **Sets Union Sync**: Fusión atómica de arrays de favoritos e historial para evitar pérdida de datos en modo offline.
 
 ---
 ---
-*Última revisión: 17 de Marzo de 2026 - Versión 2.51.0 (Cloud Persistence)*
+*Última revisión: 18 de Marzo de 2026 - Versión 2.52.6 (Data Integrity Hardened)*

@@ -4,18 +4,6 @@ Esta es la **"Constitución" técnica** de Paziify para Android. Combina la sabi
 
 ---
 
-## 📋 Resumen de Operaciones Rápidas
-
-| Acción | Propósito | Comando |
-|---|---|---|
-| **Limpieza Profunda** | Resetear el entorno nativo | `Remove-Item android, .expo` y `npx expo prebuild` |
-| **Limpieza Rápida** | Corregir errores de compilación | **Paso 1** del Protocolo Local (Super Clean) |
-| **Generar APK (Test)** | Instalar en tu móvil | **Paso 3** del Protocolo Local (`assembleDebug`) |
-| **Generar AAB (Nube)** | Subir a Google Play (EAS) | `eas build --platform android --profile production` |
-| **Servidor Dev** | Ver cambios en tiempo real | `npx expo start --dev-client` |
-
----
-
 ## 1. 🧹 MANTENIMIENTO Y RECONSTRUCCIÓN
 
 Usa estos comandos si el entorno está "sucio", has cambiado plugins en `app.json` o si la carpeta `android` da errores inexplicables.

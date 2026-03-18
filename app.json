@@ -23,10 +23,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "navigationBar": {
-        "barStyle": "light-content",
-        "backgroundColor": "#00000000"
-      },
       "statusBar": {
         "barStyle": "light-content",
         "backgroundColor": "#00000000",
@@ -34,6 +30,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#0A0E1A",
+      "barStyle": "light-content",
+      "enforceContrast": false
     },
     "web": {
       "favicon": "./assets/favicon.png"

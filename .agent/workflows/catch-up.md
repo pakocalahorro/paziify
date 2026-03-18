@@ -9,7 +9,8 @@ Este workflow se ejecuta al iniciar una nueva sesión para ponerse al corriente 
 ## Pasos:
 
 1. **Leer la última sesión**
-   - Abrir `docs/sessions/` y leer la nota más reciente, pueden existir varias en el ultimo dia, leer todas
+   - Navegar a `docs/sessions/` y entrar en la subcarpeta del **mes actual** (ej: `03-26`).
+   - Leer la nota más reciente (o todas las del último día si hay varias).
    - Identificar:
      - ✅ Qué se logró
      - ⚠️ Qué problemas quedaron pendientes

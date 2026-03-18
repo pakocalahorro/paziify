@@ -65,6 +65,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isNightMode, setIsNightMode] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isProfileLoaded, setIsProfileLoaded] = useState(false);
     const [isFirstEntryOfDay, setIsFirstEntryOfDay] = useState(false);
 
     // Track first entry of the day
@@ -87,6 +88,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         updateUserState({ lastEntryDate: today });
     };
 
+    const [isConnected, setIsConnected] = useState<boolean | null>(true);
+
     // Initial session and auth listener
     useEffect(() => {
         const loadStoredState = async () => {
@@ -96,29 +99,55 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                     const parsedState = JSON.parse(storedState);
                     setUserState(prev => ({ ...prev, ...parsedState }));
                 }
-            } catch (error) {
-                console.error('Failed to load user state from storage:', error);
+            } catch (innerErr) {
+                // Silenced: This is expected when offline
             }
         };
 
         loadStoredState();
         NotificationService.initialize();
+
+        // Listen for connectivity
+        import('@react-native-community/netinfo').then(NetInfo => {
+            const unsubscribe = NetInfo.default.addEventListener(state => {
+                const wasOffline = isConnected === false;
+                setIsConnected(state.isConnected);
+                
+                // Si recuperamos conexión y el usuario está logado, sincronizar de fondo
+                if (wasOffline && state.isConnected && user?.id) {
+                    import('../services/analyticsService').then(({ analyticsService }) => {
+                        analyticsService.syncPendingLogs(user.id);
+                    });
+                }
+            });
+            return () => unsubscribe();
+        });
     }, []);
 
     // Check Supabase session
     useEffect(() => {
         // Check current session
         const initAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-            setIsLoading(false);
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                setUser(session?.user ?? null);
+            } catch (e) {
+                console.log('[AppContext] Auth init error (offline?):', e);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
-        initAuth();
+        if (isConnected !== false) {
+            initAuth();
+        } else {
+            setIsLoading(false);
+        }
 
         // Listen for changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
+            setIsProfileLoaded(false); // Bloquear guardado en cualquier cambio de usuario hasta que se recargue el perfil
             if (!session) {
                 // Clear state on sign out
                 setUserState(defaultUserState);
@@ -126,9 +155,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [isConnected]);
 
-    // Load profile from Supabase when user changes
     // Load profile from Supabase when user changes
     useEffect(() => {
         const loadProfile = async () => {
@@ -157,14 +185,24 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         lifeMode: data.life_mode || prev.lifeMode,
                         lastSelectedBackgroundUri: data.last_selected_background_uri || prev.lastSelectedBackgroundUri,
                         lastEntryDate: data.last_entry_date || prev.lastEntryDate,
-                        favoriteSessionIds: data.favorite_session_ids || prev.favoriteSessionIds || [],
-                        completedSessionIds: data.completed_session_ids || prev.completedSessionIds || [],
+                        favoriteSessionIds: [...new Set([...(data.favorite_session_ids || []), ...(prev.favoriteSessionIds || [])])],
+                        completedSessionIds: [...new Set([...(data.completed_session_ids || []), ...(prev.completedSessionIds || [])])],
                         activeChallenge: data.active_challenge || prev.activeChallenge,
                         settings: data.notification_settings || prev.settings,
                     }));
 
                     // Register for push notifications
                     NotificationService.registerForPushNotificationsAsync(user.id);
+                    setIsProfileLoaded(true);
+                } else if (error && error.code === 'PGRST116') {
+                    // Profile does not exist yet (New User)
+                    setIsProfileLoaded(true); 
+                    console.log('[AppContext] New user detected, profile will be created on first save.');
+                } else if (error) {
+                    // Solo loguear errores reales, no de red esperados offline
+                    if (error.message !== 'Network request failed' && error.code !== 'PGRST116') {
+                        console.log('[AppContext] Error loading profile (expected if offline):', error.message);
+                    }
                 }
             }
         };
@@ -177,11 +215,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         if (!isLoading && !userState.isGuest) {
             const saveUserState = async () => {
                 try {
-                    // Local save
+                    // Local save (always)
                     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userState));
-
-                    // Supabase sync (critical flags, goals, and mode)
-                    if (user) {
+    
+                    // Supabase sync (ONLY if profile was loaded successfully to avoid race conditions)
+                    if (user && isProfileLoaded) {
                         const { error } = await supabase
                             .from('profiles')
                             .update({
@@ -202,7 +240,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         if (error) {
                             console.warn('[AppContext] Supabase sync error:', error.message);
                         } else {
-                            console.log('[AppContext] Supabase sync success (including challenge)');
+                            console.log('[AppContext] Supabase sync success (Safe Sync)');
                         }
                     }
                 } catch (error) {
@@ -224,7 +262,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         userState.activeChallenge,
         userState.settings,
         userState.hasSeenWelcomeTour,
-        isLoading
+        isLoading,
+        isProfileLoaded
     ]);
 
     // Handle Intelligent Notifications scheduling
@@ -248,6 +287,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }, []);
 
     const signOut = async () => {
+        setIsProfileLoaded(false);
         await supabase.auth.signOut();
     };
 
@@ -265,6 +305,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     const signInWithGoogle = async () => {
         setIsLoading(true);
+        setIsProfileLoaded(false);
         try {
             const { signInWithGoogle: authSignIn } = await import('../services/AuthService');
             const result = await authSignIn();

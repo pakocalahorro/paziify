@@ -23,11 +23,10 @@ export const NotificationTemplateService = {
             const cached = await AsyncStorage.getItem(CACHE_KEY);
             let localTemplates: NotificationTemplate[] = cached ? JSON.parse(cached) : [];
 
-            // 2. Si hay red, refrescar en segundo plano (o si no hay caché, esperar)
-            const fetchPromise = this.refreshCache();
-
+            // 2. Si hay red y es necesario, refrescar en segundo plano
+            // No forzamos el refresco si ya tenemos datos locales, para evitar saturación en transiciones de red
             if (localTemplates.length === 0) {
-                return await fetchPromise;
+                return await this.refreshCache();
             }
 
             return localTemplates;

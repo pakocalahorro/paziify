@@ -64,6 +64,13 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                     isMuted
                     posterSource={require('../../../assets/splash-icon.png')}
                     posterStyle={{ resizeMode: 'cover' }}
+                    useNativeControls={false}
+                    onPlaybackStatusUpdate={(status) => {
+                        if (status.isLoaded === false) {
+                            // Video failed to load, stays on gradient/poster
+                            console.log('[LoginScreen] Video failed to load, using fallback');
+                        }
+                    }}
                 />
                 {/* 2. Night-mode mist overlay to ensure text readability */}
                 <LinearGradient

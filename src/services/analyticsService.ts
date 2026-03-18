@@ -35,11 +35,13 @@ export const analyticsService = {
                 .eq('id', userId)
                 .single();
 
-            // 2. Fetch logs summary
             const { data: logs, error: logsError } = await supabase
                 .from('meditation_logs')
                 .select('duration_minutes')
                 .eq('user_id', userId);
+
+            if (profileError) throw profileError;
+            if (logsError) throw logsError;
 
             // 3. Merge with Local Pending Logs
             const localLogs = await LocalAnalyticsService.getLogs();
@@ -61,9 +63,19 @@ export const analyticsService = {
             await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(stats));
             return stats;
         } catch (error) {
-            console.log('AnalyticsService: Offline getUserStats (Reading cache):', error);
+            console.log('AnalyticsService: Offline getUserStats (Fallback to cache + local):', error);
             const cached = await AsyncStorage.getItem(CACHE_KEY);
-            return cached ? JSON.parse(cached) : { totalMinutes: 0, sessionsCount: 0, currentStreak: 0, resilienceScore: 0 };
+            const stats = cached ? JSON.parse(cached) : { totalMinutes: 0, sessionsCount: 0, currentStreak: 0, resilienceScore: 0 };
+            
+            // Sumar logs locales que aún no se han subido
+            const localLogs = await LocalAnalyticsService.getLogs();
+            const localMinutes = localLogs.reduce((acc, curr) => acc + curr.duration_minutes, 0);
+            
+            return {
+                ...stats,
+                totalMinutes: stats.totalMinutes + localMinutes,
+                sessionsCount: stats.sessionsCount + localLogs.length
+            };
         }
     },
 
@@ -72,12 +84,15 @@ export const analyticsService = {
      */
     async getTodayStats(userId: string): Promise<{ minutes: number; sessionCount: number }> {
         const today = new Date().toISOString().split('T')[0];
+        const CACHE_KEY = `@today_stats_${userId} `;
         try {
             const { data, error } = await supabase
                 .from('meditation_logs')
                 .select('duration_minutes')
                 .eq('user_id', userId)
                 .gte('completed_at', today);
+
+            if (error) throw error;
 
             // Merge with local logs from today
             const localLogs = await LocalAnalyticsService.getLogs();
@@ -86,13 +101,35 @@ export const analyticsService = {
             const remoteMinutes = data?.reduce((acc, log) => acc + (log.duration_minutes || 0), 0) || 0;
             const localMinutes = todayLocal.reduce((acc, log) => acc + log.duration_minutes, 0);
 
-            return {
+            const result = {
                 minutes: Math.round(remoteMinutes + localMinutes),
                 sessionCount: (data?.length || 0) + todayLocal.length
             };
+
+            // Save to cache (only if we have current day data)
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({ ...result, date: today }));
+            return result;
         } catch (error) {
-            console.log('AnalyticsService: Silenced getTodayStats error (offline?):', error);
-            return { minutes: 0, sessionCount: 0 };
+            console.log('AnalyticsService: Offline getTodayStats (Fallback to cache + local):', error);
+            const cached = await AsyncStorage.getItem(CACHE_KEY);
+            let result = { minutes: 0, sessionCount: 0 };
+            
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.date === today) {
+                    result = { minutes: parsed.minutes, sessionCount: parsed.sessionCount };
+                }
+            }
+            
+            // Sumar logs locales de hoy
+            const localLogs = await LocalAnalyticsService.getLogs();
+            const todayLocal = localLogs.filter(l => l.completed_at.startsWith(today));
+            const localMinutes = todayLocal.reduce((acc, log) => acc + log.duration_minutes, 0);
+            
+            return {
+                minutes: result.minutes + localMinutes,
+                sessionCount: result.sessionCount + todayLocal.length
+            };
         }
     },
 
@@ -115,6 +152,8 @@ export const analyticsService = {
                 .select('duration_minutes, completed_at')
                 .eq('user_id', userId)
                 .gte('completed_at', startDate.toISOString());
+
+            if (error) throw error;
 
             // 2. Fetch Local Logs
             const localLogs = await LocalAnalyticsService.getLogs();
@@ -154,9 +193,37 @@ export const analyticsService = {
             await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(result));
             return result;
         } catch (error) {
-            console.log('AnalyticsService: Offline getWeeklyActivity (Reading cache):', error);
+            console.log('AnalyticsService: Offline getWeeklyActivity (Fallback to cache + local):', error);
             const cached = await AsyncStorage.getItem(CACHE_KEY);
-            return cached ? JSON.parse(cached) : [];
+            const weeklyData: DailyActivity[] = cached ? JSON.parse(cached) : [];
+            
+            // Sumar logs locales a la caché semanal
+            const localLogs = await LocalAnalyticsService.getLogs();
+            if (localLogs.length === 0) return weeklyData;
+
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+            const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const monday = new Date(now);
+            monday.setDate(now.getDate() - diff);
+            monday.setHours(0, 0, 0, 0);
+            const startDateStr = monday.toISOString().split('T')[0];
+
+            const weekLocal = localLogs.filter(l => l.completed_at >= startDateStr);
+            
+            // Mapear datos cacheados para fácil actualización
+            const dailyMap: Record<string, number> = {};
+            weeklyData.forEach(d => { dailyMap[d.day] = d.minutes; });
+
+            // Inyectar local logs
+            weekLocal.forEach(log => {
+                const dateStr = log.completed_at.split('T')[0];
+                dailyMap[dateStr] = (dailyMap[dateStr] || 0) + log.duration_minutes;
+            });
+
+            return Object.entries(dailyMap)
+                .map(([day, minutes]) => ({ day, minutes }))
+                .sort((a, b) => a.day.localeCompare(b.day));
         }
     },
 
@@ -188,11 +255,12 @@ export const analyticsService = {
                 console.log('AnalyticsService: Skipping remote category mapping (offline)');
             }
 
-            // 2. Fetch user logs (Priority: Supabase + Local)
             const { data: logs, error: logsError } = await supabase
                 .from('meditation_logs')
                 .select('session_id')
                 .eq('user_id', userId);
+
+            if (logsError) throw logsError;
 
             const localLogs = await LocalAnalyticsService.getLogs();
 
@@ -286,13 +354,30 @@ export const analyticsService = {
 
             return result;
         } catch (error) {
-            console.error('Error fetching monthly activity:', error);
+            console.log('AnalyticsService: Offline getMonthlyActivity (Fallback to cache + local):', error);
             const cached = await AsyncStorage.getItem(CACHE_KEY);
-            if (cached) {
-                const { data } = JSON.parse(cached);
-                return data;
-            }
-            return [];
+            if (!cached) return [];
+            
+            const { data: cachedLogs } = JSON.parse(cached);
+            const activityMap: Record<string, number> = {};
+            cachedLogs.forEach((l: any) => { activityMap[l.day] = l.minutes; });
+
+            // Inyectar logs locales
+            const localLogs = await LocalAnalyticsService.getLogs();
+            const startDate = new Date(y, m, 1);
+            const endDate = new Date(y, m + 1, 0, 23, 59, 59);
+            
+            const monthLocal = localLogs.filter(l => l.completed_at >= startDate.toISOString() && l.completed_at <= endDate.toISOString());
+            
+            monthLocal.forEach(log => {
+                const dateStr = log.completed_at.split('T')[0];
+                activityMap[dateStr] = (activityMap[dateStr] || 0) + log.duration_minutes;
+            });
+
+            return Object.entries(activityMap).map(([day, minutes]) => ({
+                day,
+                minutes: Math.round(minutes)
+            })).sort((a, b) => a.day.localeCompare(b.day));
         }
     },
 
@@ -325,13 +410,50 @@ export const analyticsService = {
             if (error) {
                 console.log('AnalyticsService: Offline record detected, kept in local queue.');
             } else {
-                // [FIX C-2] Log subido a Supabase con éxito → limpiar cola local
-                // para evitar que las estadísticas cuenten el mismo log dos veces
-                // (una vez desde el local queue y otra desde meditation_logs remoto).
-                await LocalAnalyticsService.clearLogs();
+                // [FIX C-2] Log subido a Supabase con éxito → limpiar SOLO este log de la cola local
+                // para preservar otros logs que pudieran estar pendientes de red.
+                await LocalAnalyticsService.removeLog(completed_at);
             }
         } catch (error) {
             console.log('AnalyticsService: Silenced recordSession error (stored local):', error);
+        }
+    },
+
+    /**
+     * Sincroniza todos los logs locales pendientes con Supabase.
+     * Útil tras recuperar la conexión a internet.
+     */
+    async syncPendingLogs(userId: string): Promise<void> {
+        if (!userId) return;
+        
+        try {
+            const localLogs = await LocalAnalyticsService.getLogs();
+            if (localLogs.length === 0) return;
+
+            console.log(`[Analytics] Intentando sincronizar ${localLogs.length} logs pendientes...`);
+
+            for (const log of localLogs) {
+                try {
+                    const { error } = await supabase
+                        .from('meditation_logs')
+                        .insert({
+                            user_id: userId,
+                            session_id: log.session_id,
+                            duration_minutes: log.duration_minutes,
+                            mood_score: log.mood_score,
+                            completed_at: log.completed_at
+                        });
+
+                    if (!error) {
+                        await LocalAnalyticsService.removeLog(log.completed_at);
+                        console.log(`[Analytics] Log sincronizado: ${log.completed_at}`);
+                    }
+                } catch (err) {
+                    // Falló este log individual, se queda en la cola
+                }
+            }
+        } catch (error) {
+            console.log('[Analytics] Error en sincronización de fondo:', error);
         }
     },
 
@@ -349,9 +471,8 @@ export const analyticsService = {
                 .eq('id', userId);
 
             if (error) throw error;
-            console.log('AnalyticsService: Profile streak updated in Supabase:', newStreak);
         } catch (error) {
-            console.error('AnalyticsService: Error updating profile streak:', error);
+            // Silenced network error in streak update
         }
     }
 };
