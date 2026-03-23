@@ -102,7 +102,7 @@ const StoriesScreen: React.FC<Props> = ({ navigation }) => {
             // 1. Search Filter
             const matchesSearch = story.title.toLowerCase().includes(query) ||
                 story.character_name?.toLowerCase().includes(query) ||
-                story.tags.some(t => t.toLowerCase().includes(query));
+                (story.tags && story.tags.some(t => t.toLowerCase().includes(query)));
 
             // 2. Category Filter (Dynamic)
             // If 'all', show everything. Otherwise, match category key.

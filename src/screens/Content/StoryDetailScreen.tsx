@@ -131,7 +131,7 @@ const StoryDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         if (!story) return;
         try {
             await Share.share({
-                message: `Mira esta historia de superación en Paziify: "${story.title}"\n\n${story.story_text.substring(0, 100)}...`,
+                message: `Mira esta historia de superación en Paziify: "${story.title}"\n\n${(story.story_text || '').substring(0, 100)}...`,
                 title: story.title,
             });
         } catch (error) {
@@ -245,7 +245,7 @@ const StoryDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
                             {/* Tags */}
                             <View style={styles.tagContainer}>
-                                {story.tags.map((tag, index) => (
+                                {(story.tags || []).map((tag, index) => (
                                     <BlurView key={index} intensity={20} tint="light" style={styles.tag}>
                                         <Text style={styles.tagText}>#{tag}</Text>
                                     </BlurView>

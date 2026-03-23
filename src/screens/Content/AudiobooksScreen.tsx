@@ -80,7 +80,7 @@ const AudiobooksScreen: React.FC<Props> = ({ navigation }) => {
         return audiobooks.filter(book => {
             const matchesSearch = book.title.toLowerCase().includes(query) ||
                 book.author.toLowerCase().includes(query) ||
-                book.narrator.toLowerCase().includes(query);
+                (book.narrator && book.narrator.toLowerCase().includes(query));
             const matchesCategory = selectedCategory === 'all' || book.category.toLowerCase() === selectedCategory.toLowerCase();
             return matchesSearch && matchesCategory;
         });

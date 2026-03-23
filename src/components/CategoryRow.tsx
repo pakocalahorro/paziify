@@ -204,7 +204,10 @@ const CategoryRow: React.FC<Props> = ({
                             </BlurView>
                         </TouchableOpacity>
 
-                        <FlashList
+                        {(() => {
+                            const FlashListCast = FlashList as any;
+                            return (
+                                <FlashListCast
                             ref={flashListRef}
                             data={finalData}
                             keyExtractor={(item: any) => item.id}
@@ -216,12 +219,12 @@ const CategoryRow: React.FC<Props> = ({
                             decelerationRate="fast"
                             bounces={false}
                             scrollEventThrottle={16}
-                            onScroll={(event) => {
+                            onScroll={(event: any) => {
                                 const x = event.nativeEvent.contentOffset.x;
                                 scrollOffset.current = x;
                                 scrollX.setValue(x);
                             }}
-                            renderItem={({ item, index }) => {
+                            renderItem={({ item, index }: any) => {
                                 if (item.id === 'empty-left' || item.id === 'empty-right') {
                                     return <View style={{ width: EMPTY_ITEM_SIZE }} />;
                                 }
@@ -242,7 +245,9 @@ const CategoryRow: React.FC<Props> = ({
                                     </View>
                                 );
                             }}
-                        />
+                                />
+                            );
+                        })()}
                     </View>
                 )}
             </View>
