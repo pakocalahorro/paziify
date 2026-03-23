@@ -2,9 +2,9 @@ name: Paziify Zero Defects - Aduana de Control
 
 on:
   push:
-    branches: [ main, development, 'setup/**' ]
+    branches: [ main, master, development, 'setup/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   test-logic:
