@@ -28,6 +28,7 @@ import SessionDetailScreen from '../screens/Meditation/SessionDetailScreen';
 import AudiobookPlayerScreen from '../screens/Content/AudiobookPlayerScreen';
 import CardioScanScreen from '../screens/Bio/CardioScanScreen';
 import CardioResultScreen from '../screens/Bio/CardioResultScreen';
+import ChallengeCompletionScreen from '../screens/Challenges/ChallengeCompletionScreen';
 import OasisShowcaseScreen from '../screens/OasisShowcaseScreen'; // PDS Showcase
 
 import { View, ActivityIndicator } from 'react-native';
@@ -111,6 +112,11 @@ const AppNavigatorContent = () => {
                             name={Screen.OASIS_SHOWCASE}
                             component={OasisShowcaseScreen}
                             options={{ animation: 'fade' }}
+                        />
+                        <Stack.Screen
+                            name={Screen.CHALLENGE_COMPLETION}
+                            component={ChallengeCompletionScreen}
+                            options={{ animation: 'fade', gestureEnabled: false }}
                         />
                     </>
                 )}

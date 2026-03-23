@@ -78,7 +78,7 @@ export const sessionsService = {
             console.log('[sessionsService] Fetching all sessions from Supabase...');
             const { data, error } = await supabase
                 .from('meditation_sessions_content')
-                .select('*')
+                .select('id, title, description, thumbnail_url, duration_minutes, category, is_premium, creator_name, voice_url, mood_tags, time_of_day, difficulty_level, legacy_id')
                 .order('title', { ascending: true });
 
             if (error) {
@@ -142,16 +142,18 @@ export const sessionsService = {
      * Get sessions by Category
      */
     async getByCategory(category: string): Promise<MeditationSessionContent[]> {
-        const { data, error } = await supabase
-            .from('meditation_sessions_content')
-            .select('*')
-            .eq('category', category);
+        try {
+            const { data, error } = await supabase
+                .from('meditation_sessions_content')
+                .select('id, title, description, thumbnail_url, duration_minutes, category, is_premium, creator_name, voice_url, mood_tags, time_of_day, difficulty_level, legacy_id')
+                .eq('category', category);
 
-        if (error) {
-            console.log('Error fetching sessions by category:', error);
-            return [];
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.log('[sessionsService] Offline getByCategory: Fallback a sesiones locales');
+            return MEDITATION_SESSIONS.filter(s => s.category === category) as any[];
         }
-        return data || [];
     },
 
     /**
@@ -179,7 +181,7 @@ export const sessionsService = {
 
             let query = supabase
                 .from('meditation_sessions_content')
-                .select('*', { count: 'exact' });
+                .select('id, title, description, thumbnail_url, duration_minutes, category, is_premium, creator_name, voice_url, mood_tags, time_of_day, difficulty_level, legacy_id', { count: 'exact' });
 
             // Apply Filters
             if (category && category !== 'all') query = query.eq('category', category);
@@ -221,14 +223,21 @@ export const sessionsService = {
      * Get Daily Session (random or specific algorithm)
      */
     async getDaily(): Promise<MeditationSessionContent | null> {
-        const { data, error } = await supabase
-            .from('meditation_sessions_content')
-            .select('*')
-            .eq('title', 'Respiración 4-7-8')
-            .limit(1)
-            .maybeSingle();
+        try {
+            const { data, error } = await supabase
+                .from('meditation_sessions_content')
+                .select('*')
+                .eq('title', 'Respiración 4-7-8')
+                .limit(1)
+                .maybeSingle();
 
-        return data;
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.log('[sessionsService] Offline getDaily: Fallback to local 4-7-8');
+            const local = MEDITATION_SESSIONS.find(s => s.id === 'respiracion-478' || s.title.includes('4-7-8'));
+            return local ? (local as any) : null;
+        }
     }
 };
 
@@ -254,7 +263,7 @@ export const soundscapesService = {
             console.log('Fetching all soundscapes from Supabase...');
             const { data, error } = await supabase
                 .from('soundscapes')
-                .select('*')
+                .select('id, slug, name, icon, audio_url, image_url, is_premium, category')
                 .order('name', { ascending: true });
 
             if (error) {
@@ -325,7 +334,7 @@ export const audiobooksService = {
         try {
             const { data, error } = await supabase
                 .from('audiobooks')
-                .select('*')
+                .select('id, title, author, description, image_url, audio_url, duration_minutes, category, is_premium, is_featured')
                 .order('is_featured', { ascending: false })
                 .order('created_at', { ascending: false });
 
@@ -345,7 +354,7 @@ export const audiobooksService = {
         try {
             const { data, error } = await supabase
                 .from('audiobooks')
-                .select('*')
+                .select('id, title, author, description, image_url, audio_url, duration_minutes, category, is_premium, is_featured')
                 .eq('category', category)
                 .order('is_featured', { ascending: false })
                 .order('created_at', { ascending: false });
@@ -368,7 +377,7 @@ export const audiobooksService = {
         try {
             const { data, error } = await supabase
                 .from('audiobooks')
-                .select('*')
+                .select('id, title, author, description, image_url, audio_url, duration_minutes, category, is_premium, is_featured')
                 .eq('is_featured', true)
                 .order('created_at', { ascending: false });
 
@@ -409,7 +418,7 @@ export const audiobooksService = {
     async search(query: string): Promise<Audiobook[]> {
         const { data, error } = await supabase
             .from('audiobooks')
-            .select('*')
+            .select('id, title, author, description, image_url, audio_url, duration_minutes, category, is_premium, is_featured')
             .or(`title.ilike.%${query}%,author.ilike.%${query}%,description.ilike.%${query}%`)
             .order('is_featured', { ascending: false });
 
@@ -435,7 +444,7 @@ export const storiesService = {
         try {
             const { data, error } = await supabase
                 .from('real_stories')
-                .select('*')
+                .select('id, title, subtitle, thumbnail_url, duration_minutes, category, is_premium, is_featured')
                 .order('is_featured', { ascending: false })
                 .order('created_at', { ascending: false });
 
@@ -455,7 +464,7 @@ export const storiesService = {
         try {
             const { data, error } = await supabase
                 .from('real_stories')
-                .select('*')
+                .select('id, title, subtitle, thumbnail_url, duration_minutes, category, is_premium, is_featured')
                 .eq('category', category)
                 .order('is_featured', { ascending: false })
                 .order('created_at', { ascending: false });
@@ -478,7 +487,7 @@ export const storiesService = {
         try {
             const { data, error } = await supabase
                 .from('real_stories')
-                .select('*')
+                .select('id, title, subtitle, thumbnail_url, duration_minutes, category, is_premium, is_featured')
                 .eq('is_featured', true)
                 .order('created_at', { ascending: false });
 
@@ -519,7 +528,7 @@ export const storiesService = {
     async search(query: string): Promise<RealStory[]> {
         const { data, error } = await supabase
             .from('real_stories')
-            .select('*')
+            .select('id, title, subtitle, thumbnail_url, duration_minutes, category, is_premium, is_featured')
             .or(`title.ilike.%${query}%,subtitle.ilike.%${query}%,story_text.ilike.%${query}%,transformation_theme.ilike.%${query}%`)
             .order('is_featured', { ascending: false });
 
@@ -631,7 +640,7 @@ export const favoritesService = {
 
             const { data: audiobooks, error: audiobooksError } = await supabase
                 .from('audiobooks')
-                .select('*')
+                .select('id, title, author, description, image_url, audio_url, duration_minutes, category, is_premium, is_featured')
                 .in('id', ids);
 
             if (audiobooksError) throw audiobooksError;
@@ -670,7 +679,7 @@ export const favoritesService = {
 
             const { data: stories, error: storiesError } = await supabase
                 .from('real_stories')
-                .select('*')
+                .select('id, title, subtitle, thumbnail_url, duration_minutes, category, is_premium, is_featured')
                 .in('id', ids);
 
             if (storiesError) throw storiesError;

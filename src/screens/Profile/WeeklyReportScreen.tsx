@@ -23,6 +23,7 @@ import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import { OasisChart } from '../../components/Oasis/OasisChart';
 import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
+import { OasisLineChart } from '../../components/Oasis/OasisLineChart';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -30,7 +31,7 @@ type Props = {
     navigation: NativeStackNavigationProp<RootStackParamList, Screen.WEEKLY_REPORT>;
 };
 
-const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 /**
  * Weekly Report v3.0
@@ -43,7 +44,8 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [timeRange, setTimeRange] = useState<'weekly' | 'monthly'>('weekly');
     const [scans, setScans] = useState<CardioResult[]>([]);
-    const [activity, setActivity] = useState<{ day: string; minutes: number }[]>([]);
+    const [activity, setActivity] = useState<any[]>([]); // Para la gráfica (Pattern o Mensual)
+    const [realWeeklyActivity, setRealWeeklyActivity] = useState<any[]>([]); // Para KPIs semanales reales
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [stats, setStats] = useState({
@@ -57,22 +59,29 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
             if (!user?.id) return;
             setLoading(true);
             try {
-                const [cardioScans, fetchedActivity] = await Promise.all([
+                // Fetch basic data
+                const [cardioScans, fetchedActivity, weeklyReal] = await Promise.all([
                     CardioService.getHistory(timeRange === 'weekly' ? 7 : 31),
                     timeRange === 'weekly'
-                        ? analyticsService.getWeeklyActivity(user.id)
+                        ? analyticsService.getWeekdayHistoricalPattern(user.id)
                         : analyticsService.getMonthlyActivity(user.id, currentMonth, currentYear),
+                    timeRange === 'weekly' 
+                        ? analyticsService.getWeeklyActivity(user.id) 
+                        : Promise.resolve([])
                 ]);
 
                 setScans(cardioScans);
                 setActivity(fetchedActivity);
+                if (timeRange === 'weekly') setRealWeeklyActivity(weeklyReal);
 
-                const mins = fetchedActivity.reduce((acc: number, d) => acc + d.minutes, 0);
+                // Calcular mins para KPIs basados en datos REALES (no promedios)
+                const sourceForKpis = timeRange === 'weekly' ? weeklyReal : fetchedActivity;
+                const mins = sourceForKpis.reduce((acc: number, d) => acc + d.minutes, 0);
                 const best = cardioScans.length > 0 ? Math.max(...cardioScans.map((s: CardioResult) => s.hrv)) : 0;
 
                 setStats({
                     minutes: Math.round(mins),
-                    activeDays: fetchedActivity.filter((d) => d.minutes > 0).length,
+                    activeDays: sourceForKpis.filter((d) => d.minutes > 0).length,
                     bestHrv: Math.round(best)
                 });
             } catch (e) {
@@ -115,6 +124,67 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     const dailyGoal = userState.dailyGoalMinutes || 20;
+
+    // Helper para fecha local (evita desfases UTC)
+    const toLocalDateStr = (d: Date) => {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    // Helper para obtener los 7 días de la semana actual (Lunes a Domingo)
+    const currentWeekDays = useMemo(() => {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - diffToMonday);
+        monday.setHours(12, 0, 0, 0);
+
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            days.push(d);
+        }
+        return days;
+    }, []);
+    
+    // Preparar datos para HRV Diferencial (D-3)
+    const hrvBaselineData = useMemo(() => {
+        return currentWeekDays.map(d => {
+            const dateStr = toLocalDateStr(d);
+            const scansDay = scans.filter(s => {
+                const isPost = (s as any).scan_context === 'post_session' || s.context === 'post_session';
+                return toLocalDateStr(new Date(s.timestamp)) === dateStr && !isPost;
+            });
+            const avg = scansDay.length > 0 ? scansDay.reduce((acc, s) => acc + s.hrv, 0) / scansDay.length : null;
+            return { label: DAY_NAMES[d.getDay()], value: avg ? Math.round(avg) : null };
+        });
+    }, [scans, currentWeekDays]);
+
+    const hrvPostData = useMemo(() => {
+        return currentWeekDays.map(d => {
+            const dateStr = toLocalDateStr(d);
+            const scansDay = scans.filter(s => {
+                const isPost = (s as any).scan_context === 'post_session' || s.context === 'post_session';
+                return toLocalDateStr(new Date(s.timestamp)) === dateStr && isPost;
+            });
+            const avg = scansDay.length > 0 ? scansDay.reduce((acc, s) => acc + s.hrv, 0) / scansDay.length : null;
+            return { label: DAY_NAMES[d.getDay()], value: avg ? Math.round(avg) : null };
+        });
+    }, [scans, currentWeekDays]);
+
+    // Preparar datos para Mood Score (C-7)
+    const moodData = useMemo(() => {
+        return currentWeekDays.map(d => {
+            const dateStr = toLocalDateStr(d);
+            const match = activity.find(a => a.day.startsWith(dateStr));
+            return {
+                label: DAY_NAMES[d.getDay()], 
+                value: (match?.avgMood !== undefined && match.avgMood > 0) ? match.avgMood : null 
+            };
+        });
+    }, [activity, currentWeekDays]);
+
     const insight = generateWeeklyInsight(scans, stats.minutes, userState.streak, userState.name);
 
     return (
@@ -177,39 +247,26 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                             <KpiCard icon="pulse" color="#10B981" value={stats.bestHrv > 0 ? `${stats.bestHrv}` : '—'} label="mejor hrv" />
                         </View>
 
-                        {/* Actividad */}
-                        <SectionHeader title={timeRange === 'weekly' ? "Actividad Semanal" : "Actividad Mensual"} icon="time-outline" />
+                        {/* Actividad / Patrones */}
+                        <SectionHeader title={timeRange === 'weekly' ? "Media Histórica Diaria (min)" : "Actividad Mensual"} icon="stats-chart-outline" />
                         <View style={styles.chartCard}>
                             <BlurView intensity={70} tint="dark" style={styles.chartBlur}>
                                 {timeRange === 'weekly' ? (
                                     <OasisChart
-                                        data={(() => {
-                                            const result = [];
-                                            const today = new Date();
-                                            // Calculate offset to last Monday
-                                            // Sunday is 0, Monday is 1... Saturday is 6
-                                            const dayOfWeek = today.getDay();
-                                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-                                            const monday = new Date(today);
-                                            monday.setDate(today.getDate() - diffToMonday);
-
-                                            for (let i = 0; i < 7; i++) {
-                                                const d = new Date(monday);
-                                                d.setDate(monday.getDate() + i);
-                                                const dateStr = d.toISOString().split('T')[0];
-                                                const match = activity.find(a => a.day.startsWith(dateStr));
-
-                                                const days = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-                                                result.push({
-                                                    day: days[d.getDay()],
-                                                    minutes: match ? match.minutes : 0
-                                                });
-                                            }
-                                            return result;
-                                        })()}
-                                        height={180}
-                                        isMonthly={false}
-                                    />
+                                    data={currentWeekDays.map(d => {
+                                        const dateStr = toLocalDateStr(d);
+                                        const match = activity.find(a => a.day.startsWith(dateStr));
+                                        return {
+                                            day: DAY_NAMES[d.getDay()],
+                                            minutes: match ? match.minutes : 0,
+                                            isChallenge: match ? match.isChallenge : false 
+                                        };
+                                    })}
+                                    height={180}
+                                    isMonthly={false}
+                                    target={dailyGoal}
+                                    infoText="Esta gráfica analiza tu historial completo para mostrar cuánto tiempo sueles dedicar a meditar según el día de la semana. Te ayuda a identificar qué días tienes más disponibilidad o disciplina (tu 'Sintonía de Calma')."
+                                />
                                 ) : (
                                     <OasisCalendar
                                         data={activity}
@@ -221,80 +278,61 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                                 )}
                                 <Text style={styles.chartLegend}>
                                     {timeRange === 'weekly'
-                                        ? "Tu presencia diaria esta semana (de Lunes a Domingo)."
+                                        ? "Media histórica por día de la semana (hábitos)."
                                         : `Tu evolución de calma durante ${getMonthName(currentMonth)}.`}
                                 </Text>
                             </BlurView>
                             <View style={styles.innerGlassBorder} pointerEvents="none" />
                         </View>
 
-                        {/* Bio-Ritmo HRV (Simplificado para reporte unificado) */}
-                        <SectionHeader title="Bio-Ritmo HRV" icon="pulse-outline" accent="#10B981" />
+                        {/* Bio-Ritmo HRV Diferencial (D-3) */}
+                        <SectionHeader title="Diferencia de Recuperación HRV" icon="pulse-outline" accent="#10B981" />
                         <View style={styles.chartCard} >
                             <BlurView intensity={70} tint="dark" style={styles.chartBlur}>
-                                {timeRange === 'weekly' ? (
-                                    <OasisChart
-                                        data={(() => {
-                                            const grouped: Record<string, number> = {};
-                                            scans.forEach(s => {
-                                                const d = s.timestamp.split('T')[0];
-                                                grouped[d] = Math.max(grouped[d] || 0, s.hrv);
-                                            });
-
-                                            const result = [];
-                                            const today = new Date();
-                                            const dayOfWeek = today.getDay();
-                                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-                                            const monday = new Date(today);
-                                            monday.setDate(today.getDate() - diffToMonday);
-
-                                            for (let i = 0; i < 7; i++) {
-                                                const d = new Date(monday);
-                                                d.setDate(monday.getDate() + i);
-                                                const dateStr = d.toISOString().split('T')[0];
-                                                const days = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-                                                result.push({
-                                                    day: days[d.getDay()],
-                                                    minutes: grouped[dateStr] || 0
-                                                });
-                                            }
-                                            return result;
-                                        })()}
-                                        height={150}
-                                        color="#10B981"
-                                        isMonthly={false}
-                                    />
-                                ) : (
-                                    <OasisCalendar
-                                        data={(() => {
-                                            const grouped: Record<string, number> = {};
-                                            scans.forEach(s => {
-                                                const d = s.timestamp.split('T')[0];
-                                                grouped[d] = Math.max(grouped[d] || 0, s.hrv);
-                                            });
-                                            // Convert to OasisCalendar format
-                                            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-                                            const result = [];
-                                            for (let i = 1; i <= daysInMonth; i++) {
-                                                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                                                result.push({
-                                                    day: dateStr,
-                                                    minutes: grouped[dateStr] || 0
-                                                });
-                                            }
-                                            return result;
-                                        })()}
-                                        variant="healing"
-                                        type="hrv"
-                                        monthTitle={`${getMonthName(currentMonth)} ${currentYear}`}
-                                        onPrevMonth={handlePrevMonth}
-                                        onNextMonth={handleNextMonth}
-                                    />
-                                )}
+                                {/* Indicador delta arriba del gráfico */}
+                                <HrvDeltaBadge baseline={hrvBaselineData} post={hrvPostData} />
+                                <OasisLineChart
+                                    data={hrvBaselineData}
+                                    data2={hrvPostData}
+                                    color="#3B82F6"
+                                    color2="#10B981"
+                                    height={160}
+                                    minY={30}
+                                    maxY={100}
+                                    infoText="Compara tu HRV antes (azul) y después (verde) de la sesión. Una línea verde por encima de la azul indica que tu sistema nervioso se ha equilibrado y recuperado."
+                                />
+                                <View style={styles.hrvLegendRow}>
+                                    <View style={styles.legendItem}>
+                                        <View style={{ width: 10, height: 3, borderRadius: 2, backgroundColor: '#3B82F6', marginRight: 6 }} />
+                                        <Text style={styles.legendText}>🌅 Antes de meditar</Text>
+                                    </View>
+                                    <View style={styles.legendItem}>
+                                        <View style={{ width: 10, height: 3, borderRadius: 2, backgroundColor: '#10B981', marginRight: 6 }} />
+                                        <Text style={styles.legendText}>✨ Después de meditar</Text>
+                                    </View>
+                                </View>
                                 <Text style={styles.chartLegend}>
-                                    {timeRange === 'weekly'
-                                        ? "Tu recuperación (HRV) esta semana. Más alto = Más calma."
-                                        : "Tendencia mensual de recuperación biométrica (HRV)."}
+                                    Cuanto más alta la línea verde, más recuperado estaba tu sistema nervioso tras la sesión.
+                                </Text>
+                            </BlurView>
+                            <View style={styles.innerGlassBorder} pointerEvents="none" />
+                        </View>
+
+                        {/* Tendencia de Ánimo (C-7) */}
+                        <SectionHeader title="Sintonía Emocional" icon="happy-outline" accent="#C084FC" />
+                        <View style={styles.chartCard} >
+                            <BlurView intensity={70} tint="dark" style={styles.chartBlur}>
+                                <OasisLineChart
+                                    data={moodData}
+                                    yAxisLabels={['cloud-sharp', 'leaf-sharp', 'sunny-sharp']}
+                                    color="#C084FC"
+                                    height={140}
+                                    minY={1}
+                                    maxY={5}
+                                    infoText="Evolución de tu bienestar percibido. Los iconos representan niveles de calma desde Bajo (Nube) hasta Pleno (Sol). La constancia es la clave."
+                                />
+                                <Text style={styles.chartLegend}>
+                                    Cuanto más alta la línea, mejor tu estado emocional ese día. Una línea en ascenso es señal de progreso real.
                                 </Text>
                             </BlurView>
                             <View style={styles.innerGlassBorder} pointerEvents="none" />
@@ -347,6 +385,31 @@ const SectionHeader: React.FC<{ title: string; icon: string; accent?: string }> 
         <Text style={styles.sectionTitle}>{title.toUpperCase()}</Text>
     </View>
 );
+
+const HrvDeltaBadge: React.FC<{
+    baseline: { label: string; value: number | null }[];
+    post: { label: string; value: number | null }[];
+}> = ({ baseline, post }) => {
+    // Calculamos el promedio ignorando los valores nulos
+    const baselineArr = baseline.map(d => d.value).filter((v): v is number => v !== null && v > 0);
+    const postArr = post.map(d => d.value).filter((v): v is number => v !== null && v > 0);
+    
+    const baselineAvg = baselineArr.length > 0 ? baselineArr.reduce((acc, v) => acc + v, 0) / baselineArr.length : 0;
+    const postAvg = postArr.length > 0 ? postArr.reduce((acc, v) => acc + v, 0) / postArr.length : 0;
+
+    if (baselineAvg === 0 || postAvg === 0) return null;
+
+    const delta = Math.round(postAvg - baselineAvg);
+    const isPositive = delta >= 0;
+    const label = isPositive ? `+${delta} ms de recuperación` : `${delta} ms esta semana`;
+
+    return (
+        <View style={[styles.deltaBadge, { backgroundColor: isPositive ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)' }]}>
+            <Ionicons name={isPositive ? 'trending-up' : 'trending-down'} size={12} color={isPositive ? '#10B981' : '#EF4444'} />
+            <Text style={[styles.deltaBadgeText, { color: isPositive ? '#10B981' : '#EF4444' }]}>{label}</Text>
+        </View>
+    );
+};
 
 const StatLine: React.FC<{ label: string; value: string }> = ({ label, value }) => (
     <View style={styles.statLine}>
@@ -454,6 +517,38 @@ const styles = StyleSheet.create({
     insightIcon: { fontSize: 24 },
     insightTitle: { fontSize: 16, fontWeight: '900', letterSpacing: 0.3 },
     insightBody: { fontSize: 15, color: 'rgba(255,255,255,0.8)', lineHeight: 22 },
+
+    // HRV Legend
+    hrvLegendRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 16,
+        marginTop: 12,
+    },
+    legendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    legendText: {
+        fontSize: 10,
+        color: 'rgba(255,255,255,0.5)',
+        fontWeight: '600',
+    },
+    deltaBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-end',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+        marginBottom: 8,
+    },
+    deltaBadgeText: {
+        fontSize: 11,
+        fontFamily: 'Outfit_700Bold',
+    },
 });
 
 export default WeeklyReportScreen;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { theme } from '../../constants/theme';
@@ -26,7 +26,7 @@ export const OasisCalendar: React.FC<OasisCalendarProps> = ({
     onNextMonth,
     type = 'minutes'
 }) => {
-    const [containerWidth, setContainerWidth] = React.useState(0);
+    const [containerWidth, setContainerWidth] = useState(0);
     const accentColor = variant === 'healing' ? '#2DD4BF' : '#FBBF24';
     const hrvColor = '#10B981';
     const finalAccentColor = type === 'hrv' ? hrvColor : accentColor;
@@ -95,7 +95,10 @@ export const OasisCalendar: React.FC<OasisCalendarProps> = ({
                         key={i}
                         style={[
                             styles.headerText,
-                            { width: finalCellWidth }
+                            { 
+                                width: finalCellWidth,
+                                marginRight: i === 6 ? 0 : 6 
+                            }
                         ]}
                     >
                         {label}

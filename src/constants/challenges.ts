@@ -8,6 +8,7 @@ export interface ChallengeInfo {
     description: string;
     benefits: string[];
     sessionSlug: string;
+    sessionSchedule?: string[]; // C-6 Fix
     colors: [string, string];
     icon: any;
 }
@@ -25,6 +26,14 @@ export const CHALLENGES: Record<string, ChallengeInfo> = {
             'Hábito de paz consolidado'
         ],
         sessionSlug: 'anx_478',
+        sessionSchedule: [
+            'anx_478', '0032-escaner-corporal', '08_gestion_panico', 'con_123', 'emo_paz',
+            'anx_478', '0032-escaner-corporal', '08_gestion_panico', 'con_123', 'emo_paz',
+            'anx_478', '0032-escaner-corporal', '08_gestion_panico', 'con_123', 'emo_paz',
+            'anx_478', '0032-escaner-corporal', '08_gestion_panico', 'con_123', 'emo_paz',
+            'anx_478', '0032-escaner-corporal', '08_gestion_panico', 'con_123', 'emo_paz',
+            'anx_478', '0032-escaner-corporal', '08_gestion_panico', 'con_123', 'emo_paz'
+        ],
         colors: ['#6366F1', '#4F46E5'],
         icon: 'trophy'
     },
@@ -40,6 +49,7 @@ export const CHALLENGES: Record<string, ChallengeInfo> = {
             'Herramientas de calma rápida'
         ],
         sessionSlug: 'anx_478',
+        sessionSchedule: ['anx_478', '0032-escaner-corporal', '08_gestion_panico', 'anx_478', '0032-escaner-corporal', '08_gestion_panico', 'emo_paz'],
         colors: ['#2DD4BF', '#0D9488'],
         icon: 'leaf'
     },
@@ -55,6 +65,7 @@ export const CHALLENGES: Record<string, ChallengeInfo> = {
             'Eliminación de distracciones'
         ],
         sessionSlug: 'con_123',
+        sessionSchedule: ['con_123', 'con_foco_paz', 'con_123', 'con_foco_paz', 'con_123', 'con_foco_paz', 'emo_plenitud'],
         colors: ['#FBBF24', '#D97706'],
         icon: 'flash'
     },
@@ -70,6 +81,7 @@ export const CHALLENGES: Record<string, ChallengeInfo> = {
             'Rescate emocional rápido'
         ],
         sessionSlug: 'anx_478',
+        sessionSchedule: ['anx_478', '0032-escaner-corporal', '08_gestion_panico'],
         colors: ['#EF4444', '#B91C1C'],
         icon: 'fitness'
     },

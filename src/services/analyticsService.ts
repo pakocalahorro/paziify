@@ -4,6 +4,20 @@ import { CATEGORY_MODE_MAP } from '../constants/categories';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MEDITATION_SESSIONS } from '../data/sessionsData';
 
+// Cache en memoria para evitar refrescos innecesarios en la misma sesión (TTL: 2 min)
+const _memCache = new Map<string, { data: any, ts: number }>();
+const MEM_TTL = 120000;
+
+function getCache(key: string) {
+    const hit = _memCache.get(key);
+    if (hit && Date.now() - hit.ts < MEM_TTL) return hit.data;
+    return null;
+}
+
+function setCache(key: string, data: any) {
+    _memCache.set(key, { data, ts: Date.now() });
+}
+
 export interface UserStats {
     totalMinutes: number;
     sessionsCount: number;
@@ -14,6 +28,8 @@ export interface UserStats {
 export interface DailyActivity {
     day: string; // ISO Date "YYYY-MM-DD"
     minutes: number;
+    avgMood?: number;
+    isChallenge?: boolean;
 }
 
 export interface CategoryDistribution {
@@ -21,60 +37,64 @@ export interface CategoryDistribution {
     count: number;
 }
 
+// Helper para obtener YYYY-MM-DD en hora local (evita desfases UTC)
+const _toLocalDateStr = (d: Date) => {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 export const analyticsService = {
     /**
      * Get core user statistics
      */
     async getUserStats(userId: string): Promise<UserStats> {
-        const CACHE_KEY = `@user_stats_${userId} `;
+        const CACHE_KEY = `@user_stats_${userId}`;
+        const memHit = getCache(CACHE_KEY);
+        if (memHit) return memHit;
+
         try {
-            // 1. Fetch profile for streak and score
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('streak, resilience_score')
-                .eq('id', userId)
-                .single();
+            // 🚀 THE HIGHWAY: Cálculo en servidor
+            const { data, error } = await supabase.rpc('get_user_performance_summary', { 
+                p_user_id: userId 
+            });
 
-            const { data: logs, error: logsError } = await supabase
-                .from('meditation_logs')
-                .select('duration_minutes')
-                .eq('user_id', userId);
-
-            if (profileError) throw profileError;
-            if (logsError) throw logsError;
-
-            // 3. Merge with Local Pending Logs
+            if (error) throw error;
+            
+            // Sync Hardening: Local logs are only those NOT YET in Supabase
             const localLogs = await LocalAnalyticsService.getLogs();
-
-            const remoteMinutes = logs?.reduce((acc, curr) => acc + (curr.duration_minutes || 0), 0) || 0;
             const localMinutes = localLogs.reduce((acc, curr) => acc + curr.duration_minutes, 0);
 
-            const totalMinutes = remoteMinutes + localMinutes;
-            const sessionsCount = (logs?.length || 0) + localLogs.length;
+            // Guardamos en caché SOLO la verdad del servidor (Data Remota)
+            // Esto evita el doble conteo al entrar en modo offline
+            const remoteStats = {
+                totalMinutes: data.totalMinutes || 0,
+                sessionsCount: data.sessionsCount || 0,
+                currentStreak: data.currentStreak || 0,
+                resilienceScore: data.resilienceScore || 50
+            };
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(remoteStats));
 
-            const stats = {
-                totalMinutes,
-                sessionsCount,
-                currentStreak: profile?.streak || 0,
-                resilienceScore: profile?.resilience_score || 0
+            const stats: UserStats = {
+                totalMinutes: remoteStats.totalMinutes + localMinutes,
+                sessionsCount: remoteStats.sessionsCount + localLogs.length,
+                currentStreak: remoteStats.currentStreak,
+                resilienceScore: remoteStats.resilienceScore
             };
 
-            // Save to cache
-            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(stats));
+            setCache(CACHE_KEY, stats);
             return stats;
         } catch (error) {
             console.log('AnalyticsService: Offline getUserStats (Fallback to cache + local):', error);
             const cached = await AsyncStorage.getItem(CACHE_KEY);
-            const stats = cached ? JSON.parse(cached) : { totalMinutes: 0, sessionsCount: 0, currentStreak: 0, resilienceScore: 0 };
+            const remoteStats = cached ? JSON.parse(cached) : { totalMinutes: 0, sessionsCount: 0, currentStreak: 0, resilienceScore: 50 };
             
-            // Sumar logs locales que aún no se han subido
             const localLogs = await LocalAnalyticsService.getLogs();
             const localMinutes = localLogs.reduce((acc, curr) => acc + curr.duration_minutes, 0);
-            
+
             return {
-                ...stats,
-                totalMinutes: stats.totalMinutes + localMinutes,
-                sessionsCount: stats.sessionsCount + localLogs.length
+                totalMinutes: remoteStats.totalMinutes + localMinutes,
+                sessionsCount: remoteStats.sessionsCount + localLogs.length,
+                currentStreak: remoteStats.currentStreak, // Racha se maneja en AppContext con protección
+                resilienceScore: remoteStats.resilienceScore
             };
         }
     },
@@ -83,8 +103,11 @@ export const analyticsService = {
      * Get meditation activity for today
      */
     async getTodayStats(userId: string): Promise<{ minutes: number; sessionCount: number }> {
-        const today = new Date().toISOString().split('T')[0];
-        const CACHE_KEY = `@today_stats_${userId} `;
+        const today = _toLocalDateStr(new Date());
+        const CACHE_KEY = `@today_stats_${userId}`;
+        const memHit = getCache(CACHE_KEY);
+        if (memHit) return memHit;
+
         try {
             const { data, error } = await supabase
                 .from('meditation_logs')
@@ -94,190 +117,275 @@ export const analyticsService = {
 
             if (error) throw error;
 
+            const remoteMinutes = data?.reduce((acc, log) => acc + (log.duration_minutes || 0), 0) || 0;
+            const remoteCount = data?.length || 0;
+
+            // Guardar SOLO la verdad remota en caché persistente
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({
+                minutes: remoteMinutes,
+                sessionCount: remoteCount,
+                date: today
+            }));
+
             // Merge with local logs from today
             const localLogs = await LocalAnalyticsService.getLogs();
             const todayLocal = localLogs.filter(l => l.completed_at.startsWith(today));
-
-            const remoteMinutes = data?.reduce((acc, log) => acc + (log.duration_minutes || 0), 0) || 0;
             const localMinutes = todayLocal.reduce((acc, log) => acc + log.duration_minutes, 0);
 
             const result = {
                 minutes: Math.round(remoteMinutes + localMinutes),
-                sessionCount: (data?.length || 0) + todayLocal.length
+                sessionCount: remoteCount + todayLocal.length
             };
 
-            // Save to cache (only if we have current day data)
-            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({ ...result, date: today }));
+            setCache(CACHE_KEY, result);
             return result;
         } catch (error) {
             console.log('AnalyticsService: Offline getTodayStats (Fallback to cache + local):', error);
             const cached = await AsyncStorage.getItem(CACHE_KEY);
-            let result = { minutes: 0, sessionCount: 0 };
+            let remote = { minutes: 0, sessionCount: 0 };
             
             if (cached) {
                 const parsed = JSON.parse(cached);
                 if (parsed.date === today) {
-                    result = { minutes: parsed.minutes, sessionCount: parsed.sessionCount };
+                    remote = { minutes: parsed.minutes, sessionCount: parsed.sessionCount };
                 }
             }
             
-            // Sumar logs locales de hoy
+            // Sumar logs locales de hoy siempre dinámicamente
             const localLogs = await LocalAnalyticsService.getLogs();
             const todayLocal = localLogs.filter(l => l.completed_at.startsWith(today));
             const localMinutes = todayLocal.reduce((acc, log) => acc + log.duration_minutes, 0);
             
             return {
-                minutes: result.minutes + localMinutes,
-                sessionCount: result.sessionCount + todayLocal.length
+                minutes: remote.minutes + localMinutes,
+                sessionCount: remote.sessionCount + todayLocal.length
             };
         }
     },
 
     async getWeeklyActivity(userId: string): Promise<DailyActivity[]> {
-        const CACHE_KEY = `@weekly_activity_${userId} `;
+        const CACHE_KEY = `@weekly_activity_${userId}`;
+        const memHit = getCache(CACHE_KEY);
+        if (memHit) return memHit;
+
         try {
             const now = new Date();
-            const dayOfWeek = now.getDay(); // 0 (Sun) to 6 (Sat)
-            const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 0 for Mon, 6 for Sun
+            const dayOfWeek = now.getDay();
+            const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
             const monday = new Date(now);
             monday.setDate(now.getDate() - diff);
-            monday.setHours(12, 0, 0, 0); // Use noon to avoid TZ shifts
-            const startDate = new Date(monday);
-            startDate.setHours(0, 0, 0, 0);
+            monday.setHours(0, 0, 0, 0);
+            const startDate = monday.toISOString();
 
             // 1. Fetch Remote Logs
             const { data: logs, error } = await supabase
                 .from('meditation_logs')
-                .select('duration_minutes, completed_at')
+                .select('duration_minutes, completed_at, mood_score, challenge_id')
                 .eq('user_id', userId)
-                .gte('completed_at', startDate.toISOString());
+                .gte('completed_at', startDate);
 
             if (error) throw error;
 
+            // Guardar SOLO la verdad remota en caché
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(logs || []));
+
             // 2. Fetch Local Logs
             const localLogs = await LocalAnalyticsService.getLogs();
-            const weekLocal = localLogs.filter(l => l.completed_at >= startDate.toISOString());
+            const weekLocal = localLogs.filter(l => l.completed_at >= startDate);
 
-            const dailyMap: Record<string, number> = {};
+            // Merge y cálculo final
+            const result = this._mergeLogsToWeekly(logs || [], weekLocal, monday);
 
-            // Fill Mon to Sun
-            for (let i = 0; i < 7; i++) {
-                const d = new Date(monday);
-                d.setDate(monday.getDate() + i);
-                const dateStr = d.toISOString().split('T')[0];
-                dailyMap[dateStr] = 0;
-            }
-
-            // Sync Remote
-            logs?.forEach(log => {
-                const dateStr = new Date(log.completed_at).toISOString().split('T')[0];
-                if (dailyMap[dateStr] !== undefined) {
-                    dailyMap[dateStr] += log.duration_minutes || 0;
-                }
-            });
-
-            // Sync Local
-            weekLocal.forEach(log => {
-                const dateStr = log.completed_at.split('T')[0];
-                if (dailyMap[dateStr] !== undefined) {
-                    dailyMap[dateStr] += log.duration_minutes;
-                }
-            });
-
-            const result = Object.entries(dailyMap)
-                .map(([day, minutes]) => ({ day, minutes }))
-                .sort((a, b) => a.day.localeCompare(b.day));
-
-            // Save to cache
-            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(result));
+            setCache(CACHE_KEY, result);
             return result;
         } catch (error) {
             console.log('AnalyticsService: Offline getWeeklyActivity (Fallback to cache + local):', error);
             const cached = await AsyncStorage.getItem(CACHE_KEY);
-            const weeklyData: DailyActivity[] = cached ? JSON.parse(cached) : [];
+            const remoteLogs: any[] = cached ? JSON.parse(cached) : [];
             
-            // Sumar logs locales a la caché semanal
-            const localLogs = await LocalAnalyticsService.getLogs();
-            if (localLogs.length === 0) return weeklyData;
-
             const now = new Date();
             const dayOfWeek = now.getDay();
             const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
             const monday = new Date(now);
             monday.setDate(now.getDate() - diff);
             monday.setHours(0, 0, 0, 0);
-            const startDateStr = monday.toISOString().split('T')[0];
 
-            const weekLocal = localLogs.filter(l => l.completed_at >= startDateStr);
-            
-            // Mapear datos cacheados para fácil actualización
-            const dailyMap: Record<string, number> = {};
-            weeklyData.forEach(d => { dailyMap[d.day] = d.minutes; });
+            const localLogs = await LocalAnalyticsService.getLogs();
+            const weekLocal = localLogs.filter(l => l.completed_at >= monday.toISOString());
 
-            // Inyectar local logs
-            weekLocal.forEach(log => {
-                const dateStr = log.completed_at.split('T')[0];
-                dailyMap[dateStr] = (dailyMap[dateStr] || 0) + log.duration_minutes;
-            });
-
-            return Object.entries(dailyMap)
-                .map(([day, minutes]) => ({ day, minutes }))
-                .sort((a, b) => a.day.localeCompare(b.day));
+            return this._mergeLogsToWeekly(remoteLogs, weekLocal, monday);
         }
+    },
+
+    /**
+     * Helper para fusionar logs remotos y locales en la estructura semanal
+     */
+    _mergeLogsToWeekly(remote: any[], local: any[], monday: Date): DailyActivity[] {
+        const dailyMap: Record<string, { minutes: number; moodSum: number; moodCount: number; isChallenge: boolean }> = {};
+
+        // Inicializar Mon a Sun
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const dateStr = _toLocalDateStr(d);
+            dailyMap[dateStr] = { minutes: 0, moodSum: 0, moodCount: 0, isChallenge: false };
+        }
+
+        const all = [...remote, ...local];
+        all.forEach(log => {
+            const dateStr = _toLocalDateStr(new Date(log.completed_at));
+            if (dailyMap[dateStr] !== undefined) {
+                dailyMap[dateStr].minutes += log.duration_minutes || 0;
+                if (log.challenge_id) dailyMap[dateStr].isChallenge = true;
+                if (log.mood_score) {
+                    dailyMap[dateStr].moodSum += log.mood_score;
+                    dailyMap[dateStr].moodCount += 1;
+                }
+            }
+        });
+
+        return Object.entries(dailyMap)
+            .map(([day, stats]) => ({
+                day,
+                minutes: stats.minutes,
+                avgMood: stats.moodCount > 0 ? stats.moodSum / stats.moodCount : undefined,
+                isChallenge: stats.isChallenge
+            }))
+            .sort((a, b) => a.day.localeCompare(b.day));
+    },
+
+    /**
+     * Obtiene el patrón histórico de rendimiento por día de la semana (L-D).
+     * Analiza todo el historial para dar un promedio de minutos habituales por cada día.
+     */
+    async getWeekdayHistoricalPattern(userId: string): Promise<DailyActivity[]> {
+        const CACHE_KEY = `@weekday_pattern_${userId}`;
+        const memHit = getCache(CACHE_KEY);
+        if (memHit) return memHit;
+
+        try {
+            // 1. Obtener todos los logs del servidor
+            const { data: logs, error } = await supabase
+                .from('meditation_logs')
+                .select('duration_minutes, completed_at, mood_score')
+                .eq('user_id', userId);
+
+            if (error) throw error;
+
+            // Guardar en caché persistente el dataset remoto real
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(logs || []));
+
+            // 2. Obtener logs locales pendientes
+            const localLogs = await LocalAnalyticsService.getLogs();
+
+            const result = this._computeWeekdayPattern(logs || [], localLogs);
+            setCache(CACHE_KEY, result);
+            return result;
+        } catch (error) {
+            console.log('AnalyticsService: Offline getWeekdayHistoricalPattern (Fallback):', error);
+            const cached = await AsyncStorage.getItem(CACHE_KEY);
+            const remoteLogs = cached ? JSON.parse(cached) : [];
+            const localLogs = await LocalAnalyticsService.getLogs();
+
+            const result = this._computeWeekdayPattern(remoteLogs, localLogs);
+            // No guardamos en caché de memoria fallbacks vacíos si no hay nada
+            if (result.length > 0) setCache(CACHE_KEY, result);
+            return result;
+        }
+    },
+
+    /**
+     * Helper para calcular el patrón promedio de minutos y ánimo por día de la semana
+     */
+    _computeWeekdayPattern(remote: any[], local: any[]): DailyActivity[] {
+        const allLogs = [...remote, ...local];
+        if (allLogs.length === 0) return [];
+
+        const weekdayMinutes: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        const weekdayMood: Record<number, { sum: number; count: number }> = { 
+            0: { sum: 0, count: 0 }, 1: { sum: 0, count: 0 }, 2: { sum: 0, count: 0 }, 
+            3: { sum: 0, count: 0 }, 4: { sum: 0, count: 0 }, 5: { sum: 0, count: 0 }, 
+            6: { sum: 0, count: 0 } 
+        };
+        const weekdayOccurrences: Record<number, Set<string>> = { 0: new Set(), 1: new Set(), 2: new Set(), 3: new Set(), 4: new Set(), 5: new Set(), 6: new Set() };
+
+        allLogs.forEach(log => {
+            const d = new Date(log.completed_at);
+            const dayOfWeek = d.getDay();
+            const dateStr = _toLocalDateStr(d);
+            
+            weekdayMinutes[dayOfWeek] += log.duration_minutes || 0;
+            weekdayOccurrences[dayOfWeek].add(dateStr);
+            
+            if (log.mood_score) {
+                weekdayMood[dayOfWeek].sum += log.mood_score;
+                weekdayMood[dayOfWeek].count += 1;
+            }
+        });
+
+        const now = new Date();
+        const currentDayOfWeek = now.getDay();
+        const diff = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - diff);
+        monday.setHours(12, 0, 0, 0);
+
+        const result: DailyActivity[] = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const isoDate = _toLocalDateStr(d);
+            const dayIdx = d.getDay();
+
+            const totalMins = weekdayMinutes[dayIdx];
+            const totalDaysActive = weekdayOccurrences[dayIdx].size;
+            const avgMinutes = totalDaysActive > 0 ? totalMins / totalDaysActive : 0;
+            const avgMood = weekdayMood[dayIdx].count > 0 ? weekdayMood[dayIdx].sum / weekdayMood[dayIdx].count : undefined;
+
+            result.push({
+                day: isoDate,
+                minutes: Math.round(avgMinutes),
+                avgMood: avgMood
+            });
+        }
+        return result;
     },
 
     /**
      * Get distribution of content categories consumed
      */
     async getCategoryDistribution(userId: string): Promise<Record<string, number>> {
-        try {
-            const sessionMap: Record<string, string> = {};
+        const CACHE_KEY = `cat_dist_${userId}`;
+        const memHit = getCache(CACHE_KEY);
+        if (memHit) return memHit;
 
-            // Fallback: Populate mapping from local data first
-            MEDITATION_SESSIONS.forEach(s => {
-                sessionMap[s.id] = s.category;
+        try {
+            // 🚀 THE HIGHWAY: JOIN y Agregación en servidor
+            // Esto elimina la necesidad de descargar el catálogo entero
+            const { data, error } = await supabase.rpc('get_user_category_distribution', { 
+                p_user_id: userId 
             });
 
-            // 1. Fetch sessions metadata from Supabase if possible
-            try {
-                const { data: sessions, error: sessionsError } = await supabase
-                    .from('meditation_sessions_content')
-                    .select('id, category, legacy_id');
-
-                if (!sessionsError && sessions) {
-                    sessions.forEach(s => {
-                        sessionMap[s.id] = s.category;
-                        if (s.legacy_id) sessionMap[s.legacy_id] = s.category;
-                    });
-                }
-            } catch (innerErr) {
-                console.log('AnalyticsService: Skipping remote category mapping (offline)');
+            if (error) throw error;
+            
+            const distribution = data || {};
+            
+            // Mezclar con categorías de logs locales (si existen)
+            const localLogs = await LocalAnalyticsService.getLogs();
+            if (localLogs.length > 0) {
+                // Para logs locales, sí mapeamos contra las sesiones estáticas
+                localLogs.forEach(log => {
+                    const session = MEDITATION_SESSIONS.find(s => s.id === log.session_id);
+                    const cat = session?.category || 'otros';
+                    distribution[cat] = (distribution[cat] || 0) + 1;
+                });
             }
 
-            const { data: logs, error: logsError } = await supabase
-                .from('meditation_logs')
-                .select('session_id')
-                .eq('user_id', userId);
-
-            if (logsError) throw logsError;
-
-            const localLogs = await LocalAnalyticsService.getLogs();
-
-            const distribution: Record<string, number> = {};
-
-            const processLog = (log: any) => {
-                const rawCategory = sessionMap[log.session_id] || 'otros';
-                const mappedCategory = CATEGORY_MODE_MAP[rawCategory] || rawCategory; // Map to broader mode if available
-                distribution[mappedCategory] = (distribution[mappedCategory] || 0) + 1;
-            };
-
-            logs?.forEach(processLog);
-            localLogs.forEach(processLog);
-
+            setCache(CACHE_KEY, distribution);
             return distribution;
         } catch (error) {
-            console.error('Error fetching category distribution:', error);
+            console.error('AnalyticsService: Error RPC getCategoryDistribution:', error);
             return {};
         }
     },
@@ -293,13 +401,12 @@ export const analyticsService = {
         const CACHE_KEY = `@monthly_activity_${userId}_${y}_${m}`;
         try {
             const startDate = new Date(y, m, 1);
-            const endDate = new Date(y, m + 1, 0); // Último día del mes
-            endDate.setHours(23, 59, 59, 999);
+            const endDate = new Date(y, m + 1, 0, 23, 59, 59);
 
             // 1. Fetch Remote Logs
             const { data: logs, error } = await supabase
                 .from('meditation_logs')
-                .select('duration_minutes, completed_at')
+                .select('duration_minutes, completed_at, mood_score')
                 .eq('user_id', userId)
                 .gte('completed_at', startDate.toISOString())
                 .lte('completed_at', endDate.toISOString())
@@ -307,84 +414,74 @@ export const analyticsService = {
 
             if (error) throw error;
 
+            // Guardamos SOLO los remotos en caché
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({
+                data: logs || [],
+                timestamp: Date.now()
+            }));
+
             // 2. Fetch Local Logs
             const localLogs = await LocalAnalyticsService.getLogs();
             const monthLocal = localLogs.filter(l => l.completed_at >= startDate.toISOString() && l.completed_at <= endDate.toISOString());
 
-            // Agrupar por día
-            const activityMap: Record<string, number> = {};
-            const daysInMonth = endDate.getDate();
-
-            // Inicializar todos los días del mes natural a 0
-            for (let i = 1; i <= daysInMonth; i++) {
-                const d = new Date(y, m, i, 12, 0, 0);
-                const yearStr = d.getFullYear();
-                const monthStr = String(d.getMonth() + 1).padStart(2, '0');
-                const dayStr = String(d.getDate()).padStart(2, '0');
-                const dateStr = `${yearStr}-${monthStr}-${dayStr}`;
-                activityMap[dateStr] = 0;
-            }
-
-            // Sync Remote
-            logs?.forEach(session => {
-                const dateStr = session.completed_at.split('T')[0];
-                if (activityMap[dateStr] !== undefined) {
-                    activityMap[dateStr] += session.duration_minutes || 0;
-                }
-            });
-
-            // Sync Local
-            monthLocal.forEach(log => {
-                const dateStr = log.completed_at.split('T')[0];
-                if (activityMap[dateStr] !== undefined) {
-                    activityMap[dateStr] += log.duration_minutes;
-                }
-            });
-
-            const result = Object.entries(activityMap).map(([day, minutes]) => ({
-                day,
-                minutes: Math.round(minutes)
-            })).sort((a, b) => a.day.localeCompare(b.day));
-
-            // Guardar en caché
-            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({
-                data: result,
-                timestamp: Date.now()
-            }));
-
-            return result;
+            return this._mergeLogsToMonthly(logs || [], monthLocal, y, m);
         } catch (error) {
-            console.log('AnalyticsService: Offline getMonthlyActivity (Fallback to cache + local):', error);
+            console.log('AnalyticsService: Offline getMonthlyActivity (Fallback):', error);
             const cached = await AsyncStorage.getItem(CACHE_KEY);
-            if (!cached) return [];
-            
-            const { data: cachedLogs } = JSON.parse(cached);
-            const activityMap: Record<string, number> = {};
-            cachedLogs.forEach((l: any) => { activityMap[l.day] = l.minutes; });
+            const remoteLogs = cached ? JSON.parse(cached).data : [];
 
-            // Inyectar logs locales
+            // Fetch Local Logs
             const localLogs = await LocalAnalyticsService.getLogs();
             const startDate = new Date(y, m, 1);
             const endDate = new Date(y, m + 1, 0, 23, 59, 59);
-            
             const monthLocal = localLogs.filter(l => l.completed_at >= startDate.toISOString() && l.completed_at <= endDate.toISOString());
-            
-            monthLocal.forEach(log => {
-                const dateStr = log.completed_at.split('T')[0];
-                activityMap[dateStr] = (activityMap[dateStr] || 0) + log.duration_minutes;
-            });
 
-            return Object.entries(activityMap).map(([day, minutes]) => ({
-                day,
-                minutes: Math.round(minutes)
-            })).sort((a, b) => a.day.localeCompare(b.day));
+            return this._mergeLogsToMonthly(remoteLogs, monthLocal, y, m);
         }
+    },
+
+    _mergeLogsToMonthly(remote: any[], local: any[], year: number, month: number) {
+        const activityMap: Record<string, { minutes: number; moodSum: number; moodCount: number }> = {};
+        const endDate = new Date(year, month + 1, 0); 
+        const daysInMonth = endDate.getDate();
+
+        // Inicializar
+        for (let i = 1; i <= daysInMonth; i++) {
+            const d = new Date(year, month, i, 12, 0, 0);
+            const dateStr = _toLocalDateStr(d);
+            activityMap[dateStr] = { minutes: 0, moodSum: 0, moodCount: 0 };
+        }
+        
+        [...remote, ...local].forEach(session => {
+            const dateStr = _toLocalDateStr(new Date(session.completed_at));
+            if (activityMap[dateStr] !== undefined) {
+                activityMap[dateStr].minutes += session.duration_minutes || 0;
+                if (session.mood_score) {
+                    activityMap[dateStr].moodSum += session.mood_score;
+                    activityMap[dateStr].moodCount += 1;
+                }
+            }
+        });
+
+        return Object.entries(activityMap).map(([day, stats]) => ({
+            day,
+            minutes: Math.round(stats.minutes),
+            avgMood: stats.moodCount > 0 ? stats.moodSum / stats.moodCount : undefined
+        })).sort((a, b) => a.day.localeCompare(b.day));
     },
 
     /**
      * Record a completed session
      */
-    async recordSession(userId: string, sessionId: string, durationMinutes: number, moodScore: number): Promise<void> {
+    async recordSession(
+        userId: string, 
+        sessionId: string, 
+        durationMinutes: number, 
+        moodScore: number,
+        challengeId?: string,
+        challengeDay?: number,
+        lifeMode?: string
+    ): Promise<void> {
         const completed_at = new Date().toISOString();
 
         // 1. Local Shadow Save (Instant Resilience)
@@ -392,7 +489,10 @@ export const analyticsService = {
             session_id: sessionId,
             duration_minutes: durationMinutes,
             mood_score: moodScore,
-            completed_at
+            completed_at,
+            challenge_id: challengeId,
+            challenge_day: challengeDay,
+            life_mode: lifeMode
         });
 
         // 2. Attempt Supabase Save
@@ -404,14 +504,16 @@ export const analyticsService = {
                     session_id: sessionId,
                     duration_minutes: durationMinutes,
                     mood_score: moodScore,
-                    completed_at
+                    completed_at,
+                    challenge_id: challengeId,
+                    challenge_day: challengeDay,
+                    life_mode: lifeMode
                 });
 
             if (error) {
                 console.log('AnalyticsService: Offline record detected, kept in local queue.');
             } else {
                 // [FIX C-2] Log subido a Supabase con éxito → limpiar SOLO este log de la cola local
-                // para preservar otros logs que pudieran estar pendientes de red.
                 await LocalAnalyticsService.removeLog(completed_at);
             }
         } catch (error) {
@@ -441,7 +543,10 @@ export const analyticsService = {
                             session_id: log.session_id,
                             duration_minutes: log.duration_minutes,
                             mood_score: log.mood_score,
-                            completed_at: log.completed_at
+                            completed_at: log.completed_at,
+                            challenge_id: log.challenge_id,
+                            challenge_day: log.challenge_day,
+                            life_mode: log.life_mode
                         });
 
                     if (!error) {
@@ -473,6 +578,55 @@ export const analyticsService = {
             if (error) throw error;
         } catch (error) {
             // Silenced network error in streak update
+        }
+    },
+
+    /**
+     * Get challenge history for a user (C-2)
+     */
+    async getChallengeHistory(userId: string) {
+        try {
+            const { data, error } = await supabase
+                .from('challenge_history')
+                .select('*')
+                .eq('user_id', userId)
+                .order('ended_at', { ascending: false });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('AnalyticsService: Error fetching challenge history:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Record a completed or abandoned challenge (C-2)
+     */
+    async recordChallengeCompletion(
+        userId: string,
+        challengeId: string,
+        challengeTitle: string,
+        daysCompleted: number,
+        totalDays: number,
+        status: 'completed' | 'abandoned' = 'completed'
+    ) {
+        try {
+            const { error } = await supabase
+                .from('challenge_history')
+                .insert({
+                    user_id: userId,
+                    challenge_id: challengeId,
+                    challenge_title: challengeTitle,
+                    days_completed: daysCompleted,
+                    total_days: totalDays,
+                    status,
+                    ended_at: new Date().toISOString()
+                });
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('AnalyticsService: Error recording challenge completion:', error);
         }
     }
 };

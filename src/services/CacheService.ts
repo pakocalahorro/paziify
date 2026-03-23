@@ -1,5 +1,6 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Crypto from 'expo-crypto';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Paziify CacheService v1.0
@@ -13,6 +14,8 @@ export type CacheResourceType = 'audio' | 'image' | 'soundscape' | 'binaural';
 class CacheService {
     private persistentDir = `${FileSystem.documentDirectory}paziify_assets/`;
     private volatileDir = `${FileSystem.cacheDirectory}paziify_cache/`;
+    private MANIFEST_KEY = '@paziify_cache_manifest';
+    private TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
     constructor() {
         this.ensureDirectories();
@@ -69,15 +72,27 @@ class CacheService {
         const localUri = `${targetDir}${filename}`;
 
         try {
-            // 1. Verificar si ya existe
+            // 1. Verificar si ya existe y no ha expirado
             const info = await FileSystem.getInfoAsync(localUri);
+            
             if (info.exists) {
-                // console.log(`Cache HIT: ${filename}`);
-                return localUri;
+                const manifest = await this.getManifest();
+                const cachedAt = manifest[filename]?.cachedAt;
+                const isExpired = isPersistent && cachedAt && (Date.now() - cachedAt > this.TTL_MS);
+
+                if (!isExpired) {
+                    // console.log(`Cache HIT: ${filename}`);
+                    return localUri;
+                }
+                
+                if (isExpired) {
+                    // console.log(`Cache EXPIRED: ${filename}, deleting...`);
+                    await FileSystem.deleteAsync(localUri, { idempotent: true });
+                }
             }
 
-            // 2. Descargar si no existe (Cache Miss)
-            // console.log(`Cache MISS: Downloading ${url} -> ${filename}`);
+            // 2. Descargar si no existe o expiró
+            // console.log(`Cache MISS/EXP: Downloading ${url} -> ${filename}`);
 
             // Obtener el Anon Key para las descargas de Supabase
             const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
@@ -105,11 +120,39 @@ class CacheService {
                 to: localUri
             });
 
+            // Actualizar manifest
+            await this.updateManifest(filename, url);
+
             return localUri;
         } catch (error) {
             console.warn(`CacheService: Fallback to remote URL for ${url}`, error);
             // Fallback: Si algo falla, devolvemos la URL original para no romper la app
             return url;
+        }
+    }
+
+    /**
+     * Gestión del Manifest de Caché
+     */
+    private async getManifest(): Promise<Record<string, { cachedAt: number, url: string }>> {
+        try {
+            const raw = await AsyncStorage.getItem(this.MANIFEST_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch {
+            return {};
+        }
+    }
+
+    private async updateManifest(filename: string, url: string) {
+        try {
+            const manifest = await this.getManifest();
+            manifest[filename] = {
+                cachedAt: Date.now(),
+                url: url
+            };
+            await AsyncStorage.setItem(this.MANIFEST_KEY, JSON.stringify(manifest));
+        } catch (error) {
+            console.error('CacheService: Error updating manifest', error);
         }
     }
 
@@ -130,8 +173,32 @@ class CacheService {
      * Obtiene el tamaño total de la caché (persistente + volátil)
      */
     async getCacheSize(): Promise<{ persistent: number; volatile: number }> {
-        // Nota: Implementación simplificada, en entornos reales se recorrería el directorio
-        return { persistent: 0, volatile: 0 };
+        try {
+            const getDirSize = async (dir: string): Promise<number> => {
+                const info = await FileSystem.getInfoAsync(dir);
+                if (!info.exists) return 0;
+                
+                const files = await FileSystem.readDirectoryAsync(dir);
+                let total = 0;
+                for (const file of files) {
+                    const fInfo = await FileSystem.getInfoAsync(`${dir}${file}`);
+                    if (fInfo.exists && !fInfo.isDirectory) {
+                        total += fInfo.size || 0;
+                    }
+                }
+                return total;
+            };
+
+            const [pSize, vSize] = await Promise.all([
+                getDirSize(this.persistentDir),
+                getDirSize(this.volatileDir)
+            ]);
+
+            return { persistent: pSize, volatile: vSize };
+        } catch (error) {
+            console.error('CacheService: Error getting cache size', error);
+            return { persistent: 0, volatile: 0 };
+        }
     }
 }
 

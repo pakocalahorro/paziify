@@ -209,6 +209,7 @@ const CategoryRow: React.FC<Props> = ({
                             data={finalData}
                             keyExtractor={(item: any) => item.id}
                             horizontal
+                            estimatedItemSize={ITEM_WIDTH}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.listContent}
                             snapToInterval={ITEM_WIDTH}
@@ -225,18 +226,20 @@ const CategoryRow: React.FC<Props> = ({
                                     return <View style={{ width: EMPTY_ITEM_SIZE }} />;
                                 }
                                 return (
-                                    <CategoryCardItem
-                                        item={item}
-                                        index={index}
-                                        onSessionPress={onSessionPress}
-                                        icon={icon}
-                                        accentColor={accentColor}
-                                        sharedTransitionTagPrefix={sharedTransitionTagPrefix}
-                                        scrollX={scrollX}
-                                        cardVariant={item?.cardVariant || cardVariant || "default"}
-                                        isFavorite={favoriteSessionIds?.includes(item.id)}
-                                        onFavoritePress={onFavoritePress}
-                                    />
+                                    <View style={{ height: 380 }}>
+                                        <CategoryCardItem
+                                            item={item}
+                                            index={index}
+                                            onSessionPress={onSessionPress}
+                                            icon={icon}
+                                            accentColor={accentColor}
+                                            sharedTransitionTagPrefix={sharedTransitionTagPrefix}
+                                            scrollX={scrollX}
+                                            cardVariant={item?.cardVariant || cardVariant || "default"}
+                                            isFavorite={favoriteSessionIds?.includes(item.id)}
+                                            onFavoritePress={onFavoritePress}
+                                        />
+                                    </View>
                                 );
                             }}
                         />
@@ -259,9 +262,10 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     listContent: {
-        paddingTop: 10,
+        paddingTop: 0,
         paddingBottom: 40,
         alignItems: 'flex-start',
+        minHeight: 400, // Ensure height for OasisCard with titles
     },
     cardWrapper: {
         alignItems: 'center',

@@ -7,6 +7,9 @@ export interface MeditationLog {
     duration_minutes: number;
     mood_score: number;
     completed_at: string;
+    challenge_id?: string;
+    challenge_day?: number;
+    life_mode?: string;
 }
 
 class LocalAnalyticsService {

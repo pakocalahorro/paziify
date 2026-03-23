@@ -50,7 +50,7 @@ const EvolutionCatalogScreen = () => {
                 startDate: new Date().toISOString(),
                 daysCompleted: 0,
                 totalDays: selectedChallenge.days,
-                currentSessionSlug: selectedChallenge.sessionSlug,
+                currentSessionSlug: selectedChallenge.sessionSchedule?.[0] || selectedChallenge.sessionSlug,
             }
         });
         setSelectedChallenge(null);

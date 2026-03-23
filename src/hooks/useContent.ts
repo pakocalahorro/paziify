@@ -17,12 +17,15 @@ export const QUERY_KEYS = {
     SOUNDSCAPES: 'soundscapes',
 };
 
+const STATIC_STALE_TIME = 1000 * 60 * 60 * 24; // 24 hours
+const DYNAMIC_STALE_TIME = 1000 * 60 * 15;    // 15 minutes
+
 // 1. Hook for All Sessions (Legacy/Small lists)
 export const useSessions = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.SESSIONS],
         queryFn: sessionsService.getAll,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: DYNAMIC_STALE_TIME,
     });
 };
 
@@ -34,7 +37,8 @@ export const useInfiniteSessions = (filters: any = {}) => {
         initialPageParam: 0,
         getNextPageParam: (lastPage: any, allPages: any) => {
             return lastPage.hasMore ? allPages.length : undefined;
-        }
+        },
+        staleTime: DYNAMIC_STALE_TIME,
     });
 };
 
@@ -43,7 +47,7 @@ export const useAudiobooks = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.AUDIOBOOKS],
         queryFn: audiobooksService.getAll,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: STATIC_STALE_TIME,
     });
 };
 
@@ -52,7 +56,7 @@ export const useStories = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.STORIES],
         queryFn: storiesService.getAll,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: STATIC_STALE_TIME,
     });
 };
 
@@ -65,7 +69,7 @@ export const useSessionDetail = (sessionId: string) => {
             return data;
         },
         enabled: !!sessionId,
-        staleTime: 1000 * 60 * 10, // 10 mins
+        staleTime: DYNAMIC_STALE_TIME,
     });
 };
 
@@ -74,7 +78,7 @@ export const useAcademyModules = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.ACADEMY_MODULES],
         queryFn: AcademyService.getModules,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: STATIC_STALE_TIME,
     });
 };
 
@@ -83,6 +87,6 @@ export const useSoundscapes = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.SOUNDSCAPES],
         queryFn: soundscapesService.getAll,
-        staleTime: 1000 * 60 * 30, // 30 mins
+        staleTime: STATIC_STALE_TIME,
     });
 };

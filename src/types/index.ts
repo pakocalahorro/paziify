@@ -29,6 +29,7 @@ export enum Screen {
     CARDIO_SCAN = 'CARDIO_SCAN',
     CARDIO_RESULT = 'CARDIO_RESULT',
     EVOLUTION_CATALOG = 'EVOLUTION_CATALOG',
+    CHALLENGE_COMPLETION = 'CHALLENGE_COMPLETION',
     OASIS_SHOWCASE = 'OASIS_SHOWCASE', // Hidden route for design testing
 }
 
@@ -115,15 +116,15 @@ export interface Audiobook {
     id: string;
     title: string;
     author: string;
-    narrator: string;
+    narrator?: string;
     description?: string;
     category: string;
-    tags: string[];
+    tags?: string[];
     audio_url: string;
     image_url?: string;
     duration_minutes: number;
-    source: string;
-    language: string;
+    source?: string;
+    language?: string;
     is_premium: boolean;
     is_featured: boolean;
 }
@@ -132,14 +133,14 @@ export interface RealStory {
     id: string;
     title: string;
     subtitle?: string;
-    story_text: string;
+    story_text?: string;
     character_name?: string;
     character_age?: number;
     character_role?: string;
     category: string;
     subcategory?: string;
-    tags: string[];
-    reading_time_minutes: number;
+    tags?: string[];
+    reading_time_minutes?: number;
     transformation_theme?: string;
     related_meditation_id?: string;
     is_featured: boolean;
@@ -160,24 +161,24 @@ export interface MeditationSessionContent {
     time_of_day: string;
     difficulty_level: string;
     is_premium: boolean;
-    is_technical: boolean;
+    is_technical?: boolean;
     voice_url: string;
     thumbnail_url: string;
 
     // JSONB columns typed
-    audio_config: {
+    audio_config?: {
         voiceTrack?: string;
         defaultSoundscape?: string;
         defaultBinaural?: string;
         postSilence?: number;
     };
-    breathing_config: {
+    breathing_config?: {
         inhale: number;
         hold: number;
         exhale: number;
         holdPost: number;
     };
-    metadata: {
+    metadata?: {
         voice_style?: string;
         color?: string;
         visual_sync_enabled?: boolean;
@@ -227,6 +228,7 @@ export type RootStackParamList = {
     [Screen.CARDIO_SCAN]: { context?: 'baseline' | 'post_session'; sessionData?: any } | undefined;
     [Screen.CARDIO_RESULT]: { diagnosis: 'stress' | 'fatigue' | 'balanced' };
     [Screen.EVOLUTION_CATALOG]: undefined;
+    [Screen.CHALLENGE_COMPLETION]: { challengeId: string; challengeTitle: string; totalDaysCompleted: number };
     [Screen.OASIS_SHOWCASE]: undefined;
 }
 

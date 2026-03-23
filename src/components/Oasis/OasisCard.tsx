@@ -36,6 +36,8 @@ interface OasisCardProps {
     onFavoritePress?: () => void; // Handle favorite toggle
     guideName?: string;     // e.g. "Aria"
     guideAvatar?: string;   // URL of the guide's avatar
+    progress?: number;      // 0 to 1
+    progressLabel?: string; // e.g. "Día 3 de 7"
 }
 
 /**
@@ -62,7 +64,9 @@ export const OasisCard: React.FC<OasisCardProps> = ({
     isFavorite = false,
     onFavoritePress,
     guideName,
-    guideAvatar
+    guideAvatar,
+    progress,
+    progressLabel
 }) => {
     const isHero = variant === 'hero';
     const isCompact = variant === 'compact';
@@ -269,6 +273,26 @@ export const OasisCard: React.FC<OasisCardProps> = ({
                                     </View>
                                 </BlurView>
                             </View>
+
+                            {/* PROGRESS BAR (Challenge Context) */}
+                            {(progress !== undefined) && (
+                                <View style={styles.progressContainer}>
+                                    <View style={styles.progressTrack}>
+                                        <View 
+                                            style={[
+                                                styles.progressFill, 
+                                                { 
+                                                    width: `${progress * 100}%`,
+                                                    backgroundColor: accentColor 
+                                                }
+                                            ]} 
+                                        />
+                                    </View>
+                                    {!!progressLabel && (
+                                        <Text style={styles.progressLabelText}>{progressLabel}</Text>
+                                    )}
+                                </View>
+                            )}
                         </View>
                     </View>
                 </ContentWrapper>
@@ -544,6 +568,31 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 10,
         backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    // Progress Bar Styles
+    progressContainer: {
+        width: '80%',
+        marginTop: 16,
+        alignItems: 'center',
+    },
+    progressTrack: {
+        width: '100%',
+        height: 4,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 2,
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        borderRadius: 2,
+    },
+    progressLabelText: {
+        fontFamily: 'Outfit_700Bold',
+        fontSize: 10,
+        color: '#FFF',
+        marginTop: 6,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
     }
 });
 

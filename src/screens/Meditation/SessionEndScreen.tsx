@@ -19,6 +19,7 @@ import {
     TextInput,
     Switch,
     ScrollView,
+    ActivityIndicator,
 } from 'react-native';
 import { ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,6 +33,7 @@ import { theme } from '../../constants/theme';
 import { useApp } from '../../context/AppContext';
 import { analyticsService } from '../../services/analyticsService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
+import { CHALLENGES } from '../../constants/challenges';
 
 type SessionEndScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -51,6 +53,7 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
     const [selectedMood, setSelectedMood] = useState<number>(3); // Default to middle/calm
     const [isSharing, setIsSharing] = useState(false);
     const [comment, setComment] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     // Heartbeat animation for Verificar button
     const heartScale = useSharedValue(1);
@@ -78,10 +81,27 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
     }, []);
 
     const saveData = async () => {
-        // 1. Record in Supabase (Permanent)
+        if (isSaving) return;
+        setIsSaving(true);
+
+        try {
+            // 1. Record in Supabase (Permanent)
         if (user?.id) {
             try {
-                await analyticsService.recordSession(user.id, sessionId, durationMinutes, selectedMood + 1);
+                const challengeId = userState.activeChallenge?.id;
+                const isChallengeDay = !!userState.activeChallenge;
+                // Calculamos el día actual del reto (si es reto, es el completado + 1)
+                const challengeDay = isChallengeDay ? (userState.activeChallenge?.daysCompleted || 0) + 1 : undefined;
+
+                await analyticsService.recordSession(
+                    user.id, 
+                    sessionId, 
+                    durationMinutes, 
+                    selectedMood + 1,
+                    challengeId,
+                    challengeDay,
+                    userState.lifeMode
+                );
             } catch (error) {
                 console.error("Failed to record session in Supabase:", error);
             }
@@ -109,9 +129,16 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
             const lastCompletedStr = userState.activeChallenge.lastSessionCompletedDate?.split('T')[0];
 
             if (todayStr !== lastCompletedStr) {
+                const nextDay = userState.activeChallenge.daysCompleted + 1;
+                // Importamos CHALLENGES dinámicamente o nos aseguramos que esté disponible
+                // Para este paso, asumimos que se inyecta o se importa arriba (comprobado en view_file)
+                const challenge = CHALLENGES[userState.activeChallenge.id];
+                const nextSessionSlug = challenge?.sessionSchedule?.[nextDay] || userState.activeChallenge.currentSessionSlug;
+
                 updateObj.activeChallenge = {
                     ...userState.activeChallenge,
-                    daysCompleted: userState.activeChallenge.daysCompleted + 1,
+                    daysCompleted: nextDay,
+                    currentSessionSlug: nextSessionSlug, // C-6 Fix
                     lastSessionCompletedDate: now.toISOString(),
                 };
             }
@@ -123,12 +150,31 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
         if (user?.id) {
             analyticsService.updateProfileStreak(user.id, newStreak);
         }
+        
+    } catch (error) {
+        console.error("Critical error in saveData:", error);
+        setIsSaving(false); // Liberar bloqueo si falla
+    }
     };
 
     const handleFinish = async () => {
+        const wasChallengeJustCompleted = 
+            isChallengeSession && 
+            userState.activeChallenge && 
+            (userState.activeChallenge.daysCompleted + 1 >= userState.activeChallenge.totalDays);
+
         await saveData();
-        // @ts-ignore
-        navigation.navigate('MainTabs');
+
+        if (wasChallengeJustCompleted && userState.activeChallenge) {
+            navigation.navigate(Screen.CHALLENGE_COMPLETION, {
+                challengeId: userState.activeChallenge.id,
+                challengeTitle: userState.activeChallenge.title,
+                totalDaysCompleted: userState.activeChallenge.daysCompleted + 1
+            });
+        } else {
+            // @ts-ignore
+            navigation.navigate('MainTabs');
+        }
     };
 
     const moods = [
@@ -258,22 +304,37 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     {/* Verificar Impacto */}
                     <TouchableOpacity
-                        style={styles.cardioFooterBtn}
+                        style={[styles.cardioFooterBtn, isSaving && { opacity: 0.5 }]}
                         onPress={async () => {
                             await saveData();
                             navigation.navigate(Screen.CARDIO_SCAN, { context: 'post_session' });
                         }}
+                        disabled={isSaving}
                     >
-                        <ReanimatedAnimated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 6 }, heartbeatStyle]}>
-                            <Ionicons name="heart-circle" size={22} color="#FF4B4B" />
-                            <Text style={styles.cardioFooterText}>Verificar</Text>
-                        </ReanimatedAnimated.View>
+                        {isSaving ? (
+                            <ActivityIndicator size="small" color="#FF4B4B" />
+                        ) : (
+                            <ReanimatedAnimated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 6 }, heartbeatStyle]}>
+                                <Ionicons name="heart-circle" size={22} color="#FF4B4B" />
+                                <Text style={styles.cardioFooterText}>Verificar</Text>
+                            </ReanimatedAnimated.View>
+                        )}
                     </TouchableOpacity>
 
                     {/* Continuar */}
-                    <TouchableOpacity style={styles.button} onPress={handleFinish}>
-                        <Text style={styles.buttonText}>{(isSharing && comment) ? 'Publicar' : 'Continuar'}</Text>
-                        <Ionicons name="arrow-forward" size={18} color="#FFF" />
+                    <TouchableOpacity 
+                        style={[styles.button, isSaving && { opacity: 0.5 }]} 
+                        onPress={handleFinish}
+                        disabled={isSaving}
+                    >
+                        {isSaving ? (
+                            <ActivityIndicator size="small" color="#FFF" />
+                        ) : (
+                            <>
+                                <Text style={styles.buttonText}>{(isSharing && comment) ? 'Publicar' : 'Continuar'}</Text>
+                                <Ionicons name="arrow-forward" size={18} color="#FFF" />
+                            </>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>

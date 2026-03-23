@@ -38,6 +38,7 @@ set "PERSONA=aria"
 echo Seleccione el guia por su nombre:
 echo   - aria (Vindemiatrix - Chirp3-HD)
 echo   - ziro (Enceladus - Chirp3-HD)
+echo   - ziro_ssml (Enceladus - Chirp3-HD) [Especial Plantillas SSML]
 echo   - gaia (Autonoe - Chirp3-HD)
 echo   - eter (Studio-F - Studio)
 echo.

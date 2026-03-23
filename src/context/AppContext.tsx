@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, UserState, Session } from '../types';
 import { supabase } from '../services/supabaseClient';
@@ -67,6 +67,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isProfileLoaded, setIsProfileLoaded] = useState(false);
     const [isFirstEntryOfDay, setIsFirstEntryOfDay] = useState(false);
+    const prevConnectedRef = useRef<boolean | null>(null);
 
     // Track first entry of the day
     useEffect(() => {
@@ -110,13 +111,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         // Listen for connectivity
         import('@react-native-community/netinfo').then(NetInfo => {
             const unsubscribe = NetInfo.default.addEventListener(state => {
-                const wasOffline = isConnected === false;
+                const wasOffline = prevConnectedRef.current === false;
+                prevConnectedRef.current = state.isConnected ?? null;
                 setIsConnected(state.isConnected);
-                
+
                 // Si recuperamos conexión y el usuario está logado, sincronizar de fondo
                 if (wasOffline && state.isConnected && user?.id) {
                     import('../services/analyticsService').then(({ analyticsService }) => {
                         analyticsService.syncPendingLogs(user.id);
+                    });
+                    import('../services/CardioService').then(({ CardioService }) => {
+                        CardioService.syncPendingScans(user.id);
                     });
                 }
             });
@@ -168,28 +173,46 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                     .single();
 
                 if (!error && data) {
-                    setUserState(prev => ({
-                        // ... prev mappings ...
-                        ...prev,
-                        name: data.full_name || prev.name,
-                        avatarUrl: data.avatar_url,
-                        role: data.role || prev.role,
-                        streak: data.streak || 0,
-                        resilienceScore: data.resilience_score || 50,
-                        isPlusMember: data.is_plus_member || false,
-                        isRegistered: true,
-                        hasAcceptedMonthlyChallenge: data.has_accepted_monthly_challenge || false,
-                        hasSeenWelcomeTour: data.has_seen_welcome_tour || false,
-                        dailyGoalMinutes: data.daily_goal_minutes || prev.dailyGoalMinutes || 20,
-                        weeklyGoalMinutes: data.weekly_goal_minutes || prev.weeklyGoalMinutes || 150,
-                        lifeMode: data.life_mode || prev.lifeMode,
-                        lastSelectedBackgroundUri: data.last_selected_background_uri || prev.lastSelectedBackgroundUri,
-                        lastEntryDate: data.last_entry_date || prev.lastEntryDate,
-                        favoriteSessionIds: [...new Set([...(data.favorite_session_ids || []), ...(prev.favoriteSessionIds || [])])],
-                        completedSessionIds: [...new Set([...(data.completed_session_ids || []), ...(prev.completedSessionIds || [])])],
-                        activeChallenge: data.active_challenge || prev.activeChallenge,
-                        settings: data.notification_settings || prev.settings,
-                    }));
+                    setUserState(prev => {
+                        // Hardening: Si los datos locales son mayores, no sobrescribirlos con datos remotos obsoletos
+                        // (esto protege mientras la sincronización de fondo está pendiente)
+                        const remoteStreak = data.streak || 0;
+                        const remoteMinutes = data.total_minutes || 0;
+                        const remoteResilience = data.resilience_score || 50;
+
+                        // Hardening para activeChallenge: No dejar que el servidor retroceda el progreso del reto activo
+                        let finalChallenge = data.active_challenge || prev.activeChallenge;
+                        if (data.active_challenge && prev.activeChallenge && data.active_challenge.id === prev.activeChallenge.id) {
+                            const remoteDays = data.active_challenge.daysCompleted || 0;
+                            const localDays = prev.activeChallenge.daysCompleted || 0;
+                            if (localDays > remoteDays) {
+                                finalChallenge = prev.activeChallenge;
+                            }
+                        }
+
+                        return {
+                            ...prev,
+                            name: data.full_name || prev.name,
+                            avatarUrl: data.avatar_url,
+                            role: data.role || prev.role,
+                            streak: remoteStreak > (prev.streak || 0) ? remoteStreak : prev.streak,
+                            totalMinutes: remoteMinutes > (prev.totalMinutes || 0) ? remoteMinutes : prev.totalMinutes,
+                            resilienceScore: remoteResilience > (prev.resilienceScore || 0) ? remoteResilience : prev.resilienceScore,
+                            isPlusMember: data.is_plus_member || false,
+                            isRegistered: true,
+                            hasAcceptedMonthlyChallenge: data.has_accepted_monthly_challenge || false,
+                            hasSeenWelcomeTour: data.has_seen_welcome_tour || false,
+                            dailyGoalMinutes: data.daily_goal_minutes || prev.dailyGoalMinutes || 20,
+                            weeklyGoalMinutes: data.weekly_goal_minutes || prev.weeklyGoalMinutes || 150,
+                            lifeMode: data.life_mode || prev.lifeMode,
+                            lastSelectedBackgroundUri: data.last_selected_background_uri || prev.lastSelectedBackgroundUri,
+                            lastEntryDate: data.last_entry_date || prev.lastEntryDate,
+                            favoriteSessionIds: [...new Set([...(data.favorite_session_ids || []), ...(prev.favoriteSessionIds || [])])],
+                            completedSessionIds: [...new Set([...(data.completed_session_ids || []), ...(prev.completedSessionIds || [])])],
+                            activeChallenge: finalChallenge,
+                            settings: data.notification_settings || prev.settings,
+                        };
+                    });
 
                     // Register for push notifications
                     NotificationService.registerForPushNotificationsAsync(user.id);
@@ -212,7 +235,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     // Save user state to AsyncStorage and Supabase whenever it changes
     useEffect(() => {
-        if (!isLoading && !userState.isGuest) {
+        // Bloquear guardado hasta que el perfil esté totalmente cargado de Supabase (o se determine que es nuevo/offline)
+        // para evitar sobreescribir con estado vacío o parcial durante el arranque.
+        if (!isLoading && !userState.isGuest && isProfileLoaded) {
             const saveUserState = async () => {
                 try {
                     // Local save (always)
@@ -233,7 +258,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                                 completed_session_ids: userState.completedSessionIds,
                                 active_challenge: userState.activeChallenge,
                                 notification_settings: userState.settings,
-                                has_seen_welcome_tour: userState.hasSeenWelcomeTour
+                                has_seen_welcome_tour: userState.hasSeenWelcomeTour,
+                                total_minutes: userState.totalMinutes,
+                                resilience_score: userState.resilienceScore,
+                                streak: userState.streak
                             })
                             .eq('id', user.id);
                         
@@ -262,6 +290,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         userState.activeChallenge,
         userState.settings,
         userState.hasSeenWelcomeTour,
+        userState.totalMinutes,
+        userState.resilienceScore,
+        userState.streak,
         isLoading,
         isProfileLoaded
     ]);

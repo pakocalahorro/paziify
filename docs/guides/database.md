@@ -21,6 +21,9 @@ Esta guía detalla la infraestructura de datos de Paziify. Esta versión se sinc
 | `audio_config`| JSONB | Configuración de Binaurales y Soundscapes. |
 | `breathing_config`| JSONB | Tiempos de inhalación/exhalación. |
 | `time_of_day` | TEXT | Categorización temporal (mañana/noche). |
+| `challenge_id` | UUID | [NEW v2.53.0] ID del reto vinculado. |
+| `challenge_day`| INT | [NEW v2.53.0] Día del reto (1..N). |
+| `life_mode` | TEXT | [NEW v2.53.0] Modo activo durante la sesión (healing/growth). |
 
 ### `real_stories` 📚
 | Campo | Tipo | Descripción |
@@ -114,6 +117,8 @@ Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confia
 | `has_seen_welcome_tour`| BOOL | [NEW v2.52.0] Estado de visualización del tour. |
 | `favorite_session_ids`| TEXT[] | IDs de sesiones favoritas (Cloud Sync v2.52.4). |
 | `completed_session_ids`| TEXT[] | IDs de sesiones finalizadas (Cloud Sync v2.52.4). |
+| `active_challenge`| JSONB | [NEW v2.53.0] Objeto con el reto actual, progreso y fechas. |
+| `life_mode` | TEXT | Modo de vida dominante sugerido. |
 
 ---
 
@@ -125,4 +130,4 @@ Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confia
 
 ---
 ---
-*Última revisión: 18 de Marzo de 2026 - Versión 2.52.6 (Data Integrity Hardened)*
+*Última revisión: 23 de Marzo de 2026 - Versión 2.53.0 (Sync & Challenges Hardened)*

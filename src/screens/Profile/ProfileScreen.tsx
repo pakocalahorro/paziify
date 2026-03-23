@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
     View,
     Text,
@@ -7,11 +7,14 @@ import {
     Alert,
     Dimensions,
     StatusBar,
+    ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
@@ -25,6 +28,8 @@ import WidgetTutorialModal from '../../components/Challenges/WidgetTutorialModal
 import { OasisChart } from '../../components/Oasis/OasisChart';
 import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
 import { getDominantMode } from '../../constants/categories';
+import { useQuery } from '@tanstack/react-query';
+import { CHALLENGES } from '../../constants/challenges';
 
 const { width } = Dimensions.get('window');
 
@@ -40,39 +45,54 @@ interface Props {
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const { userState, signOut, user, isGuest, updateUserState, isNightMode } = useApp();
-    const [stats, setStats] = useState<UserStats | null>(null);
-    const [activity, setActivity] = useState<{ day: string; minutes: number }[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [dominantMode, setDominantMode] = useState<'healing' | 'growth'>('healing');
-    const [todayBaseline, setTodayBaseline] = useState<CardioResult | null>(null);
-
     const visualMode = userState.lifeMode || (isNightMode ? 'healing' : 'growth');
     const [showWidgetTutorial, setShowWidgetTutorial] = useState(false);
+    const [dominantMode, setDominantMode] = useState<'healing' | 'growth'>('healing');
+    const [showTreeInfo, setShowTreeInfo] = useState(false);
+
+    // 🚀 THE HIGHWAY: Agregaciones en servidor + Caché global
+    const { 
+        data: stats, 
+        isLoading: isStatsLoading 
+    } = useQuery({
+        queryKey: ['userStats', user?.id],
+        queryFn: () => analyticsService.getUserStats(user!.id),
+        enabled: !!user?.id && !isGuest,
+        staleTime: 120000, // 2 min frescos
+    });
+
+    const { 
+        data: distribution 
+    } = useQuery({
+        queryKey: ['categoryDistribution', user?.id],
+        queryFn: () => analyticsService.getCategoryDistribution(user!.id),
+        enabled: !!user?.id && !isGuest,
+        staleTime: 300000, // 5 min frescos (el catálogo cambia poco)
+    });
+
+
+    // C-2: Historial de Retos
+    const { 
+        data: challengeHistory = [] 
+    } = useQuery({
+        queryKey: ['challengeHistory', user?.id],
+        queryFn: () => analyticsService.getChallengeHistory(user!.id),
+        enabled: !!user?.id && !isGuest,
+    });
+
+    const { 
+        data: todayBaseline 
+    } = useQuery({
+        queryKey: ['todayBaseline'],
+        queryFn: () => CardioService.getTodayBaseline(),
+        enabled: !isGuest,
+    });
 
     useEffect(() => {
-        const loadStats = async () => {
-            if (user?.id) {
-                setLoading(true);
-                const fetchedStats = await analyticsService.getUserStats(user.id);
-                const distribution = await analyticsService.getCategoryDistribution(user.id);
-                const fetchedActivity = await analyticsService.getWeeklyActivity(user.id);
-                const baseline = await CardioService.getTodayBaseline();
-
-                setStats(fetchedStats);
-                setActivity(fetchedActivity);
-                setTodayBaseline(baseline);
-
-                // Determine dominant mode for Aura using centralized logic
-                setDominantMode(getDominantMode(distribution));
-
-                setLoading(false);
-            } else if (isGuest) {
-                setLoading(false);
-            }
-        };
-
-        loadStats();
-    }, [user, isGuest]);
+        if (distribution) {
+            setDominantMode(getDominantMode(distribution));
+        }
+    }, [distribution]);
 
     const motivationalMessage = useMemo(() => {
         if (isGuest) return "Inicia sesión para guardar tu florecer.";
@@ -124,12 +144,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     <BlurView intensity={40} tint="dark" style={styles.treeSection}>
                         <TouchableOpacity
                             style={styles.infoIconContainer}
-                            onPress={() => Alert.alert(
-                                userState.activeChallenge ? "Tu Reto Activo" : "Tu Florecer Mensual",
-                                userState.activeChallenge
-                                    ? `Estás en el camino de "${userState.activeChallenge.title}". Cada sesión completa hace brillar tu árbol.`
-                                    : "Cada día que meditas enciendes una nueva luz en tu árbol. Completa el ciclo de 30 días para integrar el hábito de la paz."
-                            )}
+                            onPress={() => setShowTreeInfo(true)}
                         >
                             <Ionicons name="information-circle-outline" size={20} color="rgba(255,255,255,0.5)" />
                         </TouchableOpacity>
@@ -137,7 +152,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         <ResilienceTree
                             daysPracticed={userState.activeChallenge ? userState.activeChallenge.daysCompleted : displayStats.currentStreak}
                             totalSteps={userState.activeChallenge ? userState.activeChallenge.totalDays : 30}
-                            size={250}
+                            size={220}
                             isGuest={isGuest}
                         />
                         <View style={styles.treeLabels}>
@@ -176,6 +191,40 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                 <Ionicons name="close-circle" size={14} color="#EF4444" />
                             </TouchableOpacity>
                         )}
+
+                        {/* Info Overlay Premium */}
+                        {showTreeInfo && (
+                            <Animated.View 
+                                entering={FadeIn.duration(300)} 
+                                exiting={FadeOut.duration(200)} 
+                                style={[StyleSheet.absoluteFill, { zIndex: 100 }]}
+                            >
+                                <BlurView intensity={95} tint="dark" style={styles.treeInfoOverlay}>
+                                    <TouchableOpacity 
+                                        style={styles.closeOverlay} 
+                                        onPress={() => setShowTreeInfo(false)}
+                                    >
+                                        <Ionicons name="close-circle" size={26} color="rgba(255,255,255,0.5)" />
+                                    </TouchableOpacity>
+                                    <View style={styles.infoContent}>
+                                        <Ionicons 
+                                            name="sparkles-outline" 
+                                            size={32} 
+                                            color={theme.colors.primary} 
+                                            style={{ marginBottom: 12 }} 
+                                        />
+                                        <Text style={styles.infoTitle}>
+                                            {userState.activeChallenge ? "Tu Reto Activo" : "Tu Florecer Mensual"}
+                                        </Text>
+                                        <Text style={styles.infoText}>
+                                            {userState.activeChallenge
+                                                ? `Estás en el camino de "${userState.activeChallenge.title}". Cada sesión completa hace brillar tu árbol con una nueva luz de resiliencia.`
+                                                : "Cada día que meditas enciendes una nueva luz en tu árbol. Completa el ciclo de 30 días para integrar el hábito de la paz en tu vida diaria."}
+                                        </Text>
+                                    </View>
+                                </BlurView>
+                            </Animated.View>
+                        )}
                     </BlurView>
 
                     {/* Estadísticas de Camino de Paz */}
@@ -193,63 +242,99 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
 
                     <View style={styles.statsBento}>
-                        <View style={styles.bentoRow}>
-                            <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
-                                <Text style={styles.bentoLabel}>Presencia Total</Text>
-                                <Text style={styles.bentoValue}>
-                                    {
-                                        displayStats.totalMinutes < 60
-                                            ? `${displayStats.totalMinutes} min`
-                                            : `${Math.floor(displayStats.totalMinutes / 60)}h ${displayStats.totalMinutes % 60}m`
-                                    }
-                                </Text>
-                                <Text style={styles.bentoSubtitle}>Tiempo dedicado</Text>
-                            </BlurView>
-                            <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
-                                <Text style={styles.bentoLabel}>Constancia</Text>
-                                <Text style={styles.bentoValue}>{displayStats.currentStreak}</Text>
-                                <Text style={styles.bentoSubtitle}>Días en Calma</Text>
-                            </BlurView>
-                        </View>
-
-                        <View style={styles.bentoRow}>
-                            <TouchableOpacity
-                                style={{ flex: 1 }}
-                                onPress={() => navigation.navigate(Screen.WEEKLY_REPORT)}
-                            >
-                                <BlurView intensity={45} tint="dark" style={[styles.bentoWide, styles.weeklyReportButton]}>
-                                    <View style={styles.reportRow}>
-                                        <View style={styles.reportInfo}>
-                                            <View style={styles.reportTitleRow}>
-                                                <Ionicons name="sparkles" size={18} color={theme.colors.primary} />
-                                                <Text style={styles.reportLabel}>Sinfonía de Bienestar</Text>
-                                            </View>
-                                            <Text style={styles.reportTitle}>Tu Reporte Semanal</Text>
-                                            <Text style={styles.reportSubtitle}>Bio-Ritmo • Tendencias • Insights</Text>
-                                        </View>
-                                        <View style={styles.reportArrow}>
-                                            <Ionicons name="arrow-forward-circle" size={42} color={theme.colors.primary} />
-                                        </View>
-                                    </View>
-                                </BlurView>
-                            </TouchableOpacity>
-                        </View>
-
-                        <BlurView intensity={35} tint="dark" style={styles.bentoWide}>
-                            <View style={styles.bentoWideHeader}>
-                                <View style={styles.titleWithInfo}>
-                                    <View>
-                                        <Text style={styles.bentoLabel}>Tu Ritmo de Calma</Text>
-                                        <Text style={styles.bentoSubtitle}>Tu evolución semanal</Text>
-                                    </View>
-                                </View>
-                                <Ionicons name="pulse" size={18} color={theme.colors.primary} />
+                        {isStatsLoading ? (
+                            <View style={styles.statsLoadingPlaceholder}>
+                                <ActivityIndicator size="small" color={theme.colors.primary} />
+                                <Text style={styles.statsLoadingText}>Cargando tus datos...</Text>
                             </View>
-                            <OasisCalendar
-                                data={activity}
-                                variant={dominantMode === 'healing' ? 'healing' : 'growth'}
-                            />
-                        </BlurView>
+                        ) : (
+                            <>
+                            <View style={styles.bentoRow}>
+                                <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
+                                    <Text style={styles.bentoLabel}>Presencia Total</Text>
+                                    <Text style={styles.bentoValue}>
+                                        {
+                                            displayStats.totalMinutes < 60
+                                                ? `${displayStats.totalMinutes} min`
+                                                : `${Math.floor(displayStats.totalMinutes / 60)}h ${displayStats.totalMinutes % 60}m`
+                                        }
+                                    </Text>
+                                    <Text style={styles.bentoSubtitle}>Tiempo dedicado</Text>
+                                </BlurView>
+                                <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
+                                    <Text style={styles.bentoLabel}>Constancia</Text>
+                                    <Text style={styles.bentoValue}>{displayStats.currentStreak}</Text>
+                                    <Text style={styles.bentoSubtitle}>Días en Calma</Text>
+                                </BlurView>
+                            </View>
+
+                            <View style={styles.bentoRow}>
+                                <TouchableOpacity
+                                    style={{ flex: 1 }}
+                                    onPress={() => navigation.navigate(Screen.WEEKLY_REPORT)}
+                                >
+                                    <BlurView intensity={45} tint="dark" style={[styles.bentoWide, styles.weeklyReportButton]}>
+                                        <View style={styles.reportRow}>
+                                            <View style={styles.reportInfo}>
+                                                <View style={styles.reportTitleRow}>
+                                                    <Ionicons name="sparkles" size={18} color={theme.colors.primary} />
+                                                    <Text style={styles.reportLabel}>Sinfonía de Bienestar</Text>
+                                                </View>
+                                                <Text style={styles.reportTitle}>Tu Reporte Semanal</Text>
+                                                <Text style={styles.reportSubtitle}>Bio-Ritmo • Tendencias • Insights</Text>
+                                            </View>
+                                            <View style={styles.reportArrow}>
+                                                <Ionicons name="arrow-forward-circle" size={42} color={theme.colors.primary} />
+                                            </View>
+                                        </View>
+                                    </BlurView>
+                                </TouchableOpacity>
+                            </View>
+
+
+                            {/* C-2: Sección Mis Retos */}
+                            {!isGuest && (
+                                <View style={styles.historySection}>
+                                    <View style={styles.sectionHeader}>
+                                        <Text style={styles.sectionTitle}>Mis Retos</Text>
+                                        <Ionicons name="trophy-outline" size={20} color="rgba(255,255,255,0.4)" />
+                                    </View>
+                                    
+                                    {challengeHistory.length > 0 ? (
+                                        <View style={styles.challengeGrid}>
+                                            {challengeHistory.map((item: any) => {
+                                                const details = (CHALLENGES as any)[item.challenge_id];
+                                                return (
+                                                    <BlurView key={item.id} intensity={30} tint="dark" style={styles.challengeCard}>
+                                                        <View style={[styles.challengeIcon, { backgroundColor: details?.colors?.[0] || theme.colors.primary }]}>
+                                                            <Ionicons name={details?.icon || 'star'} size={18} color="#FFF" />
+                                                        </View>
+                                                        <View style={styles.challengeInfo}>
+                                                            <Text style={styles.challengeTitle} numberOfLines={1}>{details?.title || item.challenge_id}</Text>
+                                                            <Text style={styles.challengeDate}>
+                                                                {new Date(item.ended_at).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}
+                                                            </Text>
+                                                        </View>
+                                                        <View style={styles.challengeStatus}>
+                                                            <Ionicons 
+                                                                name={item.status === 'completed' ? 'checkmark-circle' : 'close-circle'} 
+                                                                size={16} 
+                                                                color={item.status === 'completed' ? theme.colors.primary : '#EF4444'} 
+                                                            />
+                                                        </View>
+                                                    </BlurView>
+                                                );
+                                            })}
+                                        </View>
+                                    ) : (
+                                        <BlurView intensity={20} tint="dark" style={styles.emptyHistory}>
+                                            <Text style={styles.emptyHistoryText}>Aún no has completado retos. ¡Empieza hoy!</Text>
+                                        </BlurView>
+                                    )}
+                                </View>
+                            )}
+                            </>
+                        )}
                     </View>
 
                     {/* BOTONES DE ACCIÓN */}
@@ -493,6 +578,105 @@ const styles = StyleSheet.create({
         color: '#FFF',
         letterSpacing: 1,
     },
+    statsLoadingPlaceholder: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 40,
+        gap: 12,
+    },
+    statsLoadingText: {
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.35)',
+        fontWeight: '600',
+    },
+    // Mis Retos Styles (C-2)
+    historySection: {
+        marginTop: 10,
+    },
+    challengeGrid: {
+        gap: 10,
+    },
+    challengeCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 20,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        gap: 12,
+    },
+    challengeIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    challengeInfo: {
+        flex: 1,
+    },
+    challengeTitle: {
+        fontFamily: 'Outfit_700Bold',
+        fontSize: 14,
+        color: '#FFF',
+    },
+    challengeDate: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.4)',
+        fontFamily: 'Outfit_500Medium',
+    },
+    challengeStatus: {
+        opacity: 0.8,
+    },
+    emptyHistory: {
+        padding: 20,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderStyle: 'dashed',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        overflow: 'hidden',
+    },
+    emptyHistoryText: {
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.4)',
+        fontFamily: 'Outfit_600SemiBold',
+    },
+    // Estilos Overlay Premium
+    treeInfoOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 30,
+        borderRadius: 24,
+        overflow: 'hidden',
+        elevation: 10,
+    },
+    infoContent: {
+        alignItems: 'center',
+    },
+    infoTitle: {
+        color: '#FFF',
+        fontSize: 18,
+        fontFamily: 'Outfit_800ExtraBold',
+        marginBottom: 10,
+        textAlign: 'center',
+    },
+    infoText: {
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 14,
+        lineHeight: 20,
+        textAlign: 'center',
+        fontFamily: 'Outfit_400Regular',
+    },
+    closeOverlay: {
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        zIndex: 110,
+    }
 });
 
 export default ProfileScreen;

@@ -12,9 +12,11 @@ export interface CardioResult {
     diagnosis: 'sobrecarga' | 'agotamiento' | 'equilibrio';
     session_link_id?: string; // If post-session
     user_id?: string;
+    life_mode?: string;
 }
 
 const STORAGE_KEY = '@cardio_history';
+const OFFLINE_QUEUE_KEY = '@paziify_offline_cardio_scans';
 
 export const CardioService = {
     /**
@@ -41,24 +43,82 @@ export const CardioService = {
                     .from('cardio_scans')
                     .insert({
                         id: newScan.id,
-                        user_id: user.id,
+                        user_id: user.id, // Ensure user_id is assigned
                         bpm: newScan.bpm,
                         hrv: newScan.hrv,
                         mood: newScan.mood,
-                        context: newScan.context,
+                        scan_context: newScan.context, // Mapped to DB column scan_context
+                        life_mode: newScan.life_mode,
                         diagnosis: newScan.diagnosis,
                         session_link_id: newScan.session_link_id,
-                        timestamp: newScan.timestamp
+                        created_at: newScan.timestamp // Mapped to DB naming if needed, keeping timestamp as fallback
                     });
                 
-                if (error) console.warn('[CardioService] Remote sync failed:', error.message);
-                else console.log('[CardioService] Remote sync successful');
+                if (error) {
+                    console.warn('[CardioService] Remote sync failed, queueing offline:', error.message);
+                    await this.enqueueOfflineScan(newScan);
+                } else {
+                    console.log('[CardioService] Remote sync successful');
+                }
+            } else {
+                console.log('[CardioService] No authenticated user, queueing offline');
+                await this.enqueueOfflineScan(newScan);
             }
 
             return newScan;
         } catch (error) {
             console.error('[CardioService] Failed to save scan:', error);
             throw error;
+        }
+    },
+
+    async enqueueOfflineScan(scan: CardioResult) {
+        try {
+            const raw = await AsyncStorage.getItem(OFFLINE_QUEUE_KEY);
+            const queue = raw ? JSON.parse(raw) : [];
+            await AsyncStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify([...queue, scan]));
+        } catch (e) {
+            console.error('[CardioService] Failed to enqueue offline scan:', e);
+        }
+    },
+
+    async syncPendingScans(userId: string) {
+        try {
+            const raw = await AsyncStorage.getItem(OFFLINE_QUEUE_KEY);
+            const queue: CardioResult[] = raw ? JSON.parse(raw) : [];
+            if (queue.length === 0) return;
+
+            console.log(`[CardioService] Syncing ${queue.length} pending scans for user ${userId}...`);
+            const syncedIds: string[] = [];
+            
+            for (const scan of queue) {
+                const { error } = await supabase
+                    .from('cardio_scans')
+                    .insert({
+                        id: scan.id,
+                        user_id: userId,
+                        bpm: scan.bpm,
+                        hrv: scan.hrv,
+                        mood: scan.mood,
+                        scan_context: scan.context,
+                        life_mode: scan.life_mode,
+                        diagnosis: scan.diagnosis,
+                        session_link_id: scan.session_link_id,
+                        created_at: scan.timestamp
+                    });
+                
+                if (!error) {
+                    syncedIds.push(scan.id);
+                } else {
+                    console.error('[CardioService] Individual scan sync fail:', error.message);
+                }
+            }
+
+            const remaining = queue.filter(s => !syncedIds.includes(s.id));
+            await AsyncStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+            console.log(`[CardioService] Sync complete. ${syncedIds.length} uploaded, ${remaining.length} remaining.`);
+        } catch (error) {
+            console.error('[CardioService] syncPendingScans error:', error);
         }
     },
 

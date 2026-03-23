@@ -24,13 +24,6 @@ VOICE_PERSONAS = {
         'rate': 0.75,
         'pitch': 0.0
     },
-    'ziro_ssml': { # EL NUEVO ZIRO PARA ESTA PLANTILLA
-        'language_code': 'es-ES',
-        'name': 'es-ES-Chirp3-HD-Enceladus',
-        'ssml_gender': texttospeech.SsmlVoiceGender.MALE,
-        'rate': 1.0,  # <--- Velocidad neutra para que el SSML tome el control
-        'pitch': 0.0
-    },
     'eter': { # Sleep & Resilience
         'language_code': 'es-ES',
         'name': 'es-ES-Studio-F',

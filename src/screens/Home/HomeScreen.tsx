@@ -40,6 +40,7 @@ import { analyticsService } from '../../services/analyticsService';
 import { OasisChart } from '../../components/Oasis/OasisChart';
 import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
 import PurposeModal from '../../components/Home/PurposeModal';
+import ChallengeProgressBanner from '../../components/Challenges/ChallengeProgressBanner';
 import { WelcomeTourModal } from '../../components/Modals/WelcomeTourModal';
 import SoundwaveSeparator from '../../components/Shared/SoundwaveSeparator';
 import { CHALLENGES } from '../../constants/challenges';
@@ -47,8 +48,15 @@ import { ChallengeDetailsModal } from '../../components/Challenges/ChallengeDeta
 import { OasisScreen } from '../../components/Oasis/OasisScreen';
 import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import CategoryRow from '../../components/CategoryRow';
+import ModePickerModal from '../../components/Modals/ModePickerModal';
 
 const { width } = Dimensions.get('window');
+
+const CHALLENGE_TYPE_LABELS: Record<string, string> = {
+    mision: 'MISIÓN EXPRESS',
+    reto: 'RETO DE ESENCIA',
+    desafio: 'DESAFÍO GLOBAL'
+};
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, Screen.HOME>;
 
@@ -83,6 +91,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const [showPurposeModal, setShowPurposeModal] = useState(false);
     const [showWelcomeTour, setShowWelcomeTour] = useState(false);
     const [showChallengeInfo, setShowChallengeInfo] = useState(false);
+    const [isModePickerOpen, setIsModePickerOpen] = useState(false);
 
     // Pulse Animation for CTA
     const pulseScale = useSharedValue(1);
@@ -353,20 +362,26 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
 
     // Unified Favorites List Builder
     const favoriteItems = useMemo(() => {
-        const ids = userState.favoriteSessionIds || [];
+        const rawIds = userState.favoriteSessionIds || [];
+        const ids = Array.isArray(rawIds) ? rawIds.filter(id => !!id) : [];
         if (ids.length === 0) return [];
 
         let mixed: any[] = [];
 
-        // Meditations
+        // Meditations - Robust filtering checking both UUID and legacy_id
         if (allSessions) {
-            mixed = [...mixed, ...allSessions.filter((s: any) => ids.includes(s.id)).map((s: any) => ({
+            const sessionsMatching = allSessions.filter((s: any) => 
+                ids.includes(s.id) || (s.legacy_id && ids.includes(s.legacy_id))
+            );
+            
+            mixed = [...mixed, ...sessionsMatching.map((s: any) => ({
                 id: s.id,
                 title: s.title,
                 duration: s.duration_minutes,
-                category: s.category,
+                category: s.category || 'calmosos',
                 isPlus: s.is_premium,
                 image: s.thumbnail_url,
+                thumbnailUrl: s.thumbnail_url, // Extra protection
                 creatorName: s.creator_name,
                 description: s.description,
                 type: 'meditation',
@@ -374,15 +389,18 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
             }))];
         }
 
-        // Audiobooks
+        // Audiobooks - Robust filtering (UUID or legacy_id)
         if (allBooks) {
-            mixed = [...mixed, ...allBooks.filter((b: any) => ids.includes(b.id)).map((b: any) => ({
+            mixed = [...mixed, ...allBooks.filter((b: any) => 
+                ids.includes(b.id) || (b.legacy_id && ids.includes(b.legacy_id))
+            ).map((b: any) => ({
                 id: b.id,
                 title: b.title,
                 duration: b.duration_minutes,
                 category: b.category,
                 isPlus: b.is_premium,
                 image: b.image_url,
+                thumbnailUrl: b.image_url, // Extra protection
                 creatorName: b.narrator || b.author,
                 description: b.description,
                 type: 'audiobook',
@@ -390,15 +408,18 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
             }))];
         }
 
-        // Academy
+        // Academy - Robust filtering (UUID or legacy_id)
         if (academyModules) {
-            mixed = [...mixed, ...academyModules.filter((m: any) => ids.includes(m.id)).map((m: any) => ({
+            mixed = [...mixed, ...academyModules.filter((m: any) => 
+                ids.includes(m.id) || (m.legacy_id && ids.includes(m.legacy_id))
+            ).map((m: any) => ({
                 id: m.id,
                 title: m.title,
                 duration: m.duration,
                 category: m.category,
                 isPlus: false,
                 image: m.image,
+                thumbnailUrl: m.image, // Extra protection
                 creatorName: m.author,
                 description: m.description,
                 type: 'academy',
@@ -474,6 +495,13 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                     onClose={() => setShowPurposeModal(false)}
                 />
 
+                <ModePickerModal
+                    isVisible={isModePickerOpen}
+                    currentMode={visualMode}
+                    onSelect={(mode) => updateUserState({ lifeMode: mode })}
+                    onClose={() => setIsModePickerOpen(false)}
+                />
+
                 {/* ÁREA 1: TU ESTADO (DASHBOARD COMPACTO) */}
                 <View style={styles.dashboardSection}>
                     <View style={styles.dashboardCard}>
@@ -499,6 +527,9 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                                         <Ionicons name="time" size={18} color={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'} />
                                         <Text style={styles.dashboardStatValue}>
                                             {isLoadingStats ? "..." : todayStats.minutes} <Text style={styles.dashboardStatUnit}>m Hoy</Text>
+                                        </Text>
+                                        <Text style={styles.dashboardStatGoal}>
+                                            / {userState.dailyGoalMinutes || 20} min {todayStats.minutes >= (userState.dailyGoalMinutes || 20) && '✓'}
                                         </Text>
                                     </View>
                                     <View style={styles.dashboardStatItem}>
@@ -591,6 +622,28 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                     </View>
                 </View>
 
+                {/* MODE CHIP & CHALLENGE BANNER (D-4, C-4) */}
+                <View style={styles.contextualRegion}>
+                    {userState.activeChallenge ? (
+                        <ChallengeProgressBanner challenge={userState.activeChallenge} />
+                    ) : (
+                        <TouchableOpacity
+                            onPress={() => setIsModePickerOpen(true)}
+                            style={styles.modeChip}
+                        >
+                            <Ionicons
+                                name={visualMode === 'healing' ? 'leaf' : 'flash'}
+                                size={12}
+                                color={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
+                            />
+                            <Text style={styles.modeChipText}>
+                                Hoy estás en modo <Text style={{ fontWeight: '900' }}>{visualMode === 'healing' ? 'Sanar' : 'Crecer'}</Text>
+                            </Text>
+                            <Text style={styles.modeChipChange}>¿Cambiar?</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+
                 <SoundwaveSeparator
                     title={userState.activeChallenge ? "Tu misión de hoy" : "Tu práctica de hoy"}
                     accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
@@ -598,7 +651,9 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
 
                 <View style={styles.featuredSection}>
                     <OasisCard
-                        superTitle={userState.activeChallenge ? userState.activeChallenge.type : "Meditación"}
+                        superTitle={userState.activeChallenge
+                            ? CHALLENGE_TYPE_LABELS[userState.activeChallenge.type] ?? userState.activeChallenge.type.toUpperCase()
+                            : "Meditación"}
                         title={recommendations?.daily?.title || "Cargando..."}
                         subtitle={recommendations?.daily?.description || "Tu sesión recomendada para hoy."}
                         imageUri={(recommendations?.daily as any)?.thumbnail_url || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"}
@@ -615,6 +670,8 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         accentColor={visualMode === 'healing' ? '#2DD4BF' : '#FBBF24'}
                         actionText="Comenzar"
                         actionIcon="play"
+                        progress={userState.activeChallenge ? (userState.activeChallenge.daysCompleted / userState.activeChallenge.totalDays) : undefined}
+                        progressLabel={userState.activeChallenge ? `Día ${userState.activeChallenge.daysCompleted + 1} de ${userState.activeChallenge.totalDays}` : undefined}
                     />
                 </View>
 
@@ -641,7 +698,7 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
                         accentColor={visualMode === 'healing' ? '#8B5CF6' : '#2DD4BF'}
                     />
 
-                    <View style={styles.gridSection}>
+                    <View style={[styles.gridSection, { marginTop: 10 }]}>
                         <View style={{ marginBottom: 24 }}>
                             <OasisCard
                                 superTitle="Academia"
@@ -1079,6 +1136,70 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 1,
     },
+    dashboardStatGoal: {
+        fontSize: 9,
+        fontFamily: 'Outfit_600SemiBold',
+        color: 'rgba(255,255,255,0.3)',
+        marginTop: -2,
+    },
+    contextualRegion: {
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginTop: -35,
+        zIndex: 50,
+        marginBottom: 20,
+    },
+    modeChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        gap: 8,
+    },
+    modeChipText: {
+        fontSize: 11,
+        fontFamily: 'Outfit_400Regular',
+        color: 'rgba(255,255,255,0.8)',
+    },
+    modeChipChange: {
+        fontSize: 9,
+        fontFamily: 'Outfit_800ExtraBold',
+        color: theme.colors.primary,
+        textTransform: 'uppercase',
+        marginLeft: 4,
+    },
+    challengeBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(251, 191, 36, 0.3)',
+        backgroundColor: 'rgba(251, 191, 36, 0.05)',
+        gap: 10,
+        overflow: 'hidden',
+    },
+    challengeBannerText: {
+        fontSize: 10,
+        fontFamily: 'Outfit_800ExtraBold',
+        color: '#FBBF24',
+        letterSpacing: 0.5,
+    },
+    challengeBannerDots: {
+        flexDirection: 'row',
+        gap: 4,
+    },
+    challengeDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    }
 });
 
 export default HomeScreen;

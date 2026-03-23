@@ -22,6 +22,7 @@ jest.mock('../components/Oasis/OasisMeter', () => ({ OasisMeter: 'OasisMeter' })
 jest.mock('../components/Oasis/OasisChart', () => ({ OasisChart: 'OasisChart' }));
 jest.mock('../components/Oasis/OasisCalendar', () => ({ OasisCalendar: 'OasisCalendar' }));
 jest.mock('../components/Home/PurposeModal', () => 'PurposeModal');
+jest.mock('../components/Modals/ModePickerModal', () => 'ModePickerModal');
 jest.mock('../components/Shared/SoundwaveSeparator', () => 'SoundwaveSeparator');
 jest.mock('../components/Challenges/ChallengeDetailsModal', () => ({ ChallengeDetailsModal: 'ChallengeDetailsModal' }));
 jest.mock('../components/Oasis/OasisScreen', () => ({ OasisScreen: 'OasisScreen' }));

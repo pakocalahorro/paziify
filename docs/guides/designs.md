@@ -147,6 +147,8 @@ Para evitar la sobrecarga cognitiva y el aspecto genérico de "grid de tarjetas"
 - Títulos y descripciones se extraen fuera del contenedor de la tarjeta fotográfica.
 - La tarjeta queda como un lienzo limpio con *Badges* minimalistas y un enorme CTA centrado.
 - Alturas unificadas (ej: 200px) para mantener un *scroll* armónico en todas las secciones independientes.
+- **Regla de Carruseles (v2.53.0)**: Los contenedores de `CategoryRow` deben tener una `minHeight: 400px` para acomodar cabeceras `OasisCard` y evitar colapsos visuales.
+- **Margen de Bento Grid**: Espaciado de `marginTop: 10/20` obligatorio entre separadores de onda y tarjetas para evitar solapamientos de títulos.
 
 **Sistema Tipográfico Corporativo Dual (Outfit + Caveat)**:
 - **La Alma (`@expo-google-fonts/caveat`)**: Tipografía manuscrita que da un carácter humano, íntimo y personal a la app. Otorga el matiz "Boutique/Editorial".
@@ -248,4 +250,9 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 
 ---
 
-*Última revisión: 17 de Marzo de 2026 - Versión 2.51.0 (Fidelidad Visual)*
+### 5. El Árbol de Resonancia (PDS 4.0 Vision)
+Propuesta estratégica que sustituye el contador matemático (X/30) por una iluminación respiratoria basada en el `ResilienceScore` (0-100), eliminando el estrés de los reseteos mensuales.
+
+---
+
+*Última revisión: 23 de Marzo de 2026 - Versión 2.53.0 (Zero Defects Oasis 3.0)*

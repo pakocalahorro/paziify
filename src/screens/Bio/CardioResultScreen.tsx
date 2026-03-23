@@ -64,7 +64,8 @@ const CardioResultScreen = () => {
                         bpm: metrics.bpm,
                         hrv: metrics.hrv,
                         diagnosis: params.diagnosis,
-                        context: context
+                        context: context,
+                        life_mode: userState.lifeMode
                     });
                     console.log('Cardio Result saved locally with context:', context);
                 } catch (e) {
@@ -407,6 +408,18 @@ const CardioResultScreen = () => {
                                         {missionMessages[diagnosis]}
                                     </Text>
                                 </View>
+
+                                {/* Botón Explícito de Finalización (Evitar bloqueo UX) */}
+                                <TouchableOpacity
+                                    style={[styles.ctaButton, { backgroundColor: '#10B981', marginTop: 30 }]}
+                                    onPress={() => {
+                                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                        navigation.navigate('MainTabs', { screen: 'Home' });
+                                    }}
+                                >
+                                    <Text style={styles.ctaText}>FINALIZAR SESIÓN</Text>
+                                    <Ionicons name="checkmark-circle" size={20} color="#000" />
+                                </TouchableOpacity>
                             </>
                         ) : context === 'post_session' ? (
                             /* POST-SESSION: Simple return to home */
