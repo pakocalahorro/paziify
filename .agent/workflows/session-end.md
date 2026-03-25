@@ -16,6 +16,7 @@ Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecut
 - Revisa el historial de archivos modificados (`git status`) para identificar CADA archivo que ha sido tocado hoy.
 - Lee `task.md` y `walkthrough.md`. Si una tarea está marcada como `[x]`, DEBE aparecer con detalle técnico en los documentos finales.
 
+### 2. Generación de Borrador y HARD STOP 🛑
 1. **Redacta en memoria** (o en un bloque de código markdown de respuesta) el contenido para la Nota de Sesión (`docs/sessions/YYYY-MM-DD_descripcion.md`). Divide por "Hitos Críticos" y explica el POR QUÉ del cambio. **REGLA DE EFICIENCIA**: Si el archivo `walkthrough.md` ya ha sido completado con gran nivel de detalle técnico arquitectónico (0ms, renders, etc.) al final del sprint, **DEBES USAR ESE MISMO CONTENIDO ÍNTEGRO** para crear la Nota de Sesión. No resumas ni recortes la información valiosa del walkthrough.
 2. **Propuesta de Cambios en Documentación:** Enumera textualmente qué otras guías requieren cambios debido a la sesión (`structure.md`, `user_manual.md`, `designs.md`, `database.md`, `audio.md`) detallando exactamente *qué nueva sección o regla vas a añadir a cada una*.
    > [!IMPORTANT]
