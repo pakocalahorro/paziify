@@ -1,53 +1,43 @@
 ---
-description: Guardar el progreso de la sesión actual (Protocolo de Alta Fidelidad - PCO)
+description: Guardar el progreso de la sesión actual (Protocolo PCO Optimizado)
 ---
 
-# Workflow: Session End (Protocolo v4.0 - PCO Activo) 🛡️
+# Workflow: Session End (Protocolo v4.1 - PCO Activo) 🛡️
 
-Este workflow es el guardián de la base de conocimiento del proyecto. Se ejecuta bajo el **Protocolo de Confirmación Obligatoria (PCO)**.
+El guardián de la base de conocimiento del proyecto. Se ejecuta bajo el **Protocolo de Confirmación Obligatoria (PCO)**.
 
 > [!CAUTION]
 > **REGLA DE ORO (PCO)**: El agente NO PUEDE editar archivos ni ejecutar comandos de Git hasta que el CEO/CTO no apruebe explícitamente el paso 2 (Propuesta de Cierre).
 
 ## FASE 1: ANÁLISIS Y PLANIFICACIÓN (NO DESTRUCTIVA)
 
-### 1. Auditoría de Fidelidad Total (INVESTIGACIÓN CIEGA) 🔍
-- Realiza una búsqueda obligatoria de términos clave de la sesión en el historial de chat o herramientas.
+### 1. Auditoría de Fidelidad Total 🔍
 - Revisa el historial de archivos modificados (`git status`) para identificar CADA archivo que ha sido tocado hoy.
-- Lee `task.md` y `walkthrough.md`. Si una tarea está marcada como `[x]`, DEBE aparecer con detalle técnico en los documentos finales.
+- Lee `task.md` y `walkthrough.md`.
 
 ### 2. Generación de Borrador y HARD STOP 🛑
-1. **Redacta en memoria** (o en un bloque de código markdown de respuesta) el contenido para la Nota de Sesión (`docs/sessions/YYYY-MM-DD_descripcion.md`). Divide por "Hitos Críticos" y explica el POR QUÉ del cambio. **REGLA DE EFICIENCIA**: Si el archivo `walkthrough.md` ya ha sido completado con gran nivel de detalle técnico arquitectónico (0ms, renders, etc.) al final del sprint, **DEBES USAR ESE MISMO CONTENIDO ÍNTEGRO** para crear la Nota de Sesión. No resumas ni recortes la información valiosa del walkthrough.
-2. **Propuesta de Cambios en Documentación:** Enumera textualmente qué otras guías requieren cambios debido a la sesión (`structure.md`, `user_manual.md`, `designs.md`, `database.md`, `audio.md`) detallando exactamente *qué nueva sección o regla vas a añadir a cada una*.
-   > [!IMPORTANT]
-   > **REQUISITO DE ALTA FIDELIDAD**: La nota de sesión no debe ser solo un changelog. DEBE capturar el "Alma" de la sesión: justificaciones estratégicas (ej. por qué una versión beta es preferible a una estable), investigaciones de errores complejos (análisis forense) y decisiones de precisión científica (latencias, jitter, etc.).
-   *(Nota: No debes buscar ni actualizar números de versión tipo v2.x.x dentro de estos archivos. La versión la dicta el Tag de Git).*
-3. **HARD STOP (`notify_user`)**: Usa la herramienta `notify_user` presentando al CTO:
-   - El resumen del paso 1 (Archivos modificados detectados).
-   - El texto literal que propones para la nueva nota de sesión.
-   - El listado de guías adicionales que propones actualizar y qué vas a poner en ellas.
-4. Finaliza el mensaje de `notify_user` preguntando: **"¿Me das permiso para proceder con esta ejecución, Sr. CTO?"**.
-5. **ESPERA**. Si el usuario responde con dudas, acláralas. **SÓLO CONTINÚA A LA FASE 2 SI DICE EXPLÍCITAMENTE "SÍ", "PROCEDE", "ADELANTE".**
+1. **Redacta en memoria** el contenido para la Nota de Sesión.  
+   **REGLA DE EFICIENCIA**: Si el archivo `walkthrough.md` ya ha sido completado con gran detalle técnico durante el sprint, **USA ESE MISMO CONTENIDO ÍNTEGRO** para crear la Nota de Sesión. No lo resumas.
+2. **Excepciones Documentales (Carga Ligera):** Evalúa si *realmente* alguna guía maestra (`structure.md`, `user_manual.md`, `database.md`, etc.) quedó absolutamente desfasada. Si los cambios son menores u ordinarios, **NO PROPONGAS** actualizar las guías maestras para evitar fatiga administrativa y "Burnout".
+3. **HARD STOP (`notify_user`)**: Usa `notify_user` presentando al CTO:
+   - Archivos modificados detectados.
+   - El texto que usarás para la nota de sesión (`docs/sessions/MM-YY/YYYY-MM-DD_descripcion.md`).
+   - *Solo si aplica rigurosamente*, qué guías maestras aisladas se deben actualizar.
+4. Finaliza preguntando de forma clara: **"¿Me das permiso para proceder con esta ejecución en disco y Git, Sr. CTO?"**.
+5. **ESPERA LA CONFIRMACIÓN**.
 
 ---
 
 ## FASE 2: EJECUCIÓN (SÓLO TRAS APROBACIÓN)
 
-### 3. Ejecución de Tareas de Documentación 📝
-   Una vez aprobado, ejecuta con `write_to_file` o `replace_file_content`:
-   1. Crea la nueva nota de sesión en la subcarpeta del **mes actual** dentro de `docs/sessions/` (ej: `docs/sessions/03-26/`).
-   2. Actualiza CADA archivo guía acordado en el Paso 2 con la nueva información de lógica o diseño.
-   3. Añade la entrada correspondiente al `walkthrough.md` con `render_diffs` si aplicara.
+### 3. Ejecución en Disco 📝
+   Una vez aprobado, ejecuta:
+   1. Crea la **nota de sesión** en la subcarpeta del **mes actual y año** dentro de `docs/sessions/` (ej: `docs/sessions/03-26/YYYY-MM-DD_...`).
+   2. Actualiza tu `walkthrough.md` o guías maestras *solo* si el CTO aprobó esa carga extra en el Paso 2.
 
-### 4. Consolidación Final y Git 💾
-   1. Actualiza `package.json` a la nueva versión (SemVer) definida.
-   2. **Garantía Zero Defects**: Ejecutar `npm run test:ojo` (y `update` si aplica) para asegurar que el blindaje permitirá el commit.
-   3. Ejecuta `git add` y el commit profesional con los hitos resumidos.
-   4. Ejecuta `git tag vX.X.X` coincidente. Sin tag de versión, el ecosistema de documentación se considera desfasado.
-
-### 5. Sincronización Global Cloud ☁️
-   1. Ejecuta `git push` para subir el código y la documentación a la rama actual.
-   2. Ejecuta `git push --tags` para publicar el release oficial y el tag en GitHub.
-
----
-*Este protocolo bloquea la iniciativa destructiva y exige revisión humana.*
+### 4. Consolidación Final y Push ☁️
+   1. Actualiza `package.json` a la nueva versión (SemVer) si se acordó subir de versión en la fase previa.
+   2. Ejecuta `git add .` y el `git commit -m="..."` correspondiente.
+   3. Ejecuta `git tag vX.X.X` coincidente (solo si hubo salto de versión).
+   4. Ejecuta `git push` y (de aplicar) `git push --tags`.
+   5. Notifica al CTO que el código y el conocimiento están asegurados en Origin.
