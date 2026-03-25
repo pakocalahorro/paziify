@@ -34,6 +34,7 @@ import { useApp } from '../../context/AppContext';
 import { analyticsService } from '../../services/analyticsService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
 import { CHALLENGES } from '../../constants/challenges';
+import { sessionsService, pickSessionByDaySeed, getDayOfYear } from '../../services/contentService';
 
 type SessionEndScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -130,15 +131,28 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
 
             if (todayStr !== lastCompletedStr) {
                 const nextDay = userState.activeChallenge.daysCompleted + 1;
-                // Importamos CHALLENGES dinámicamente o nos aseguramos que esté disponible
-                // Para este paso, asumimos que se inyecta o se importa arriba (comprobado en view_file)
                 const challenge = CHALLENGES[userState.activeChallenge.id];
-                const nextSessionSlug = challenge?.sessionSchedule?.[nextDay] || userState.activeChallenge.currentSessionSlug;
+                const nextTheme = challenge?.sessionSchedule?.[nextDay];
+
+                // ALGORITMO DINÁMICO: resolver sesión del siguiente día desde Supabase
+                let nextSessionSlug = userState.activeChallenge.currentSessionSlug; // fallback seguro
+                if (nextTheme?.category) {
+                    try {
+                        const available = await sessionsService.getSessionsByTheme(nextTheme.category);
+                        // Seed = día del año + posición en el programa → variedad sin repetición visual
+                        const picked = pickSessionByDaySeed(available, nextDay);
+                        if (picked) {
+                            nextSessionSlug = (picked as any).legacy_id || (picked as any).slug || nextSessionSlug;
+                        }
+                    } catch {
+                        console.log('[SessionEnd] Fallback: manteniendo sesión actual del reto');
+                    }
+                }
 
                 updateObj.activeChallenge = {
                     ...userState.activeChallenge,
                     daysCompleted: nextDay,
-                    currentSessionSlug: nextSessionSlug, // C-6 Fix
+                    currentSessionSlug: nextSessionSlug,
                     lastSessionCompletedDate: now.toISOString(),
                 };
             }

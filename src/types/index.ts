@@ -127,6 +127,7 @@ export interface Audiobook {
     language?: string;
     is_premium: boolean;
     is_featured: boolean;
+    slug?: string | null; // Admin panel: null = borrador, valor = validado para rotación
 }
 
 export interface RealStory {
@@ -148,11 +149,13 @@ export interface RealStory {
     source_platform?: string;
     source_attribution?: string;
     thumbnail_url?: string;
+    duration_minutes?: number;
 }
 
 export interface MeditationSessionContent {
     id: string; // UUID from Supabase
     legacy_id: string; // "anx_478"
+    slug?: string | null; // Admin panel: null = borrador, valor = validado para rotación
     title: string;
     description: string;
     duration_minutes: number;

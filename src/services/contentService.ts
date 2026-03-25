@@ -3,6 +3,29 @@ import { Audiobook, RealStory } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MEDITATION_SESSIONS } from '../data/sessionsData';
 
+// ─── ALGORITMO DINÁMICO DE ROTACIÓN ───────────────────────────────────────────
+// Principio: el Admin Panel asigna un `slug` cuando el contenido está validado.
+// Solo contenido con `slug IS NOT NULL` entra en el pool de rotación diaria.
+// El seed determinista garantiza: mismo día → mismo contenido (aunque recargues).
+
+/** Devuelve el número de día del año (1-365/366) */
+export const getDayOfYear = (): number => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    return Math.floor((now.getTime() - start.getTime()) / 86_400_000);
+};
+
+/**
+ * Selecciona un elemento del array de forma determinista según el día del año.
+ * @param items  Array de contenidos disponibles
+ * @param offset Desfase para que distintos tipos de contenido no coincidan en índice
+ */
+export const pickSessionByDaySeed = <T>(items: T[], offset = 0): T | null => {
+    if (!items || items.length === 0) return null;
+    return items[(getDayOfYear() + offset) % items.length];
+};
+// ──────────────────────────────────────────────────────────────────────────────
+
 const ICON_MAPPING: Record<string, string> = {
     'mountain': 'mount-outline',
     'frown-outline': 'sad-outline',
@@ -78,7 +101,7 @@ export const sessionsService = {
             console.log('[sessionsService] Fetching all sessions from Supabase...');
             const { data, error } = await supabase
                 .from('meditation_sessions_content')
-                .select('id, title, description, thumbnail_url, duration_minutes, category, is_premium, creator_name, voice_url, mood_tags, time_of_day, difficulty_level, legacy_id')
+                .select('id, title, description, thumbnail_url, duration_minutes, category, is_premium, creator_name, voice_url, mood_tags, time_of_day, difficulty_level, legacy_id, slug')
                 .order('title', { ascending: true });
 
             if (error) {
@@ -95,9 +118,28 @@ export const sessionsService = {
             return [];
         } catch (error) {
             console.log('[sessionsService] Exception: Entrando en modo RESILIENCIA (usando fallback local)');
-            // Return local sessions directly as fallback - although they need to be MeditationSessionContent format
-            // but for simplicity in this V2 architecture, we use them as the base.
             return MEDITATION_SESSIONS as any[];
+        }
+    },
+
+    /**
+     * ROTACIÓN DINÁMICA: Obtiene sesiones validadas (slug != null) por categoría.
+     * Úsalo con pickSessionByDaySeed() para selección determinista diaria.
+     */
+    async getSessionsByTheme(category: string, limit = 60): Promise<MeditationSessionContent[]> {
+        try {
+            const { data, error } = await supabase
+                .from('meditation_sessions_content')
+                .select('id, title, description, thumbnail_url, duration_minutes, category, is_premium, creator_name, voice_url, mood_tags, time_of_day, difficulty_level, legacy_id, slug')
+                .eq('category', category)
+                .not('slug', 'is', null)   // Solo sesiones validadas por el admin panel
+                .limit(limit);
+            if (error) throw error;
+            return data || [];
+        } catch {
+            // Fallback local: filtrar por categoría (offline)
+            console.log(`[sessionsService] Offline getSessionsByTheme(${category}): usando fallback local`);
+            return MEDITATION_SESSIONS.filter(s => s.category === category) as any[];
         }
     },
 
@@ -277,7 +319,6 @@ export const soundscapesService = {
             }
 
             console.log('No soundscapes found in DB, using local fallback.');
-            // Fallback si la tabla está vacía
             const { SOUNDSCAPES } = require('../data/soundscapesData');
             return SOUNDSCAPES;
         } catch (error) {
@@ -334,7 +375,7 @@ export const audiobooksService = {
         try {
             const { data, error } = await supabase
                 .from('audiobooks')
-                .select('id, title, author, description, image_url, audio_url, duration_minutes, category, is_premium, is_featured')
+                .select('id, title, author, description, image_url, audio_url, duration_minutes, category, is_premium, is_featured, slug')
                 .order('is_featured', { ascending: false })
                 .order('created_at', { ascending: false });
 

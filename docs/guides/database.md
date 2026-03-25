@@ -17,6 +17,7 @@ Esta guía detalla la infraestructura de datos de Paziify. Esta versión se sinc
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `legacy_id` | TEXT | ID único para la App (ej: "anx_401"). Autosync con `slug`. |
+| `slug` | TEXT | **[v2.54.0] Sello de validación del Admin Panel.** `NULL` = borrador/pendiente. Con valor = validada, entra en el pool de rotación diaria automáticamente. |
 | `description` | TEXT | [NEW v2.39.0] Sinopsis real síncrona con el App. |
 | `audio_config`| JSONB | Configuración de Binaurales y Soundscapes. |
 | `breathing_config`| JSONB | Tiempos de inhalación/exhalación. |
@@ -24,6 +25,19 @@ Esta guía detalla la infraestructura de datos de Paziify. Esta versión se sinc
 | `challenge_id` | UUID | [NEW v2.53.0] ID del reto vinculado. |
 | `challenge_day`| INT | [NEW v2.53.0] Día del reto (1..N). |
 | `life_mode` | TEXT | [NEW v2.53.0] Modo activo durante la sesión (healing/growth). |
+
+### `audiobooks` 📖 [NEW v2.54.0]
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `slug` | TEXT UNIQUE | Sello de validación del Admin Panel. `NULL` = borrador. Con valor = entra en pool de rotación diaria. |
+
+### `soundscapes` 🎵 [NEW v2.54.0]
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `slug` | TEXT UNIQUE | Sello de validación del Admin Panel. `NULL` = borrador. Con valor = entra en pool de rotación diaria. |
+
+> [!NOTE]
+> **Patrón Admin Panel → Rotación Automática (v2.54.0)**: El campo `slug` es el único interruptor de activación. Asignar `slug` a un contenido desde el panel admin lo incluye inmediatamente en la rotación diaria de la Home. No se requiere ningún cambio de código.
 
 ### `real_stories` 📚
 | Campo | Tipo | Descripción |

@@ -37,6 +37,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getGuideAvatar } from '../../constants/guides';
 import { OasisMeter } from '../../components/Oasis/OasisMeter';
 import { analyticsService } from '../../services/analyticsService';
+import { pickSessionByDaySeed } from '../../services/contentService';
 import { OasisChart } from '../../components/Oasis/OasisChart';
 import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
 import PurposeModal from '../../components/Home/PurposeModal';
@@ -262,50 +263,60 @@ const HomeScreen: React.FC = ({ navigation: _nav }: any) => {
     const recommendations = useMemo(() => {
         if (!allSessions || !allBooks || !allStories || !academyModules || !allSoundscapes) return null;
 
-        // 1. Daily Dose: Prioritize Active Challenge Session
-        let dailySession = allSessions[0];
+        // Categorías según el modo visual del usuario
+        const targetCats = visualMode === 'healing'
+            ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
+            : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
 
+        // 1. Sesión diaria: si hay reto activo, la sesión es la del reto (no rota)
+        let dailySession: any = null;
         if (userState.activeChallenge) {
-            const challengeSession = allSessions.find(s => s.legacy_id === userState.activeChallenge?.currentSessionSlug || s.id === userState.activeChallenge?.currentSessionSlug);
-            if (challengeSession) {
-                dailySession = challengeSession;
-            } else {
-                // Fallback to mode-based if challenge session not found
-                const targetCats = visualMode === 'healing'
-                    ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
-                    : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
-                dailySession = allSessions.find(s => targetCats.includes(s.category as string)) || allSessions[0];
-            }
+            const challengeSession = allSessions.find(
+                (s: any) => s.legacy_id === userState.activeChallenge?.currentSessionSlug
+                         || s.id === userState.activeChallenge?.currentSessionSlug
+            );
+            dailySession = challengeSession || allSessions[0];
         } else {
-            const targetCats = visualMode === 'healing'
-                ? ['calmasos', 'sueno', 'mindfulness', 'emocional', 'salud', 'kids']
-                : ['resiliencia', 'rendimiento', 'despertar', 'habitos'];
-            dailySession = allSessions.find(s => targetCats.includes(s.category as string)) || allSessions[0];
+            // ROTACIÓN DINÁMICA: solo sesiones validadas (slug != null), filtradas por modo
+            const filteredSessions = allSessions.filter(
+                (s: any) => targetCats.includes(s.category as string) && s.slug != null
+            );
+            // Fallback: si aún no hay sesiones con slug, usar todas las del modo
+            const pool = filteredSessions.length > 0
+                ? filteredSessions
+                : allSessions.filter((s: any) => targetCats.includes(s.category as string));
+            dailySession = pickSessionByDaySeed(pool, 0) || allSessions[0];
         }
 
-        // 2. Academy: Recommended course (AcademyModule) matching mode
-        const academyModule = academyModules.find(m =>
+        // 2. Academia: ROTACIÓN DINÁMICA (offset 4 para no coincidir con otros)
+        const filteredAcademy = academyModules.filter((m: any) =>
             visualMode === 'healing'
                 ? ['basics', 'health', 'sleep', 'family'].includes(m.category || '')
                 : ['professional', 'growth', 'anxiety'].includes(m.category || '')
+        );
+        const academyModule = pickSessionByDaySeed(
+            filteredAcademy.length > 0 ? filteredAcademy : academyModules, 4
         ) || academyModules[0];
 
-        // 3. Ambient Music (Sounds): Use real soundscapes
-        const ambientSound = allSoundscapes.find(s =>
-            visualMode === 'healing'
-                ? ['relax', 'nature', 'sleep'].some(c => s.name?.toLowerCase().includes(c))
-                : ['focus', 'energy', 'creative'].some(c => s.name?.toLowerCase().includes(c))
-        ) || allSoundscapes[0];
+        // 3. Música ambient: ROTACIÓN DINÁMICA — slug = validado por admin (offset 3)
+        const validatedSounds = allSoundscapes.filter((s: any) => s.slug != null);
+        const soundPool = validatedSounds.length > 0 ? validatedSounds : allSoundscapes;
+        const ambientSound = pickSessionByDaySeed(soundPool, 3) || allSoundscapes[0];
 
-        // 4. Real Stories: Based on mode
-        const realStory = allStories.find(st =>
+        // 4. Relatos: ROTACIÓN DINÁMICA por modo (offset 2)
+        const filteredStories = allStories.filter((st: any) =>
             visualMode === 'healing'
                 ? ['ansiedad', 'duelo', 'salud'].some(c => st.category?.toLowerCase().includes(c))
                 : ['growth', 'leadership', 'success', 'superacion'].some(c => st.category?.toLowerCase().includes(c))
+        );
+        const realStory = pickSessionByDaySeed(
+            filteredStories.length > 0 ? filteredStories : allStories, 2
         ) || allStories[0];
 
-        // 5. Featured Audiobook
-        const featuredBook = allBooks.find(b => b.is_featured) || allBooks[0];
+        // 5. Audiolibros: ROTACIÓN DINÁMICA — slug = validado por admin (offset 1)
+        const validatedBooks = allBooks.filter((b: any) => b.slug != null);
+        const bookPool = validatedBooks.length > 0 ? validatedBooks : allBooks;
+        const featuredBook = pickSessionByDaySeed(bookPool, 1) || allBooks[0];
 
         return {
             daily: dailySession,
