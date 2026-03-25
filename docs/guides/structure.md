@@ -78,18 +78,6 @@ C:\Mis Cosas\Proyectos\Paziify TEST\
 â”‚   â”œâ”€â”€ tutorials/              # [NEW] Tutoriales de diseÃ±o y uso
 â”‚   â””â”€â”€ sessions/               # Registro de sesiones
 â”œâ”€â”€ scripts/                    # Scripts SQL y [NEW] Guardianes de Husky
-â”‚   â””â”€â”€ husky_guard.js          # Centinela de Integridad de Runtime
-â”œâ”€â”€ src/                        # CÃ³digo fuente principal
-â”‚   â”œâ”€â”€ assets/                 # Assets optimizados
-â”‚   â”œâ”€â”€ components/             # Componentes reutilizables
-â”‚   â”‚   â”œâ”€â”€ Challenges/         # [NEW] Modales de reto
-â”‚   â”œâ”€â”€ constants/              # Constantes (temas, categorÃ­as, retos)
-â”‚   â”‚   â”œâ”€â”€ challenges.ts       # [NEW] Maestro de retos y slugs
-â”‚   â”‚   â”œâ”€â”€ guides.ts           # [NEW] Fuente de verdad de avatares de guÃ­as (Aria, Ã‰ter...)
-â”‚   â”œâ”€â”€ context/                # Contextos de React
-â”‚   â”œâ”€â”€ data/                   # Datos estÃ¡ticos y mocks
-â”‚   â”œâ”€â”€ hooks/                  # Custom hooks
-â”‚   â”œâ”€â”€ lib/                    # Configuraciones de librerÃ­as
 â”‚   â”œâ”€â”€ navigation/             # NavegaciÃ³n
 â”‚   â”œâ”€â”€ screens/                # Pantallas de la app
 â”‚   â”œâ”€â”€ services/               # Servicios (API, auth, etc.)

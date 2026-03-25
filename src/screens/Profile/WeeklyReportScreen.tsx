@@ -24,6 +24,8 @@ import { OasisHeader } from '../../components/Oasis/OasisHeader';
 import { OasisChart } from '../../components/Oasis/OasisChart';
 import { OasisCalendar } from '../../components/Oasis/OasisCalendar';
 import { OasisLineChart } from '../../components/Oasis/OasisLineChart';
+import { calculateResilienceLevel } from '../../utils/resilienceUtils';
+import ResilienceTree from '../../components/Profile/ResilienceTree';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -124,6 +126,8 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     const dailyGoal = userState.dailyGoalMinutes || 20;
+    const lightPoints = userState.resilienceLight || 0;
+    const { currentLevel, activeLevelData } = calculateResilienceLevel(lightPoints);
 
     // Helper para fecha local (evita desfases UTC)
     const toLocalDateStr = (d: Date) => {
@@ -239,6 +243,30 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
                 ) : (
                     <>
+                        {/* HERO: Celebración de Prestigio */}
+                        <View style={[styles.heroCard, { borderColor: activeLevelData.color + '40' }]}>
+                            <LinearGradient
+                                colors={[activeLevelData.color + '15', 'transparent']}
+                                style={StyleSheet.absoluteFill}
+                            />
+                            <View style={styles.heroContent}>
+                                <View style={styles.heroTextContent}>
+                                    <Text style={styles.heroTitle}>Eres Nivel {currentLevel}</Text>
+                                    <Text style={[styles.heroSubtitle, { color: activeLevelData.color }]}>
+                                        {activeLevelData.name.toUpperCase()}
+                                    </Text>
+                                    <Text style={styles.heroBody}>
+                                        {timeRange === 'weekly' 
+                                            ? "Tu constancia semanal ha llenado de luz tus raíces."
+                                            : "Tu dedicación mensual fortalece tu oasis interior."}
+                                    </Text>
+                                </View>
+                                <View style={styles.heroTreeContainer}>
+                                    <ResilienceTree size={90} lightPoints={lightPoints} hideBlooms={false} />
+                                </View>
+                            </View>
+                        </View>
+
                         {/* KPI Resumen */}
                         <View style={styles.kpiRow}>
                             <KpiCard icon="flame" color="#FBBF24" value={`${userState.streak}`} label="días racha" />
@@ -448,6 +476,48 @@ const styles = StyleSheet.create({
     },
     rangeTextActive: {
         color: '#FFF',
+    },
+
+    heroCard: {
+        borderRadius: 24,
+        marginBottom: 24,
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        backgroundColor: 'rgba(255,255,255,0.02)',
+    },
+    heroContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 24,
+    },
+    heroTextContent: {
+        flex: 1,
+        paddingRight: 10,
+    },
+    heroTreeContainer: {
+        width: 100,
+        height: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: -10,
+    },
+    heroTitle: {
+        fontFamily: 'Outfit_900Black',
+        fontSize: 24,
+        color: '#FFF',
+        marginBottom: 2,
+    },
+    heroSubtitle: {
+        fontFamily: 'Outfit_800ExtraBold',
+        fontSize: 11,
+        letterSpacing: 2,
+        marginBottom: 8,
+    },
+    heroBody: {
+        fontFamily: 'Outfit_400Regular',
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.5)',
+        lineHeight: 18,
     },
 
     kpiRow: { flexDirection: 'row', gap: 8, marginBottom: 28 },

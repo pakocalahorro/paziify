@@ -533,6 +533,7 @@ export const analyticsService = {
             if (localLogs.length === 0) return;
 
             console.log(`[Analytics] Intentando sincronizar ${localLogs.length} logs pendientes...`);
+            let syncedCount = 0;
 
             for (const log of localLogs) {
                 try {
@@ -551,11 +552,23 @@ export const analyticsService = {
 
                     if (!error) {
                         await LocalAnalyticsService.removeLog(log.completed_at);
+                        syncedCount++;
                         console.log(`[Analytics] Log sincronizado: ${log.completed_at}`);
                     }
                 } catch (err) {
                     // Falló este log individual, se queda en la cola
                 }
+            }
+
+            // [Purgado de Cachés tras Sincronización Universal]
+            if (syncedCount > 0) {
+                _memCache.clear();
+                const keys = await AsyncStorage.getAllKeys();
+                const analyticsKeys = keys.filter(k => k.includes(`_${userId}`));
+                if (analyticsKeys.length > 0) {
+                    await AsyncStorage.multiRemove(analyticsKeys);
+                }
+                console.log(`[Analytics] Purgadas ${analyticsKeys.length} cachés físicas tras sincronización de ${syncedCount} logs.`);
             }
         } catch (error) {
             console.log('[Analytics] Error en sincronización de fondo:', error);

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '../../context/AppContext';
+import { calculateResilienceLevel } from '../../utils/resilienceUtils';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, withSequence, withDelay } from 'react-native-reanimated';
 
 interface OasisHeaderProps {
@@ -160,6 +161,8 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
         ? propActiveChallengeType
         : (userState?.activeChallenge?.type as 'reto' | 'mision' | 'desafio' | undefined);
 
+    const { activeLevelData } = calculateResilienceLevel(userState?.resilienceLight || 0);
+
     // Challenge Colors
     const challengeColor =
         activeChallengeType === 'mision' ? '#FBBF24' : // Amber/Gold
@@ -289,12 +292,14 @@ export const OasisHeader: React.FC<OasisHeaderProps> = ({
                             <View style={styles.profileRow}>
                                 <TouchableOpacity onPress={onProfilePress} style={styles.profileBox}>
                                     <View style={styles.textRight}>
-                                        <Text style={styles.userLabel}>MI PERFIL</Text>
+                                        <Text style={[styles.userLabel, { color: activeLevelData.color, opacity: 0.9, fontWeight: '900' }]}>
+                                            NIVEL {activeLevelData.id} • {activeLevelData.name.toUpperCase()}
+                                        </Text>
                                         <Text style={styles.userNameText} numberOfLines={1}>{userName}</Text>
                                     </View>
                                     <Image
                                         source={{ uri: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' }}
-                                        style={styles.avatarMini}
+                                        style={[styles.avatarMini, { borderColor: activeLevelData.color, borderWidth: 2 }]}
                                     />
                                 </TouchableOpacity>
                             </View>

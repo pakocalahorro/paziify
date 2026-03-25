@@ -27,7 +27,7 @@ const ChallengeCompletionScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const route = useRoute<RouteProps>();
     const { challengeId, challengeTitle, totalDaysCompleted } = route.params;
-    const { user, updateUserState } = useApp();
+    const { user, userState, updateUserState } = useApp();
 
     useEffect(() => {
         if (Haptics.notificationAsync) {
@@ -71,8 +71,7 @@ const ChallengeCompletionScreen = () => {
                 <View style={styles.treeContainer}>
                     <View style={styles.glowCircle} />
                     <ResilienceTree
-                        daysPracticed={totalDaysCompleted}
-                        totalSteps={totalDaysCompleted}
+                        lightPoints={userState?.resilienceLight || 0}
                         size={220}
                     />
                 </View>

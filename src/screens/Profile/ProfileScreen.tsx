@@ -18,6 +18,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useApp } from '../../context/AppContext';
 import { Screen, RootStackParamList } from '../../types';
 import { theme } from '../../constants/theme';
+import { calculateResilienceLevel } from '../../utils/resilienceUtils';
 import { analyticsService, UserStats } from '../../services/analyticsService';
 import { CardioService, CardioResult } from '../../services/CardioService';
 import ResilienceTree from '../../components/Profile/ResilienceTree';
@@ -115,6 +116,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         resilienceScore: userState.resilienceScore || 50
     }, [stats, userState]);
 
+    const lightPoints = userState.resilienceLight || 0;
+    const { currentLevel, progressInLevel, activeLevelData, LEVEL_DATA } = calculateResilienceLevel(lightPoints);
+
     return (
         <OasisScreen
             header={
@@ -150,19 +154,22 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         </TouchableOpacity>
 
                         <ResilienceTree
-                            daysPracticed={userState.activeChallenge ? userState.activeChallenge.daysCompleted : displayStats.currentStreak}
-                            totalSteps={userState.activeChallenge ? userState.activeChallenge.totalDays : 30}
+                            lightPoints={userState.resilienceLight || 0}
                             size={220}
                             isGuest={isGuest}
                         />
                         <View style={styles.treeLabels}>
-                            <Text style={styles.treeScore}>
-                                {userState.activeChallenge
-                                    ? `${userState.activeChallenge.daysCompleted}/${userState.activeChallenge.totalDays}`
-                                    : `${displayStats.currentStreak}/30`}
-                            </Text>
-                            <Text style={styles.treeSubtext}>
-                                {userState.activeChallenge ? "Días completados" : "Días de Calma este mes"}
+                            {userState.activeChallenge && (
+                                <View style={styles.activeMisionBadge}>
+                                    <Ionicons name="flag" size={12} color="#FBBF24" />
+                                    <Text style={styles.activeMisionText}>
+                                        Misión: {userState.activeChallenge.daysCompleted}/{userState.activeChallenge.totalDays} Días
+                                    </Text>
+                                </View>
+                            )}
+                            <Text style={styles.treeScore}>Nivel {currentLevel}</Text>
+                            <Text style={[styles.treeSubtext, { color: activeLevelData.color }]}>
+                                {activeLevelData.name} • {progressInLevel}/100 pts
                             </Text>
                             <Text style={styles.motivationalText}>
                                 {motivationalMessage.toUpperCase()}
@@ -207,20 +214,47 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                         <Ionicons name="close-circle" size={26} color="rgba(255,255,255,0.5)" />
                                     </TouchableOpacity>
                                     <View style={styles.infoContent}>
-                                        <Ionicons 
-                                            name="sparkles-outline" 
-                                            size={32} 
-                                            color={theme.colors.primary} 
-                                            style={{ marginBottom: 12 }} 
-                                        />
-                                        <Text style={styles.infoTitle}>
-                                            {userState.activeChallenge ? "Tu Reto Activo" : "Tu Florecer Mensual"}
-                                        </Text>
+                                        <Text style={styles.infoTitle}>Tu Evolución Espiritual</Text>
                                         <Text style={styles.infoText}>
-                                            {userState.activeChallenge
-                                                ? `Estás en el camino de "${userState.activeChallenge.title}". Cada sesión completa hace brillar tu árbol con una nueva luz de resiliencia.`
-                                                : "Cada día que meditas enciendes una nueva luz en tu árbol. Completa el ciclo de 30 días para integrar el hábito de la paz en tu vida diaria."}
+                                            Acumula puntos de paz al meditar. Cada 100 puntos tu árbol logra un nuevo nivel de consciencia luminosa.
                                         </Text>
+
+                                        <View style={{ width: '100%', marginTop: 20, gap: 10 }}>
+                                            {LEVEL_DATA.map((l: any) => {
+                                                const isCompleted = currentLevel > l.id;
+                                                const isActive = currentLevel === l.id;
+                                                const isLocked = currentLevel < l.id;
+                                                return (
+                                                    <View key={l.id} style={{ 
+                                                        flexDirection: 'row', 
+                                                        alignItems: 'center',
+                                                        padding: 12,
+                                                        borderRadius: 16,
+                                                        backgroundColor: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
+                                                        borderWidth: 1,
+                                                        borderColor: isActive ? l.color : 'rgba(255,255,255,0.05)',
+                                                    }}>
+                                                        <Ionicons 
+                                                            name={isCompleted ? "checkmark-circle" : (isActive ? "leaf" : "lock-closed")} 
+                                                            size={20} 
+                                                            color={isCompleted ? theme.colors.primary : (isActive ? l.color : 'rgba(255,255,255,0.3)')} 
+                                                            style={{ marginRight: 12 }}
+                                                        />
+                                                        <View style={{ flex: 1 }}>
+                                                            <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: isLocked ? 'rgba(255,255,255,0.4)' : '#FFF' }}>
+                                                                Nivel {l.id}: {l.name}
+                                                            </Text>
+                                                            <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{l.text}</Text>
+                                                        </View>
+                                                        {isActive && (
+                                                            <Text style={{ fontFamily: 'Outfit_800ExtraBold', color: l.color, fontSize: 12 }}>
+                                                                {progressInLevel}/100
+                                                            </Text>
+                                                        )}
+                                                    </View>
+                                                )
+                                            })}
+                                        </View>
                                     </View>
                                 </BlurView>
                             </Animated.View>
@@ -406,9 +440,27 @@ const styles = StyleSheet.create({
     treeSubtext: {
         fontSize: 10,
         fontWeight: '800',
-        color: 'rgba(255,255,255,0.4)',
         letterSpacing: 1,
         textTransform: 'uppercase',
+    },
+    activeMisionBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 12,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(251, 191, 36, 0.3)',
+        gap: 6,
+    },
+    activeMisionText: {
+        fontSize: 10,
+        fontWeight: '800',
+        color: '#FBBF24',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     motivationalText: {
         marginTop: 15,

@@ -44,12 +44,12 @@ const getBezierPoint = (t: number, p0: number[], p1: number[], p2: number[]) => 
  * Solo usa 1 hook de posición (pos). El pulso y halo vienen de fuera.
  * 60 luces x 1 hook = 60 hooks (Perfectamente fluido para React Native).
  */
-const BloomLight = ({ points, growth, pulse, halo, isActive }: any) => {
+const BloomLight = ({ points, growth, pulse, halo, isActive, colors, glowOpacity }: any) => {
     // 🌟 REGLA DE HOOKS: Todos los hooks deben llamarse incondicionalmente al inicio
     const pos = useDerivedValue(() => getBezierPoint(growth.value, points[0], points[1], points[2]));
     
-    // Simplificamos los hooks para que sean estables
-    const opacity = useDerivedValue(() => (isActive && growth.value > 0.1) ? 1 : 0);
+    // El aura responde al estado del componente + Fade-In global (Wow Effect)
+    const opacity = useDerivedValue(() => (isActive && growth.value > 0.1) ? glowOpacity.value : 0);
     const cx = useDerivedValue(() => pos.value.x);
     const cy = useDerivedValue(() => pos.value.y);
     const haloRadiusLarge = useDerivedValue(() => 22 * halo.value);
@@ -62,55 +62,51 @@ const BloomLight = ({ points, growth, pulse, halo, isActive }: any) => {
     return (
         <Group opacity={opacity}>
             {/* Halo Exterior */}
-            <Circle 
-                cx={cx} 
-                cy={cy} 
-                r={haloRadiusLarge} 
-                color="rgba(255, 200, 0, 0.07)" 
-            />
+            <Circle cx={cx} cy={cy} r={haloRadiusLarge} color={colors.haloOuter} />
             {/* Halo Medio */}
-            <Circle 
-                cx={cx} 
-                cy={cy} 
-                r={haloRadiusMed} 
-                color="rgba(255, 210, 0, 0.15)" 
-            />
+            <Circle cx={cx} cy={cy} r={haloRadiusMed} color={colors.halo}  />
             {/* Glow Central */}
-            <Circle 
-                cx={cx} 
-                cy={cy} 
-                r={pulseRadius} 
-                color="rgba(255, 215, 0, 0.45)" 
-            />
-            {/* Núcleo de luz */}
-            <Circle 
-                cx={cx} 
-                cy={cy} 
-                r={1.8} 
-                color="white" 
-            />
+            <Circle cx={cx} cy={cy} r={pulseRadius} color={colors.glow} />
+            {/* Núcleo base permanente */}
+            <Circle cx={cx} cy={cy} r={1.8} color={colors.core} />
         </Group>
     );
 };
 
 interface ResilienceTreeProps {
-    daysPracticed?: number;
-    totalSteps?: number;
+    lightPoints?: number;
     size?: number;
     isGuest?: boolean;
     hideBlooms?: boolean;
 }
 
 const ResilienceTree: React.FC<ResilienceTreeProps> = ({
-    daysPracticed = 0,
-    totalSteps = 30,
+    lightPoints = 0,
     size = 250,
     isGuest = false,
     hideBlooms = false
 }) => {
     const [containerWidth, setContainerWidth] = useState(size);
-    const targetGrowth = isGuest ? 0.35 : 0.2 + (Math.min(daysPracticed / totalSteps, 1) * 0.8);
-    const growth = useSharedValue(0.1);
+    
+    // Matemáticas del PRESTIGIO Y MAGIA (100 puntos = 1 Nivel de purpurina)
+    const points = lightPoints || 0;
+    const level = Math.floor(points / 100);
+    const progressInLevel = points % 100;
+    const targetGrowth = isGuest ? 0.35 : 0.2 + (Math.log(progressInLevel + 1) / Math.log(101)) * 0.8;
+    
+    // Carga la forma orgánica a 0 MILISEGUNDOS! (Sin estrés visual)
+    const growth = useSharedValue(targetGrowth);
+    const glowOpacity = useSharedValue(0);
+
+    // Niveles de Consciencia y Aura Logarítmica
+    const colors = useMemo(() => [
+        { name: 'Shamatha', core: 'white', glow: 'rgba(255, 140, 0, 0.45)', halo: 'rgba(255, 100, 0, 0.15)', haloOuter: 'rgba(255, 80, 0, 0.07)' }, // Naranja
+        { name: 'Vipassana', core: 'white', glow: 'rgba(0, 191, 255, 0.45)', halo: 'rgba(0, 150, 255, 0.15)', haloOuter: 'rgba(0, 100, 255, 0.07)' }, // Azul
+        { name: 'Metta', core: 'white', glow: 'rgba(50, 205, 50, 0.45)', halo: 'rgba(50, 205, 50, 0.15)', haloOuter: 'rgba(50, 180, 50, 0.07)' }, // Verde
+        { name: 'Bodhi', core: 'white', glow: 'rgba(138, 43, 226, 0.45)', halo: 'rgba(138, 43, 226, 0.15)', haloOuter: 'rgba(138, 43, 226, 0.07)' }, // Morado
+        { name: 'Zen Absoluto', core: 'white', glow: 'rgba(255, 215, 0, 0.60)', halo: 'rgba(255, 215, 0, 0.20)', haloOuter: 'rgba(255, 215, 0, 0.10)' }, // Oro/Blanco
+    ], []);
+    const activeColor = colors[Math.min(level, 4)];
 
     // 🌟 POOL DE ANIMACIONES (Solo 6 patrones para ahorro masivo de hooks)
     const pulsePool = [
@@ -123,10 +119,14 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
     ];
 
     useEffect(() => {
+        // En caso de reactividad real (UI ganando puntos in situ)
         growth.value = withTiming(targetGrowth, {
             duration: 1200,
             easing: Easing.out(Easing.exp),
         });
+        
+        // WOW EFFECT: Aparición paulatina del poder del usuario tras 0s de carga.
+        glowOpacity.value = withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.ease) });
 
         // Iniciamos el pool de animaciones globales
         pulsePool.forEach((p, i) => {
@@ -230,12 +230,11 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
                     ))}
 
                     {!hideBlooms && treeData.blooms.map((bloom, i) => {
-                        // LÓGICA DE ACTIVACIÓN
                         let isActive = false;
                         if (!isGuest) {
-                            if (totalSteps <= 3) isActive = i < (daysPracticed * 34);
-                            else if (totalSteps <= 7) isActive = i < (daysPracticed * 15);
-                            else isActive = i < (daysPracticed * 4);
+                            const totalBlooms = treeData.blooms.length;
+                            const bloomsToLight = level >= 4 ? totalBlooms : Math.floor((progressInLevel / 100) * totalBlooms);
+                            isActive = points > 0 && i < Math.max(1, bloomsToLight);
                         } else {
                             isActive = i % 8 === 0;
                         }
@@ -250,6 +249,8 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
                                 pulse={pulsePool[i % 6]}
                                 halo={haloPool[i % 6]}
                                 isActive={isActive}
+                                colors={activeColor}
+                                glowOpacity={glowOpacity}
                             />
                         );
                     })}

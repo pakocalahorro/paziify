@@ -139,7 +139,10 @@ Paziify ha simplificado el viaje del usuario para maximizar la introspección:
 
 ## 10. Sincronización 100% Cloud y Perfil 3.0 🌟
 - **Tu Oasis te Sigue**: Favoritos, historial y ajustes persistidos en Supabase.
-- **Árbol de Resiliencia Dinámico**: El árbol crece proporcionalmente a la duración de tu programa (3, 7, 30 días).
+- **Árbol de Resiliencia Dinámico**: El árbol representa tu alma espiritual y ya no crece por "días", sino acumulando "Puntos de Luz" sesión a sesión. 
+  - Al ganar puntos avanzas por 5 Fases Místicas (Shamatha, Vipassana, Metta, Bodhi, Zen Absoluto).
+  - Tu Avatar en la Home reflejará tu Fase Actual en tiempo real.
+  - Completar una meditación suma +3 puntos base, pero la constancia recompensa rápido: Rachas de 3 días dan +2 Puntos Extra (Booster Plata), y Rachas de 7 días dan +5 (Booster Oro).
 
 ---
 
@@ -253,5 +256,5 @@ Paziify introduce una de sus mayores actualizaciones en la experiencia de usuari
 
 ---
 
-*Última revisión: 6 de Marzo de 2026 - Versión 2.43.0 (Auditoría & Refinamiento)*
+*Última revisión: 25 de Marzo de 2026 - Versión 2.55.0 (Gamificación Logarítmica del Árbol)*
 **Pantalla:** `WelcomeScreen` -> `SpiritualPreloader` -> `Nexus` -> `HomeScreen` -> `PremiumMeditation`

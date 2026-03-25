@@ -251,8 +251,16 @@ La culminación del rediseño de Paziify se basa en el PDS v3.0, caracterizado p
 ---
 
 ### 5. El Árbol de Resonancia (PDS 4.0 Vision)
-Propuesta estratégica que sustituye el contador matemático (X/30) por una iluminación respiratoria basada en el `ResilienceScore` (0-100), eliminando el estrés de los reseteos mensuales.
+Propuesta estratégica que sustituye el contador matemático (X/30) por una iluminación respiratoria basada en el `resilienceLight` (Puntos de Luz infinita), eliminando el estrés de los reseteos mensuales.
+
+#### Fases Espirituales de Prestigio (v2.55.0)
+La app inyecta de forma persistente un Aura alrededor del usuario en Cabeceras y Reportes basada en su Fase de crecimiento:
+1. **Shamatha** (0 - 99 pts) | Color: Naranja Atardecer `#FF8C00`
+2. **Vipassana** (100 - 199 pts) | Color: Azul Celestial `#00BFFF`
+3. **Metta** (200 - 299 pts) | Color: Verde Vida `#32CD32`
+4. **Bodhi** (300 - 399 pts) | Color: Púrpura Trascendental `#8A2BE2`
+5. **Zen Absoluto** (400+ pts) | Color: Oro Ascendido `#FFD700`
 
 ---
 
-*Última revisión: 23 de Marzo de 2026 - Versión 2.53.0 (Zero Defects Oasis 3.0)*
+*Última revisión: 25 de Marzo de 2026 - Versión 2.55.0 (Omnipresencia y Gamificación Logarítmica)*

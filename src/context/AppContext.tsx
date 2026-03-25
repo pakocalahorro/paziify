@@ -68,6 +68,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [isProfileLoaded, setIsProfileLoaded] = useState(false);
     const [isFirstEntryOfDay, setIsFirstEntryOfDay] = useState(false);
     const prevConnectedRef = useRef<boolean | null>(null);
+    const userStateRef = useRef<UserState>(defaultUserState);
+    const userRef = useRef<User | null>(null);
+
+    useEffect(() => {
+        userStateRef.current = userState;
+    }, [userState]);
+
+    useEffect(() => {
+        userRef.current = user;
+    }, [user]);
 
     // Track first entry of the day
     useEffect(() => {
@@ -116,12 +126,39 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 setIsConnected(state.isConnected);
 
                 // Si recuperamos conexión y el usuario está logado, sincronizar de fondo
-                if (wasOffline && state.isConnected && user?.id) {
+                const currentUser = userRef.current;
+                if (wasOffline && state.isConnected && currentUser?.id) {
                     import('../services/analyticsService').then(({ analyticsService }) => {
-                        analyticsService.syncPendingLogs(user.id);
+                        analyticsService.syncPendingLogs(currentUser.id);
                     });
                     import('../services/CardioService').then(({ CardioService }) => {
-                        CardioService.syncPendingScans(user.id);
+                        CardioService.syncPendingScans(currentUser.id);
+                    });
+                    
+                    // Sincronización Universal de Perfil (Online Harmony)
+                    const currentState = userStateRef.current;
+                    import('../services/supabaseClient').then(({ supabase }) => {
+                        supabase.from('profiles').update({
+                            has_accepted_monthly_challenge: currentState.hasAcceptedMonthlyChallenge,
+                            daily_goal_minutes: currentState.dailyGoalMinutes,
+                            weekly_goal_minutes: currentState.weeklyGoalMinutes,
+                            life_mode: currentState.lifeMode,
+                            last_selected_background_uri: currentState.lastSelectedBackgroundUri,
+                            last_entry_date: currentState.lastEntryDate,
+                            favorite_session_ids: currentState.favoriteSessionIds,
+                            completed_session_ids: currentState.completedSessionIds,
+                            active_challenge: currentState.activeChallenge,
+                            notification_settings: currentState.settings,
+                            has_seen_welcome_tour: currentState.hasSeenWelcomeTour,
+                            total_minutes: currentState.totalMinutes,
+                            resilience_score: currentState.resilienceScore,
+                            resilience_light: currentState.resilienceLight,
+                            last_meditation_date: currentState.lastMeditationDate,
+                            streak: currentState.streak
+                        }).eq('id', currentUser.id).then(({ error }: { error: any }) => {
+                            if (error) console.warn('[AppContext] Resync Profile Error:', error.message);
+                            else console.log('[AppContext] Resync Profile Success');
+                        });
                     });
                 }
             });
@@ -190,6 +227,25 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                             }
                         }
 
+                        // Cálculo de Decaimiento (Erosión Mística del Árbol)
+                        const remoteLight = data.resilience_light || 0;
+                        const lastDate = data.last_meditation_date || prev.lastMeditationDate;
+                        let decay = 0;
+                        if (lastDate) {
+                            const hoursSince = (Date.now() - new Date(lastDate).getTime()) / (1000 * 60 * 60);
+                            if (hoursSince > 48) {
+                                decay = Math.floor((hoursSince - 48) / 24);
+                            }
+                        }
+                        
+                        // Si es legacy sin puntos de luz, usamos sus stats pasados
+                        const fallbackLight = data.resilience_score > 0 && !data.resilience_light 
+                            ? data.resilience_score : 0;
+                        
+                        const finalServerLight = Math.max(0, (remoteLight || fallbackLight) - decay);
+                        // Merge offline seguro: nos quedamos el mayor para no pisar offline
+                        const finalLight = Math.max(finalServerLight, prev.resilienceLight || 0);
+
                         return {
                             ...prev,
                             name: data.full_name || prev.name,
@@ -211,6 +267,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                             completedSessionIds: [...new Set([...(data.completed_session_ids || []), ...(prev.completedSessionIds || [])])],
                             activeChallenge: finalChallenge,
                             settings: data.notification_settings || prev.settings,
+                            resilienceLight: finalLight,
+                            lastMeditationDate: lastDate,
                         };
                     });
 
@@ -261,6 +319,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                                 has_seen_welcome_tour: userState.hasSeenWelcomeTour,
                                 total_minutes: userState.totalMinutes,
                                 resilience_score: userState.resilienceScore,
+                                resilience_light: userState.resilienceLight,
+                                last_meditation_date: userState.lastMeditationDate,
                                 streak: userState.streak
                             })
                             .eq('id', user.id);
@@ -292,6 +352,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         userState.hasSeenWelcomeTour,
         userState.totalMinutes,
         userState.resilienceScore,
+        userState.resilienceLight,
+        userState.lastMeditationDate,
         userState.streak,
         isLoading,
         isProfileLoaded

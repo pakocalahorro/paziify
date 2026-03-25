@@ -57,7 +57,9 @@ export interface UserState {
     hasMissedDay: boolean;
     isDailySessionDone: boolean;
     streak: number;
-    resilienceScore: number;
+    resilienceScore: number; // Bio-Feedback (1-100)
+    resilienceLight?: number; // Prestigio del Árbol (Niveles Logarítmicos)
+    lastMeditationDate?: string; // Para control de erosión/inactividad
     isPlusMember: boolean;
     role?: string; // e.g., 'admin', 'user'
     totalMinutes?: number;

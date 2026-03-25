@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ReanimatedAnimated, {
     useSharedValue,
     useAnimatedStyle,
@@ -75,6 +75,36 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
 
     const isChallengeSession = !!userState.activeChallenge;
 
+    const newStreak = useMemo(() => {
+        const now = new Date();
+        const lastSession = userState.lastSessionDate ? new Date(userState.lastSessionDate) : null;
+        if (!lastSession || (now.getTime() - lastSession.getTime() > 24 * 60 * 60 * 1000)) {
+            return (userState.streak || 0) + 1;
+        }
+        return userState.streak || 0;
+    }, [userState.lastSessionDate, userState.streak]);
+
+    const { basePoints, moodBonus, streakBonus, streakMessage, totalEarned } = useMemo(() => {
+        const base = isChallengeSession ? 5 : 3;
+        const mood = selectedMood >= 3 ? 1 : 0;
+        let streakB = 0;
+        let streakMsg = '';
+        if (newStreak >= 7) {
+            streakB = 5;
+            streakMsg = 'Racha Oro (7+ días)';
+        } else if (newStreak >= 3) {
+            streakB = 2;
+            streakMsg = 'Racha Plata (3+ días)';
+        }
+        return {
+            basePoints: base,
+            moodBonus: mood,
+            streakBonus: streakB,
+            streakMessage: streakMsg,
+            totalEarned: base + mood + streakB
+        };
+    }, [isChallengeSession, selectedMood, newStreak]);
+
     useEffect(() => {
         if (Platform.OS !== 'web') {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -110,18 +140,15 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
 
         // 2. Update local state (UI Responsiveness)
         const now = new Date();
-        const lastSession = userState.lastSessionDate ? new Date(userState.lastSessionDate) : null;
-        let newStreak = userState.streak;
-
-        if (!lastSession || (now.getTime() - lastSession.getTime() > 24 * 60 * 60 * 1000)) {
-            newStreak += 1;
-        }
+        const newLight = (userState.resilienceLight || 0) + totalEarned;
 
         const updateObj: Partial<UserState> = {
             streak: newStreak,
             isDailySessionDone: true,
             lastSessionDate: now.toISOString(),
-            resilienceScore: Math.min(userState.resilienceScore + (selectedMood >= 3 ? 3 : 1), 100),
+            resilienceScore: Math.min(userState.resilienceScore + (selectedMood >= 3 ? 3 : 1), 100), // Bio-feedback
+            resilienceLight: newLight, // Prestigio (Árbol)
+            lastMeditationDate: now.toISOString(),
             totalMinutes: (userState.totalMinutes || 0) + durationMinutes,
         };
 
@@ -231,16 +258,22 @@ const SessionEndScreen: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.badgeText}>{isChallengeSession ? 'MISIÓN COMPLETADA' : 'SESIÓN COMPLETADA'}</Text>
                 </View>
 
-                {/* VISUALIZACIÓN: Solo Árbol para Retos */}
-                {isChallengeSession && (
-                    <View style={{ height: 200, justifyContent: 'center', marginBottom: 20 }}>
-                        <ResilienceTree
-                            daysPracticed={userState.activeChallenge?.daysCompleted ? userState.activeChallenge.daysCompleted + 1 : 1}
-                            totalSteps={userState.activeChallenge?.totalDays}
-                            size={180}
-                        />
-                    </View>
-                )}
+                {/* VISUALIZACIÓN: Árbol Universal Animado por Recompensa In Situ */}
+                <View style={{ height: 200, justifyContent: 'center', marginBottom: 10 }}>
+                    <ResilienceTree
+                        lightPoints={(userState.resilienceLight || 0) + totalEarned}
+                        size={180}
+                    />
+                </View>
+
+                {/* VISUALIZADOR DE PUNTOS GANADOS (Transparente) */}
+                <View style={[styles.rewardContainer, { marginBottom: 20 }]}>
+                    <Text style={styles.rewardText}>+{basePoints} {isChallengeSession ? 'Por Misión' : 'Por Práctica'}</Text>
+                    {moodBonus > 0 && <Text style={styles.rewardText}>+{moodBonus} Bio-Feedback</Text>}
+                    {streakBonus > 0 && <Text style={[styles.rewardText, { color: '#FBBF24', borderColor: 'rgba(251, 191, 36, 0.3)', borderWidth: 1 }]}>
+                        +{streakBonus} {streakMessage}
+                    </Text>}
+                </View>
 
                 {isChallengeSession && (
                     <Text style={[styles.title, { fontSize: 18, color: theme.colors.accent, marginBottom: 10 }]}>
@@ -433,6 +466,23 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: 'rgba(255,255,255,0.4)',
         letterSpacing: 1,
+    },
+    rewardContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 6,
+        paddingHorizontal: 20,
+    },
+    rewardText: {
+        fontFamily: 'Outfit_700Bold',
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.7)',
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+        overflow: 'hidden',
     },
     assistantBox: {
         backgroundColor: 'rgba(255, 255, 255, 0.03)',

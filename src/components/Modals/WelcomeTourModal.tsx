@@ -324,7 +324,7 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ visible, onC
             description: "Define tu camino con Programas y ve florecer tu Árbol. Deja que el Bio-Scan personalice tu viaje.",
             visual: (
                 <View style={styles.evolutionContainer}>
-                    <ResilienceTree size={110} daysPracticed={10} totalSteps={30} hideBlooms={true} />
+                    <ResilienceTree size={110} lightPoints={140} hideBlooms={true} />
                 </View>
             ),
         },

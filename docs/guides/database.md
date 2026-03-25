@@ -128,6 +128,7 @@ Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confia
 | `id` | UUID | Identificador único (vinculado a `auth.users`). |
 | `streak` | INT | Racha de días consecutivos. |
 | `resilience_score`| INT | Puntuación de resiliencia (Cálculo biométrico). |
+| `resilience_light`| INT | [NEW v2.55.0] Puntuación logarítmica para Fases Espirituales del Árbol (Default: 0). |
 | `has_seen_welcome_tour`| BOOL | [NEW v2.52.0] Estado de visualización del tour. |
 | `favorite_session_ids`| TEXT[] | IDs de sesiones favoritas (Cloud Sync v2.52.4). |
 | `completed_session_ids`| TEXT[] | IDs de sesiones finalizadas (Cloud Sync v2.52.4). |
@@ -144,4 +145,4 @@ Esta arquitectura garantiza el cumplimiento de normativas de privacidad y confia
 
 ---
 ---
-*Última revisión: 23 de Marzo de 2026 - Versión 2.53.0 (Sync & Challenges Hardened)*
+*Última revisión: 25 de Marzo de 2026 - Versión 2.55.0 (Gamificación de Resiliencia)*
