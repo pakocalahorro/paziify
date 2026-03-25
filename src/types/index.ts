@@ -43,7 +43,7 @@ export interface ActiveChallenge {
     startDate: string;       // ISO string
     daysCompleted: number;   // Current progress
     totalDays: number;       // 3, 7, 10, 30
-    currentSessionSlug: string; // The session slug to play today
+    currentSessionSlug: string | { category: string; mood?: string; intent?: string }; // Soporta slug duro o SessionTheme dinámico
     lastSessionCompletedDate?: string; // To prevent double counting same day
 }
 
