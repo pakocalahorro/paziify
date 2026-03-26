@@ -205,7 +205,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                     onBack={() => navigation.goBack()}
                     onPathPress={(index) => {
                         if (index === 0) navigation.navigate(Screen.HOME as any);
-                        if (index === 1) (navigation as any).navigate('ProfileTab', { screen: Screen.PROFILE });
+                        if (index === 1) navigation.goBack(); // Resuelve la caída de performance manteniendo la caché del bottom tab
                     }}
                 />
             }
@@ -261,8 +261,10 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                                             : "Tu dedicación mensual fortalece tu oasis interior."}
                                     </Text>
                                 </View>
-                                <View style={styles.heroTreeContainer}>
-                                    <ResilienceTree size={90} lightPoints={lightPoints} hideBlooms={false} />
+                                <View style={[styles.heroTreeContainer, { overflow: 'visible' }]}>
+                                    <View style={{ transform: [{ scale: 0.65 }], width: 160, alignItems: 'center', justifyContent: 'center' }}>
+                                        <ResilienceTree size={160} lightPoints={lightPoints} hideBlooms={false} isStatic={true} />
+                                    </View>
                                 </View>
                             </View>
                         </View>

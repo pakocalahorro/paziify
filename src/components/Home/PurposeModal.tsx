@@ -44,7 +44,7 @@ const PurposeModal: React.FC<PurposeModalProps> = ({ isVisible, onAccept, onClos
                     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
                         <View style={styles.header}>
                             <View style={styles.treeWrapper}>
-                                <ResilienceTree lightPoints={50} size={100} isGuest={false} />
+                                <ResilienceTree lightPoints={50} size={100} isGuest={false} isStatic={true} />
                             </View>
                             <Text style={styles.title}>Diseña tu Evolución</Text>
                             <Text style={styles.subtitle}>Paziify se adapta a tu ritmo y compromiso.</Text>

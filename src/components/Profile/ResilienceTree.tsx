@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import {
     Canvas,
     Path,
@@ -7,7 +7,7 @@ import {
     Group,
     Circle,
 } from '@shopify/react-native-skia';
-import {
+import Animated, {
     useSharedValue,
     withTiming,
     withRepeat,
@@ -15,6 +15,8 @@ import {
     useDerivedValue,
     Easing,
     cancelAnimation,
+    FadeIn,
+    FadeOut
 } from 'react-native-reanimated';
 import { theme } from '../../constants/theme';
 
@@ -41,33 +43,41 @@ const getBezierPoint = (t: number, p0: number[], p1: number[], p2: number[]) => 
 
 /**
  * Componente "Lightweight" para las luces.
- * Solo usa 1 hook de posición (pos). El pulso y halo vienen de fuera.
- * 60 luces x 1 hook = 60 hooks (Perfectamente fluido para React Native).
+ * Usa 1 reloj global (globalClock) y aplica desfase matemático mediante el índice.
+ * 0 hooks independientes de Timer. Rendimiento nativo total.
  */
-const BloomLight = ({ points, growth, pulse, halo, isActive, colors, glowOpacity }: any) => {
-    // 🌟 REGLA DE HOOKS: Todos los hooks deben llamarse incondicionalmente al inicio
+const BloomLight = ({ points, growth, globalClock, index, colors, glowOpacity, isStatic, targetGrowth }: any) => {
+    // ESTÁTICO: Renderizado matemático puro en 0ms. ¡CERO HOOKS de Reanimated!
+    if (isStatic) {
+        const p = getBezierPoint(targetGrowth, points[0], points[1], points[2]);
+        const op = targetGrowth > 0.1 ? 1 : 0;
+        return (
+            <Group opacity={op}>
+                <Circle cx={p.x} cy={p.y} r={11} color={colors.haloOuter} />
+                <Circle cx={p.x} cy={p.y} r={6} color={colors.halo}  />
+                <Circle cx={p.x} cy={p.y} r={4} color={colors.glow} />
+                <Circle cx={p.x} cy={p.y} r={1.8} color={colors.core} />
+            </Group>
+        );
+    }
+
+    // DINÁMICO: Matemática de shaders (Onda senoidal con desfase precalculado)
     const pos = useDerivedValue(() => getBezierPoint(growth.value, points[0], points[1], points[2]));
-    
-    // El aura responde al estado del componente + Fade-In global (Wow Effect)
-    const opacity = useDerivedValue(() => (isActive && growth.value > 0.1) ? glowOpacity.value : 0);
+    const opacity = useDerivedValue(() => (growth.value > 0.1) ? glowOpacity.value : 0);
     const cx = useDerivedValue(() => pos.value.x);
     const cy = useDerivedValue(() => pos.value.y);
-    const haloRadiusLarge = useDerivedValue(() => 22 * halo.value);
-    const haloRadiusMed = useDerivedValue(() => 12 * halo.value);
-    const pulseRadius = useDerivedValue(() => 8 * pulse.value);
-
-    // Si no está activo, retornamos null DESPUÉS de haber llamado a los hooks
-    if (!isActive) return null;
+    
+    // El desfase crea la ilusión de luces vivas y orgánicas a coste de CPU de cero
+    const offset = index * 0.4;
+    const pulseRadius = useDerivedValue(() => 4 + 4 * ((Math.sin(globalClock.value + offset) + 1) / 2));
+    const haloRadiusMed = useDerivedValue(() => 7.2 + 4.8 * ((Math.sin(globalClock.value * 1.5 + offset) + 1) / 2));
+    const haloRadiusLarge = useDerivedValue(() => 13.2 + 8.8 * ((Math.sin(globalClock.value * 1.5 + offset) + 1) / 2));
 
     return (
         <Group opacity={opacity}>
-            {/* Halo Exterior */}
             <Circle cx={cx} cy={cy} r={haloRadiusLarge} color={colors.haloOuter} />
-            {/* Halo Medio */}
             <Circle cx={cx} cy={cy} r={haloRadiusMed} color={colors.halo}  />
-            {/* Glow Central */}
             <Circle cx={cx} cy={cy} r={pulseRadius} color={colors.glow} />
-            {/* Núcleo base permanente */}
             <Circle cx={cx} cy={cy} r={1.8} color={colors.core} />
         </Group>
     );
@@ -78,13 +88,15 @@ interface ResilienceTreeProps {
     size?: number;
     isGuest?: boolean;
     hideBlooms?: boolean;
+    isStatic?: boolean;
 }
 
 const ResilienceTree: React.FC<ResilienceTreeProps> = ({
     lightPoints = 0,
     size = 250,
     isGuest = false,
-    hideBlooms = false
+    hideBlooms = false,
+    isStatic = false
 }) => {
     const [containerWidth, setContainerWidth] = useState(size);
     
@@ -94,9 +106,19 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
     const progressInLevel = points % 100;
     const targetGrowth = isGuest ? 0.35 : 0.2 + (Math.log(progressInLevel + 1) / Math.log(101)) * 0.8;
     
-    // Carga la forma orgánica a 0 MILISEGUNDOS! (Sin estrés visual)
+    // 🌟 RENDERIZADO DIFERIDO (Ocultación temporal del Skia Canvas)
+    const [isSkiaMounted, setIsSkiaMounted] = useState(isStatic);
+
+    useEffect(() => {
+        if (!isStatic) {
+            const timer = setTimeout(() => setIsSkiaMounted(true), 350); 
+            return () => clearTimeout(timer);
+        }
+    }, [isStatic]);
+
+    // Carga la forma orgánica al 100% instantáneamente (Sin esperas artificiales o sensación de lag)
     const growth = useSharedValue(targetGrowth);
-    const glowOpacity = useSharedValue(0);
+    const glowOpacity = useSharedValue(1);
 
     // Niveles de Consciencia y Aura Logarítmica
     const colors = useMemo(() => [
@@ -108,56 +130,42 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
     ], []);
     const activeColor = colors[Math.min(level, 4)];
 
-    // 🌟 POOL DE ANIMACIONES (Solo 6 patrones para ahorro masivo de hooks)
-    const pulsePool = [
-        useSharedValue(0.7), useSharedValue(0.8), useSharedValue(0.6),
-        useSharedValue(0.9), useSharedValue(0.75), useSharedValue(0.65)
-    ];
-    const haloPool = [
-        useSharedValue(0.5), useSharedValue(0.6), useSharedValue(0.4),
-        useSharedValue(0.55), useSharedValue(0.45), useSharedValue(0.5)
-    ];
+    // 🌟 ARQUITECTURA GAME ENGINE: Un solo reloj global interactivo (Cero fugas de memoria)
+    const globalClock = useSharedValue(0);
 
     useEffect(() => {
-        // En caso de reactividad real (UI ganando puntos in situ)
-        growth.value = withTiming(targetGrowth, {
-            duration: 1200,
-            easing: Easing.out(Easing.exp),
-        });
-        
-        // WOW EFFECT: Aparición paulatina del poder del usuario tras 0s de carga.
-        glowOpacity.value = withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.ease) });
+        if (isStatic) {
+            growth.value = targetGrowth;
+            glowOpacity.value = 1;
+            return;
+        }
 
-        // Iniciamos el pool de animaciones globales
-        pulsePool.forEach((p, i) => {
-            p.value = withRepeat(
-                withSequence(
-                    withTiming(1.4, { duration: 1200 + (i * 150), easing: Easing.inOut(Easing.sin) }),
-                    withTiming(0.6, { duration: 1200 + (i * 150), easing: Easing.inOut(Easing.sin) })
-                ), -1, true
-            );
-        });
-        haloPool.forEach((h, i) => {
-            h.value = withRepeat(
-                withSequence(
-                    withTiming(1.3, { duration: 2200 + (i * 200), easing: Easing.inOut(Easing.sin) }),
-                    withTiming(0.4, { duration: 2200 + (i * 200), easing: Easing.inOut(Easing.sin) })
-                ), -1, true
-            );
-        });
+        // Si cambia el nivel dinámicamente en tiempo real, lo animamos.
+        // (Si es la carga inicial en Perfil, al haber inicializado en 1 y targetGrowth, el timing se obvia a 0ms reales)
+        growth.value = withTiming(targetGrowth, { duration: 1200, easing: Easing.out(Easing.exp) });
+        glowOpacity.value = withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.ease) });
+
+        // Único bucle infinito que alimenta matemáticamente a todos los nodos
+        globalClock.value = withRepeat(
+            withTiming(Math.PI * 2, { duration: 3000, easing: Easing.linear }),
+            -1,
+            false
+        );
 
         return () => {
             cancelAnimation(growth);
-            pulsePool.forEach(cancelAnimation);
-            haloPool.forEach(cancelAnimation);
+            cancelAnimation(glowOpacity);
+            cancelAnimation(globalClock);
         };
-    }, [targetGrowth]);
+    }, [targetGrowth, isStatic]);
 
-    // 1. Geometría estática
+    // 1. Geometría estática masivamente optimizada (Skia Path Clustering)
     const treeData = useMemo(() => {
         const cx = containerWidth / 2;
         const by = size - TREE_CONFIG.baseOffset;
-        const branches: { path: any; depth: number; points: number[][] }[] = [];
+        
+        // Creamos un Path centralizador para cada profundidad (1 a maxDepth)
+        const depthPaths = Array.from({ length: TREE_CONFIG.maxDepth + 1 }, () => Skia.Path.Make());
         const blooms: { points: number[][] }[] = [];
 
         const trunkPath = Skia.Path.Make();
@@ -184,10 +192,9 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
                 const midX = x + (ex - x) * 0.5 + (Math.cos(ang + 0.4) * 5);
                 const midY = y + (ey - y) * 0.5 + (Math.sin(ang + 0.4) * 5);
 
-                const p = Skia.Path.Make();
-                p.moveTo(x, y);
-                p.quadTo(midX, midY, ex, ey);
-                branches.push({ path: p, depth, points: [[x, y], [midX, midY], [ex, ey]] });
+                // MÁGIA DE RENDIMIENTO ABSOLUTO: 0 llamadas al JSI Bridge. Escribimos la matemática puramente en el maestro.
+                depthPaths[depth].moveTo(x, y);
+                depthPaths[depth].quadTo(midX, midY, ex, ey);
 
                 if (depth === TREE_CONFIG.maxDepth) {
                     blooms.push({ points: [[x, y], [midX, midY], [ex, ey]] });
@@ -196,13 +203,20 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
             });
         };
 
-        generate(cx, by - th, -Math.PI / 2 - 0.5, size * 0.18, 1);
-        generate(cx, by - th, -Math.PI / 2 + 0.5, size * 0.18, 1);
-        generate(cx, by - th * 0.8, -Math.PI / 2 - 1.2, size * 0.15, 2);
-        generate(cx, by - th * 0.8, -Math.PI / 2 + 1.2, size * 0.15, 2);
+        // Generamos unicamente la copa maestra del árbol, eliminando las raíces horizontales
+        // para dar una estética de dosel elegante y reducir la geometría a la mitad exacta (64 luces).
+        generate(cx, by - th, -Math.PI / 2 - 0.45, size * 0.16, 1);
+        generate(cx, by - th, -Math.PI / 2 + 0.45, size * 0.16, 1);
 
-        return { trunkPath, branches, blooms };
+        // Retornamos los paths maestros filtrando los que estén vacíos
+        const activeDepthPaths = depthPaths
+            .map((path, index) => ({ path, depth: index }))
+            .filter(d => d.depth > 0 && !d.path.isEmpty());
+
+        return { trunkPath, activeDepthPaths, blooms };
     }, [size, containerWidth]);
+
+    const transformState = useDerivedValue(() => [{ scale: growth.value }]);
 
     return (
         <View
@@ -212,50 +226,64 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
                 if (w > 0 && w !== containerWidth) setContainerWidth(w);
             }}
         >
-            <Canvas style={StyleSheet.absoluteFill}>
-                <Group opacity={growth}>
-                    <Path path={treeData.trunkPath} color="white" />
+            {!isSkiaMounted ? (
+                <Animated.View entering={FadeIn} exiting={FadeOut.duration(200)} style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
+                    <ActivityIndicator size="small" color="rgba(255,255,255,0.4)" />
+                    <Text style={{ marginTop: 12, color: 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'Outfit_800ExtraBold', letterSpacing: 1.5, textTransform: 'uppercase' }}>
+                        Actualizando Evolución...
+                    </Text>
+                </Animated.View>
+            ) : (
+                <Animated.View entering={FadeIn.duration(150)} style={StyleSheet.absoluteFill}>
+                    <Canvas style={StyleSheet.absoluteFill}>
+                        <Group opacity={growth} transform={transformState} origin={{ x: containerWidth / 2, y: size - TREE_CONFIG.baseOffset }}>
+                            <Path path={treeData.trunkPath} color="white" />
 
-                    {treeData.branches.map((b, i) => (
-                        <Path
-                            key={`branch-${i}`}
-                            path={b.path}
-                            color="rgba(255,255,255,0.7)"
-                            style="stroke"
-                            strokeWidth={Math.max(0.7, 3 - b.depth * 0.5)}
-                            strokeCap="round"
-                            start={0}
-                            end={growth}
-                        />
-                    ))}
+                            {treeData.activeDepthPaths.map((b) => (
+                                <Path
+                                    key={`layer-${b.depth}`}
+                                    path={b.path}
+                                    color="rgba(255,255,255,0.7)"
+                                    style="stroke"
+                                    strokeWidth={Math.max(0.7, 3 - b.depth * 0.5)}
+                                    strokeCap="round"
+                                />
+                            ))}
 
-                    {!hideBlooms && treeData.blooms.map((bloom, i) => {
-                        let isActive = false;
-                        if (!isGuest) {
-                            const totalBlooms = treeData.blooms.length;
-                            const bloomsToLight = level >= 4 ? totalBlooms : Math.floor((progressInLevel / 100) * totalBlooms);
-                            isActive = points > 0 && i < Math.max(1, bloomsToLight);
-                        } else {
-                            isActive = i % 8 === 0;
-                        }
+                            {!hideBlooms && treeData.blooms.map((bloom, i) => {
+                                let isActive = false;
+                                if (!isGuest) {
+                                    const totalBlooms = treeData.blooms.length;
+                                    const bloomsToLight = level >= 4 ? totalBlooms : Math.floor((progressInLevel / 100) * totalBlooms);
+                                    
+                                    // MAGIA DE SIMETRÍA: Dispersión determinista con número Áureo (83)
+                                    // Garantiza que la nueva copa de 64 luces se ilumine de forma heterogénea perfecta
+                                    isActive = points > 0 && ((i * 83) % totalBlooms) < bloomsToLight;
+                                } else {
+                                    isActive = i % 8 === 0;
+                                }
 
-                        if (i > 100) return null;
+                                // CORTOCIRCUITO: Si la luz está apagada, devolvemos null ANTES de que instancie el componente hijo
+                                if (!isActive) return null;
 
-                        return (
-                            <BloomLight 
-                                key={`light-${i}`}
-                                points={bloom.points}
-                                growth={growth}
-                                pulse={pulsePool[i % 6]}
-                                halo={haloPool[i % 6]}
-                                isActive={isActive}
-                                colors={activeColor}
-                                glowOpacity={glowOpacity}
-                            />
-                        );
-                    })}
-                </Group>
-            </Canvas>
+                                return (
+                                    <BloomLight 
+                                        key={`light-${i}`}
+                                        points={bloom.points}
+                                        growth={growth}
+                                        globalClock={globalClock}
+                                        index={i}
+                                        colors={activeColor}
+                                        glowOpacity={glowOpacity}
+                                        isStatic={isStatic}
+                                        targetGrowth={targetGrowth}
+                                    />
+                                );
+                            })}
+                        </Group>
+                    </Canvas>
+                </Animated.View>
+            )}
         </View>
     );
 };

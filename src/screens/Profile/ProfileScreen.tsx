@@ -143,7 +143,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         >
             <StatusBar barStyle="light-content" />
             <View style={styles.container}>
-                <View style={styles.contentPadding}>
+                <View style={[styles.contentPadding, isStatsLoading && { opacity: 0.15 }]}>
                     {/* Resilience Tree Section */}
                     <BlurView intensity={40} tint="dark" style={styles.treeSection}>
                         <TouchableOpacity
@@ -276,12 +276,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
 
                     <View style={styles.statsBento}>
-                        {isStatsLoading ? (
-                            <View style={styles.statsLoadingPlaceholder}>
-                                <ActivityIndicator size="small" color={theme.colors.primary} />
-                                <Text style={styles.statsLoadingText}>Cargando tus datos...</Text>
-                            </View>
-                        ) : (
+                        {isStatsLoading ? null : (
                             <>
                             <View style={styles.bentoRow}>
                                 <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
@@ -394,6 +389,14 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         <Text style={styles.versionText}>Paziify v3.0.0 • Oasis Edition</Text>
                     </View>
                 </View>
+                {isStatsLoading && (
+                    <Animated.View entering={FadeIn} exiting={FadeOut} style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }]}>
+                        <ActivityIndicator size="large" color={theme.colors.primary} />
+                        <Text style={{ fontFamily: 'Outfit_800ExtraBold', color: '#FFF', fontSize: 18, marginTop: 20, letterSpacing: 1 }}>
+                            Cargando tu Evolución...
+                        </Text>
+                    </Animated.View>
+                )}
             </View>
             <WidgetTutorialModal
                 isVisible={showWidgetTutorial}
