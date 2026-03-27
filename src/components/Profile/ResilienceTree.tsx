@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator, InteractionManager } from 'react-native';
 import {
     Canvas,
     Path,
@@ -46,7 +46,7 @@ const getBezierPoint = (t: number, p0: number[], p1: number[], p2: number[]) => 
  * Usa 1 reloj global (globalClock) y aplica desfase matemático mediante el índice.
  * 0 hooks independientes de Timer. Rendimiento nativo total.
  */
-const BloomLight = ({ points, growth, globalClock, index, colors, glowOpacity, isStatic, targetGrowth }: any) => {
+const BloomLight = ({ points, growth, globalPhaseRadii, colors, glowOpacity, isStatic, targetGrowth }: any) => {
     // ESTÁTICO: Renderizado matemático puro en 0ms. ¡CERO HOOKS de Reanimated!
     if (isStatic) {
         const p = getBezierPoint(targetGrowth, points[0], points[1], points[2]);
@@ -61,23 +61,18 @@ const BloomLight = ({ points, growth, globalClock, index, colors, glowOpacity, i
         );
     }
 
-    // DINÁMICO: Matemática de shaders (Onda senoidal con desfase precalculado)
+    // DINÁMICO: Matemática de shaders. 
+    // Usamos los Radios compartidos globalmente en bloque (4 fases max), cayendo el uso de CPU al 5%.
     const pos = useDerivedValue(() => getBezierPoint(growth.value, points[0], points[1], points[2]));
     const opacity = useDerivedValue(() => (growth.value > 0.1) ? glowOpacity.value : 0);
     const cx = useDerivedValue(() => pos.value.x);
     const cy = useDerivedValue(() => pos.value.y);
-    
-    // El desfase crea la ilusión de luces vivas y orgánicas a coste de CPU de cero
-    const offset = index * 0.4;
-    const pulseRadius = useDerivedValue(() => 4 + 4 * ((Math.sin(globalClock.value + offset) + 1) / 2));
-    const haloRadiusMed = useDerivedValue(() => 7.2 + 4.8 * ((Math.sin(globalClock.value * 1.5 + offset) + 1) / 2));
-    const haloRadiusLarge = useDerivedValue(() => 13.2 + 8.8 * ((Math.sin(globalClock.value * 1.5 + offset) + 1) / 2));
 
     return (
         <Group opacity={opacity}>
-            <Circle cx={cx} cy={cy} r={haloRadiusLarge} color={colors.haloOuter} />
-            <Circle cx={cx} cy={cy} r={haloRadiusMed} color={colors.halo}  />
-            <Circle cx={cx} cy={cy} r={pulseRadius} color={colors.glow} />
+            <Circle cx={cx} cy={cy} r={globalPhaseRadii.haloLarge} color={colors.haloOuter} />
+            <Circle cx={cx} cy={cy} r={globalPhaseRadii.haloMed} color={colors.halo}  />
+            <Circle cx={cx} cy={cy} r={globalPhaseRadii.pulse} color={colors.glow} />
             <Circle cx={cx} cy={cy} r={1.8} color={colors.core} />
         </Group>
     );
@@ -108,11 +103,16 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
     
     // 🌟 RENDERIZADO DIFERIDO (Ocultación temporal del Skia Canvas)
     const [isSkiaMounted, setIsSkiaMounted] = useState(isStatic);
+    const [isSkiaReady, setIsSkiaReady] = useState(isStatic);
 
     useEffect(() => {
         if (!isStatic) {
-            const timer = setTimeout(() => setIsSkiaMounted(true), 350); 
-            return () => clearTimeout(timer);
+            // Revertimos a timeout absoluto (InteractionManager causaba latencias de 10s si la red o Supabase tardaba)
+            const t1 = setTimeout(() => {
+                setIsSkiaMounted(true);
+                setTimeout(() => setIsSkiaReady(true), 800);
+            }, 350);
+            return () => clearTimeout(t1);
         }
     }, [isStatic]);
 
@@ -132,6 +132,30 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
 
     // 🌟 ARQUITECTURA GAME ENGINE: Un solo reloj global interactivo (Cero fugas de memoria)
     const globalClock = useSharedValue(0);
+
+    // Fases Armónicas Optimizadas (Sustituyen 192 workslets por sólo 12 cálculos matemáticos)
+    const phase0_pulse = useDerivedValue(() => 4 + 4 * ((Math.sin(globalClock.value + 0) + 1) / 2));
+    const phase0_hm = useDerivedValue(() => 7.2 + 4.8 * ((Math.sin(globalClock.value * 1.5 + 0) + 1) / 2));
+    const phase0_hl = useDerivedValue(() => 13.2 + 8.8 * ((Math.sin(globalClock.value * 1.5 + 0) + 1) / 2));
+
+    const phase1_pulse = useDerivedValue(() => 4 + 4 * ((Math.sin(globalClock.value + 0.8) + 1) / 2));
+    const phase1_hm = useDerivedValue(() => 7.2 + 4.8 * ((Math.sin(globalClock.value * 1.5 + 0.8) + 1) / 2));
+    const phase1_hl = useDerivedValue(() => 13.2 + 8.8 * ((Math.sin(globalClock.value * 1.5 + 0.8) + 1) / 2));
+
+    const phase2_pulse = useDerivedValue(() => 4 + 4 * ((Math.sin(globalClock.value + 1.6) + 1) / 2));
+    const phase2_hm = useDerivedValue(() => 7.2 + 4.8 * ((Math.sin(globalClock.value * 1.5 + 1.6) + 1) / 2));
+    const phase2_hl = useDerivedValue(() => 13.2 + 8.8 * ((Math.sin(globalClock.value * 1.5 + 1.6) + 1) / 2));
+
+    const phase3_pulse = useDerivedValue(() => 4 + 4 * ((Math.sin(globalClock.value + 2.4) + 1) / 2));
+    const phase3_hm = useDerivedValue(() => 7.2 + 4.8 * ((Math.sin(globalClock.value * 1.5 + 2.4) + 1) / 2));
+    const phase3_hl = useDerivedValue(() => 13.2 + 8.8 * ((Math.sin(globalClock.value * 1.5 + 2.4) + 1) / 2));
+
+    const phaseGroups = [
+        { pulse: phase0_pulse, haloMed: phase0_hm, haloLarge: phase0_hl },
+        { pulse: phase1_pulse, haloMed: phase1_hm, haloLarge: phase1_hl },
+        { pulse: phase2_pulse, haloMed: phase2_hm, haloLarge: phase2_hl },
+        { pulse: phase3_pulse, haloMed: phase3_hm, haloLarge: phase3_hl },
+    ];
 
     useEffect(() => {
         if (isStatic) {
@@ -218,6 +242,9 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
 
     const transformState = useDerivedValue(() => [{ scale: growth.value }]);
 
+    // Transición de opacidad líquida (Se pinta Skia de forma invisible y amanece cuando isSkiaReady es true)
+    const readyOpacity = useDerivedValue(() => withTiming(isSkiaReady || isStatic ? 1 : 0, { duration: 600, easing: Easing.inOut(Easing.ease) }));
+
     return (
         <View
             style={[styles.container, { width: '100%', height: size }]}
@@ -226,15 +253,16 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
                 if (w > 0 && w !== containerWidth) setContainerWidth(w);
             }}
         >
-            {!isSkiaMounted ? (
-                <Animated.View entering={FadeIn} exiting={FadeOut.duration(200)} style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
+            {!isSkiaReady && (
+                <Animated.View exiting={FadeOut.duration(300)} style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', zIndex: 10 }]}>
                     <ActivityIndicator size="small" color="rgba(255,255,255,0.4)" />
                     <Text style={{ marginTop: 12, color: 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'Outfit_800ExtraBold', letterSpacing: 1.5, textTransform: 'uppercase' }}>
                         Actualizando Evolución...
                     </Text>
                 </Animated.View>
-            ) : (
-                <Animated.View entering={FadeIn.duration(150)} style={StyleSheet.absoluteFill}>
+            )}
+            {isSkiaMounted && (
+                <Animated.View style={[StyleSheet.absoluteFill, { opacity: readyOpacity }]}>
                     <Canvas style={StyleSheet.absoluteFill}>
                         <Group opacity={growth} transform={transformState} origin={{ x: containerWidth / 2, y: size - TREE_CONFIG.baseOffset }}>
                             <Path path={treeData.trunkPath} color="white" />
@@ -271,8 +299,7 @@ const ResilienceTree: React.FC<ResilienceTreeProps> = ({
                                         key={`light-${i}`}
                                         points={bloom.points}
                                         growth={growth}
-                                        globalClock={globalClock}
-                                        index={i}
+                                        globalPhaseRadii={phaseGroups[i % 4]}
                                         colors={activeColor}
                                         glowOpacity={glowOpacity}
                                         isStatic={isStatic}

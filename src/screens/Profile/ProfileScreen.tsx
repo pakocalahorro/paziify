@@ -143,7 +143,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         >
             <StatusBar barStyle="light-content" />
             <View style={styles.container}>
-                <View style={[styles.contentPadding, isStatsLoading && { opacity: 0.15 }]}>
+                <View style={styles.contentPadding}>
                     {/* Resilience Tree Section */}
                     <BlurView intensity={40} tint="dark" style={styles.treeSection}>
                         <TouchableOpacity
@@ -276,8 +276,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
 
                     <View style={styles.statsBento}>
-                        {isStatsLoading ? null : (
-                            <>
                             <View style={styles.bentoRow}>
                                 <BlurView intensity={35} tint="dark" style={styles.bentoSmall}>
                                     <Text style={styles.bentoLabel}>Presencia Total</Text>
@@ -300,7 +298,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                             <View style={styles.bentoRow}>
                                 <TouchableOpacity
                                     style={{ flex: 1 }}
-                                    onPress={() => navigation.navigate(Screen.WEEKLY_REPORT)}
+                                    onPress={() => requestAnimationFrame(() => navigation.navigate(Screen.WEEKLY_REPORT))}
                                 >
                                     <BlurView intensity={45} tint="dark" style={[styles.bentoWide, styles.weeklyReportButton]}>
                                         <View style={styles.reportRow}>
@@ -309,7 +307,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                                     <Ionicons name="sparkles" size={18} color={theme.colors.primary} />
                                                     <Text style={styles.reportLabel}>Sinfonía de Bienestar</Text>
                                                 </View>
-                                                <Text style={styles.reportTitle}>Tu Reporte Semanal</Text>
+                                                <Text style={styles.reportTitle}>Tu Reporte de Calma</Text>
                                                 <Text style={styles.reportSubtitle}>Bio-Ritmo • Tendencias • Insights</Text>
                                             </View>
                                             <View style={styles.reportArrow}>
@@ -362,8 +360,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                                     )}
                                 </View>
                             )}
-                            </>
-                        )}
                     </View>
 
                     {/* BOTONES DE ACCIÓN */}
@@ -389,14 +385,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         <Text style={styles.versionText}>Paziify v3.0.0 • Oasis Edition</Text>
                     </View>
                 </View>
-                {isStatsLoading && (
-                    <Animated.View entering={FadeIn} exiting={FadeOut} style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }]}>
-                        <ActivityIndicator size="large" color={theme.colors.primary} />
-                        <Text style={{ fontFamily: 'Outfit_800ExtraBold', color: '#FFF', fontSize: 18, marginTop: 20, letterSpacing: 1 }}>
-                            Cargando tu Evolución...
-                        </Text>
-                    </Animated.View>
-                )}
             </View>
             <WidgetTutorialModal
                 isVisible={showWidgetTutorial}

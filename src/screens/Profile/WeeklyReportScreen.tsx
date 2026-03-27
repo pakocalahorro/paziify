@@ -154,6 +154,24 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
     
     // Preparar datos para HRV Diferencial (D-3)
     const hrvBaselineData = useMemo(() => {
+        if (timeRange === 'monthly') {
+            return [1, 2, 3, 4].map(week => {
+                const scansWeek = scans.filter(s => {
+                    const d = new Date(s.timestamp);
+                    const isPost = (s as any).scan_context === 'post_session' || s.context === 'post_session';
+                    if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && !isPost) {
+                        const day = d.getDate();
+                        if (week === 1 && day <= 7) return true;
+                        if (week === 2 && day > 7 && day <= 14) return true;
+                        if (week === 3 && day > 14 && day <= 21) return true;
+                        if (week === 4 && day > 21) return true;
+                    }
+                    return false;
+                });
+                const avg = scansWeek.length > 0 ? scansWeek.reduce((acc, s) => acc + s.hrv, 0) / scansWeek.length : null;
+                return { label: `S${week}`, value: avg ? Math.round(avg) : null };
+            });
+        }
         return currentWeekDays.map(d => {
             const dateStr = toLocalDateStr(d);
             const scansDay = scans.filter(s => {
@@ -163,9 +181,27 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
             const avg = scansDay.length > 0 ? scansDay.reduce((acc, s) => acc + s.hrv, 0) / scansDay.length : null;
             return { label: DAY_NAMES[d.getDay()], value: avg ? Math.round(avg) : null };
         });
-    }, [scans, currentWeekDays]);
+    }, [scans, currentWeekDays, timeRange, currentMonth, currentYear]);
 
     const hrvPostData = useMemo(() => {
+        if (timeRange === 'monthly') {
+            return [1, 2, 3, 4].map(week => {
+                const scansWeek = scans.filter(s => {
+                    const d = new Date(s.timestamp);
+                    const isPost = (s as any).scan_context === 'post_session' || s.context === 'post_session';
+                    if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && isPost) {
+                        const day = d.getDate();
+                        if (week === 1 && day <= 7) return true;
+                        if (week === 2 && day > 7 && day <= 14) return true;
+                        if (week === 3 && day > 14 && day <= 21) return true;
+                        if (week === 4 && day > 21) return true;
+                    }
+                    return false;
+                });
+                const avg = scansWeek.length > 0 ? scansWeek.reduce((acc, s) => acc + s.hrv, 0) / scansWeek.length : null;
+                return { label: `S${week}`, value: avg ? Math.round(avg) : null };
+            });
+        }
         return currentWeekDays.map(d => {
             const dateStr = toLocalDateStr(d);
             const scansDay = scans.filter(s => {
@@ -175,10 +211,28 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
             const avg = scansDay.length > 0 ? scansDay.reduce((acc, s) => acc + s.hrv, 0) / scansDay.length : null;
             return { label: DAY_NAMES[d.getDay()], value: avg ? Math.round(avg) : null };
         });
-    }, [scans, currentWeekDays]);
+    }, [scans, currentWeekDays, timeRange, currentMonth, currentYear]);
 
     // Preparar datos para Mood Score (C-7)
     const moodData = useMemo(() => {
+        if (timeRange === 'monthly') {
+            return [1, 2, 3, 4].map(week => {
+                const actWeek = activity.filter(a => {
+                    const parts = a.day.split('-');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[2], 10);
+                        if (week === 1 && day <= 7) return true;
+                        if (week === 2 && day > 7 && day <= 14) return true;
+                        if (week === 3 && day > 14 && day <= 21) return true;
+                        if (week === 4 && day > 21) return true;
+                    }
+                    return false;
+                });
+                const validMoods = actWeek.filter(a => a.avgMood !== undefined && a.avgMood > 0);
+                const avg = validMoods.length > 0 ? validMoods.reduce((acc, a) => acc + a.avgMood, 0) / validMoods.length : null;
+                return { label: `S${week}`, value: avg };
+            });
+        }
         return currentWeekDays.map(d => {
             const dateStr = toLocalDateStr(d);
             const match = activity.find(a => a.day.startsWith(dateStr));
@@ -187,7 +241,7 @@ const WeeklyReportScreen: React.FC<Props> = ({ navigation }) => {
                 value: (match?.avgMood !== undefined && match.avgMood > 0) ? match.avgMood : null 
             };
         });
-    }, [activity, currentWeekDays]);
+    }, [activity, currentWeekDays, timeRange]);
 
     const insight = generateWeeklyInsight(scans, stats.minutes, userState.streak, userState.name);
 
@@ -405,7 +459,7 @@ const KpiCard: React.FC<{ icon: string; value: string; label: string; color?: st
             <Text style={styles.kpiValue}>{value}</Text>
             <Text style={styles.kpiLabel}>{label.toUpperCase()}</Text>
         </BlurView>
-        <View style={styles.innerGlassBorder} pointerEvents="none" />
+        <View style={[styles.innerGlassBorder, { borderRadius: 16 }]} pointerEvents="none" />
     </View>
 );
 
@@ -528,9 +582,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         overflow: 'hidden',
         position: 'relative',
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.15)',
     },
     kpiCard: {
         alignItems: 'center', paddingVertical: 14,

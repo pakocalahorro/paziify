@@ -14,35 +14,32 @@ VOICE_PERSONAS = {
         'language_code': 'es-ES',
         'name': 'es-ES-Chirp3-HD-Vindemiatrix',
         'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
-        'rate': 0.72,
+        #'rate': 0.72,
+        'rate': 1,
         'pitch': 0.0
     },
     'ziro': { # Performance & Focus (UPGRADED TO CHIRP3-HD v2.14 - ENCELADUS)
         'language_code': 'es-ES',
         'name': 'es-ES-Chirp3-HD-Enceladus',
         'ssml_gender': texttospeech.SsmlVoiceGender.MALE,
-        'rate': 0.75,
-        'pitch': 0.0
-    },
-    'ziro_ssml': { # EL NUEVO ZIRO PARA ESTA PLANTILLA
-        'language_code': 'es-ES',
-        'name': 'es-ES-Chirp3-HD-Enceladus',
-        'ssml_gender': texttospeech.SsmlVoiceGender.MALE,
-        'rate': 1.0,  # <--- Velocidad neutra para que el SSML tome el control
+        #'rate': 0.75,
+        'rate': 1,
         'pitch': 0.0
     },
     'eter': { # Sleep & Resilience
         'language_code': 'es-ES',
         'name': 'es-ES-Studio-F',
         'ssml_gender': texttospeech.SsmlVoiceGender.MALE,
-        'rate': 0.75,
+        #'rate': 0.75,
+        'rate': 1,
         'pitch': 0.0 # Studio doesn't support pitch shifts nicely, so we keep 0 per audio.md
     },
     'gaia': { # Legacy Kids
         'language_code': 'es-ES',
         'name': 'es-ES-Chirp3-HD-Autonoe',
         'ssml_gender': texttospeech.SsmlVoiceGender.FEMALE,
-        'rate': 0.80,
+        #'rate': 0.80,
+        'rate': 1,
         'pitch': 0.0
     },
     'nova_v1': { # Nova Variant 1: Female Teen, Balanced
